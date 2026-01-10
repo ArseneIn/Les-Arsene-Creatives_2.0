@@ -1,0 +1,11 @@
+{
+    "files.exclude": {
+        "Smart_Curuza/mobile_flutter_backup": true
+    },
+    "search.exclude": {
+        "Smart_Curuza/mobile_flutter_backup": true
+    },
+    "dart.analysisExcludedFolders": [
+        "Smart_Curuza/mobile_flutter_backup"
+    ]
+}
