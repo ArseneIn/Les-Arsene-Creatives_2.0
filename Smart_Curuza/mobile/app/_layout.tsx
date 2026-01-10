@@ -1,0 +1,35 @@
+import { Stack } from 'expo-router';
+import { useFonts } from 'expo-font';
+import { Poppins_600SemiBold, Poppins_700Bold } from '@expo-google-fonts/poppins';
+import { Montserrat_400Regular, Montserrat_500Medium } from '@expo-google-fonts/montserrat';
+import { useEffect } from 'react';
+import * as SplashScreen from 'expo-splash-screen';
+import "../global.css";
+
+SplashScreen.preventAutoHideAsync();
+
+export default function RootLayout() {
+    const [loaded, error] = useFonts({
+        Poppins_600SemiBold,
+        Poppins_700Bold,
+        Montserrat_400Regular,
+        Montserrat_500Medium,
+    });
+
+    useEffect(() => {
+        if (loaded || error) {
+            SplashScreen.hideAsync();
+        }
+    }, [loaded, error]);
+
+    if (!loaded && !error) {
+        return null;
+    }
+
+    return (
+        <Stack screenOptions={{ headerShown: false }}>
+            <Stack.Screen name="index" />
+            <Stack.Screen name="(tabs)" />
+        </Stack>
+    );
+}

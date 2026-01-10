@@ -1,0 +1,72 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html {
+  font-size: 14px;
+}
+
+:root {
+  /* Color Palette Variables */
+  --color-onyx: #0b0c0c;
+  --color-jet: #2a2e34;
+  --color-platinum: #e9eaec;
+  --color-gold: #fbe134;
+  --color-saffron: #e4b61a;
+
+  /* Semantic Variables */
+  --foreground-rgb: 11, 12, 12;
+  --background-rgb: 233, 234, 236;
+  --accent-rgb: 251, 225, 52;
+}
+
+body {
+  color: rgb(var(--foreground-rgb));
+  background-color: #f8f9fa;
+  font-family: var(--font-montserrat);
+  /* Changed to Montserrat for body text */
+  background-image: url('/bg-pattern-doodles.png');
+  background-repeat: repeat;
+  background-size: 250px;
+  background-attachment: fixed;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f2f2f4;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #b7bac0;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #858a95;
+}
+
+/* Utility Classes */
+.text-gradient-gold {
+  background: linear-gradient(135deg, #fbe134 0%, #e4b61a 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.bg-gradient-gold {
+  background: linear-gradient(135deg, #fbe134 0%, #e4b61a 100%);
+}
+
+.shadow-gold {
+  box-shadow: 0 4px 14px 0 rgba(251, 225, 52, 0.2);
+}
+
+.border-gold-glow {
+  border-color: #fbe134;
+  box-shadow: 0 0 10px rgba(251, 225, 52, 0.3);
+}

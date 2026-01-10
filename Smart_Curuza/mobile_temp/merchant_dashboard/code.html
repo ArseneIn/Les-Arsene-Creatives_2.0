@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Smart-Curuza Merchant Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,typography,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#FACC15", // Gold
+                        "background-light": "#F3F4F6", // Platinum
+                        "background-dark": "#0F172A",
+                        "card-dark": "#1E293B",
+                        "accent-blue": "#3B82F6",
+                        "accent-red": "#EF4444",
+                    },
+                    fontFamily: {
+                        display: ["Plus Jakarta Sans", "sans-serif"],
+                        sans: ["Plus Jakarta Sans", "sans-serif"],
+                    },
+                    borderRadius: {
+                        DEFAULT: "1rem",
+                    },
+                },
+            },
+        };
+    </script>
+<style type="text/tailwindcss">
+        @layer base {
+            body {
+                @apply bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 antialiased;
+                -webkit-tap-highlight-color: transparent;
+            }
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .nav-label-center {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="min-h-screen">
+<header class="px-6 pt-14 pb-10 bg-white dark:bg-card-dark rounded-b-[3rem] shadow-sm relative z-10">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="w-12 h-12 bg-primary rounded-2xl flex items-center justify-center font-bold text-slate-900 shadow-lg shadow-primary/30">
+                XX
+            </div>
+<div>
+<p class="text-[11px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-tight">Good Morning,</p>
+<h1 class="text-xl font-bold tracking-tight">Xxx Fashion House</h1>
+</div>
+</div>
+<div class="flex items-center gap-1.5 bg-green-50 dark:bg-green-900/20 px-3 py-1.5 rounded-full border border-green-100 dark:border-green-800/30">
+<span class="w-2 h-2 bg-green-500 rounded-full shadow-[0_0_8px_rgba(34,197,94,0.6)]"></span>
+<span class="text-[10px] font-bold text-green-600 dark:text-green-400 uppercase tracking-wider">Online</span>
+</div>
+</div>
+</header>
+<main class="px-5 -mt-6 pb-36 relative z-20">
+<div class="space-y-3">
+<div class="bg-white dark:bg-card-dark p-6 rounded-[2rem] border-t-4 border-primary shadow-xl shadow-slate-200/50 dark:shadow-none">
+<div class="flex justify-between items-start">
+<div>
+<p class="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">Today's Sales</p>
+<h2 class="text-3xl font-extrabold mt-1 text-slate-900 dark:text-white">45,200 <span class="text-lg font-medium opacity-60">RWF</span></h2>
+</div>
+<div class="w-12 h-12 bg-primary/10 rounded-2xl flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-3xl">payments</span>
+</div>
+</div>
+<div class="flex items-center gap-1.5 mt-4 px-3 py-1 bg-green-50 dark:bg-green-900/10 w-fit rounded-full">
+<span class="material-symbols-outlined text-sm text-green-500">trending_up</span>
+<span class="text-xs font-bold text-green-600 dark:text-green-400">12% more than yesterday</span>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-3">
+<div class="bg-white dark:bg-card-dark p-4 rounded-[2rem] border-t-4 border-accent-blue shadow-md">
+<div class="flex justify-between items-start mb-2">
+<div class="w-10 h-10 bg-accent-blue/10 rounded-xl flex items-center justify-center text-accent-blue">
+<span class="material-symbols-outlined">inventory_2</span>
+</div>
+</div>
+<p class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Total Stock</p>
+<p class="text-xl font-bold mt-1">1,248</p>
+<p class="text-[10px] text-slate-400 mt-2 flex items-center gap-1">
+<span class="material-symbols-outlined text-[12px]">schedule</span> 1h ago
+                </p>
+</div>
+<div class="bg-white dark:bg-card-dark p-4 rounded-[2rem] border-t-4 border-accent-red shadow-md">
+<div class="flex justify-between items-start mb-2">
+<div class="w-10 h-10 bg-accent-red/10 rounded-xl flex items-center justify-center text-accent-red">
+<span class="material-symbols-outlined">group</span>
+</div>
+</div>
+<p class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Debt</p>
+<p class="text-xl font-bold mt-1 text-accent-red">50,900</p>
+<p class="text-[10px] text-accent-red/70 mt-2 flex items-center gap-1">
+<span class="material-symbols-outlined text-[12px]">error</span> 3 Pending
+                </p>
+</div>
+</div>
+</div>
+<div class="mt-8">
+<h3 class="text-xs font-extrabold text-slate-400 dark:text-slate-500 uppercase tracking-[0.15em] mb-4 ml-1">Merchant Operations</h3>
+<div class="grid grid-cols-2 gap-4">
+<button class="bg-white dark:bg-card-dark p-5 rounded-[2.5rem] flex flex-col items-center text-center gap-3 shadow-sm border border-slate-100 dark:border-slate-800 active:bg-slate-50 dark:active:bg-slate-800 transition-colors">
+<div class="w-14 h-14 bg-amber-50 dark:bg-amber-900/20 rounded-2xl flex items-center justify-center text-amber-500">
+<span class="material-symbols-outlined text-3xl">add_shopping_cart</span>
+</div>
+<div>
+<span class="font-bold text-sm block">New Sale</span>
+<span class="text-[10px] text-slate-400 font-medium">Create checkout</span>
+</div>
+</button>
+<button class="bg-white dark:bg-card-dark p-5 rounded-[2.5rem] flex flex-col items-center text-center gap-3 shadow-sm border border-slate-100 dark:border-slate-800 active:bg-slate-50 dark:active:bg-slate-800 transition-colors">
+<div class="w-14 h-14 bg-blue-50 dark:bg-blue-900/20 rounded-2xl flex items-center justify-center text-blue-500">
+<span class="material-symbols-outlined text-3xl">post_add</span>
+</div>
+<div>
+<span class="font-bold text-sm block">Add Product</span>
+<span class="text-[10px] text-slate-400 font-medium">Update inventory</span>
+</div>
+</button>
+<button class="bg-white dark:bg-card-dark p-5 rounded-[2.5rem] flex flex-col items-center text-center gap-3 shadow-sm border border-slate-100 dark:border-slate-800 active:bg-slate-50 dark:active:bg-slate-800 transition-colors">
+<div class="w-14 h-14 bg-purple-50 dark:bg-purple-900/20 rounded-2xl flex items-center justify-center text-purple-500">
+<span class="material-symbols-outlined text-3xl">diversity_3</span>
+</div>
+<div>
+<span class="font-bold text-sm block">Customers</span>
+<span class="text-[10px] text-slate-400 font-medium">Manage loyalty</span>
+</div>
+</button>
+<button class="bg-white dark:bg-card-dark p-5 rounded-[2.5rem] flex flex-col items-center text-center gap-3 shadow-sm border border-slate-100 dark:border-slate-800 relative active:bg-slate-50 dark:active:bg-slate-800 transition-colors">
+<div class="w-14 h-14 bg-emerald-50 dark:bg-emerald-900/20 rounded-2xl flex items-center justify-center text-emerald-500">
+<span class="material-symbols-outlined text-3xl">cloud_sync</span>
+</div>
+<div>
+<span class="font-bold text-sm block">Sync Data</span>
+<span class="text-[10px] text-slate-400 font-medium">Cloud backup</span>
+</div>
+<span class="absolute top-4 right-8 flex h-2.5 w-2.5">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+<span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500 border border-white dark:border-card-dark"></span>
+</span>
+</button>
+</div>
+</div>
+<div class="mt-8">
+<div class="flex items-center justify-between mb-4 px-1">
+<h3 class="text-xs font-extrabold text-slate-400 dark:text-slate-500 uppercase tracking-widest">Recent Activity</h3>
+<button class="text-primary text-[11px] font-bold uppercase tracking-wider">Show More</button>
+</div>
+<div class="space-y-3">
+<div class="bg-white dark:bg-card-dark p-4 rounded-3xl flex items-center justify-between shadow-sm border border-slate-50 dark:border-slate-800/50">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 bg-slate-100 dark:bg-slate-800 rounded-2xl flex items-center justify-center">
+<span class="material-symbols-outlined text-slate-500 text-xl">receipt_long</span>
+</div>
+<div>
+<p class="font-bold text-sm">Sale #84920</p>
+<p class="text-[10px] text-slate-400 font-medium">10:45 AM • 2 items • Cash</p>
+</div>
+</div>
+<p class="font-bold text-sm text-green-600">+12,500 RWF</p>
+</div>
+<div class="bg-white dark:bg-card-dark p-4 rounded-3xl flex items-center justify-between shadow-sm border border-slate-50 dark:border-slate-800/50">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 bg-slate-100 dark:bg-slate-800 rounded-2xl flex items-center justify-center">
+<span class="material-symbols-outlined text-slate-500 text-xl">receipt_long</span>
+</div>
+<div>
+<p class="font-bold text-sm">Sale #84919</p>
+<p class="text-[10px] text-slate-400 font-medium">09:12 AM • 1 item • Mobile</p>
+</div>
+</div>
+<p class="font-bold text-sm text-green-600">+4,200 RWF</p>
+</div>
+</div>
+</div>
+</main>
+<nav class="fixed bottom-0 left-0 right-0 bg-white dark:bg-card-dark border-t border-slate-100 dark:border-slate-800 px-4 pt-3 pb-8 flex justify-between items-center rounded-t-[2.5rem] shadow-[0_-15px_30px_-10px_rgba(0,0,0,0.1)] z-50">
+<button class="nav-label-center text-primary flex-1">
+<span class="material-symbols-outlined mb-1">home</span>
+<span class="text-[10px] font-bold">Home</span>
+</button>
+<button class="nav-label-center text-slate-400 flex-1">
+<span class="material-symbols-outlined mb-1">history</span>
+<span class="text-[10px] font-bold">History</span>
+</button>
+<div class="flex flex-col items-center justify-end -mt-16 px-4 z-50">
+<button class="bg-primary w-16 h-16 rounded-full flex items-center justify-center text-slate-900 shadow-[0_8px_20px_rgba(250,204,21,0.4)] border-4 border-background-light dark:border-background-dark active:scale-90 transition-transform relative overflow-hidden">
+<span class="material-symbols-outlined text-3xl font-bold">qr_code_scanner</span>
+</button>
+<span class="text-[10px] font-black text-slate-900 dark:text-white mt-2 uppercase tracking-tighter">Quick Sale</span>
+</div>
+<button class="nav-label-center text-slate-400 flex-1">
+<span class="material-symbols-outlined mb-1">monitoring</span>
+<span class="text-[10px] font-bold">Reports</span>
+</button>
+<button class="nav-label-center text-slate-400 flex-1">
+<span class="material-symbols-outlined mb-1">person</span>
+<span class="text-[10px] font-bold">Profile</span>
+</button>
+</nav>
+<div class="fixed top-6 left-1/2 -translate-x-1/2 z-[60] pointer-events-none hidden">
+<div class="bg-slate-900/90 backdrop-blur-md text-white text-[10px] px-4 py-1.5 rounded-full flex items-center gap-2 border border-white/10 shadow-lg">
+<span class="material-symbols-outlined text-sm">cloud_off</span>
+<span class="font-bold uppercase tracking-widest">Offline Mode</span>
+</div>
+</div>
+
+</body></html>

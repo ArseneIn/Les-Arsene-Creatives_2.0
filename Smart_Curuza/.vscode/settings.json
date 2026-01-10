@@ -1,0 +1,17 @@
+{
+    "sqltools.connections": [
+        {
+            "ssh": "Disabled",
+            "previewLimit": 50,
+            "server": "localhost",
+            "port": 5432,
+            "askForPassword": true,
+            "driver": "PostgreSQL",
+            "database": "smart_curuza",
+            "username": "postgres",
+            "name": "smart_curuza conn"
+        }
+    ],
+    "git.ignoreLimitWarning": true,
+    "css.lint.unknownAtRules": "ignore"
+}

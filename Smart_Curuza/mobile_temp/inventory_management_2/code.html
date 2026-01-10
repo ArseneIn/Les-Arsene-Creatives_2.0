@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Add New Product - Smart Curuza</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&amp;family=Poppins:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#137fec",
+                        "gold": "#fbe134",
+                        "platinum": "#e9eaec",
+                        "dark-bg": "#101922",
+                    },
+                    fontFamily: {
+                        "display": ["Poppins", "sans-serif"],
+                        "body": ["Montserrat", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "xl": "0.75rem",
+                        "2xl": "1rem",
+                        "3xl": "1.5rem",
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            min-height: 100vh;
+            min-height: 100dvh;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-platinum dark:bg-dark-bg font-body text-gray-900 dark:text-gray-100 antialiased overflow-hidden">
+<div class="relative flex h-full w-full flex-col max-w-md mx-auto bg-platinum dark:bg-dark-bg shadow-2xl h-screen overflow-hidden">
+<header class="flex items-center justify-between px-6 pt-12 pb-4 bg-platinum dark:bg-dark-bg z-20 shrink-0 border-b border-gray-200/50 dark:border-gray-800">
+<button class="text-base font-medium text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white transition-colors">
+                Cancel
+            </button>
+<h1 class="text-lg font-bold font-display text-[#111418] dark:text-white">Add Product</h1>
+<button class="bg-gold hover:bg-yellow-400 text-[#111418] text-sm font-bold px-5 py-2 rounded-full shadow-sm active:scale-95 transition-all">
+                Save
+            </button>
+</header>
+<main class="flex-1 overflow-y-auto px-6 pb-10 space-y-6 scrollbar-hide">
+<div class="w-full aspect-[16/9] mt-4 bg-white dark:bg-[#1e2832] rounded-3xl border-2 border-dashed border-gray-300 dark:border-gray-700 flex flex-col items-center justify-center gap-3 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors group">
+<div class="w-14 h-14 rounded-full bg-platinum dark:bg-gray-700 flex items-center justify-center group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-gray-400 text-3xl">photo_camera</span>
+</div>
+<p class="text-sm font-medium text-gray-400 font-display group-hover:text-primary transition-colors">Tap to add photo</p>
+</div>
+<div class="space-y-5">
+<div class="space-y-2">
+<label class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wide ml-1 font-display">Product Name</label>
+<input class="w-full bg-white dark:bg-[#1e2832] border-none rounded-2xl p-4 text-base font-medium text-[#111418] dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-gold/50 shadow-sm transition-shadow" placeholder="e.g. Inyange Milk 1L" type="text"/>
+</div>
+<div class="space-y-2">
+<label class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wide ml-1 font-display">SKU / Barcode</label>
+<div class="relative flex items-center">
+<input class="w-full bg-white dark:bg-[#1e2832] border-none rounded-2xl p-4 pr-14 text-base font-medium text-[#111418] dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-gold/50 shadow-sm transition-shadow" placeholder="Scan or enter code" type="text"/>
+<button class="absolute right-2 p-2 bg-gray-100 dark:bg-gray-700 rounded-xl hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors text-gray-600 dark:text-gray-300">
+<span class="material-symbols-outlined text-[20px]">barcode_scanner</span>
+</button>
+</div>
+</div>
+<div class="space-y-2">
+<label class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wide ml-1 font-display">Category</label>
+<div class="relative">
+<select class="w-full bg-white dark:bg-[#1e2832] border-none rounded-2xl p-4 pr-10 text-base font-medium text-[#111418] dark:text-white shadow-sm appearance-none focus:ring-2 focus:ring-gold/50 transition-shadow">
+<option disabled="" selected="" value="">Select Category</option>
+<option value="food">Food</option>
+<option value="beverages">Beverages</option>
+<option value="electronics">Electronics</option>
+<option value="clothing">Clothing</option>
+<option value="household">Household</option>
+</select>
+<div class="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400 flex items-center">
+<span class="material-symbols-outlined">expand_more</span>
+</div>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-4">
+<div class="space-y-2">
+<label class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wide ml-1 font-display">Selling Price</label>
+<div class="relative">
+<input class="w-full bg-white dark:bg-[#1e2832] border-none rounded-2xl p-4 text-base font-medium text-[#111418] dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-gold/50 shadow-sm transition-shadow" placeholder="0" type="number"/>
+<span class="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-bold text-gray-400">RWF</span>
+</div>
+</div>
+<div class="space-y-2">
+<label class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wide ml-1 font-display">Cost Price</label>
+<div class="relative">
+<input class="w-full bg-white dark:bg-[#1e2832] border-none rounded-2xl p-4 text-base font-medium text-[#111418] dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-gold/50 shadow-sm transition-shadow" placeholder="0" type="number"/>
+<span class="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-bold text-gray-400">RWF</span>
+</div>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-4">
+<div class="space-y-2">
+<label class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wide ml-1 font-display">Initial Stock</label>
+<input class="w-full bg-white dark:bg-[#1e2832] border-none rounded-2xl p-4 text-base font-medium text-[#111418] dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-gold/50 shadow-sm transition-shadow" placeholder="0" type="number"/>
+</div>
+<div class="space-y-2">
+<label class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wide ml-1 font-display">Low Stock Alert</label>
+<div class="relative">
+<input class="w-full bg-white dark:bg-[#1e2832] border-none rounded-2xl p-4 text-base font-medium text-[#111418] dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-gold/50 shadow-sm transition-shadow" placeholder="10" type="number"/>
+</div>
+</div>
+</div>
+</div>
+<div class="h-8"></div>
+</main>
+</div>
+
+</body></html>

@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Smart-Curuza POS Mobile</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet"/>
+<script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#FACC15",
+                        "background-light": "#F8F9FA",
+                        "background-dark": "#111827",
+                        "card-light": "#FFFFFF",
+                        "card-dark": "#1F2937",
+                        "sidebar-dark": "#262626",
+                    },
+                    fontFamily: {
+                        display: ["Plus Jakarta Sans", "sans-serif"],
+                    },
+                    borderRadius: {
+                        DEFAULT: "12px",
+                    },
+                },
+            },
+        };
+    </script>
+<style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .ios-status-bar {
+            height: 44px;
+        }
+        .safe-bottom {
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 min-h-screen flex flex-col">
+<header class="bg-card-light dark:bg-card-dark pt-12 pb-4 px-4 shadow-sm sticky top-0 z-30">
+<div class="flex justify-between items-center mb-4">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 bg-primary rounded-full flex items-center justify-center font-bold text-slate-900 shadow-sm">
+                    XX
+                </div>
+<div>
+<h1 class="text-sm font-bold truncate">Xxx Fashion House</h1>
+<div class="flex items-center gap-1">
+<span class="w-2 h-2 bg-green-500 rounded-full"></span>
+<span class="text-[10px] text-slate-500 dark:text-slate-400">Kigali, Rwanda • Online</span>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-2">
+<button class="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-600 dark:text-slate-300">
+<span class="material-icons-outlined text-xl">notifications</span>
+</button>
+<div class="w-10 h-10 rounded-full bg-sidebar-dark flex items-center justify-center text-white border-2 border-primary">
+<span class="text-xs font-bold">U</span>
+</div>
+</div>
+</div>
+<div class="flex gap-2">
+<div class="relative flex-1">
+<span class="material-icons-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">search</span>
+<input class="w-full bg-slate-100 dark:bg-slate-800 border-none rounded-xl py-3 pl-10 pr-12 text-sm focus:ring-2 focus:ring-primary" placeholder="Search product or scan..." type="text"/>
+<button class="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center text-primary">
+<span class="material-icons-outlined">qr_code_scanner</span>
+</button>
+</div>
+<button class="bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 px-3 rounded-xl flex items-center gap-1 text-xs font-semibold">
+<span class="material-icons-outlined text-sm">history_toggle_off</span>
+<span>Open Shift</span>
+</button>
+</div>
+</header>
+<main class="flex-1 overflow-y-auto px-4 py-4 mb-24 no-scrollbar">
+<div class="flex justify-between items-center mb-4">
+<h2 class="font-bold text-lg">Point of Sale</h2>
+<button class="text-primary text-sm font-semibold flex items-center gap-1">
+<span class="material-icons-outlined text-sm">filter_alt</span>
+                Filter
+            </button>
+</div>
+<div class="grid grid-cols-2 gap-4">
+<div class="bg-card-light dark:bg-card-dark rounded-2xl overflow-hidden border border-slate-100 dark:border-slate-800 shadow-sm active:scale-[0.98] transition-transform">
+<div class="aspect-square bg-slate-100 dark:bg-slate-800 flex items-center justify-center relative">
+<span class="text-2xl font-bold text-slate-300 dark:text-slate-600">AM</span>
+<div class="absolute top-2 right-2 bg-white/90 dark:bg-slate-900/90 rounded-full px-2 py-0.5 text-[10px] font-bold text-green-600">
+                        25 pcs left
+                    </div>
+</div>
+<div class="p-3">
+<h3 class="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase truncate">amakaroni</h3>
+<p class="text-sm font-semibold mb-2 truncate">Santa Lucia Pasta</p>
+<div class="flex justify-between items-center">
+<span class="text-sm font-bold">1,200 RWF</span>
+<button class="w-8 h-8 bg-primary rounded-lg flex items-center justify-center text-slate-900">
+<span class="material-icons-outlined text-lg">add</span>
+</button>
+</div>
+</div>
+</div>
+<div class="bg-card-light dark:bg-card-dark rounded-2xl overflow-hidden border border-slate-100 dark:border-slate-800 shadow-sm active:scale-[0.98] transition-transform">
+<div class="aspect-square bg-slate-100 dark:bg-slate-800 flex items-center justify-center relative">
+<span class="text-2xl font-bold text-slate-300 dark:text-slate-600">AM</span>
+<div class="absolute top-2 right-2 bg-white/90 dark:bg-slate-900/90 rounded-full px-2 py-0.5 text-[10px] font-bold text-green-600">
+                        24 pcs left
+                    </div>
+</div>
+<div class="p-3">
+<h3 class="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase truncate">amavuta</h3>
+<p class="text-sm font-semibold mb-2 truncate">Cooking Oil</p>
+<div class="flex justify-between items-center">
+<span class="text-sm font-bold">1,400 RWF</span>
+<button class="w-8 h-8 bg-primary rounded-lg flex items-center justify-center text-slate-900">
+<span class="material-icons-outlined text-lg">add</span>
+</button>
+</div>
+</div>
+</div>
+<div class="bg-card-light dark:bg-card-dark rounded-2xl overflow-hidden border border-slate-100 dark:border-slate-800 shadow-sm active:scale-[0.98] transition-transform">
+<div class="aspect-square bg-slate-100 dark:bg-slate-800 flex items-center justify-center relative">
+<span class="text-2xl font-bold text-slate-300 dark:text-slate-600">AM</span>
+<div class="absolute top-2 right-2 bg-white/90 dark:bg-slate-900/90 rounded-full px-2 py-0.5 text-[10px] font-bold text-green-600">
+                        185 pcs
+                    </div>
+</div>
+<div class="p-3">
+<h3 class="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase truncate">amavuta</h3>
+<p class="text-sm font-semibold mb-2 truncate">Sunflower Oil</p>
+<div class="flex justify-between items-center">
+<span class="text-sm font-bold">9,500 RWF</span>
+<button class="w-8 h-8 bg-primary rounded-lg flex items-center justify-center text-slate-900">
+<span class="material-icons-outlined text-lg">add</span>
+</button>
+</div>
+</div>
+</div>
+<div class="bg-card-light dark:bg-card-dark rounded-2xl overflow-hidden border border-slate-100 dark:border-slate-800 shadow-sm active:scale-[0.98] transition-transform">
+<div class="aspect-square bg-slate-100 dark:bg-slate-800 flex items-center justify-center relative">
+<span class="text-2xl font-bold text-slate-300 dark:text-slate-600">IB</span>
+<div class="absolute top-2 right-2 bg-white/90 dark:bg-slate-900/90 rounded-full px-2 py-0.5 text-[10px] font-bold text-green-600">
+                        12 pcs left
+                    </div>
+</div>
+<div class="p-3">
+<h3 class="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase truncate">ibishyimbo</h3>
+<p class="text-sm font-semibold mb-2 truncate">Yellow Beans</p>
+<div class="flex justify-between items-center">
+<span class="text-sm font-bold">800 RWF</span>
+<button class="w-8 h-8 bg-primary rounded-lg flex items-center justify-center text-slate-900">
+<span class="material-icons-outlined text-lg">add</span>
+</button>
+</div>
+</div>
+</div>
+<div class="bg-card-light dark:bg-card-dark rounded-2xl overflow-hidden border border-slate-100 dark:border-slate-800 shadow-sm active:scale-[0.98] transition-transform">
+<div class="aspect-square bg-slate-100 dark:bg-slate-800 flex items-center justify-center relative">
+<span class="text-2xl font-bold text-slate-300 dark:text-slate-600">SA</span>
+<div class="absolute top-2 right-2 bg-white/90 dark:bg-slate-900/90 rounded-full px-2 py-0.5 text-[10px] font-bold text-green-600">
+                        45 pcs
+                    </div>
+</div>
+<div class="p-3">
+<h3 class="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase truncate">sabune</h3>
+<p class="text-sm font-semibold mb-2 truncate">Laundry Soap</p>
+<div class="flex justify-between items-center">
+<span class="text-sm font-bold">500 RWF</span>
+<button class="w-8 h-8 bg-primary rounded-lg flex items-center justify-center text-slate-900">
+<span class="material-icons-outlined text-lg">add</span>
+</button>
+</div>
+</div>
+</div>
+<div class="bg-card-light dark:bg-card-dark rounded-2xl overflow-hidden border border-slate-100 dark:border-slate-800 shadow-sm active:scale-[0.98] transition-transform">
+<div class="aspect-square bg-slate-100 dark:bg-slate-800 flex items-center justify-center relative">
+<span class="text-2xl font-bold text-slate-300 dark:text-slate-600">SU</span>
+<div class="absolute top-2 right-2 bg-white/90 dark:bg-slate-900/90 rounded-full px-2 py-0.5 text-[10px] font-bold text-green-600">
+                        60 pcs
+                    </div>
+</div>
+<div class="p-3">
+<h3 class="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase truncate">isukari</h3>
+<p class="text-sm font-semibold mb-2 truncate">White Sugar 1kg</p>
+<div class="flex justify-between items-center">
+<span class="text-sm font-bold">1,500 RWF</span>
+<button class="w-8 h-8 bg-primary rounded-lg flex items-center justify-center text-slate-900">
+<span class="material-icons-outlined text-lg">add</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</main>
+<div class="fixed bottom-20 left-4 right-4 z-40">
+<div class="bg-sidebar-dark text-white rounded-2xl p-4 shadow-2xl flex items-center justify-between border-t border-slate-700">
+<div class="flex items-center gap-3">
+<div class="relative">
+<span class="material-icons-outlined text-primary text-3xl">shopping_cart</span>
+<span class="absolute -top-1 -right-1 bg-red-500 text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center">3</span>
+</div>
+<div>
+<p class="text-[10px] text-slate-400 font-medium uppercase tracking-wider">3 Items in Cart</p>
+<p class="text-lg font-bold">12,100 <span class="text-xs text-slate-400">RWF</span></p>
+</div>
+</div>
+<button class="bg-primary hover:bg-yellow-500 text-slate-900 px-6 py-2.5 rounded-xl font-bold text-sm shadow-lg shadow-primary/20 transition-colors">
+                View Cart
+            </button>
+</div>
+</div>
+<nav class="fixed bottom-0 left-0 right-0 bg-card-light dark:bg-card-dark border-t border-slate-200 dark:border-slate-800 px-6 py-3 safe-bottom z-50 flex justify-between items-center">
+<button class="flex flex-col items-center gap-1 text-slate-400">
+<span class="material-icons-outlined">dashboard</span>
+<span class="text-[10px] font-medium">Home</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-primary">
+<span class="material-icons-outlined">point_of_sale</span>
+<span class="text-[10px] font-medium">POS</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-slate-400">
+<span class="material-icons-outlined">inventory_2</span>
+<span class="text-[10px] font-medium">Inventory</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-slate-400">
+<span class="material-icons-outlined">groups</span>
+<span class="text-[10px] font-medium">CRM</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-slate-400">
+<span class="material-icons-outlined">settings</span>
+<span class="text-[10px] font-medium">More</span>
+</button>
+</nav>
+<div class="fixed top-24 left-1/2 -translate-x-1/2 z-20">
+<div class="bg-green-500/10 backdrop-blur-md border border-green-500/20 text-green-600 dark:text-green-400 px-3 py-1 rounded-full flex items-center gap-1.5 shadow-sm">
+<span class="material-icons-outlined text-xs">offline_pin</span>
+<span class="text-[10px] font-bold">OFFLINE READY</span>
+</div>
+</div>
+
+</body></html>

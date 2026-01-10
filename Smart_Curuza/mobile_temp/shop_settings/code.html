@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Shop Settings - Smart-Curuza</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600&amp;family=Poppins:wght@500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
+<script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#FCD34D", // Gold/Yellow from screenshot
+                        "primary-hover": "#F59E0B",
+                        "background-light": "#F3F4F6",
+                        "background-dark": "#111827",
+                        "surface-light": "#FFFFFF",
+                        "surface-dark": "#1F2937",
+                        "sidebar-dark": "#28282B",
+                    },
+                    fontFamily: {
+                        display: ["Poppins", "sans-serif"],
+                        body: ["Montserrat", "sans-serif"],
+                    },
+                    borderRadius: {
+                        DEFAULT: "0.5rem",
+                    },
+                },
+            },
+        };
+    </script>
+<style>.bg-pattern {
+    background-color: #F3F4F6;
+    background-image: url(https://lh3.googleusercontent.com/aida-public/AB6AXuC3mP7grG_xn4Wxmeyje-KJ-VUzM5pIl9MistIKAifY9t8_vEcqVcsUu2yAOf0hGu4U_m6rGLxO75IKxcsT96oWbd_YWq-PA2KKGYD2WEsVV170ujxRW_I1bxCbMDPBMOCqoqH_bg_OO0GQjBEHx5EQ3bu_d8nWhe4xfPihUdJ1nRk-IKBsp3aLK2FQEMUeeV2NZy2ZJ3AZ6BpYvE4WeOi_dln5sZ3If6NupJApMuLpkXu_p1PdR4TgkrahPyociSQ2vbyvGszeYVRv)
+    }
+.dark .bg-pattern {
+    background-color: #111827;
+    background-image: url(https://lh3.googleusercontent.com/aida-public/AB6AXuCUai7EfjREJXROGuAXMJR-gKxrH_zkWtsyEy7kE1VPTh3vw9CmG_JpLCZ59zHtB1SBFgXOZ73qdlask-Rh6F260QSYYvJg0LgRUEZm1FrrWI6QQJ7IU-CdfPmnA_VySvmgnMqqOm7OGNfCT1qkCw1Ori7TDsMqrLRkHZsZtePjoARko3uslAzDTktws4Idr6vHqcbzjIumUyDQi3E7akSq6PVe_3Uh2nl1M1UqV5NgkQrSc1FkJN9_Js0ZR2CPNqYXayYQ2pwI_53x)
+    }.no-scrollbar::-webkit-scrollbar {
+    display: none
+    }
+.no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none
+    }</style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-pattern text-gray-800 dark:text-gray-200 font-body min-h-screen pb-24 relative">
+<header class="bg-sidebar-dark text-white px-4 py-3 sticky top-0 z-50 shadow-md">
+<div class="flex items-center justify-between">
+<div class="flex items-center space-x-3">
+<button class="text-white">
+<span class="material-icons-outlined">menu</span>
+</button>
+<div class="flex flex-col">
+<span class="text-sm font-display font-bold text-primary">Smart-Curuza</span>
+<span class="text-xs text-gray-400">Merchant Portal</span>
+</div>
+</div>
+<div class="flex items-center space-x-3">
+<span class="material-icons-outlined text-gray-300">notifications</span>
+<div class="w-8 h-8 rounded-full bg-gray-600 flex items-center justify-center text-xs font-bold border border-gray-500">
+                    U
+                </div>
+</div>
+</div>
+</header>
+<main class="w-full max-w-md mx-auto">
+<div class="px-5 pt-6 pb-2">
+<div class="flex items-center space-x-3 mb-2">
+<div class="bg-gray-700 dark:bg-gray-600 p-2 rounded-full shadow-lg">
+<span class="material-icons-round text-white text-xl">storefront</span>
+</div>
+<div>
+<h1 class="text-2xl font-display font-bold text-gray-900 dark:text-white">Shop Settings</h1>
+</div>
+</div>
+<p class="text-sm text-gray-500 dark:text-gray-400 pl-1">Manage your business profile and team</p>
+</div>
+<div class="mt-4 border-b border-gray-200 dark:border-gray-700 px-5">
+<nav aria-label="Tabs" class="flex space-x-6 overflow-x-auto no-scrollbar">
+<button class="whitespace-nowrap pb-3 px-1 border-b-2 border-primary font-display font-medium text-sm text-gray-900 dark:text-white">
+                    Shop Profile
+                </button>
+<button class="whitespace-nowrap pb-3 px-1 border-b-2 border-transparent font-display font-medium text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300">
+                    Team Management
+                </button>
+<button class="whitespace-nowrap pb-3 px-1 border-b-2 border-transparent font-display font-medium text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300">
+                    EBM Configuration
+                </button>
+</nav>
+</div>
+<div class="mt-5 mx-4 bg-surface-light dark:bg-surface-dark rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-5">
+<form action="#" class="space-y-5" method="POST">
+<div>
+<label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1" for="business-name">Business Name</label>
+<div class="relative rounded-md shadow-sm">
+<div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+<span class="material-icons-outlined text-gray-400 text-lg">storefront</span>
+</div>
+<input class="focus:ring-primary focus:border-primary block w-full pl-10 sm:text-sm border-gray-300 dark:border-gray-600 rounded-lg py-3 bg-white dark:bg-gray-800 dark:text-white placeholder-gray-400" id="business-name" name="business-name" placeholder="Enter business name" type="text" value="Xxx Fashion House"/>
+</div>
+</div>
+<div>
+<label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1" for="phone-number">Phone Number</label>
+<div class="relative rounded-md shadow-sm">
+<div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+<span class="material-icons-outlined text-gray-400 text-lg">call</span>
+</div>
+<input class="focus:ring-primary focus:border-primary block w-full pl-10 sm:text-sm border-gray-300 dark:border-gray-600 rounded-lg py-3 bg-white dark:bg-gray-800 dark:text-white placeholder-gray-400" id="phone-number" name="phone-number" placeholder="Ex: 250788..." type="tel" value="250788451422"/>
+</div>
+</div>
+<div>
+<label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1" for="tin-number">TIN Number</label>
+<div class="relative rounded-md shadow-sm">
+<div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+<span class="material-icons-outlined text-gray-400 text-lg">description</span>
+</div>
+<input class="focus:ring-primary focus:border-primary block w-full pl-10 sm:text-sm border-gray-300 dark:border-gray-600 rounded-lg py-3 bg-white dark:bg-gray-800 dark:text-white placeholder-gray-400" id="tin-number" name="tin-number" type="text" value="438029333"/>
+</div>
+</div>
+<div>
+<label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1" for="address">Address</label>
+<div class="relative rounded-md shadow-sm">
+<div class="absolute top-3 left-0 pl-3 flex items-start pointer-events-none">
+<span class="material-icons-outlined text-gray-400 text-lg">place</span>
+</div>
+<textarea class="focus:ring-primary focus:border-primary block w-full pl-10 sm:text-sm border-gray-300 dark:border-gray-600 rounded-lg py-3 bg-white dark:bg-gray-800 dark:text-white placeholder-gray-400 resize-none" id="address" name="address" rows="3">Kigali, Rwanda</textarea>
+</div>
+</div>
+</form>
+</div>
+</main>
+<div class="fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800 p-4 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] z-40">
+<div class="max-w-md mx-auto">
+<button class="w-full flex justify-center items-center py-3.5 px-4 border border-transparent rounded-lg shadow-sm text-sm font-bold text-gray-900 bg-primary hover:bg-yellow-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500 font-display transition-colors duration-200" type="button">
+<span class="material-icons-outlined mr-2 text-lg">save</span>
+                Save Changes
+            </button>
+</div>
+</div>
+
+</body></html>

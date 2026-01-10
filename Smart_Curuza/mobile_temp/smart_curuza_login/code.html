@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Smart Curuza Login</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600&amp;family=Poppins:wght@600;700&amp;family=Material+Icons+Outlined&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
+<script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#fbe134",
+                        onyx: "#0b0c0c",
+                        platinum: "#e9eaec",
+                        "background-light": "#e9eaec",
+                        "background-dark": "#121212",
+                    },
+                    fontFamily: {
+                        display: ["Poppins", "sans-serif"],
+                        sans: ["Montserrat", "sans-serif"],
+                    },
+                    borderRadius: {
+                        DEFAULT: "12px",
+                    },
+                },
+            },
+        };
+    </script>
+<style>
+        body {
+            font-family: 'Montserrat', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .font-display {
+            font-family: 'Poppins', sans-serif;
+        }input[type="number"]::-webkit-inner-spin-button,
+        input[type="number"]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark min-h-screen flex flex-col items-center justify-center p-6 transition-colors duration-300">
+<div class="h-10 w-full fixed top-0 pointer-events-none"></div>
+<div class="w-full max-w-md bg-white dark:bg-neutral-900 rounded-[32px] shadow-xl overflow-hidden flex flex-col items-center p-8 transition-colors duration-300">
+<div class="w-full bg-[#1e1e1e] rounded-2xl py-8 mb-10 flex flex-col items-center justify-center">
+<h1 class="font-display text-primary text-3xl tracking-tight">
+                Smart-Curuza
+            </h1>
+<p class="text-white/50 text-xs mt-1 font-medium uppercase tracking-widest">Merchant Portal</p>
+</div>
+<div class="w-full text-center mb-8">
+<h2 class="font-display text-2xl text-onyx dark:text-white mb-2">Welcome Back</h2>
+<p class="text-neutral-500 dark:text-neutral-400 text-sm">Please enter your credentials to access your store.</p>
+</div>
+<div class="w-full space-y-6">
+<div class="space-y-2">
+<label class="text-xs font-semibold uppercase tracking-wider text-neutral-500 dark:text-neutral-400 ml-1" for="phone">Phone Number</label>
+<div class="relative">
+<span class="absolute left-4 top-1/2 -translate-y-1/2 text-neutral-400">
+<span class="material-icons-outlined text-[20px]">phone_iphone</span>
+</span>
+<input class="w-full pl-12 pr-4 py-4 bg-neutral-100 dark:bg-neutral-800 border-none rounded-xl text-onyx dark:text-white placeholder:text-neutral-400 focus:ring-2 focus:ring-primary focus:bg-white dark:focus:bg-neutral-800 transition-all outline-none" id="phone" placeholder="078X XXX XXX" type="tel"/>
+</div>
+</div>
+<div class="space-y-2">
+<label class="text-xs font-semibold uppercase tracking-wider text-neutral-500 dark:text-neutral-400 ml-1" for="pin">4-Digit PIN</label>
+<div class="relative">
+<span class="absolute left-4 top-1/2 -translate-y-1/2 text-neutral-400">
+<span class="material-icons-outlined text-[20px]">lock_person</span>
+</span>
+<input class="w-full pl-12 pr-4 py-4 bg-neutral-100 dark:bg-neutral-800 border-none rounded-xl text-onyx dark:text-white placeholder:text-neutral-400 focus:ring-2 focus:ring-primary focus:bg-white dark:focus:bg-neutral-800 transition-all outline-none tracking-[0.5em] font-bold" id="pin" maxlength="4" placeholder="••••" type="password"/>
+<button class="absolute right-4 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-300">
+<span class="material-icons-outlined text-[20px]">visibility</span>
+</button>
+</div>
+</div>
+<button class="w-full bg-primary hover:bg-[#ebd22e] active:scale-[0.98] text-onyx font-bold py-4 rounded-xl shadow-lg shadow-primary/20 transition-all flex items-center justify-center space-x-2 mt-8">
+<span class="material-icons-outlined">login</span>
+<span>Login</span>
+</button>
+<div class="text-center pt-2">
+<a class="text-neutral-500 dark:text-neutral-400 text-sm hover:text-onyx dark:hover:text-primary transition-colors" href="#">
+                    Forgot your PIN?
+                </a>
+</div>
+</div>
+</div>
+<div class="mt-8 text-center space-y-4">
+<p class="text-neutral-400 dark:text-neutral-500 text-xs flex items-center justify-center">
+<span class="material-icons-outlined text-xs mr-1">offline_pin</span>
+            Offline-first enabled for Rwanda merchants
+        </p>
+<button class="p-2 rounded-full bg-white dark:bg-neutral-800 text-neutral-500 dark:text-neutral-400 shadow-sm" onclick="document.documentElement.classList.toggle('dark')">
+<span class="material-icons-outlined block dark:hidden">dark_mode</span>
+<span class="material-icons-outlined hidden dark:block text-primary">light_mode</span>
+</button>
+</div>
+<div class="fixed inset-0 -z-10 opacity-[0.03] dark:opacity-[0.02] pointer-events-none select-none overflow-hidden flex flex-wrap justify-around items-start">
+<script>
+            const icons = ['shopping_cart', 'receipt_long', 'inventory_2', 'bar_chart', 'sell'];
+            for(let i=0; i<40; i++) {
+                const randomIcon = icons[Math.floor(Math.random() * icons.length)];
+                document.write(`<span class="material-icons-outlined text-6xl m-4 transform rotate-${Math.floor(Math.random()*4)*45}">${randomIcon}</span>`);
+            }
+        </script>
+</div>
+
+</body></html>

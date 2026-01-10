@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Customer Management - Smart-Curuza</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet"/>
+<script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#FFD700",
+                        "background-light": "#F8F9FA",
+                        "background-dark": "#121212",
+                        "card-light": "#FFFFFF",
+                        "card-dark": "#1E1E1E",
+                        "accent-red": "#EF4444",
+                    },
+                    fontFamily: {
+                        display: ["Plus Jakarta Sans", "sans-serif"],
+                    },
+                    borderRadius: {
+                        DEFAULT: "12px",
+                    },
+                },
+            },
+        };
+    </script>
+<style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .ios-blur {
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }::-webkit-scrollbar {
+            width: 0px;
+            background: transparent;
+        }
+        .pattern-bg {
+            background-image: radial-gradient(#e5e7eb 0.5px, transparent 0.5px);
+            background-size: 20px 20px;
+        }
+        .dark .pattern-bg {
+            background-image: radial-gradient(#334155 0.5px, transparent 0.5px);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 min-h-screen pb-24 pattern-bg">
+<div class="h-12 w-full bg-background-light dark:bg-background-dark sticky top-0 z-50">
+<div class="flex justify-between items-center px-6 h-full">
+<span class="text-sm font-semibold">9:41</span>
+<div class="flex gap-1.5 items-center">
+<span class="material-icons-outlined text-[18px]">signal_cellular_alt</span>
+<span class="material-icons-outlined text-[18px]">wifi</span>
+<span class="material-icons-outlined text-[18px]">battery_full</span>
+</div>
+</div>
+</div>
+<header class="px-6 pt-2 pb-6">
+<div class="flex justify-between items-center mb-6">
+<div>
+<h1 class="text-2xl font-bold tracking-tight">Customer Management</h1>
+<p class="text-sm text-slate-500 dark:text-slate-400">Manage your customers and track debts</p>
+</div>
+<button class="bg-primary hover:opacity-90 text-black p-3 rounded-full shadow-lg flex items-center justify-center transition-transform active:scale-95">
+<span class="material-icons-outlined">person_add</span>
+</button>
+</div>
+<div class="bg-card-light dark:bg-card-dark p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 flex justify-between items-center">
+<div>
+<p class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Total Outstanding Debt</p>
+<p class="text-2xl font-bold text-accent-red">50,900 RWF</p>
+</div>
+<div class="bg-red-50 dark:bg-red-900/20 p-3 rounded-full">
+<span class="material-icons-outlined text-accent-red">account_balance_wallet</span>
+</div>
+</div>
+</header>
+<div class="px-6 sticky top-12 z-40 py-2 bg-background-light/80 dark:bg-background-dark/80 ios-blur">
+<div class="relative group">
+<span class="material-icons-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors">search</span>
+<input class="w-full bg-card-light dark:bg-card-dark border-none ring-1 ring-slate-200 dark:ring-slate-800 focus:ring-2 focus:ring-primary rounded-xl py-3.5 pl-12 pr-4 text-sm transition-all shadow-sm" placeholder="Search customers by name or phone..." type="text"/>
+</div>
+</div>
+<main class="px-6 mt-4 space-y-4">
+<div class="bg-card-light dark:bg-card-dark p-4 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm">
+<div class="flex justify-between items-start mb-4">
+<div class="flex items-center gap-3">
+<div class="w-12 h-12 rounded-full bg-primary flex items-center justify-center text-black font-bold text-lg">
+                        A
+                    </div>
+<div>
+<h3 class="font-bold text-base">Arsene Cyuzuzo</h3>
+<div class="flex items-center gap-1 text-slate-500 dark:text-slate-400 text-sm">
+<span class="material-icons-outlined text-[14px]">phone</span>
+<span>0787202583</span>
+</div>
+</div>
+</div>
+<button class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
+<span class="material-icons-outlined">more_vert</span>
+</button>
+</div>
+<div class="flex items-center justify-between pt-4 border-t border-slate-50 dark:border-slate-800">
+<div>
+<p class="text-[10px] uppercase font-bold text-slate-400 dark:text-slate-500 tracking-wider">Current Debt</p>
+<p class="text-accent-red font-bold">4,900 RWF</p>
+</div>
+<div class="flex gap-2">
+<button class="bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400 px-4 py-2 rounded-lg text-sm font-semibold hover:bg-green-100 transition-colors">
+                        Repay
+                    </button>
+<button class="p-2 text-primary border border-primary/20 rounded-lg hover:bg-primary/5">
+<span class="material-icons-outlined text-[20px]">chat_bubble_outline</span>
+</button>
+</div>
+</div>
+</div>
+<div class="bg-card-light dark:bg-card-dark p-4 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm">
+<div class="flex justify-between items-start mb-4">
+<div class="flex items-center gap-3">
+<div class="w-12 h-12 rounded-full bg-amber-400 flex items-center justify-center text-black font-bold text-lg">
+                        E
+                    </div>
+<div>
+<h3 class="font-bold text-base">Enock</h3>
+<div class="flex items-center gap-1 text-slate-500 dark:text-slate-400 text-sm">
+<span class="material-icons-outlined text-[14px]">phone</span>
+<span>0788451422</span>
+</div>
+</div>
+</div>
+<button class="text-slate-400">
+<span class="material-icons-outlined">more_vert</span>
+</button>
+</div>
+<div class="flex items-center justify-between pt-4 border-t border-slate-50 dark:border-slate-800">
+<div>
+<p class="text-[10px] uppercase font-bold text-slate-400 dark:text-slate-500 tracking-wider">Current Debt</p>
+<p class="text-accent-red font-bold">40,600 RWF</p>
+</div>
+<div class="flex gap-2">
+<button class="bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400 px-4 py-2 rounded-lg text-sm font-semibold">
+                        Repay
+                    </button>
+<button class="p-2 text-primary border border-primary/20 rounded-lg">
+<span class="material-icons-outlined text-[20px]">chat_bubble_outline</span>
+</button>
+</div>
+</div>
+</div>
+<div class="bg-card-light dark:bg-card-dark p-4 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm">
+<div class="flex justify-between items-start mb-4">
+<div class="flex items-center gap-3">
+<div class="w-12 h-12 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center text-slate-600 dark:text-slate-300 font-bold text-lg">
+                        T
+                    </div>
+<div>
+<h3 class="font-bold text-base">Test Debtor</h3>
+<div class="flex items-center gap-1 text-slate-500 dark:text-slate-400 text-sm">
+<span class="material-icons-outlined text-[14px]">phone</span>
+<span>0780000000</span>
+</div>
+</div>
+</div>
+<button class="text-slate-400">
+<span class="material-icons-outlined">more_vert</span>
+</button>
+</div>
+<div class="flex items-center justify-between pt-4 border-t border-slate-50 dark:border-slate-800">
+<div>
+<p class="text-[10px] uppercase font-bold text-slate-400 dark:text-slate-500 tracking-wider">Current Debt</p>
+<p class="text-accent-red font-bold">5,400 RWF</p>
+</div>
+<div class="flex gap-2">
+<button class="bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400 px-4 py-2 rounded-lg text-sm font-semibold">
+                        Repay
+                    </button>
+<button class="p-2 text-primary border border-primary/20 rounded-lg">
+<span class="material-icons-outlined text-[20px]">chat_bubble_outline</span>
+</button>
+</div>
+</div>
+</div>
+</main>
+<nav class="fixed bottom-0 left-0 right-0 bg-card-light/90 dark:bg-card-dark/90 ios-blur border-t border-slate-200 dark:border-slate-800 px-6 py-3 pb-8 z-50">
+<div class="flex justify-between items-center max-w-md mx-auto">
+<div class="flex flex-col items-center text-slate-400 hover:text-primary transition-colors cursor-pointer">
+<span class="material-icons-outlined">dashboard</span>
+<span class="text-[10px] font-medium mt-1">Home</span>
+</div>
+<div class="flex flex-col items-center text-slate-400 hover:text-primary transition-colors cursor-pointer">
+<span class="material-icons-outlined">point_of_sale</span>
+<span class="text-[10px] font-medium mt-1">POS</span>
+</div>
+<div class="flex flex-col items-center text-slate-400 hover:text-primary transition-colors cursor-pointer">
+<span class="material-icons-outlined">inventory_2</span>
+<span class="text-[10px] font-medium mt-1">Stock</span>
+</div>
+<div class="flex flex-col items-center text-primary cursor-pointer">
+<span class="material-icons-outlined">groups</span>
+<span class="text-[10px] font-medium mt-1">CRM</span>
+</div>
+<div class="flex flex-col items-center text-slate-400 hover:text-primary transition-colors cursor-pointer">
+<span class="material-icons-outlined">settings</span>
+<span class="text-[10px] font-medium mt-1">More</span>
+</div>
+</div>
+</nav>
+<button class="fixed right-6 bottom-24 bg-card-light dark:bg-card-dark p-3 rounded-full shadow-lg border border-slate-200 dark:border-slate-800 z-50 active:scale-90 transition-transform" onclick="document.documentElement.classList.toggle('dark')">
+<span class="material-icons-outlined block dark:hidden">dark_mode</span>
+<span class="material-icons-outlined hidden dark:block text-primary">light_mode</span>
+</button>
+
+</body></html>

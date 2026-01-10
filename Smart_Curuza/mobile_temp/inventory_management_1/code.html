@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Inventory Management - Smart Curuza</title>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#137fec",
+                        "secondary-accent": "#fbe134",
+                        "background-light": "#F3F4F6", // Platinum-like gray
+                        "background-dark": "#101922",
+                    },
+                    fontFamily: {
+                        "display": ["Manrope", "sans-serif"],
+                        "body": ["Manrope", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.375rem",
+                        "md": "0.375rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "2xl": "1rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark font-display text-gray-900 dark:text-gray-100 antialiased overflow-x-hidden">
+<div class="relative flex h-full min-h-screen w-full flex-col max-w-md mx-auto bg-background-light dark:bg-background-dark shadow-xl overflow-hidden">
+<!-- Header -->
+<header class="sticky top-0 z-20 bg-background-light dark:bg-background-dark px-4 py-4 pt-12 pb-2">
+<div class="flex items-center justify-between mb-4">
+<h2 class="text-[#111418] dark:text-white text-2xl font-bold leading-tight tracking-tight">Inventory</h2>
+<button class="flex items-center justify-center p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-800 transition-colors">
+<span class="material-symbols-outlined text-[#111418] dark:text-white" style="font-size: 24px;">settings</span>
+</button>
+</div>
+<!-- Search Bar -->
+<div class="flex w-full items-stretch rounded-xl shadow-sm">
+<div class="relative flex-1">
+<div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+<span class="material-symbols-outlined text-[#617589]" style="font-size: 20px;">search</span>
+</div>
+<input class="form-input flex w-full min-w-0 resize-none overflow-hidden rounded-l-xl border-none bg-white dark:bg-[#1e2832] text-[#111418] dark:text-white focus:outline-0 focus:ring-2 focus:ring-primary/20 h-12 pl-10 pr-2 text-base font-medium placeholder:text-[#9aa2ac]" placeholder="Search by name, SKU..."/>
+</div>
+<button class="flex items-center justify-center px-4 bg-white dark:bg-[#1e2832] border-l border-gray-100 dark:border-gray-700 rounded-r-xl active:bg-gray-50 dark:active:bg-gray-800 transition-colors group">
+<span class="material-symbols-outlined text-primary group-hover:scale-110 transition-transform" style="font-size: 24px;">barcode_scanner</span>
+</button>
+</div>
+</header>
+<!-- Category Filters -->
+<div class="sticky top-[136px] z-10 bg-background-light dark:bg-background-dark pb-2">
+<div class="flex gap-2 px-4 py-2 overflow-x-auto no-scrollbar pb-4" style="-ms-overflow-style: none; scrollbar-width: none;">
+<button class="flex h-9 shrink-0 items-center justify-center gap-x-2 rounded-full bg-[#111418] dark:bg-white px-5 transition-transform active:scale-95 shadow-sm">
+<p class="text-white dark:text-[#111418] text-sm font-bold leading-normal">All</p>
+</button>
+<button class="flex h-9 shrink-0 items-center justify-center gap-x-2 rounded-full bg-white dark:bg-[#1e2832] px-5 border border-transparent hover:border-gray-200 dark:hover:border-gray-700 transition-transform active:scale-95 shadow-sm">
+<p class="text-[#111418] dark:text-white text-sm font-medium leading-normal">Food</p>
+</button>
+<button class="flex h-9 shrink-0 items-center justify-center gap-x-2 rounded-full bg-white dark:bg-[#1e2832] px-5 border border-transparent hover:border-gray-200 dark:hover:border-gray-700 transition-transform active:scale-95 shadow-sm">
+<p class="text-[#111418] dark:text-white text-sm font-medium leading-normal">Clothing</p>
+</button>
+<button class="flex h-9 shrink-0 items-center justify-center gap-x-2 rounded-full bg-white dark:bg-[#1e2832] px-5 border border-transparent hover:border-gray-200 dark:hover:border-gray-700 transition-transform active:scale-95 shadow-sm">
+<p class="text-[#111418] dark:text-white text-sm font-medium leading-normal">Electronics</p>
+</button>
+<button class="flex h-9 shrink-0 items-center justify-center gap-x-2 rounded-full bg-white dark:bg-[#1e2832] px-5 border border-transparent hover:border-gray-200 dark:hover:border-gray-700 transition-transform active:scale-95 shadow-sm">
+<p class="text-[#111418] dark:text-white text-sm font-medium leading-normal">Beverages</p>
+</button>
+</div>
+</div>
+<!-- Product List -->
+<main class="flex-1 px-4 pb-24 space-y-3 overflow-y-auto">
+<!-- Item 1: Healthy Stock -->
+<div class="flex flex-col bg-white dark:bg-[#1e2832] rounded-xl p-3 shadow-sm border border-gray-100 dark:border-gray-800 hover:shadow-md transition-shadow">
+<div class="flex gap-4">
+<div class="bg-center bg-no-repeat bg-cover rounded-lg w-20 h-20 shrink-0 bg-gray-100" data-alt="Sack of Basmati Rice on white background" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuBuJKPt1llSdn7Kwij6ZX13zla5GLI89PZEbc0sMUHXBTiK6kELAjj-MdDmY-FdjbDNActSSVycBLzQ03fDE7-pe51VMHWCjOGi3GnVy-ck7BEfzey6OVRE4eNSsKxB9cIr4WSfHtxnnt0v-lMq1iwLZAYCazYV-N_TfoWR9_Toefq94VJI0Z76lbNu9XMtw4htqTTo42ZhAh-Wfem2tJbRrWT4xsWKjOjJrfp_-BQWS6U8Y6CBLDzPipGbH7fs0aU9s8Mng2YSajI2");'></div>
+<div class="flex flex-1 flex-col justify-between py-0.5">
+<div>
+<div class="flex justify-between items-start">
+<h3 class="text-[#111418] dark:text-white text-base font-bold leading-tight line-clamp-1">Basmati Rice 5kg</h3>
+<p class="text-primary font-bold text-sm whitespace-nowrap">12,000 RWF</p>
+</div>
+<p class="text-[#617589] dark:text-gray-400 text-xs font-medium mt-1">SKU: RW-0042</p>
+</div>
+<div class="mt-2">
+<div class="flex justify-between items-end mb-1">
+<span class="text-xs font-medium text-[#617589] dark:text-gray-400">85 in stock</span>
+<span class="text-xs font-bold text-[#111418] dark:text-white">Good</span>
+</div>
+<div class="w-full h-1.5 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
+<div class="h-full bg-primary rounded-full" style="width: 85%;"></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Item 2: Low Stock Warning -->
+<div class="flex flex-col bg-white dark:bg-[#1e2832] rounded-xl p-3 shadow-sm border border-gray-100 dark:border-gray-800 hover:shadow-md transition-shadow relative overflow-hidden">
+<div class="absolute top-0 right-0">
+<div class="bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400 text-[10px] font-bold px-2 py-1 rounded-bl-lg">
+                        Low Stock
+                     </div>
+</div>
+<div class="flex gap-4">
+<div class="bg-center bg-no-repeat bg-cover rounded-lg w-20 h-20 shrink-0 bg-gray-100" data-alt="Carton of milk on a table" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuAJ9PsFlmrZNY0dXja8kLPL510IHL_eaR4V5tKnzyXXZOv-dauPJAs3r2KliKOSiKVCOLdjx0BqrlUMIr8-0bcYikS6ZwrNQ-QeNljWsDJsHbS3_3bK3OPvNLTK0GLLPcx3Z363ljqMyDP2IXIXYkdK8midKRlThd573Vmp2iuGGhJaWJaL-xzkkkkLtbeXZnbMzluVlDwGX3Zd0MIM0wDjqJJGfCKOVfX-McNJqHwM6HyEq81u7QJeyjFMn7hfi7FPWBiBz3rsBt76");'></div>
+<div class="flex flex-1 flex-col justify-between py-0.5">
+<div>
+<div class="flex justify-between items-start pr-16"> <!-- Padding right to avoid overlap with badge -->
+<h3 class="text-[#111418] dark:text-white text-base font-bold leading-tight line-clamp-1">Inyange Milk 1L</h3>
+</div>
+<div class="flex justify-between items-center mt-0.5">
+<p class="text-[#617589] dark:text-gray-400 text-xs font-medium">SKU: RW-0099</p>
+<p class="text-primary font-bold text-sm whitespace-nowrap">1,200 RWF</p>
+</div>
+</div>
+<div class="mt-2">
+<div class="flex justify-between items-end mb-1">
+<span class="text-xs font-bold text-red-600 dark:text-red-400">Only 10 left</span>
+</div>
+<div class="w-full h-1.5 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
+<div class="h-full bg-red-500 rounded-full" style="width: 10%;"></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Item 3: Normal -->
+<div class="flex flex-col bg-white dark:bg-[#1e2832] rounded-xl p-3 shadow-sm border border-gray-100 dark:border-gray-800 hover:shadow-md transition-shadow">
+<div class="flex gap-4">
+<div class="bg-center bg-no-repeat bg-cover rounded-lg w-20 h-20 shrink-0 bg-gray-100" data-alt="Bottle of Coca Cola" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuB3IqgQOwlchXruLeY8t22IqEIMcfoWe5AKKD9LWqaK0-jhLvBNeACQCniJpXlPm3Swj0dp_YYcg0nLv_N02t9YWcXSUcorDdG_MIkHoE78hgogcKK7GpDde8lyBacT5NqRA_72uafunlSdYbEo-AHvWP1PWZRj8jR1KktyfANdMMpycOGd_zicK4OiaNidsxubeHTH64_OwP5P-jv08KNO3KNlMTA-8r1CXSybfKQ-AdPaDDvtr0W1_TG9sJ73hDugz0zDFUmCCSMv");'></div>
+<div class="flex flex-1 flex-col justify-between py-0.5">
+<div>
+<div class="flex justify-between items-start">
+<h3 class="text-[#111418] dark:text-white text-base font-bold leading-tight line-clamp-1">Coca Cola 500ml</h3>
+<p class="text-primary font-bold text-sm whitespace-nowrap">800 RWF</p>
+</div>
+<p class="text-[#617589] dark:text-gray-400 text-xs font-medium mt-1">SKU: BV-0102</p>
+</div>
+<div class="mt-2">
+<div class="flex justify-between items-end mb-1">
+<span class="text-xs font-medium text-[#617589] dark:text-gray-400">142 in stock</span>
+<span class="text-xs font-bold text-[#111418] dark:text-white">Good</span>
+</div>
+<div class="w-full h-1.5 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
+<div class="h-full bg-primary rounded-full" style="width: 65%;"></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Item 4: Warning -->
+<div class="flex flex-col bg-white dark:bg-[#1e2832] rounded-xl p-3 shadow-sm border border-gray-100 dark:border-gray-800 hover:shadow-md transition-shadow relative overflow-hidden">
+<div class="absolute top-0 right-0">
+<div class="bg-orange-50 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400 text-[10px] font-bold px-2 py-1 rounded-bl-lg">
+                        Reorder Soon
+                     </div>
+</div>
+<div class="flex gap-4">
+<div class="bg-center bg-no-repeat bg-cover rounded-lg w-20 h-20 shrink-0 bg-gray-100" data-alt="Folded blue denim jeans" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDU_gr6rjGnxmXqLD-t30I0YW7lhOJG4kFP0oBKhug_8RhlqbV78U6Du1xlpqjubT_RBzTJ8Lb9qkNb9mAU-z7i-devmDLZ5UULf9pP8Z1sbdjx2JOlOI6qD2iMdEcHlSY-lYyd0m336-PjFznHL2IXm8-TOzkQcM0INC4vlBflTdcIIRuDan_GdsDAKJ7nJ4iHnvIAJEDdK7-TrybsISi0uA5NQC_y68Sk29pzrOcc7v89h2FCBdEPxgHi69_wTnG218gip09chDvV");'></div>
+<div class="flex flex-1 flex-col justify-between py-0.5">
+<div>
+<div class="flex justify-between items-start pr-20">
+<h3 class="text-[#111418] dark:text-white text-base font-bold leading-tight line-clamp-1">Men's Denim Jeans</h3>
+</div>
+<div class="flex justify-between items-center mt-0.5">
+<p class="text-[#617589] dark:text-gray-400 text-xs font-medium">SKU: CL-5531</p>
+<p class="text-primary font-bold text-sm whitespace-nowrap">15,000 RWF</p>
+</div>
+</div>
+<div class="mt-2">
+<div class="flex justify-between items-end mb-1">
+<span class="text-xs font-bold text-orange-600 dark:text-orange-400">22 in stock</span>
+</div>
+<div class="w-full h-1.5 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
+<div class="h-full bg-orange-500 rounded-full" style="width: 25%;"></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Item 5: Normal -->
+<div class="flex flex-col bg-white dark:bg-[#1e2832] rounded-xl p-3 shadow-sm border border-gray-100 dark:border-gray-800 hover:shadow-md transition-shadow">
+<div class="flex gap-4">
+<div class="bg-center bg-no-repeat bg-cover rounded-lg w-20 h-20 shrink-0 bg-gray-100" data-alt="Blue wireless headphones" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuB4IlnHF6Gw63CtGCPE3Hogw0ZDAEjuyOwqrENHD4xQeNNaiG0KZOS4R4MGEx2SbgogryBjy8C_gAjxnnQmc3mwyQ_Apw9SZ5YU0NApHC9q5_WWqK2FGtn5jlSq3j4kLvkqcjpmzqO-uQJjx6ReABrqLKYhUF2ngjbYBs_xsIMhISSZG2Ou704x9_gXsAy29jlPAgrECDl5cDLFtfIrDvziajh8uEbkD9LGuFjhonxV1p5HvKgCADfiLPEfz-MF9Ya94Pl1_mW3wpMu");'></div>
+<div class="flex flex-1 flex-col justify-between py-0.5">
+<div>
+<div class="flex justify-between items-start">
+<h3 class="text-[#111418] dark:text-white text-base font-bold leading-tight line-clamp-1">Wireless Headset</h3>
+<p class="text-primary font-bold text-sm whitespace-nowrap">45,000 RWF</p>
+</div>
+<p class="text-[#617589] dark:text-gray-400 text-xs font-medium mt-1">SKU: EL-9982</p>
+</div>
+<div class="mt-2">
+<div class="flex justify-between items-end mb-1">
+<span class="text-xs font-medium text-[#617589] dark:text-gray-400">45 in stock</span>
+<span class="text-xs font-bold text-[#111418] dark:text-white">Good</span>
+</div>
+<div class="w-full h-1.5 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
+<div class="h-full bg-primary rounded-full" style="width: 90%;"></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Floating Action Button -->
+<button class="fixed bottom-24 right-6 z-30 flex items-center justify-center w-14 h-14 bg-secondary-accent text-[#111418] rounded-full shadow-lg hover:shadow-xl active:scale-90 transition-all focus:outline-none focus:ring-4 focus:ring-[#fbe134]/30">
+<span class="material-symbols-outlined" style="font-size: 32px; font-weight: 500;">add</span>
+</button>
+<!-- Bottom Navigation (Optional but fits context) -->
+<nav class="fixed bottom-0 left-0 right-0 z-20 bg-white dark:bg-[#1e2832] border-t border-gray-100 dark:border-gray-800 pb-safe">
+<div class="flex items-center justify-around h-16 max-w-md mx-auto">
+<a class="flex flex-col items-center justify-center w-full h-full text-[#9aa2ac] hover:text-primary transition-colors gap-1" href="#">
+<span class="material-symbols-outlined text-[24px]">point_of_sale</span>
+<span class="text-[10px] font-medium">POS</span>
+</a>
+<a class="flex flex-col items-center justify-center w-full h-full text-primary gap-1" href="#">
+<span class="material-symbols-outlined text-[24px] fill-current">inventory_2</span>
+<span class="text-[10px] font-bold">Inventory</span>
+</a>
+<a class="flex flex-col items-center justify-center w-full h-full text-[#9aa2ac] hover:text-primary transition-colors gap-1" href="#">
+<span class="material-symbols-outlined text-[24px]">bar_chart</span>
+<span class="text-[10px] font-medium">Reports</span>
+</a>
+<a class="flex flex-col items-center justify-center w-full h-full text-[#9aa2ac] hover:text-primary transition-colors gap-1" href="#">
+<span class="material-symbols-outlined text-[24px]">person</span>
+<span class="text-[10px] font-medium">Profile</span>
+</a>
+</div>
+</nav>
+</div>
+</body></html>

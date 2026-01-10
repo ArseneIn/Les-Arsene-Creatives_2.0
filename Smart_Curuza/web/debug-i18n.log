@@ -1,0 +1,23 @@
+2026-01-07T19:10:35.485Z - i18n request: locale=undefined, baseLocale=en
+2026-01-07T19:10:35.587Z - i18n request: locale=undefined, baseLocale=en
+2026-01-07T19:10:44.537Z - i18n request: locale=undefined, baseLocale=en
+2026-01-07T19:10:46.935Z - i18n request: locale=undefined, baseLocale=en
+2026-01-07T19:11:01.831Z - i18n request: locale=undefined, baseLocale=en
+2026-01-07T19:11:01.941Z - i18n request: locale=undefined, baseLocale=en
+2026-01-07T19:11:02.231Z - i18n request: locale=undefined, baseLocale=en
+2026-01-07T19:11:26.537Z - i18n params keys: locale,requestLocale
+2026-01-07T19:11:26.559Z - resolved locale: rw
+2026-01-07T19:11:26.790Z - i18n params keys: locale,requestLocale
+2026-01-07T19:11:26.794Z - resolved locale: rw
+2026-01-07T19:11:35.390Z - i18n params keys: locale,requestLocale
+2026-01-07T19:11:35.397Z - resolved locale: rw
+2026-01-07T19:11:35.925Z - i18n params keys: locale,requestLocale
+2026-01-07T19:11:35.933Z - resolved locale: rw
+2026-01-07T19:11:43.461Z - i18n params keys: locale,requestLocale
+2026-01-07T19:11:43.466Z - resolved locale: en
+2026-01-07T19:11:44.541Z - i18n params keys: locale,requestLocale
+2026-01-07T19:11:44.545Z - resolved locale: en
+2026-01-07T19:13:05.273Z - i18n params keys: locale,requestLocale
+2026-01-07T19:13:05.284Z - resolved locale: rw
+2026-01-07T19:13:05.425Z - i18n params keys: locale,requestLocale
+2026-01-07T19:13:05.430Z - resolved locale: rw
