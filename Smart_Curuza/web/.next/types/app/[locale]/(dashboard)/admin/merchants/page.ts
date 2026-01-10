@@ -1,4 +1,4 @@
-// File: D:\PROJECTS\CODING\Smart_Curuza\web\app\[locale]\(dashboard)\admin\merchants\page.tsx
+// File: D:\PROJECTS\Les-Arsene-Creatives_2.0\Smart_Curuza\web\app\[locale]\(dashboard)\admin\merchants\page.tsx
 import * as entry from '../../../../../../../app/[locale]/(dashboard)/admin/merchants/page.js'
 import type { ResolvingMetadata, ResolvingViewport } from 'next/dist/lib/metadata/types/metadata-interface.js'
 
