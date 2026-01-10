@@ -1,5 +1,7 @@
-import React from 'react';
-import { X, Calendar, User, CreditCard, CheckCircle, Clock, XCircle, Printer } from 'lucide-react';
+import React, { useState } from 'react';
+import { X, Calendar, User, CreditCard, CheckCircle, Clock, XCircle, Printer, AlertTriangle } from 'lucide-react';
+import { api } from '../lib/api';
+import RefundModal from './RefundModal';
 
 interface SaleItem {
     id: string;
@@ -19,6 +21,7 @@ interface SaleRecord {
     net_amount?: number;
     payment_method: string;
     sync_status: string;
+    status?: string; // 'COMPLETED' | 'REFUNDED'
     profit?: number;
 }
 
@@ -28,6 +31,21 @@ interface SaleDetailsModalProps {
 }
 
 export default function SaleDetailsModal({ sale, onClose }: SaleDetailsModalProps) {
+    const [isRefundModalOpen, setIsRefundModalOpen] = useState(false);
+    const [isProcessing, setIsProcessing] = useState(false);
+
+    const handleRefund = async (reason: string, restock: boolean) => {
+        setIsProcessing(true);
+        try {
+            await api.post(`/sales/${sale.id}/refund`, { reason, restock });
+            window.location.reload(); // Refresh to show updated status
+        } catch (error) {
+            console.error(error);
+            alert('Failed to refund sale');
+            setIsProcessing(false);
+        }
+    };
+
     return (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
             <div className="bg-white w-full max-w-2xl rounded-xl shadow-2xl flex flex-col max-h-[90vh] animate-in fade-in zoom-in duration-200">
@@ -60,17 +78,29 @@ export default function SaleDetailsModal({ sale, onClose }: SaleDetailsModalProp
                                 <span>{sale.payment_method}</span>
                             </div>
                         </div>
-                        <div className="bg-gray-50 p-4 rounded-lg flex flex-col justify-center items-center text-center">
-                            <span className="text-sm text-gray-500 mb-1">Status</span>
-                            <div className={`flex items-center gap-2 px-3 py-1 rounded-full text-sm font-medium ${sale.sync_status === 'Completed' ? 'bg-green-100 text-green-700' :
-                                sale.sync_status === 'Pending' ? 'bg-orange-100 text-orange-700' :
-                                    'bg-red-100 text-red-700'
-                                }`}>
-                                {sale.sync_status === 'Completed' && <CheckCircle className="h-4 w-4" />}
-                                {sale.sync_status === 'Pending' && <Clock className="h-4 w-4" />}
-                                {sale.sync_status === 'Failed' && <XCircle className="h-4 w-4" />}
-                                {sale.sync_status}
+                        <div className="bg-gray-50 p-4 rounded-lg flex flex-col justify-center items-center text-center space-y-2">
+                            <div className="flex flex-col items-center">
+                                <span className="text-xs text-gray-500 uppercase tracking-wider font-bold mb-1">Sync Status</span>
+                                <div className={`flex items-center gap-2 px-3 py-1 rounded-full text-sm font-medium ${sale.sync_status === 'Completed' ? 'bg-green-100 text-green-700' :
+                                    sale.sync_status === 'Pending' ? 'bg-orange-100 text-orange-700' :
+                                        'bg-red-100 text-red-700'
+                                    }`}>
+                                    {sale.sync_status === 'Completed' && <CheckCircle className="h-4 w-4" />}
+                                    {sale.sync_status === 'Pending' && <Clock className="h-4 w-4" />}
+                                    {sale.sync_status === 'Failed' && <XCircle className="h-4 w-4" />}
+                                    {sale.sync_status}
+                                </div>
                             </div>
+
+                            {sale.status === 'REFUNDED' && (
+                                <div className="flex flex-col items-center">
+                                    <span className="text-xs text-gray-500 uppercase tracking-wider font-bold mb-1">Order Status</span>
+                                    <div className="flex items-center gap-2 px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-700">
+                                        <AlertTriangle className="h-4 w-4" />
+                                        REFUNDED
+                                    </div>
+                                </div>
+                            )}
                         </div>
                     </div>
 
@@ -127,18 +157,37 @@ export default function SaleDetailsModal({ sale, onClose }: SaleDetailsModalProp
                 </div>
 
                 {/* Footer */}
-                <div className="p-6 border-t border-gray-100 bg-gray-50 rounded-b-xl flex justify-between">
+                <div className="p-6 border-t border-gray-100 bg-gray-50 rounded-b-xl flex justify-between items-center">
                     <button className="flex items-center gap-2 text-gray-600 hover:text-gray-900 font-medium">
                         <Printer className="h-4 w-4" /> Print Receipt
                     </button>
-                    <button
-                        onClick={onClose}
-                        className="px-6 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors font-medium"
-                    >
-                        Close
-                    </button>
+
+                    <div className="flex gap-3">
+                        {sale.status !== 'REFUNDED' && (
+                            <button
+                                onClick={() => setIsRefundModalOpen(true)}
+                                className="px-4 py-2 bg-red-50 text-red-600 hover:bg-red-100 rounded-lg transition-colors font-medium border border-red-200 flex items-center gap-2"
+                            >
+                                <AlertTriangle className="h-4 w-4" />
+                                Refund
+                            </button>
+                        )}
+                        <button
+                            onClick={onClose}
+                            className="px-6 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors font-medium"
+                        >
+                            Close
+                        </button>
+                    </div>
                 </div>
             </div>
+
+            <RefundModal
+                isOpen={isRefundModalOpen}
+                onClose={() => setIsRefundModalOpen(false)}
+                onConfirm={handleRefund}
+                isProcessing={isProcessing}
+            />
         </div>
     );
 }

@@ -1,4 +1,9 @@
-import { Injectable, Logger, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  Logger,
+  BadRequestException,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, DataSource } from 'typeorm';
 import { Sale } from '../entities/sale.entity';
@@ -7,13 +12,18 @@ import { ClientManagementService } from '../client-management/client-management.
 import { BatchesService } from '../batches/batches.service';
 import { NotificationsService } from '../notifications/notifications.service';
 
+interface BatchItem {
+  costPrice: number;
+  quantity: number;
+}
+
 interface SaleItem {
   id: string;
   name: string;
   price: number;
   quantity: number;
   batchId?: string;
-  batches?: any[];
+  batches?: BatchItem[];
   category?: string;
 }
 
@@ -33,9 +43,11 @@ export class SalesService {
   ) { }
 
   async createSale(saleData: any): Promise<Sale> {
-    const { items, total, paymentMethod, customerId, merchantId, userId } =
-      saleData;
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+    const { total, paymentMethod, customerId, merchantId, userId } = saleData;
     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+    const items = saleData.items as SaleItem[];
+
     this.logger.log(
       `Creating sale: ${items.length} items, Total: ${total}, Method: ${paymentMethod}, User: ${userId}`,
     );
@@ -67,7 +79,7 @@ export class SalesService {
       const savedSale = await queryRunner.manager.save(sale);
 
       // 2. Update Stock
-      for (const item of items as SaleItem[]) {
+      for (const item of items) {
         const product = await this.productRepository.findOne({
           where: { id: item.id },
         });
@@ -146,6 +158,78 @@ export class SalesService {
     }
   }
 
+  async refundSale(
+    saleId: string,
+    reason: string,
+    shouldRestock: boolean,
+  ): Promise<Sale> {
+    this.logger.log(`Refunding sale ${saleId}. Restock: ${shouldRestock}`);
+
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    try {
+      const sale = await this.saleRepository.findOne({
+        where: { id: saleId },
+      });
+
+      if (!sale) {
+        throw new NotFoundException(`Sale with ID ${saleId} not found`);
+      }
+
+      if (sale.status === 'REFUNDED') {
+        throw new BadRequestException(`Sale ${saleId} is already refunded`);
+      }
+
+      // 1. Update Sale Status
+      sale.status = 'REFUNDED';
+      sale.refund_reason = reason;
+      await queryRunner.manager.save(sale);
+
+      // 2. Restock Items (Optional)
+      if (shouldRestock && sale.items && Array.isArray(sale.items)) {
+        const items = sale.items as unknown as SaleItem[];
+        for (const item of items) {
+          const product = await this.productRepository.findOne({
+            where: { id: item.id },
+          });
+
+          if (product) {
+            product.stock += Number(item.quantity);
+            // Reactivate if it was inactive due to stock out
+            if (product.status === 'inactive' && product.stock > 0) {
+              product.status = 'active';
+            }
+            await queryRunner.manager.save(product);
+          }
+        }
+      }
+
+      // 3. Cancel Debt (if Credit)
+      if (sale.payment_method === 'Credit') {
+        await this.clientService.cancelDebt(sale.id, queryRunner.manager);
+      }
+
+      await queryRunner.commitTransaction();
+
+      // Notification
+      await this.notificationsService.create({
+        title: 'Sale Refunded',
+        message: `Sale #${sale.id.substring(0, 8)} has been refunded.`,
+        type: 'info',
+      });
+
+      return sale;
+    } catch (err) {
+      await queryRunner.rollbackTransaction();
+      this.logger.error('Refund failed', err);
+      throw err;
+    } finally {
+      await queryRunner.release();
+    }
+  }
+
   async findAll(): Promise<Sale[]> {
     return this.saleRepository.find({
       relations: ['customer', 'merchant', 'user'],
@@ -161,7 +245,11 @@ export class SalesService {
     });
   }
 
-  async getSalesByStaff(startDate: string, endDate: string, merchantId: string) {
+  async getSalesByStaff(
+    startDate: string,
+    endDate: string,
+    merchantId: string,
+  ) {
     const start = new Date(startDate);
     const end = new Date(endDate);
     end.setHours(23, 59, 59, 999);
@@ -233,10 +321,10 @@ export class SalesService {
 
       let saleProfit = 0;
       if (sale.items && Array.isArray(sale.items)) {
-        (sale.items as unknown as SaleItem[]).forEach((item) => {
+        const items = sale.items as unknown as SaleItem[];
+        items.forEach((item) => {
           if (item.batches && Array.isArray(item.batches)) {
-            item.batches.forEach((batch: any) => {
-              // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+            item.batches.forEach((batch) => {
               saleProfit +=
                 Number(item.price) * Number(batch.quantity) -
                 Number(batch.costPrice) * Number(batch.quantity);
@@ -253,6 +341,7 @@ export class SalesService {
         profit: 0,
         count: 0,
         vat: 0,
+        transactions: 0,
       };
 
       dailyStats.set(dateKey, {
@@ -274,10 +363,10 @@ export class SalesService {
     for (const sale of sales) {
       let saleProfit = 0;
       if (sale.items && Array.isArray(sale.items)) {
-        (sale.items as unknown as SaleItem[]).forEach((item) => {
+        const items = sale.items as unknown as SaleItem[];
+        items.forEach((item) => {
           if (item.batches && Array.isArray(item.batches)) {
-            item.batches.forEach((batch: any) => {
-              // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+            item.batches.forEach((batch) => {
               saleProfit +=
                 Number(item.price) * Number(batch.quantity) -
                 Number(batch.costPrice) * Number(batch.quantity);
@@ -323,9 +412,10 @@ export class SalesService {
     const detailedTransactions = sales.map((sale) => {
       let saleCost = 0;
       if (sale.items && Array.isArray(sale.items)) {
-        sale.items.forEach((item: any) => {
+        const items = sale.items as unknown as SaleItem[];
+        items.forEach((item) => {
           if (item.batches && Array.isArray(item.batches)) {
-            item.batches.forEach((batch: any) => {
+            item.batches.forEach((batch) => {
               saleCost += Number(batch.costPrice) * Number(batch.quantity);
             });
           }
@@ -384,9 +474,10 @@ export class SalesService {
 
       let saleCost = 0;
       if (sale.items && Array.isArray(sale.items)) {
-        sale.items.forEach((item: any) => {
+        const items = sale.items as unknown as SaleItem[];
+        items.forEach((item) => {
           if (item.batches && Array.isArray(item.batches)) {
-            item.batches.forEach((batch: any) => {
+            item.batches.forEach((batch) => {
               saleCost += Number(batch.costPrice) * Number(batch.quantity);
             });
           }
@@ -452,7 +543,8 @@ export class SalesService {
 
     for (const sale of sales) {
       if (sale.items && Array.isArray(sale.items)) {
-        for (const item of sale.items as unknown as SaleItem[]) {
+        const items = sale.items as unknown as SaleItem[];
+        for (const item of items) {
           const category = item.category || 'General';
           const current = categoryStats.get(category) || {
             name: category,
@@ -494,7 +586,8 @@ export class SalesService {
 
     for (const sale of sales) {
       if (sale.items && Array.isArray(sale.items)) {
-        for (const item of sale.items as unknown as SaleItem[]) {
+        const items = sale.items as unknown as SaleItem[];
+        for (const item of items) {
           const productName = item.name || 'Unknown Product';
           const current = productStats.get(productName) || {
             name: productName,

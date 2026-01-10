@@ -1,6 +1,6 @@
 import { Injectable, Inject, Logger, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, EntityManager } from 'typeorm';
 import { CreateDebtRecordDto } from './dto/create-debt.dto';
 import type { SmsGateway } from '../shared/interfaces/sms-gateway.interface';
 import { Customer } from '../entities/customer.entity';
@@ -16,7 +16,7 @@ export class ClientManagementService {
     private readonly customerRepository: Repository<Customer>,
     @InjectRepository(DebtLedger)
     private readonly debtRepository: Repository<DebtLedger>,
-  ) {}
+  ) { }
 
   /**
    * Creates a new debt record and updates the customer's total debt.
@@ -27,7 +27,7 @@ export class ClientManagementService {
    */
   async createDebtRecord(
     createDebtDto: CreateDebtRecordDto,
-    manager?: any,
+    manager?: EntityManager,
   ): Promise<any> {
     this.logger.log(
       `Creating debt record for customer ${createDebtDto.customerId}`,
@@ -144,5 +144,57 @@ export class ClientManagementService {
     this.logger.log(`Creating new customer: ${customerData.name}`);
     const newCustomer = this.customerRepository.create(customerData);
     return this.customerRepository.save(newCustomer);
+  }
+
+  /**
+   * Cancels a debt record and updates the customer's total debt.
+   *
+   * @param saleId - The ID of the sale being refunded
+   * @param manager - Optional EntityManager for transactions
+   */
+  async cancelDebt(saleId: string, manager?: EntityManager): Promise<void> {
+    this.logger.log(`Cancelling debt for sale ${saleId}`);
+
+    const customerRepo = manager
+      ? manager.getRepository(Customer)
+      : this.customerRepository;
+    const debtRepo = manager
+      ? manager.getRepository(DebtLedger)
+      : this.debtRepository;
+
+    // 1. Find the debt record
+    const debtRecord = await debtRepo.findOne({
+      where: { sale_id: saleId },
+    });
+
+    if (!debtRecord) {
+      this.logger.warn(`No debt record found for sale ${saleId}`);
+      return;
+    }
+
+    if (debtRecord.status === 'CANCELLED' || debtRecord.status === 'PAID') {
+      this.logger.warn(
+        `Debt record for sale ${saleId} is already ${debtRecord.status}`,
+      );
+      return;
+    }
+
+    // 2. Update debt status
+    debtRecord.status = 'CANCELLED';
+    await debtRepo.save(debtRecord);
+
+    // 3. Update customer total debt
+    const customer = await customerRepo.findOne({
+      where: { id: debtRecord.customer_id },
+    });
+
+    if (customer) {
+      const newTotal = Math.max(
+        0,
+        Number(customer.total_debt) - Number(debtRecord.amount_due),
+      );
+      await customerRepo.update(customer.id, { total_debt: newTotal });
+      this.logger.log(`Customer ${customer.id} debt reduced to ${newTotal}`);
+    }
   }
 }

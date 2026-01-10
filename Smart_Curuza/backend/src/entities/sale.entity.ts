@@ -41,6 +41,12 @@ export class Sale {
   @Column({ length: 50, default: 'PENDING' })
   sync_status: string;
 
+  @Column({ length: 20, default: 'COMPLETED' })
+  status: string; // 'COMPLETED' | 'REFUNDED'
+
+  @Column({ type: 'text', nullable: true })
+  refund_reason: string;
+
   @Column({ type: 'jsonb', nullable: true })
   items: any;
 

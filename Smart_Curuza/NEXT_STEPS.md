@@ -32,9 +32,12 @@
 
 - ❌ Real-time data sync (WebSockets/SSE)
 - ❌ Advanced Offline-first functionality (Sync Manager)
-- ❌ Additional merchant pages (Inventory, CRM, Sales) - *In Progress*
-- ❌ Mobile App API Integration
+- 🚧 **Mobile App**: Authentication & Full API Integration - *Next Priority*
 - ❌ SMS integration (Twilio/Africa's Talking)
+
+### **Recently Completed**
+- ✅ **Refund Process**: Full workflow for Web (Backend + Frontend).
+- ✅ **Mobile POS UI**: Core screens implemented.
 
 ---
 

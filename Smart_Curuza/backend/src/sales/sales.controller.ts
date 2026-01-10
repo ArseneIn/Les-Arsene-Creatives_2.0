@@ -3,6 +3,7 @@ import {
   Get,
   Post,
   Body,
+  Param,
   Query,
   HttpCode,
   HttpStatus,
@@ -110,5 +111,14 @@ export class SalesController {
       saleData.userId = user.userId;
     }
     return this.salesService.createSale(saleData);
+  }
+  @UseGuards(JwtAuthGuard)
+  @Post(':id/refund')
+  async refundSale(
+    @Param('id') id: string,
+    @Body('reason') reason: string,
+    @Body('restock') restock: boolean,
+  ) {
+    return this.salesService.refundSale(id, reason, restock);
   }
 }

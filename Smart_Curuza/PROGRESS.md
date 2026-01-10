@@ -34,6 +34,7 @@
   - Hold/Resume sale functionality.
   - Receipt printing integration.
   - Shift management (Open/Close shift).
+  - **Refunds**: Full refund workflow with stock restoration and debt cancellation.
 - ✅ **Admin Dashboard**: Control tower view with system health metrics.
 
 ### 4. Mobile Money Integration
@@ -45,6 +46,13 @@
 - ✅ **JWT Authentication**: Implemented in backend `AuthModule`.
 - ✅ **Secure API Client**: Auto-injects tokens in frontend requests.
 - ✅ **CORS**: Configured for security.
+
+### 6. Mobile App (React Native)
+**Status:** In Development
+- ✅ **Project Setup**: Initialized with Expo.
+- ✅ **POS UI**: Implemented Product Grid, Cart, and Checkout flow.
+- ✅ **API Client**: Configured `api_client.ts` for backend communication.
+- 🚧 **Authentication**: Login screen and token handling pending.
 
 ---
 
