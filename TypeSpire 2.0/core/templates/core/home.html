@@ -1,0 +1,156 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" class="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TypeSpire 2.0 - Home</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        slate: { 900: '#0f172a' },
+                        cyan: { 500: '#06b6d4' },
+                        purple: { 600: '#7c3aed' }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+
+<body class="bg-slate-900 text-slate-200 font-sans antialiased min-h-screen flex flex-col">
+
+    <!-- Header -->
+    <header class="border-b border-slate-800 bg-slate-900/50 backdrop-blur-md sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+                <div
+                    class="w-8 h-8 bg-gradient-to-br from-cyan-500 to-purple-600 rounded-lg shadow-[0_0_15px_rgba(6,182,212,0.5)]">
+                </div>
+                <h1 class="text-xl font-bold tracking-tight text-white">Type<span class="text-cyan-500">Spire</span>
+                    <span class="text-purple-600">2.0</span></h1>
+            </div>
+            <div class="flex items-center gap-4">
+                {% if user.is_authenticated %}
+                <span class="text-sm text-slate-400">{{ user.username }}</span>
+                <a href="{% url 'admin:logout' %}" class="text-sm text-cyan-500 hover:text-cyan-400">Logout</a>
+                {% else %}
+                <a href="{% url 'admin:login' %}" class="text-sm text-cyan-500 hover:text-cyan-400">Login</a>
+                {% endif %}
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <main class="flex-1 flex items-center justify-center">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16 text-center">
+
+            <!-- Logo/Icon -->
+            <div class="mb-8 flex justify-center">
+                <div
+                    class="w-24 h-24 bg-gradient-to-br from-cyan-500 to-purple-600 rounded-2xl shadow-[0_0_40px_rgba(6,182,212,0.4)] flex items-center justify-center">
+                    <svg class="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M13 10V3L4 14h7v7l9-11h-7z" />
+                    </svg>
+                </div>
+            </div>
+
+            <!-- Title -->
+            <h1 class="text-5xl md:text-6xl font-bold text-white mb-4">
+                Welcome to <span class="text-cyan-500">Type</span><span class="text-purple-600">Spire</span>
+            </h1>
+            <p class="text-xl text-slate-400 mb-12 max-w-2xl mx-auto">
+                Track student typing proficiency with a hybrid data model supporting both automated API ingestion and
+                efficient manual data entry.
+            </p>
+
+            <!-- CTA Buttons -->
+            <div class="flex flex-col sm:flex-row gap-4 justify-center items-center">
+                {% if user.is_authenticated %}
+                {% if user.is_staff %}
+                <a href="{% url 'bulk_entry' %}"
+                    class="w-full sm:w-auto px-8 py-3 bg-gradient-to-r from-cyan-500 to-purple-600 hover:from-cyan-600 hover:to-purple-700 text-white font-medium rounded-lg shadow-[0_0_20px_rgba(6,182,212,0.3)] transition-all">
+                    Bulk Entry Interface
+                </a>
+                <a href="{% url 'admin:index' %}"
+                    class="w-full sm:w-auto px-8 py-3 bg-slate-800 hover:bg-slate-700 text-white font-medium rounded-lg border border-slate-700 transition-all">
+                    Admin Panel
+                </a>
+                {% endif %}
+
+                {% if has_student_profile %}
+                <a href="{% url 'student_dashboard' %}"
+                    class="w-full sm:w-auto px-8 py-3 bg-gradient-to-r from-cyan-500 to-purple-600 hover:from-cyan-600 hover:to-purple-700 text-white font-medium rounded-lg shadow-[0_0_20px_rgba(6,182,212,0.3)] transition-all">
+                    My Dashboard
+                </a>
+                {% endif %}
+                {% else %}
+                <a href="{% url 'admin:login' %}"
+                    class="w-full sm:w-auto px-8 py-3 bg-gradient-to-r from-cyan-500 to-purple-600 hover:from-cyan-600 hover:to-purple-700 text-white font-medium rounded-lg shadow-[0_0_20px_rgba(6,182,212,0.3)] transition-all">
+                    Login to Get Started
+                </a>
+                {% endif %}
+            </div>
+
+            <!-- Features Grid -->
+            <div class="mt-20 grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div
+                    class="bg-slate-800/50 p-6 rounded-xl border border-slate-700/50 hover:border-cyan-500/50 transition-all group">
+                    <div
+                        class="w-12 h-12 bg-cyan-500/10 rounded-lg flex items-center justify-center mb-4 group-hover:bg-cyan-500/20 transition-all">
+                        <svg class="w-6 h-6 text-cyan-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                    </div>
+                    <h3 class="text-lg font-bold text-white mb-2">Bulk Entry</h3>
+                    <p class="text-sm text-slate-400">High-speed manual data entry with HTMX-powered instant saving</p>
+                </div>
+
+                <div
+                    class="bg-slate-800/50 p-6 rounded-xl border border-slate-700/50 hover:border-purple-500/50 transition-all group">
+                    <div
+                        class="w-12 h-12 bg-purple-500/10 rounded-lg flex items-center justify-center mb-4 group-hover:bg-purple-500/20 transition-all">
+                        <svg class="w-6 h-6 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                    </div>
+                    <h3 class="text-lg font-bold text-white mb-2">API Integration</h3>
+                    <p class="text-sm text-slate-400">Automated score submission from external typing tools</p>
+                </div>
+
+                <div
+                    class="bg-slate-800/50 p-6 rounded-xl border border-slate-700/50 hover:border-green-500/50 transition-all group">
+                    <div
+                        class="w-12 h-12 bg-green-500/10 rounded-lg flex items-center justify-center mb-4 group-hover:bg-green-500/20 transition-all">
+                        <svg class="w-6 h-6 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                        </svg>
+                    </div>
+                    <h3 class="text-lg font-bold text-white mb-2">Progress Tracking</h3>
+                    <p class="text-sm text-slate-400">Automated status promotion and visual progress charts</p>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-slate-800 py-6">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-sm text-slate-500">
+            <p>TypeSpire 2.0 - Educational Typing Proficiency Platform</p>
+        </div>
+    </footer>
+
+</body>
+
+</html>

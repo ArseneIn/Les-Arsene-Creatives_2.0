@@ -1,0 +1,342 @@
+{% extends 'core/base_admin.html' %}
+{% load static %}
+
+{% block title %}Manage Students - TypeSpire 2.0{% endblock %}
+
+{% block page_title %}Students{% endblock %}
+{% block page_subtitle %}Manage student profiles and assignments{% endblock %}
+
+{% block header_actions %}
+{% endblock %}
+
+{% block content %}
+<div x-data="{ showModal: false, showUploadModal: false }">
+
+    <!-- Messages -->
+    {% if messages %}
+    <div class="mb-6 space-y-2">
+        {% for message in messages %}
+        <div
+            class="px-4 py-3 rounded-lg border {% if message.tags == 'success' %}bg-green-900/30 border-green-800 text-green-300{% elif message.tags == 'error' %}bg-red-900/30 border-red-800 text-red-300{% else %}bg-blue-900/30 border-blue-800 text-blue-300{% endif %}">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Action Buttons -->
+    <div class="flex gap-4 mb-6">
+        <button @click="showModal = true"
+            class="px-4 py-2 bg-gradient-to-r from-cyan-500 to-purple-600 hover:from-cyan-600 hover:to-purple-700 text-white text-sm font-medium rounded-lg shadow-[0_0_20px_rgba(6,182,212,0.3)] transition-all flex items-center gap-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+            </svg>
+            New Student
+        </button>
+        <button @click="showUploadModal = true"
+            class="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white text-sm font-medium rounded-lg border border-slate-600 transition-all flex items-center gap-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+            </svg>
+            Upload CSV
+        </button>
+    </div>
+
+    <!-- Filters -->
+    <form method="get"
+        class="mb-6 flex flex-wrap gap-4 items-end bg-slate-800/50 p-4 rounded-xl border border-slate-700/50">
+        <div class="flex-1 min-w-[200px]">
+            <label class="block text-xs font-medium text-slate-400 mb-1 uppercase tracking-wider">Program</label>
+            <select name="program"
+                class="w-full px-4 py-2 bg-slate-900 border border-slate-700 rounded-lg text-white focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all">
+                <option value="">All Programs</option>
+                {% for program in programs %}
+                <option value="{{ program.id }}">{{ program.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="flex-1 min-w-[200px]">
+            <label class="block text-xs font-medium text-slate-400 mb-1 uppercase tracking-wider">Status</label>
+            <select name="status"
+                class="w-full px-4 py-2 bg-slate-900 border border-slate-700 rounded-lg text-white focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all">
+                <option value="">All Statuses</option>
+                <option value="Beginner">Beginner</option>
+                <option value="Level 1">Level 1</option>
+                <option value="Level 2">Level 2</option>
+            </select>
+        </div>
+        <div class="flex-1 min-w-[200px]">
+            <label class="block text-xs font-medium text-slate-400 mb-1 uppercase tracking-wider">Search</label>
+            <input type="text" name="search" value="{{ search_query|default:'' }}" placeholder="Search students..."
+                class="w-full px-4 py-2 bg-slate-900 border border-slate-700 rounded-lg text-white focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all">
+        </div>
+        <button type="submit"
+            class="px-6 py-2 bg-cyan-500 hover:bg-cyan-600 text-white font-medium rounded-lg transition-all">
+            Filter
+        </button>
+    </form>
+
+    <!-- Students Table -->
+    <div class="bg-slate-800/50 rounded-xl border border-slate-700/50 overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full">
+                <thead class="bg-slate-900/50 border-b border-slate-700">
+                    <tr>
+                        <th class="px-6 py-4 text-left text-xs font-medium text-slate-400 uppercase tracking-wider">
+                            Student ID</th>
+                        <th class="px-6 py-4 text-left text-xs font-medium text-slate-400 uppercase tracking-wider">Name
+                        </th>
+                        <th class="px-6 py-4 text-left text-xs font-medium text-slate-400 uppercase tracking-wider">
+                            Program</th>
+                        <th class="px-6 py-4 text-left text-xs font-medium text-slate-400 uppercase tracking-wider">
+                            Status</th>
+                        <th class="px-6 py-4 text-left text-xs font-medium text-slate-400 uppercase tracking-wider">Best
+                            WPM</th>
+                        <th class="px-6 py-4 text-right text-xs font-medium text-slate-400 uppercase tracking-wider">
+                            Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-700/50">
+                    {% for student in students %}
+                    <tr class="hover:bg-slate-700/30 transition-colors">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-white">{{ student.student_id }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="flex items-center gap-3">
+                                <div
+                                    class="w-8 h-8 rounded-full bg-gradient-to-br from-cyan-500 to-purple-600 flex items-center justify-center text-xs font-bold text-white">
+                                    {{ student.user.username|slice:":2"|upper }}
+                                </div>
+                                <span class="text-sm text-white">{{
+                                    student.user.get_full_name|default:student.user.username }}</span>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-300">{{ student.program.name }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span
+                                class="px-3 py-1 bg-purple-900/30 text-purple-300 text-xs font-medium rounded-full border border-purple-800">
+                                {{ student.current_status }}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-white">
+                            {{ student.best_wpm|default:"—" }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                            <div class="flex items-center justify-end gap-2">
+                                <a href="{% url 'edit_student' student.pk %}"
+                                    class="px-3 py-1 bg-blue-900/30 text-blue-300 hover:bg-blue-900/50 rounded-lg transition-all">Edit</a>
+                                <form method="post" action="{% url 'delete_student' student.pk %}" class="inline"
+                                    onsubmit="return confirm('Are you sure you want to delete this student?');">
+                                    {% csrf_token %}
+                                    <button type="submit"
+                                        class="px-3 py-1 bg-red-900/30 text-red-300 hover:bg-red-900/50 rounded-lg transition-all">Delete</button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="px-6 py-12 text-center">
+                            <svg class="w-12 h-12 text-slate-700 mx-auto mb-3" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                            </svg>
+                            <p class="text-slate-500">No students found</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Pagination -->
+    {% if students.has_other_pages %}
+    <div class="flex justify-center mt-6">
+        <nav class="flex items-center gap-2">
+            {% if students.has_previous %}
+            <a href="?page={{ students.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if program_filter %}&program={{ program_filter }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}"
+                class="px-3 py-1 bg-slate-800 border border-slate-700 rounded hover:bg-slate-700 text-slate-300">Previous</a>
+            {% endif %}
+
+            <span class="text-slate-400 text-sm">Page {{ students.number }} of {{ students.paginator.num_pages }}</span>
+
+            {% if students.has_next %}
+            <a href="?page={{ students.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if program_filter %}&program={{ program_filter }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}"
+                class="px-3 py-1 bg-slate-800 border border-slate-700 rounded hover:bg-slate-700 text-slate-300">Next</a>
+            {% endif %}
+        </nav>
+    </div>
+    {% endif %}
+
+    <!-- New Student Modal -->
+    <div x-show="showModal" x-cloak class="fixed inset-0 z-50 overflow-y-auto" style="display: none;">
+        <div class="flex items-center justify-center min-h-screen px-4">
+            <div @click="showModal = false" class="fixed inset-0 bg-black/70 backdrop-blur-sm transition-opacity"></div>
+
+            <div class="relative bg-slate-800 rounded-xl border border-slate-700 shadow-2xl max-w-md w-full p-6">
+                <div class="flex items-center justify-between mb-6">
+                    <h3 class="text-xl font-bold text-white">New Student</h3>
+                    <button @click="showModal = false" class="p-2 hover:bg-slate-700 rounded-lg transition-all">
+                        <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+
+                <form method="post" action="{% url 'create_student' %}" class="space-y-4">
+                    {% csrf_token %}
+                    <div>
+                        <label class="block text-sm font-medium text-slate-300 mb-2">Student ID</label>
+                        <input type="text" name="student_id" required
+                            class="w-full px-4 py-2 bg-slate-900 border border-slate-700 rounded-lg text-white focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all"
+                            placeholder="e.g., STU001">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-slate-300 mb-2">Username</label>
+                        <input type="text" name="username" required
+                            class="w-full px-4 py-2 bg-slate-900 border border-slate-700 rounded-lg text-white focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all"
+                            placeholder="Username for login">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-slate-300 mb-2">Full Name</label>
+                        <input type="text" name="full_name" required
+                            class="w-full px-4 py-2 bg-slate-900 border border-slate-700 rounded-lg text-white focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all"
+                            placeholder="John Doe">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-slate-300 mb-2">Program</label>
+                        <select name="program" required
+                            class="w-full px-4 py-2 bg-slate-900 border border-slate-700 rounded-lg text-white focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all">
+                            <option value="">Select Program</option>
+                            {% for program in programs %}
+                            <option value="{{ program.id }}">{{ program.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-slate-300 mb-2">Password</label>
+                        <input type="password" name="password" required
+                            class="w-full px-4 py-2 bg-slate-900 border border-slate-700 rounded-lg text-white focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all"
+                            placeholder="Default password">
+                    </div>
+
+                    <div class="flex gap-3 pt-4">
+                        <button type="button" @click="showModal = false"
+                            class="flex-1 px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white font-medium rounded-lg transition-all">
+                            Cancel
+                        </button>
+                        <button type="submit"
+                            class="flex-1 px-4 py-2 bg-gradient-to-r from-cyan-500 to-purple-600 hover:from-cyan-600 hover:to-purple-700 text-white font-medium rounded-lg shadow-[0_0_20px_rgba(6,182,212,0.3)] transition-all">
+                            Create Student
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Upload CSV Modal -->
+    <div x-show="showUploadModal" x-cloak class="fixed inset-0 z-50 overflow-y-auto" style="display: none;">
+        <div class="flex items-center justify-center min-h-screen px-4">
+            <div @click="showUploadModal = false" class="fixed inset-0 bg-black/70 backdrop-blur-sm transition-opacity">
+            </div>
+
+            <div class="relative bg-slate-800 rounded-xl border border-slate-700 shadow-2xl max-w-md w-full p-6"
+                x-data="{ programOption: 'existing' }">
+                <div class="flex items-center justify-between mb-6">
+                    <h3 class="text-xl font-bold text-white">Upload Students CSV</h3>
+                    <button @click="showUploadModal = false" class="p-2 hover:bg-slate-700 rounded-lg transition-all">
+                        <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+
+                <form method="post" action="{% url 'upload_students' %}" enctype="multipart/form-data"
+                    class="space-y-4">
+                    {% csrf_token %}
+
+                    <!-- Program Selection -->
+                    <div>
+                        <label class="block text-sm font-medium text-slate-300 mb-3">Program Assignment</label>
+                        <div class="space-y-3">
+                            <!-- Existing Program Option -->
+                            <label class="flex items-center gap-2 cursor-pointer">
+                                <input type="radio" name="program_option" value="existing" x-model="programOption"
+                                    checked
+                                    class="w-4 h-4 text-cyan-500 bg-slate-900 border-slate-700 focus:ring-cyan-500">
+                                <span class="text-sm text-slate-300">Assign to existing program</span>
+                            </label>
+
+                            <div x-show="programOption === 'existing'" class="ml-6">
+                                <select name="existing_program" :required="programOption === 'existing'"
+                                    class="w-full px-4 py-2 bg-slate-900 border border-slate-700 rounded-lg text-white focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all">
+                                    <option value="">Select Program</option>
+                                    {% for program in programs %}
+                                    <option value="{{ program.id }}">{{ program.name }} - Intake {{ program.intake }}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <!-- New Program Option -->
+                            <label class="flex items-center gap-2 cursor-pointer">
+                                <input type="radio" name="program_option" value="new" x-model="programOption"
+                                    class="w-4 h-4 text-cyan-500 bg-slate-900 border-slate-700 focus:ring-cyan-500">
+                                <span class="text-sm text-slate-300">Create new program</span>
+                            </label>
+
+                            <div x-show="programOption === 'new'" class="ml-6 space-y-3" style="display: none;">
+                                <div>
+                                    <label class="block text-xs font-medium text-slate-400 mb-1">Program Name</label>
+                                    <input type="text" name="new_program_name" :required="programOption === 'new'"
+                                        placeholder="e.g., Computer Science"
+                                        class="w-full px-4 py-2 bg-slate-900 border border-slate-700 rounded-lg text-white focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-medium text-slate-400 mb-1">Intake</label>
+                                    <input type="text" name="new_program_intake" :required="programOption === 'new'"
+                                        placeholder="e.g., 2024"
+                                        class="w-full px-4 py-2 bg-slate-900 border border-slate-700 rounded-lg text-white focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- CSV File Upload -->
+                    <div>
+                        <label class="block text-sm font-medium text-slate-300 mb-2">CSV File</label>
+                        <input type="file" name="csv_file" accept=".csv" required
+                            class="w-full px-4 py-2 bg-slate-900 border border-slate-700 rounded-lg text-white focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all">
+                        <p class="text-xs text-slate-500 mt-2">
+                            Required columns: student_id, username, full_name<br>
+                            Optional: password (default: default123)
+                        </p>
+                    </div>
+
+                    <div class="flex gap-3 pt-4">
+                        <button type="button" @click="showUploadModal = false"
+                            class="flex-1 px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white font-medium rounded-lg transition-all">
+                            Cancel
+                        </button>
+                        <button type="submit"
+                            class="flex-1 px-4 py-2 bg-gradient-to-r from-cyan-500 to-purple-600 hover:from-cyan-600 hover:to-purple-700 text-white font-medium rounded-lg shadow-[0_0_20px_rgba(6,182,212,0.3)] transition-all">
+                            Upload
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

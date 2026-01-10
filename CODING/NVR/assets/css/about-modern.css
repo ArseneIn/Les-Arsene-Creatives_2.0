@@ -1,0 +1,279 @@
+/* --- About Page Redesign --- */
+
+/* Hero Section */
+.page-header {
+    position: relative;
+    background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('../images/house.jpg');
+    background-size: cover;
+    background-position: center;
+    min-height: 400px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 4rem 5%;
+    text-align: center;
+    color: var(--text-light);
+}
+
+.page-header h1 {
+    font-size: 3.5rem;
+    font-weight: 800;
+    margin-bottom: 0.5rem;
+    text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.5);
+}
+
+/* Split Layout (Who We Are) */
+.about-split {
+    display: flex;
+    align-items: center;
+    gap: 4rem;
+    margin-bottom: 5rem;
+}
+
+.about-text {
+    flex: 1;
+}
+
+.about-text h2 {
+    font-size: 2.5rem;
+    color: var(--primary-color);
+    margin-bottom: 1.5rem;
+    line-height: 1.2;
+}
+
+.about-text p {
+    font-size: 1.1rem;
+    line-height: 1.8;
+    color: #555;
+    margin-bottom: 1.5rem;
+}
+
+.about-image {
+    flex: 1;
+    position: relative;
+}
+
+.about-image img {
+    width: 100%;
+    border-radius: 20px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+    transition: transform 0.3s ease;
+}
+
+.about-image:hover img {
+    transform: scale(1.02);
+}
+
+/* Mission & Vision Cards */
+.mv-section {
+    background-color: var(--background-dark);
+    padding: 5rem 5%;
+    margin-bottom: 5rem;
+}
+
+.mv-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 3rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.mv-card {
+    background: var(--primary-color);
+    /* Green background */
+    padding: 3rem 2rem;
+    border-radius: 15px;
+    text-align: center;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border-top: none;
+}
+
+.mv-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+}
+
+.mv-icon {
+    width: 80px;
+    height: 80px;
+    background-color: rgba(255, 255, 255, 0.2);
+    /* White with opacity */
+    color: var(--secondary-color);
+    /* Yellow icon */
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    margin: 0 auto 1.5rem;
+}
+
+.mv-card h3 {
+    font-size: 1.8rem;
+    margin-bottom: 1rem;
+    color: #fff;
+    /* White text */
+}
+
+.mv-card p {
+    color: rgba(255, 255, 255, 0.9);
+    /* Off-white text */
+    line-height: 1.6;
+}
+
+/* Values Grid */
+.values-section {
+    margin-bottom: 5rem;
+}
+
+.values-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 2rem;
+    margin-top: 3rem;
+}
+
+.value-card {
+    text-align: center;
+    padding: 2rem;
+    background-color: var(--primary-color);
+    /* Green background */
+    border: none;
+    border-radius: 10px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.value-card:hover {
+    border-color: var(--secondary-color);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
+}
+
+.value-icon {
+    font-size: 2.5rem;
+    color: var(--secondary-color);
+    /* Yellow icon */
+    margin-bottom: 1rem;
+}
+
+.value-card h4 {
+    font-size: 1.2rem;
+    margin-bottom: 0.5rem;
+    color: #fff;
+    /* White text */
+}
+
+.value-card p {
+    color: rgba(255, 255, 255, 0.9);
+}
+
+/* Who We Serve - Modern List */
+.serve-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+    margin-top: 2rem;
+}
+
+.serve-item {
+    background: #fff;
+    padding: 1.5rem;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    transition: transform 0.2s;
+}
+
+.serve-item:hover {
+    transform: translateY(-3px);
+    background-color: var(--background-dark);
+}
+
+.serve-item i {
+    color: var(--primary-color);
+    font-size: 1.2rem;
+}
+
+.serve-item span {
+    font-weight: 600;
+    color: var(--text-dark);
+}
+
+/* CEO Profile Redesign */
+.ceo-section-modern {
+    background-color: var(--background-dark);
+    padding: 5rem 5%;
+    border-radius: 20px;
+    margin-bottom: 5rem;
+}
+
+.ceo-card {
+    display: flex;
+    align-items: center;
+    gap: 3rem;
+    background: #fff;
+    padding: 3rem;
+    border-radius: 20px;
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.05);
+}
+
+.ceo-photo {
+    flex: 0 0 250px;
+    height: 250px;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 5px solid var(--secondary-color);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+.ceo-photo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.ceo-content h3 {
+    font-size: 2rem;
+    color: var(--primary-color);
+    margin-bottom: 0.5rem;
+}
+
+.ceo-content .role {
+    display: block;
+    font-weight: 700;
+    color: #888;
+    margin-bottom: 1.5rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-size: 0.9rem;
+}
+
+.ceo-content p {
+    font-size: 1.1rem;
+    line-height: 1.8;
+    color: #555;
+    font-style: italic;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+    .about-split {
+        flex-direction: column;
+        gap: 2rem;
+    }
+
+    .ceo-card {
+        flex-direction: column;
+        text-align: center;
+        padding: 2rem;
+    }
+
+    .ceo-photo {
+        margin: 0 auto;
+    }
+}

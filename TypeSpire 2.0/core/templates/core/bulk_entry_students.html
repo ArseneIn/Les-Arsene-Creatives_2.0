@@ -1,0 +1,241 @@
+{% extends 'core/base_admin.html' %}
+{% load static %}
+
+{% block title %}Bulk Student Entry - TypeSpire 2.0{% endblock %}
+
+{% block page_title %}Bulk Student Entry{% endblock %}
+{% block page_subtitle %}Review and submit student data{% endblock %}
+
+{% block header_actions %}
+{% endblock %}
+
+{% block content %}
+<div x-data="bulkEntryData()">
+
+    <!-- Messages -->
+    {% if messages %}
+    <div class="mb-6 space-y-2">
+        {% for message in messages %}
+        <div
+            class="px-4 py-3 rounded-lg border {% if message.tags == 'success' %}bg-green-900/30 border-green-800 text-green-300{% elif message.tags == 'error' %}bg-red-900/30 border-red-800 text-red-300{% else %}bg-blue-900/30 border-blue-800 text-blue-300{% endif %}">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Step 1: Upload CSV and Select Program -->
+    <div class="bg-slate-800/50 rounded-xl border border-slate-700/50 p-6 mb-6">
+        <h3 class="text-lg font-bold text-white mb-4">Step 1: Upload CSV & Select Program</h3>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- CSV Upload -->
+            <div>
+                <label class="block text-sm font-medium text-slate-300 mb-2">Upload CSV File</label>
+                <input type="file" accept=".csv" @change="handleCSVUpload($event)"
+                    class="w-full px-4 py-2 bg-slate-900 border border-slate-700 rounded-lg text-white focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all">
+                <p class="text-xs text-slate-500 mt-2">
+                    Required columns: student_id, username, full_name<br>
+                    Optional: password (default: default123)
+                </p>
+            </div>
+
+            <!-- Program Selection -->
+            <div>
+                <label class="block text-sm font-medium text-slate-300 mb-2">Program Assignment</label>
+                <div class="space-y-3">
+                    <label class="flex items-center gap-2 cursor-pointer">
+                        <input type="radio" x-model="newProgram" :value="false"
+                            class="w-4 h-4 text-cyan-500 bg-slate-900 border-slate-700 focus:ring-cyan-500">
+                        <span class="text-sm text-slate-300">Existing Program</span>
+                    </label>
+
+                    <select x-show="!newProgram" x-model="programId"
+                        class="w-full px-4 py-2 bg-slate-900 border border-slate-700 rounded-lg text-white focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all">
+                        <option value="">Select Program</option>
+                        {% for program in programs %}
+                        <option value="{{ program.id }}">{{ program.name }} - Intake {{ program.intake }}</option>
+                        {% endfor %}
+                    </select>
+
+                    <label class="flex items-center gap-2 cursor-pointer">
+                        <input type="radio" x-model="newProgram" :value="true"
+                            class="w-4 h-4 text-cyan-500 bg-slate-900 border-slate-700 focus:ring-cyan-500">
+                        <span class="text-sm text-slate-300">Create New Program</span>
+                    </label>
+
+                    <div x-show="newProgram" class="space-y-2" style="display: none;">
+                        <input type="text" x-model="programName" placeholder="Program Name"
+                            class="w-full px-4 py-2 bg-slate-900 border border-slate-700 rounded-lg text-white focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all">
+                        <input type="text" x-model="intake" placeholder="Intake (e.g., 2024)"
+                            class="w-full px-4 py-2 bg-slate-900 border border-slate-700 rounded-lg text-white focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Step 2: Review Data -->
+    <div x-show="students.length > 0"
+        class="bg-slate-800/50 rounded-xl border border-slate-700/50 overflow-hidden mb-6">
+        <div class="p-6 border-b border-slate-700/50">
+            <h3 class="text-lg font-bold text-white">Step 2: Review Student Data</h3>
+            <p class="text-sm text-slate-400 mt-1">Review and edit the data before submitting</p>
+        </div>
+
+        <div class="overflow-x-auto">
+            <table class="w-full">
+                <thead class="bg-slate-900/50 border-b border-slate-700">
+                    <tr>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-slate-400 uppercase">#</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-slate-400 uppercase">Student ID</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-slate-400 uppercase">Username</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-slate-400 uppercase">Full Name</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-slate-400 uppercase">Password</th>
+                        <th class="px-4 py-3 text-center text-xs font-medium text-slate-400 uppercase">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-700/50">
+                    <template x-for="(student, index) in students" :key="index">
+                        <tr class="hover:bg-slate-700/30 transition-colors">
+                            <td class="px-4 py-3 text-sm text-slate-400" x-text="index + 1"></td>
+                            <td class="px-4 py-3">
+                                <input type="text" x-model="student.student_id"
+                                    class="w-full px-2 py-1 bg-slate-900 border border-slate-700 rounded text-white text-sm focus:ring-1 focus:ring-cyan-500">
+                            </td>
+                            <td class="px-4 py-3">
+                                <input type="text" x-model="student.username"
+                                    class="w-full px-2 py-1 bg-slate-900 border border-slate-700 rounded text-white text-sm focus:ring-1 focus:ring-cyan-500">
+                            </td>
+                            <td class="px-4 py-3">
+                                <input type="text" x-model="student.full_name"
+                                    class="w-full px-2 py-1 bg-slate-900 border border-slate-700 rounded text-white text-sm focus:ring-1 focus:ring-cyan-500">
+                            </td>
+                            <td class="px-4 py-3">
+                                <input type="text" x-model="student.password"
+                                    class="w-full px-2 py-1 bg-slate-900 border border-slate-700 rounded text-white text-sm focus:ring-1 focus:ring-cyan-500">
+                            </td>
+                            <td class="px-4 py-3 text-center">
+                                <button @click="students.splice(index, 1)"
+                                    class="px-2 py-1 bg-red-900/30 text-red-300 hover:bg-red-900/50 rounded text-xs transition-all">
+                                    Remove
+                                </button>
+                            </td>
+                        </tr>
+                    </template>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="p-6 border-t border-slate-700/50 bg-slate-900/30">
+            <div class="flex items-center justify-between">
+                <div class="text-sm text-slate-400">
+                    Total Students: <span class="text-white font-semibold" x-text="students.length"></span>
+                </div>
+                <div class="flex gap-3">
+                    <button @click="students = []"
+                        class="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white font-medium rounded-lg transition-all">
+                        Clear All
+                    </button>
+                    <button @click="submitStudents()"
+                        :disabled="students.length === 0 || (!newProgram && !programId) || (newProgram && (!programName || !intake))"
+                        :class="(students.length === 0 || (!newProgram && !programId) || (newProgram && (!programName || !intake))) ? 'opacity-50 cursor-not-allowed' : ''"
+                        class="px-6 py-2 bg-gradient-to-r from-cyan-500 to-purple-600 hover:from-cyan-600 hover:to-purple-700 text-white font-medium rounded-lg shadow-[0_0_20px_rgba(6,182,212,0.3)] transition-all">
+                        Submit to Database
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+{% csrf_token %}
+
+<script>
+    function bulkEntryData() {
+        return {
+            students: [],
+            programId: '',
+            programName: '',
+            intake: '',
+            newProgram: false,
+
+            handleCSVUpload(event) {
+                const file = event.target.files[0];
+                if (!file) return;
+
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const text = e.target.result;
+                    const lines = text.split('\n').filter(line => line.trim());
+
+                    if (lines.length < 2) {
+                        alert('CSV file is empty or has no data rows');
+                        return;
+                    }
+
+                    const headers = lines[0].split(',').map(h => h.trim().toLowerCase());
+                    const students = [];
+
+                    for (let i = 1; i < lines.length; i++) {
+                        const values = lines[i].split(',').map(v => v.trim());
+                        const student = {};
+
+                        headers.forEach((header, index) => {
+                            student[header] = values[index] || '';
+                        });
+
+                        // Ensure required fields
+                        if (!student.student_id) student.student_id = '';
+                        if (!student.username) student.username = '';
+                        if (!student.full_name) student.full_name = '';
+                        if (!student.password) student.password = 'default123';
+
+                        students.push(student);
+                    }
+
+                    this.students = students;
+                };
+
+                reader.readAsText(file);
+            },
+
+            submitStudents() {
+                if (this.students.length === 0) {
+                    alert('No students to submit');
+                    return;
+                }
+
+                if (!this.newProgram && !this.programId) {
+                    alert('Please select a program');
+                    return;
+                }
+
+                if (this.newProgram && (!this.programName || !this.intake)) {
+                    alert('Please enter program name and intake');
+                    return;
+                }
+
+                // Submit via form
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = '{% url "bulk_submit_students" %}';
+
+                const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+                form.innerHTML = `
+                <input type="hidden" name="csrfmiddlewaretoken" value="${csrfToken}">
+                <input type="hidden" name="students_data" value='${JSON.stringify(this.students)}'>
+                <input type="hidden" name="new_program" value="${this.newProgram}">
+                <input type="hidden" name="program_id" value="${this.programId}">
+                <input type="hidden" name="program_name" value="${this.programName}">
+                <input type="hidden" name="intake" value="${this.intake}">
+            `;
+
+                document.body.appendChild(form);
+                form.submit();
+            }
+        }
+    }
+</script>
+{% endblock %}

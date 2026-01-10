@@ -1,0 +1,222 @@
+﻿{% extends 'core/base_admin.html' %}
+{% load static %}
+
+{% block title %}Admin Dashboard - TypeSpire 2.0{% endblock %}
+
+{% block extra_head %}
+<script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+{% endblock %}
+
+{% block page_title %}Dashboard{% endblock %}
+{% block page_subtitle %}Here's what's happening with your typing program today{% endblock %}
+
+{% block content %}
+<!-- KPI Cards -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+    <!-- Total Students -->
+    <div
+        class="bg-gradient-to-br from-slate-800/80 to-slate-800/40 p-6 rounded-xl border border-slate-700/50 relative overflow-hidden group hover:border-cyan-500/50 transition-all">
+        <div
+            class="absolute top-0 right-0 w-32 h-32 bg-cyan-500/5 rounded-full -mr-16 -mt-16 group-hover:bg-cyan-500/10 transition-all">
+        </div>
+        <div class="relative">
+            <div class="flex items-center justify-between mb-4">
+                <div class="w-12 h-12 bg-cyan-500/10 rounded-lg flex items-center justify-center">
+                    <svg class="w-6 h-6 text-cyan-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                    </svg>
+                </div>
+                <span class="text-xs text-slate-500 uppercase tracking-wider">Total</span>
+            </div>
+            <p class="text-4xl font-bold text-white mb-1">{{ total_students }}</p>
+            <p class="text-sm text-slate-400">Active Students</p>
+        </div>
+    </div>
+
+    <!-- Total Programs -->
+    <div
+        class="bg-gradient-to-br from-slate-800/80 to-slate-800/40 p-6 rounded-xl border border-slate-700/50 relative overflow-hidden group hover:border-purple-500/50 transition-all">
+        <div
+            class="absolute top-0 right-0 w-32 h-32 bg-purple-500/5 rounded-full -mr-16 -mt-16 group-hover:bg-purple-500/10 transition-all">
+        </div>
+        <div class="relative">
+            <div class="flex items-center justify-between mb-4">
+                <div class="w-12 h-12 bg-purple-500/10 rounded-lg flex items-center justify-center">
+                    <svg class="w-6 h-6 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                    </svg>
+                </div>
+                <span class="text-xs text-slate-500 uppercase tracking-wider">Programs</span>
+            </div>
+            <p class="text-4xl font-bold text-white mb-1">{{ total_programs }}</p>
+            <p class="text-sm text-slate-400">Active Cohorts</p>
+        </div>
+    </div>
+
+    <!-- Sessions Today -->
+    <div
+        class="bg-gradient-to-br from-slate-800/80 to-slate-800/40 p-6 rounded-xl border border-slate-700/50 relative overflow-hidden group hover:border-green-500/50 transition-all">
+        <div
+            class="absolute top-0 right-0 w-32 h-32 bg-green-500/5 rounded-full -mr-16 -mt-16 group-hover:bg-green-500/10 transition-all">
+        </div>
+        <div class="relative">
+            <div class="flex items-center justify-between mb-4">
+                <div class="w-12 h-12 bg-green-500/10 rounded-lg flex items-center justify-center">
+                    <svg class="w-6 h-6 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </div>
+                <span class="text-xs text-slate-500 uppercase tracking-wider">Today</span>
+            </div>
+            <p class="text-4xl font-bold text-white mb-1">{{ sessions_today }}</p>
+            <p class="text-sm text-slate-400">Sessions Recorded</p>
+        </div>
+    </div>
+
+    <!-- Average WPM -->
+    <div
+        class="bg-gradient-to-br from-slate-800/80 to-slate-800/40 p-6 rounded-xl border border-slate-700/50 relative overflow-hidden group hover:border-yellow-500/50 transition-all">
+        <div
+            class="absolute top-0 right-0 w-32 h-32 bg-yellow-500/5 rounded-full -mr-16 -mt-16 group-hover:bg-yellow-500/10 transition-all">
+        </div>
+        <div class="relative">
+            <div class="flex items-center justify-between mb-4">
+                <div class="w-12 h-12 bg-yellow-500/10 rounded-lg flex items-center justify-center">
+                    <svg class="w-6 h-6 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M13 10V3L4 14h7v7l9-11h-7z" />
+                    </svg>
+                </div>
+                <span class="text-xs text-slate-500 uppercase tracking-wider">Average</span>
+            </div>
+            <p class="text-4xl font-bold text-white mb-1">{{ avg_wpm|floatformat:0 }}</p>
+            <p class="text-sm text-slate-400">WPM Overall</p>
+        </div>
+    </div>
+</div>
+
+<!-- Program Performance Chart -->
+<div class="bg-slate-800/50 p-6 rounded-xl border border-slate-700/50 mb-8">
+    <div class="flex items-center justify-between mb-6">
+        <h3 class="text-lg font-bold text-white">Program Performance by Intake</h3>
+        <span class="text-xs text-slate-500 uppercase tracking-wider">Student Status Breakdown</span>
+    </div>
+    <div style="position: relative; height: 400px;">
+        <div id="programChart" style="width:100%; height:100%;"></div>
+    </div>
+</div>
+
+<!-- Charts Row -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+    <!-- Weekly Activity Chart -->
+    <div class="bg-slate-800/50 p-6 rounded-xl border border-slate-700/50">
+        <div class="flex items-center justify-between mb-6">
+            <h3 class="text-lg font-bold text-white">Weekly Activity</h3>
+            <span class="text-xs text-slate-500 uppercase tracking-wider">Last 7 Days</span>
+        </div>
+        <div style="position: relative; height: 300px;">
+            <div id="weeklyActivityChart" style="width:100%; height:100%;"></div>
+        </div>
+    </div>
+
+    <!-- Status Distribution -->
+    <div class="bg-slate-800/50 p-6 rounded-xl border border-slate-700/50">
+        <div class="flex items-center justify-between mb-6">
+            <h3 class="text-lg font-bold text-white">Student Status Distribution</h3>
+            <span class="text-xs text-slate-500 uppercase tracking-wider">Current</span>
+        </div>
+        <div style="position: relative; height: 300px;">
+            <div id="statusChart" style="width:100%; height:100%;"></div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Activity & Top Performers -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+    <!-- Recent Sessions -->
+    <div class="bg-slate-800/50 p-6 rounded-xl border border-slate-700/50">
+        <h3 class="text-lg font-bold text-white mb-4">Recent Sessions</h3>
+        <div class="space-y-3">
+            {% for session in recent_sessions %}
+            <div
+                class="flex items-center justify-between p-4 bg-slate-900/50 rounded-lg border border-slate-700/30 hover:border-cyan-500/30 transition-all">
+                <div class="flex items-center gap-4">
+                    <div
+                        class="w-10 h-10 rounded-full bg-gradient-to-br from-cyan-500 to-purple-600 flex items-center justify-center text-xs font-bold text-white">
+                        {{ session.student.user.username|slice:":2"|upper }}
+                    </div>
+                    <div>
+                        <p class="text-sm font-medium text-white">{{
+                            session.student.user.get_full_name|default:session.student.user.username }}</p>
+                        <p class="text-xs text-slate-500">{{ session.timestamp|timesince }} ago</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-4">
+                    <div class="text-right">
+                        <p class="text-lg font-bold text-cyan-400">{{ session.wpm }}</p>
+                        <p class="text-xs text-slate-500">WPM</p>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-lg font-bold text-purple-400">{{ session.accuracy|floatformat:1 }}%</p>
+                        <p class="text-xs text-slate-500">Accuracy</p>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <p class="text-center text-slate-500 py-8">No recent sessions</p>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Top Performers -->
+    <div class="bg-slate-800/50 p-6 rounded-xl border border-slate-700/50">
+        <h3 class="text-lg font-bold text-white mb-4">Top Performers This Week</h3>
+        <div class="space-y-3">
+            {% for student in top_performers %}
+            <div
+                class="flex items-center justify-between p-4 bg-slate-900/50 rounded-lg border border-slate-700/30 hover:border-yellow-500/30 transition-all">
+                <div class="flex items-center gap-4">
+                    <div
+                        class="w-10 h-10 rounded-full bg-gradient-to-br from-yellow-500 to-orange-600 flex items-center justify-center text-xs font-bold text-white">
+                        #{{ forloop.counter }}
+                    </div>
+                    <div>
+                        <p class="text-sm font-medium text-white">{{
+                            student.user.get_full_name|default:student.user.username }}</p>
+                        <p class="text-xs text-slate-500">{{ student.student_id }}</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-4">
+                    <div class="text-right">
+                        <p class="text-lg font-bold text-yellow-400">{{ student.best_wpm }}</p>
+                        <p class="text-xs text-slate-500">Best WPM</p>
+                    </div>
+                    <span
+                        class="px-3 py-1 bg-purple-900/30 text-purple-300 text-xs font-medium rounded-full border border-purple-800">
+                        {{ student.current_status }}
+                    </span>
+                </div>
+            </div>
+            {% empty %}
+            <p class="text-center text-slate-500 py-8">No data available</p>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    var programChartConfig = JSON.parse('{{ program_chart_json|escapejs }}');
+    Plotly.newPlot('programChart', programChartConfig.data, programChartConfig.layout, { responsive: true, displayModeBar: false });
+
+    var weeklyChartConfig = JSON.parse('{{ weekly_chart_json|escapejs }}');
+    Plotly.newPlot('weeklyActivityChart', weeklyChartConfig.data, weeklyChartConfig.layout, { responsive: true, displayModeBar: false });
+
+    var statusChartConfig = JSON.parse('{{ status_chart_json|escapejs }}');
+    Plotly.newPlot('statusChart', statusChartConfig.data, statusChartConfig.layout, { responsive: true, displayModeBar: false });
+</script>
+{% endblock %}

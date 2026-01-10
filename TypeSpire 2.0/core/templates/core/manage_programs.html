@@ -1,0 +1,154 @@
+{% extends 'core/base_admin.html' %}
+{% load static %}
+
+{% block title %}Manage Programs - TypeSpire 2.0{% endblock %}
+
+{% block page_title %}Programs & Cohorts{% endblock %}
+{% block page_subtitle %}Manage your typing programs and student cohorts{% endblock %}
+
+{% block header_actions %}
+<button @click="showModal = true; editMode = false; currentProgram = {}"
+    class="px-4 py-2 bg-gradient-to-r from-cyan-500 to-purple-600 hover:from-cyan-600 hover:to-purple-700 text-white text-sm font-medium rounded-lg shadow-[0_0_20px_rgba(6,182,212,0.3)] transition-all flex items-center gap-2">
+    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+    </svg>
+    New Program
+</button>
+{% endblock %}
+
+{% block content %}
+<div x-data="{ showModal: false, editMode: false, currentProgram: {} }">
+
+    <!-- Programs Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {% for program in programs %}
+        <div
+            class="bg-slate-800/50 p-6 rounded-xl border border-slate-700/50 hover:border-cyan-500/50 transition-all group relative overflow-hidden">
+            <div
+                class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-cyan-500/5 to-purple-600/5 rounded-full -mr-16 -mt-16 group-hover:from-cyan-500/10 group-hover:to-purple-600/10 transition-all">
+            </div>
+
+            <div class="relative">
+                <!-- Header -->
+                <div class="flex items-start justify-between mb-4">
+                    <div class="flex-1">
+                        <h3 class="text-xl font-bold text-white mb-1">{{ program.name }}</h3>
+                        <div class="flex items-center gap-2">
+                            <span
+                                class="px-2 py-1 bg-purple-900/30 text-purple-300 text-xs font-medium rounded border border-purple-800">
+                                {{ program.get_program_type_display }}
+                            </span>
+                            <span class="text-xs text-slate-500">{{ program.intake|date:"M Y" }}</span>
+                        </div>
+                    </div>
+                    <button @click="editMode = true; showModal = true; currentProgram = {{ program.id }}"
+                        class="p-2 hover:bg-slate-700 rounded-lg transition-all">
+                        <svg class="w-5 h-5 text-slate-400 hover:text-cyan-400" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                        </svg>
+                    </button>
+                </div>
+
+                <!-- Stats -->
+                <div class="grid grid-cols-2 gap-4 mb-4">
+                    <div class="bg-slate-900/50 p-3 rounded-lg">
+                        <p class="text-xs text-slate-500 mb-1">Students</p>
+                        <p class="text-2xl font-bold text-cyan-400">{{ program.student_set.count }}</p>
+                    </div>
+                    <div class="bg-slate-900/50 p-3 rounded-lg">
+                        <p class="text-xs text-slate-500 mb-1">Intake</p>
+                        <p class="text-lg font-bold text-white">{{ program.intake|date:"d M" }}</p>
+                    </div>
+                </div>
+
+                <!-- Actions -->
+                <div class="flex gap-2">
+                    <a href="{% url 'manage_students' %}?program={{ program.id }}"
+                        class="flex-1 px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white text-sm font-medium rounded-lg transition-all text-center">
+                        View Students
+                    </a>
+                    <form method="post" action="{% url 'delete_program' program.id %}" class="flex-1"
+                        onsubmit="return confirm('Are you sure you want to delete this program?');">
+                        {% csrf_token %}
+                        <button type="submit"
+                            class="w-full px-4 py-2 bg-red-900/30 hover:bg-red-900/50 text-red-300 text-sm font-medium rounded-lg transition-all border border-red-800">
+                            Delete
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-span-full text-center py-12">
+            <svg class="w-16 h-16 text-slate-700 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+            </svg>
+            <p class="text-slate-500 text-lg mb-4">No programs yet</p>
+            <button @click="showModal = true; editMode = false; currentProgram = {}"
+                class="px-6 py-3 bg-gradient-to-r from-cyan-500 to-purple-600 hover:from-cyan-600 hover:to-purple-700 text-white font-medium rounded-lg shadow-[0_0_20px_rgba(6,182,212,0.3)] transition-all">
+                Create Your First Program
+            </button>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Modal -->
+    <div x-show="showModal" x-cloak class="fixed inset-0 z-50 overflow-y-auto" style="display: none;">
+        <div class="flex items-center justify-center min-h-screen px-4">
+            <div @click="showModal = false" class="fixed inset-0 bg-black/70 backdrop-blur-sm transition-opacity"></div>
+
+            <div class="relative bg-slate-800 rounded-xl border border-slate-700 shadow-2xl max-w-md w-full p-6">
+                <div class="flex items-center justify-between mb-6">
+                    <h3 class="text-xl font-bold text-white" x-text="editMode ? 'Edit Program' : 'New Program'"></h3>
+                    <button @click="showModal = false" class="p-2 hover:bg-slate-700 rounded-lg transition-all">
+                        <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+
+                <form method="post" action="{% url 'create_program' %}" class="space-y-4">
+                    {% csrf_token %}
+                    <div>
+                        <label class="block text-sm font-medium text-slate-300 mb-2">Program Name</label>
+                        <input type="text" name="name" required
+                            class="w-full px-4 py-2 bg-slate-900 border border-slate-700 rounded-lg text-white focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all"
+                            placeholder="e.g., BAPM Jan 2025">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-slate-300 mb-2">Program Type</label>
+                        <select name="program_type" required
+                            class="w-full px-4 py-2 bg-slate-900 border border-slate-700 rounded-lg text-white focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all">
+                            <option value="DAY">Day</option>
+                            <option value="EVENING">Evening</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-slate-300 mb-2">Intake Date</label>
+                        <input type="date" name="intake" required
+                            class="w-full px-4 py-2 bg-slate-900 border border-slate-700 rounded-lg text-white focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all">
+                    </div>
+
+                    <div class="flex gap-3 pt-4">
+                        <button type="button" @click="showModal = false"
+                            class="flex-1 px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white font-medium rounded-lg transition-all">
+                            Cancel
+                        </button>
+                        <button type="submit"
+                            class="flex-1 px-4 py-2 bg-gradient-to-r from-cyan-500 to-purple-600 hover:from-cyan-600 hover:to-purple-700 text-white font-medium rounded-lg shadow-[0_0_20px_rgba(6,182,212,0.3)] transition-all">
+                            Create Program
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}
