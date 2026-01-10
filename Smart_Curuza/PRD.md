@@ -9,11 +9,11 @@ To build a hybrid Point-of-Sale (POS) and Inventory system that runs **offline**
 ## **2\. TECHNICAL STACK (MANDATORY)**
 
 * **Web Frontend:** Next.js (React) - Located in `web/` directory.
-* **Mobile App:** Flutter (Dart) - Located in `mobile/` directory. *Targeting Android POS & Smartphones.*
+* **Mobile App:** React Native (Expo) - Located in `mobile/` directory. *Targeting Android POS & Smartphones.*
 * **Backend:** Node.js (NestJS) - Located in `backend/` directory. *Handles high-concurrency USSD & Webhooks.*
 * **Database:** PostgreSQL (Cloud) + IndexedDB (Local Browser Storage) + SQLite (Mobile Local Storage).
 * **Caching:** Redis (For USSD Sessions).
-* **Connectivity:** Offline-First Architecture (Sync via Service Workers/TanStack Query for Web, drift/hive for Mobile).
+* **Connectivity:** Offline-First Architecture (Sync via Service Workers/TanStack Query for Web, TanStack Query/SQLite for Mobile).
 
 ## **3\. DATABASE SCHEMA (BLUEPRINT)**
 

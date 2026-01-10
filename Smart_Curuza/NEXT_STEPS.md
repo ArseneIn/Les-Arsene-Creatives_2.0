@@ -242,8 +242,8 @@
 **Impact**: Establishes the mobile codebase
 
 #### Steps:
-1. **Initialize Flutter Project**:
-   - Run `flutter create .` in `mobile/` directory
+1. **Initialize React Native Project**:
+   - Run `npx create-expo-app .` in `mobile/` directory
    - Verify Android/iOS toolchains
 
 2. **Setup Project Structure**:
@@ -256,8 +256,8 @@
    - Create API client pointing to `http://10.0.2.2:3001` (Android emulator localhost)
 
 **Files to Create**:
-- `mobile/lib/main.dart`
-- `mobile/lib/core/api_client.dart`
+- `mobile/app/_layout.tsx`
+- `mobile/lib/api_client.ts`
 
 ---
 
