@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600" viewBox="0 0 800 600" fill="none">
+  <rect width="800" height="600" rx="24" fill="#0F172A" />
+  <rect x="200" y="160" width="400" height="240" rx="16" fill="#020617" stroke="#94A3B8" stroke-width="4" />
+  <rect x="260" y="220" width="280" height="120" rx="12" fill="#0A0D18" stroke="#FF4F00" stroke-width="6" />
+  <text x="50%" y="48%" fill="#94A3B8" font-size="32" font-family="Inter, sans-serif" text-anchor="middle">Audio (Local)</text>
+</svg>

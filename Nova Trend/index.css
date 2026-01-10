@@ -1,0 +1,66 @@
+/* Global visual tweaks for reliable dark/light readability */
+:root {
+  --muted-light: #6b7280; /* zinc-400 */
+  --muted-dark: #94a3b8; /* slate-400 */
+  --body-dark: #e6eef8; /* high-contrast light-on-dark */
+}
+
+/* Ensure dark mode form elements and muted copy are visible */
+.dark input, .dark textarea, .dark select, .dark button {
+  color: var(--body-dark) !important;
+}
+
+.dark ::placeholder {
+  color: var(--muted-dark) !important;
+  opacity: 1 !important;
+}
+
+/* Force higher contrast for typical muted classes in dark mode */
+.dark .text-zinc-400, .dark .text-slate-500, .dark .text-slate-600 {
+  color: var(--muted-dark) !important;
+}
+
+/* Make subtle separators readable in dark */
+.dark .border-zinc-200, .dark .border-zinc-100 {
+  border-color: rgba(148,163,184,0.08) !important;
+}
+
+/* Utility: use .muted to consistently show readable muted text */
+.muted { color: var(--muted-light); }
+.dark .muted { color: var(--muted-dark); }
+
+/* Accessibility: Ensure selection contrast */
+::selection { background: #FF8C00; color: #fff; }
+
+/* Small helper for inputs with dynamic classes */
+.input-safe { color: inherit; background-color: transparent; }
+
+/* FRESH UI UPDATES */
+.bg-fresh-void {
+  background: radial-gradient(circle at 50% 0%, #1e293b 0%, #0f172a 40%, #020617 100%);
+}
+
+.text-glow {
+  text-shadow: 0 0 20px rgba(255, 79, 0, 0.5);
+}
+
+.fresh-border {
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.2);
+}
+
+.fresh-card-hover:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.5);
+  border-color: rgba(255, 79, 0, 0.3);
+}
+
+@keyframes float {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+  100% { transform: translateY(0px); }
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
