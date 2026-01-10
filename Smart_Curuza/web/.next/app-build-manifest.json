@@ -85,6 +85,11 @@
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
       "static/chunks/app/[locale]/(dashboard)/merchant/reports/page.js"
+    ],
+    "/[locale]/(dashboard)/merchant/sales/history/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/[locale]/(dashboard)/merchant/sales/history/page.js"
     ]
   }
 }

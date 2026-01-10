@@ -1,4 +1,5 @@
 import { Platform } from 'react-native';
+import * as SecureStore from 'expo-secure-store';
 import { Product, CreateSaleDto } from './types';
 
 // Android emulator uses 10.0.2.2 to access host localhost
@@ -7,10 +8,43 @@ const BASE_URL = Platform.OS === 'android'
     ? 'http://10.0.2.2:3001'
     : 'http://localhost:3001';
 
+async function getHeaders() {
+    const token = await SecureStore.getItemAsync('auth_token');
+    return {
+        'Content-Type': 'application/json',
+        'Authorization': token ? `Bearer ${token}` : '',
+    };
+}
+
 export const ApiClient = {
+    async login(credentials: { phone?: string; pin?: string; email?: string; password?: string }) {
+        try {
+            const response = await fetch(`${BASE_URL}/auth/login`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(credentials),
+            });
+
+            if (!response.ok) {
+                const errorBody = await response.text();
+                throw new Error(`Login Failed: ${response.status} - ${errorBody}`);
+            }
+
+            return await response.json();
+        } catch (error) {
+            console.error('Login error:', error);
+            throw error;
+        }
+    },
+
     async getProducts(): Promise<Product[]> {
         try {
-            const response = await fetch(`${BASE_URL}/products`);
+            const headers = await getHeaders();
+            const response = await fetch(`${BASE_URL}/products`, {
+                headers: headers as any,
+            });
             if (!response.ok) {
                 throw new Error(`API Error: ${response.statusText}`);
             }
@@ -23,11 +57,10 @@ export const ApiClient = {
 
     async createSale(saleData: CreateSaleDto): Promise<any> {
         try {
+            const headers = await getHeaders();
             const response = await fetch(`${BASE_URL}/sales`, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
+                headers: headers as any,
                 body: JSON.stringify(saleData),
             });
 
