@@ -4,6 +4,7 @@ import { useRouter, useSegments } from 'expo-router';
 
 interface User {
     id: string;
+    name?: string;
     email?: string;
     phone?: string;
     role: string;

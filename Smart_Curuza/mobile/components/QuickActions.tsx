@@ -31,7 +31,11 @@ export default function QuickActions() {
                 </TouchableOpacity>
 
                 {/* Add Stock */}
-                <TouchableOpacity style={styles.card} activeOpacity={0.7}>
+                <TouchableOpacity
+                    style={styles.card}
+                    activeOpacity={0.7}
+                    onPress={() => router.push('/inventory')}
+                >
                     <View style={styles.cardHeader}>
                         <View style={[styles.iconBox, styles.bgBlue]}>
                             <Package size={24} color="#3B82F6" />
