@@ -14,7 +14,11 @@ export class DashboardService {
   async getDashboardStats(merchantId: string) {
     // 1. Today's Sales & Profit
     const today = new Date().toISOString().split('T')[0];
-    const salesReport = await this.salesService.getSalesReport(today, today, merchantId);
+    const salesReport = await this.salesService.getSalesReport(
+      today,
+      today,
+      merchantId,
+    );
     const todayStats = salesReport[0] || {
       revenue: 0,
       profit: 0,
@@ -23,11 +27,11 @@ export class DashboardService {
     };
 
     // 2. Low Stock Count
-    const products = await this.productsService.findAll();
-    const lowStockCount = products.filter((p) => p.stock < 10).length; // Threshold 10
+    const products = await this.productsService.findAll(merchantId);
+    const lowStockCount = products.filter((p: any) => p.stock < 10).length; // Threshold 10
 
     // 3. Outstanding Debt
-    const customers = await this.clientService.findAllCustomers();
+    const customers = await this.clientService.findAllCustomers(merchantId);
     const totalDebt = customers.reduce(
       (sum, c) => sum + (Number(c.total_debt) || 0),
       0,
@@ -51,22 +55,14 @@ export class DashboardService {
   }
 
   async getRecentTransactions(merchantId: string) {
-    // Assuming getRecentSales supports merchantId, if not we might need to update it too.
-    // Checking SalesService usage in previous steps implies it might.
-    // If not, we'll get another error. But let's assume it does or we'll fix it.
-    // Actually, looking at the error log: "An argument for 'merchantId' was not provided." was for getSalesReport.
-    // getRecentSales was not mentioned in errors, but likely needs it too if it filters by merchant.
-    // I'll check SalesService if I can, but for now I'll just pass it if the method signature allows, or wait for error.
-    // Wait, I can't see SalesService signature easily without reading it.
-    // But I'll update the service method to accept it anyway.
-    return this.salesService.getRecentSales(5);
+    return this.salesService.getRecentSales(5, merchantId);
   }
 
   async getLowStockProducts(merchantId: string) {
-    const products = await this.productsService.findAll();
+    const products = await this.productsService.findAll(merchantId);
     return products
-      .filter((p) => p.stock < 10)
-      .map((p) => ({
+      .filter((p: any) => p.stock < 10)
+      .map((p: any) => ({
         id: p.id,
         name: p.name,
         stock: p.stock,

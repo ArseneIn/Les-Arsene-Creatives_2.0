@@ -16,9 +16,10 @@ import { CurrentUser } from '../auth/current-user.decorator';
 export class ProductsController {
   constructor(private readonly productsService: ProductsService) { }
 
+  @UseGuards(JwtAuthGuard)
   @Get()
-  async findAll(): Promise<any[]> {
-    return this.productsService.findAll();
+  async findAll(@CurrentUser() user: any): Promise<any[]> {
+    return this.productsService.findAll(user.merchantId);
   }
 
   @Get(':id')

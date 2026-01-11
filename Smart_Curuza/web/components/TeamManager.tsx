@@ -108,11 +108,7 @@ export default function TeamManager() {
 
     return (
         <div className="space-y-6">
-            <div className="flex justify-between items-center">
-                <div>
-                    <h2 className="text-xl font-bold text-jet font-heading">Team Management</h2>
-                    <p className="text-jet-700">Manage your shop staff and their access</p>
-                </div>
+            <div className="flex justify-end items-center mb-4">
                 <button
                     onClick={() => setShowAddModal(true)}
                     className="px-4 py-2 bg-gold text-onyx rounded-lg font-bold hover:bg-gold/90 transition-colors flex items-center gap-2"
@@ -222,7 +218,12 @@ export default function TeamManager() {
             )}
 
             {showAddModal && (
-                <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
+                <div
+                    className="fixed inset-0 bg-black/20 backdrop-blur-sm flex items-center justify-center z-50"
+                    onClick={(e) => {
+                        if (e.target === e.currentTarget) setShowAddModal(false);
+                    }}
+                >
                     <div className="bg-surface w-full max-w-md rounded-xl shadow-lg p-6 animate-in fade-in zoom-in duration-200">
                         <h3 className="text-lg font-bold text-jet mb-4">Add New Staff Member</h3>
 

@@ -59,6 +59,15 @@ export class SmartCuruzaDB extends Dexie {
             offlineQueue: '++id, created_at, retry_count'
         });
     }
+
+    async clearDatabase() {
+        await Promise.all([
+            this.products.clear(),
+            this.customers.clear(),
+            this.sales.clear(),
+            this.offlineQueue.clear()
+        ]);
+    }
 }
 
 export const db = new SmartCuruzaDB();

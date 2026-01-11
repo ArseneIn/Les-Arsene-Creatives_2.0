@@ -3,6 +3,7 @@ import {
   Logger,
   BadRequestException,
   NotFoundException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, DataSource } from 'typeorm';
@@ -11,6 +12,8 @@ import { Product } from '../entities/product.entity';
 import { ClientManagementService } from '../client-management/client-management.service';
 import { BatchesService } from '../batches/batches.service';
 import { NotificationsService } from '../notifications/notifications.service';
+
+import { CreateSaleDto } from './dto/create-sale.dto';
 
 interface BatchItem {
   costPrice: number;
@@ -42,10 +45,8 @@ export class SalesService {
     private readonly dataSource: DataSource,
   ) { }
 
-  async createSale(saleData: any): Promise<Sale> {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+  async createSale(saleData: CreateSaleDto): Promise<Sale> {
     const { total, paymentMethod, customerId, merchantId, userId } = saleData;
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
     const items = saleData.items as SaleItem[];
 
     this.logger.log(
@@ -64,18 +65,21 @@ export class SalesService {
       const vatAmount = Number(total) - netAmount;
 
       // 1. Create Sale Record
-      const sale = this.saleRepository.create({
+      // Explicitly cast to DeepPartial<Sale> to avoid overload confusion
+      const saleInput = {
         merchant_id: merchantId,
-        customer_id: customerId || null,
-        user_id: userId || null,
+        customer_id: customerId || undefined,
+        user_id: userId || undefined,
         total,
         vat_amount: Number(vatAmount.toFixed(2)),
         net_amount: Number(netAmount.toFixed(2)),
         payment_method: paymentMethod,
-        items: items as any,
+        items: items, // items is jsonb in entity, so this is valid
         created_at: new Date(),
         sync_status: 'Completed',
-      });
+      };
+
+      const sale = this.saleRepository.create(saleInput);
       const savedSale = await queryRunner.manager.save(sale);
 
       // 2. Update Stock
@@ -98,7 +102,7 @@ export class SalesService {
               title: 'Stock Out Alert',
               message: `Product "${product.name}" is out of stock and has been deactivated.`,
               type: 'warning',
-              user_id: undefined, // System-wide or link to merchant owner if we had context
+              user_id: undefined,
             });
           }
 
@@ -130,7 +134,7 @@ export class SalesService {
 
         await this.clientService.createDebtRecord(
           {
-            customerId: customerId as string,
+            customerId: customerId,
             saleId: savedSale.id,
             amountDue: total,
             dueDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days default
@@ -162,6 +166,7 @@ export class SalesService {
     saleId: string,
     reason: string,
     shouldRestock: boolean,
+    merchantId: string,
   ): Promise<Sale> {
     this.logger.log(`Refunding sale ${saleId}. Restock: ${shouldRestock}`);
 
@@ -176,6 +181,10 @@ export class SalesService {
 
       if (!sale) {
         throw new NotFoundException(`Sale with ID ${saleId} not found`);
+      }
+
+      if (sale.merchant_id !== merchantId) {
+        throw new UnauthorizedException('Access to this sale is denied');
       }
 
       if (sale.status === 'REFUNDED') {
@@ -230,15 +239,17 @@ export class SalesService {
     }
   }
 
-  async findAll(): Promise<Sale[]> {
+  async findAll(merchantId: string): Promise<Sale[]> {
     return this.saleRepository.find({
+      where: { merchant_id: merchantId },
       relations: ['customer', 'merchant', 'user'],
       order: { created_at: 'DESC' },
     });
   }
 
-  async getRecentSales(limit: number): Promise<Sale[]> {
+  async getRecentSales(limit: number, merchantId: string): Promise<Sale[]> {
     return this.saleRepository.find({
+      where: { merchant_id: merchantId },
       relations: ['customer', 'user'],
       order: { created_at: 'DESC' },
       take: limit,

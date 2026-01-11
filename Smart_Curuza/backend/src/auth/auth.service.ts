@@ -143,6 +143,7 @@ export class AuthService {
         phone: user.phone,
         role: user.role,
         merchantId: user.merchant?.id,
+        shopName: user.merchant?.business_name,
       },
     };
   }

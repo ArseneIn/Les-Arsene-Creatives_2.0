@@ -13,10 +13,12 @@ export class ProductsService {
     private productsRepository: Repository<Product>,
     private batchesService: BatchesService,
     private notificationsService: NotificationsService,
-  ) {}
+  ) { }
 
-  async findAll(): Promise<any[]> {
+  async findAll(merchantId?: string): Promise<any[]> {
+    const whereClause = merchantId ? { merchant_id: merchantId } : {};
     const products = await this.productsRepository.find({
+      where: whereClause,
       relations: ['batches'],
       order: { name: 'ASC' },
     });

@@ -12,8 +12,14 @@ interface MerchantProfile {
     tin: string;
 }
 
-import TeamManager from '@/components/TeamManager';
-import EbmConfiguration from '@/components/EbmConfiguration';
+import dynamic from 'next/dynamic';
+
+const TeamManager = dynamic(() => import('@/components/TeamManager'), {
+    loading: () => <div className="p-8 text-center text-jet-700">Loading team manager...</div>
+});
+const EbmConfiguration = dynamic(() => import('@/components/EbmConfiguration'), {
+    loading: () => <div className="p-8 text-center text-jet-700">Loading configuration...</div>
+});
 
 export default function SettingsPage() {
     const { showToast } = useToast();
@@ -24,10 +30,20 @@ export default function SettingsPage() {
         phone: '',
         tin: '',
     });
+    const [role, setRole] = useState<string | null>(null);
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
 
     useEffect(() => {
+        const userStr = localStorage.getItem('user');
+        if (userStr) {
+            try {
+                const user = JSON.parse(userStr);
+                setRole(user.role);
+            } catch (e) {
+                console.error('Failed to parse user', e);
+            }
+        }
         fetchProfile();
     }, []);
 
@@ -70,6 +86,8 @@ export default function SettingsPage() {
         return <div className="p-8 text-center text-jet-700">Loading settings...</div>;
     }
 
+    const isReadOnly = role === 'CASHIER';
+
     return (
         <div className="max-w-3xl mx-auto space-y-6">
             <div className="flex items-center gap-3 mb-6">
@@ -94,16 +112,18 @@ export default function SettingsPage() {
                         <div className="absolute bottom-0 left-0 w-full h-0.5 bg-gold rounded-t-full" />
                     )}
                 </button>
-                <button
-                    onClick={() => setActiveTab('team')}
-                    className={`pb-3 px-4 font-medium transition-colors relative ${activeTab === 'team' ? 'text-gold' : 'text-jet-600 hover:text-jet'
-                        }`}
-                >
-                    Team Management
-                    {activeTab === 'team' && (
-                        <div className="absolute bottom-0 left-0 w-full h-0.5 bg-gold rounded-t-full" />
-                    )}
-                </button>
+                {role !== 'CASHIER' && (
+                    <button
+                        onClick={() => setActiveTab('team')}
+                        className={`pb-3 px-4 font-medium transition-colors relative ${activeTab === 'team' ? 'text-gold' : 'text-jet-600 hover:text-jet'
+                            }`}
+                    >
+                        Team Management
+                        {activeTab === 'team' && (
+                            <div className="absolute bottom-0 left-0 w-full h-0.5 bg-gold rounded-t-full" />
+                        )}
+                    </button>
+                )}
                 <button
                     onClick={() => setActiveTab('ebm')}
                     className={`pb-3 px-4 font-medium transition-colors relative ${activeTab === 'ebm' ? 'text-gold' : 'text-jet-600 hover:text-jet'
@@ -116,99 +136,103 @@ export default function SettingsPage() {
                 </button>
             </div>
 
-            {activeTab === 'profile' ? (
-                <form onSubmit={handleSubmit} className="bg-surface p-6 rounded-xl shadow-sm border border-platinum-600 space-y-6 animate-in fade-in slide-in-from-left-4 duration-200">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        {/* Business Name */}
-                        <div className="col-span-2">
-                            <label className="block text-sm font-medium text-jet mb-1">Business Name</label>
-                            <div className="relative">
-                                <Store className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-jet-500" />
-                                <input
-                                    type="text"
-                                    name="business_name"
-                                    value={profile.business_name}
-                                    onChange={handleChange}
-                                    className="w-full pl-10 pr-4 py-2 bg-white border border-platinum-300 rounded-lg focus:outline-none focus:border-gold focus:ring-2 focus:ring-gold/20 text-jet transition-all"
-                                    placeholder="Enter your shop name"
-                                    required
-                                />
+            <div key={activeTab} className="animate-in fade-in slide-in-from-right-4 duration-200">
+                {activeTab === 'profile' ? (
+                    <form onSubmit={handleSubmit} className="bg-surface p-6 rounded-xl shadow-sm border border-platinum-600 space-y-6">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            {/* Business Name */}
+                            <div className="col-span-2">
+                                <label className="block text-sm font-medium text-jet mb-1">Business Name</label>
+                                <div className="relative">
+                                    <Store className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-jet-500" />
+                                    <input
+                                        type="text"
+                                        name="business_name"
+                                        value={profile.business_name}
+                                        onChange={handleChange}
+                                        disabled={isReadOnly}
+                                        className="w-full pl-10 pr-4 py-2 bg-white border border-platinum-300 rounded-lg focus:outline-none focus:border-gold focus:ring-2 focus:ring-gold/20 text-jet transition-all disabled:bg-platinum-100 disabled:text-jet-600"
+                                        placeholder="Enter your shop name"
+                                        required
+                                    />
+                                </div>
                             </div>
+
+                            {/* Phone */}
+                            <div>
+                                <label className="block text-sm font-medium text-jet mb-1">Phone Number</label>
+                                <div className="relative">
+                                    <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-jet-500" />
+                                    <input
+                                        type="text"
+                                        name="phone"
+                                        value={profile.phone}
+                                        onChange={handleChange}
+                                        disabled={isReadOnly}
+                                        className="w-full pl-10 pr-4 py-2 bg-white border border-platinum-300 rounded-lg focus:outline-none focus:border-gold focus:ring-2 focus:ring-gold/20 text-jet transition-all disabled:bg-platinum-100 disabled:text-jet-600"
+                                        placeholder="+250..."
+                                        required
+                                    />
+                                </div>
+                            </div>
+
+                            {/* TIN */}
+                            <div>
+                                <label className="block text-sm font-medium text-jet mb-1">TIN Number</label>
+                                <div className="relative">
+                                    <FileText className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-jet-500" />
+                                    <input
+                                        type="text"
+                                        name="tin"
+                                        value={profile.tin}
+                                        onChange={handleChange}
+                                        disabled={isReadOnly}
+                                        className="w-full pl-10 pr-4 py-2 bg-white border border-platinum-300 rounded-lg focus:outline-none focus:border-gold focus:ring-2 focus:ring-gold/20 text-jet transition-all disabled:bg-platinum-100 disabled:text-jet-600"
+                                        placeholder="Tax Identification Number"
+                                        required
+                                    />
+                                </div>
+                            </div>
+
+                            {/* Address */}
+                            <div className="col-span-2">
+                                <label className="block text-sm font-medium text-jet mb-1">Address</label>
+                                <div className="relative">
+                                    <MapPin className="absolute left-3 top-3 h-5 w-5 text-jet-500" />
+                                    <textarea
+                                        name="address"
+                                        value={profile.address}
+                                        onChange={handleChange}
+                                        disabled={isReadOnly}
+                                        rows={3}
+                                        className="w-full pl-10 pr-4 py-2 bg-white border border-platinum-300 rounded-lg focus:outline-none focus:border-gold focus:ring-2 focus:ring-gold/20 text-jet resize-none transition-all disabled:bg-platinum-100 disabled:text-jet-600"
+                                        placeholder="Shop location..."
+                                        required
+                                    />
+                                </div>
+                            </div>
+
                         </div>
 
-                        {/* Phone */}
-                        <div>
-                            <label className="block text-sm font-medium text-jet mb-1">Phone Number</label>
-                            <div className="relative">
-                                <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-jet-500" />
-                                <input
-                                    type="text"
-                                    name="phone"
-                                    value={profile.phone}
-                                    onChange={handleChange}
-                                    className="w-full pl-10 pr-4 py-2 bg-white border border-platinum-300 rounded-lg focus:outline-none focus:border-gold focus:ring-2 focus:ring-gold/20 text-jet transition-all"
-                                    placeholder="+250..."
-                                    required
-                                />
+                        {!isReadOnly && (
+                            <div className="pt-4 border-t border-platinum-600 flex justify-end">
+                                <button
+                                    type="submit"
+                                    disabled={saving}
+                                    className="px-6 py-2 bg-gold text-onyx rounded-lg font-bold hover:bg-gold/90 transition-colors flex items-center gap-2 disabled:opacity-50"
+                                >
+                                    <Save className="h-5 w-5" />
+                                    {saving ? 'Saving...' : 'Save Changes'}
+                                </button>
                             </div>
-                        </div>
-
-                        {/* TIN */}
-                        <div>
-                            <label className="block text-sm font-medium text-jet mb-1">TIN Number</label>
-                            <div className="relative">
-                                <FileText className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-jet-500" />
-                                <input
-                                    type="text"
-                                    name="tin"
-                                    value={profile.tin}
-                                    onChange={handleChange}
-                                    className="w-full pl-10 pr-4 py-2 bg-white border border-platinum-300 rounded-lg focus:outline-none focus:border-gold focus:ring-2 focus:ring-gold/20 text-jet transition-all"
-                                    placeholder="Tax Identification Number"
-                                    required
-                                />
-                            </div>
-                        </div>
-
-                        {/* Address */}
-                        <div className="col-span-2">
-                            <label className="block text-sm font-medium text-jet mb-1">Address</label>
-                            <div className="relative">
-                                <MapPin className="absolute left-3 top-3 h-5 w-5 text-jet-500" />
-                                <textarea
-                                    name="address"
-                                    value={profile.address}
-                                    onChange={handleChange}
-                                    rows={3}
-                                    className="w-full pl-10 pr-4 py-2 bg-white border border-platinum-300 rounded-lg focus:outline-none focus:border-gold focus:ring-2 focus:ring-gold/20 text-jet resize-none transition-all"
-                                    placeholder="Shop location..."
-                                    required
-                                />
-                            </div>
-                        </div>
-
-                    </div>
-
-                    <div className="pt-4 border-t border-platinum-600 flex justify-end">
-                        <button
-                            type="submit"
-                            disabled={saving}
-                            className="px-6 py-2 bg-gold text-onyx rounded-lg font-bold hover:bg-gold/90 transition-colors flex items-center gap-2 disabled:opacity-50"
-                        >
-                            <Save className="h-5 w-5" />
-                            {saving ? 'Saving...' : 'Save Changes'}
-                        </button>
-                    </div>
-                </form>
-            ) : activeTab === 'team' ? (
-                <div className="animate-in fade-in slide-in-from-right-4 duration-200">
+                        )}
+                    </form>
+                ) : activeTab === 'team' && role !== 'CASHIER' ? (
                     <TeamManager />
-                </div>
-            ) : (
-                <div className="animate-in fade-in slide-in-from-right-4 duration-200">
+                ) : (
                     <EbmConfiguration />
-                </div>
-            )}
+                )}
+            </div>
         </div>
     );
 }

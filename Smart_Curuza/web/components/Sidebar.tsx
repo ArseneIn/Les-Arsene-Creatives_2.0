@@ -55,7 +55,9 @@ const Sidebar = () => {
             <NavItem href={`/${currentLocale}/merchant/sales`} icon={ShoppingCart} label={t('pos')} />
             <NavItem href={`/${currentLocale}/merchant/sales/history`} icon={FileText} label={t('salesHistory')} />
             <NavItem href={`/${currentLocale}/merchant/inventory`} icon={Package} label={t('inventory')} />
-            <NavItem href={`/${currentLocale}/merchant/reports`} icon={BarChart} label={t('reports')} />
+            {role !== 'CASHIER' && (
+                <NavItem href={`/${currentLocale}/merchant/reports`} icon={BarChart} label={t('reports')} />
+            )}
             <NavItem href={`/${currentLocale}/merchant/expenses`} icon={CreditCard} label={t('expenses')} />
             <NavItem href={`/${currentLocale}/merchant/crm`} icon={Users} label={t('crm')} />
             <NavItem href={`/${currentLocale}/merchant/settings`} icon={Settings} label={t('settings')} />
@@ -78,7 +80,13 @@ const Sidebar = () => {
 
             <div className="p-4 border-t border-white/10 bg-black/20">
                 <button
-                    onClick={() => {
+                    onClick={async () => {
+                        try {
+                            const { db } = await import('@/lib/db');
+                            await db.clearDatabase();
+                        } catch (e) {
+                            console.error('Failed to clear local database', e);
+                        }
                         localStorage.removeItem('token');
                         localStorage.removeItem('user');
                         document.cookie = 'token=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;';

@@ -12,7 +12,10 @@ interface DailyReport {
     count: number;
 }
 
+import { useRouter } from 'next/navigation';
+
 export default function ReportsPage() {
+    const router = useRouter();
     const [data, setData] = useState<DailyReport[]>([]);
     const [loading, setLoading] = useState(true);
     const [dateRange, setDateRange] = useState({
@@ -26,6 +29,19 @@ export default function ReportsPage() {
     const [merchantProfile, setMerchantProfile] = useState<any>(null);
 
     useEffect(() => {
+        // Check role
+        const userStr = localStorage.getItem('user');
+        if (userStr) {
+            try {
+                const user = JSON.parse(userStr);
+                if (user.role === 'CASHIER') {
+                    router.replace('/merchant'); // Redirect to dashboard
+                    return;
+                }
+            } catch (e) {
+                console.error('Failed to parse user', e);
+            }
+        }
         fetchMerchantProfile();
     }, []);
 

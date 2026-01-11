@@ -10,8 +10,8 @@ import { useTranslations } from 'next-intl';
 const Header = () => {
     const t = useTranslations('Header');
     const [user, setUser] = useState<{ name: string; role: string } | null>(null);
-    const [shopName, setShopName] = useState("Smart Curuza Shop");
-    const [location, setLocation] = useState("Kigali, Rwanda");
+    const [shopName, setShopName] = useState<string>("");
+    const [location, setLocation] = useState<string>("");
 
     useEffect(() => {
         const userStr = localStorage.getItem('user');
@@ -21,6 +21,10 @@ const Header = () => {
                 setUser(parsedUser);
 
                 if (parsedUser.role === 'MERCHANT' || parsedUser.role === 'CASHIER') {
+                    // Use shop name from user object if available, otherwise fetch
+                    if (parsedUser.shopName) {
+                        setShopName(parsedUser.shopName);
+                    }
                     fetchProfile();
                 }
             } catch (e) {
@@ -33,8 +37,8 @@ const Header = () => {
         try {
             const profile = await api.get<any>('/merchants/profile');
             if (profile) {
-                setShopName(profile.business_name || "Smart Curuza Shop");
-                setLocation(profile.address || "Kigali, Rwanda");
+                setShopName(profile.business_name || "");
+                setLocation(profile.address || "");
             }
         } catch (error) {
             console.error("Failed to fetch shop profile", error);
@@ -51,13 +55,13 @@ const Header = () => {
                 {(user?.role === 'MERCHANT' || user?.role === 'CASHIER') ? (
                     <>
                         <div className="w-12 h-12 bg-gradient-to-br from-yellow-400 to-yellow-500 rounded-2xl flex items-center justify-center text-white font-bold shadow-lg shadow-yellow-500/20">
-                            {shopName.substring(0, 2).toUpperCase()}
+                            {shopName ? shopName.substring(0, 2).toUpperCase() : '...'}
                         </div>
                         <div>
-                            <h2 className="text-lg font-bold text-white">{shopName}</h2>
+                            <h2 className="text-lg font-bold text-white">{shopName || t('loading')}</h2>
                             <p className="text-sm text-gray-400 flex items-center gap-1">
                                 <span className="w-1.5 h-1.5 rounded-full bg-green-500"></span>
-                                {location}
+                                {location || '...'}
                             </p>
                         </div>
                     </>

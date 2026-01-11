@@ -506,10 +506,10 @@ export default function POSPage() {
                 {lastSale && (
                     <ReceiptTemplate
                         ref={receiptRef}
-                        shopName={merchantProfile?.business_name || "Smart Curuza Shop"}
-                        address={merchantProfile?.address || "Kigali, Rwanda"}
-                        phone={merchantProfile?.phone || "+250 788 123 456"}
-                        tin={merchantProfile?.tin || "123456789"}
+                        shopName={merchantProfile?.business_name || ""}
+                        address={merchantProfile?.address || ""}
+                        phone={merchantProfile?.phone || ""}
+                        tin={merchantProfile?.tin || ""}
                         receiptNo={lastSale.receiptNo}
                         date={lastSale.date}
                         items={lastSale.items}

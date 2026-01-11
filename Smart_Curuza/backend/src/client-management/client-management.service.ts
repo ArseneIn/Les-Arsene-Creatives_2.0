@@ -40,9 +40,12 @@ export class ClientManagementService {
       ? manager.getRepository(DebtLedger)
       : this.debtRepository;
 
-    // 1. Verify customer exists
+    // 1. Verify customer exists and belongs to the merchant
     const customer = await customerRepo.findOne({
-      where: { id: createDebtDto.customerId },
+      where: {
+        id: createDebtDto.customerId,
+        merchant_id: createDebtDto.merchantId,
+      },
     });
     if (!customer) {
       throw new NotFoundException(
@@ -126,12 +129,16 @@ export class ClientManagementService {
     }
   }
   /**
-   * Retrieves all customers.
+   * Retrieves all customers for a specific merchant.
    *
-   * @returns List of all customers
+   * @param merchantId - The ID of the merchant
+   * @returns List of customers for the merchant
    */
-  async findAllCustomers(): Promise<Customer[]> {
-    return this.customerRepository.find({ order: { name: 'ASC' } });
+  async findAllCustomers(merchantId: string): Promise<Customer[]> {
+    return this.customerRepository.find({
+      where: { merchant_id: merchantId },
+      order: { name: 'ASC' },
+    });
   }
 
   /**

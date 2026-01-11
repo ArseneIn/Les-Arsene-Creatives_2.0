@@ -22,9 +22,10 @@ export class SalesController {
 
   constructor(private readonly salesService: SalesService) { }
 
+  @UseGuards(JwtAuthGuard)
   @Get()
-  async findAll() {
-    return this.salesService.findAll();
+  async findAll(@CurrentUser() user: AuthenticatedUser) {
+    return this.salesService.findAll(user.merchantId);
   }
 
   @UseGuards(JwtAuthGuard)
@@ -118,7 +119,8 @@ export class SalesController {
     @Param('id') id: string,
     @Body('reason') reason: string,
     @Body('restock') restock: boolean,
+    @CurrentUser() user: AuthenticatedUser,
   ) {
-    return this.salesService.refundSale(id, reason, restock);
+    return this.salesService.refundSale(id, reason, restock, user.merchantId);
   }
 }
