@@ -69,7 +69,9 @@ async function bootstrap() {
       kalisa = new User();
       kalisa.name = 'Kalisa';
       kalisa.email = 'kalisa@smartcuruza.com';
+      kalisa.phone = '0788111222';
       kalisa.password = await bcrypt.hash('password123', 10);
+      kalisa.pin_hash = await bcrypt.hash('1234', 10);
       kalisa.role = UserRole.MERCHANT;
       kalisa.merchant = merchant;
       await manager.save(kalisa);
@@ -77,6 +79,8 @@ async function bootstrap() {
       console.log('Kalisa exists.');
       kalisa.merchant = merchant;
       kalisa.role = UserRole.MERCHANT;
+      kalisa.phone = '0788111222';
+      kalisa.pin_hash = await bcrypt.hash('1234', 10);
       await manager.save(kalisa);
     }
 

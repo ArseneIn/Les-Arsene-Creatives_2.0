@@ -5,7 +5,7 @@ import { Product, CreateSaleDto } from './types';
 // Android emulator uses 10.0.2.2 to access host localhost
 // Real device would need the actual LAN IP of the computer
 const BASE_URL = Platform.OS === 'android'
-    ? 'http://10.0.2.2:3001'
+    ? 'http://192.168.1.64:3001'
     : 'http://localhost:3001';
 
 async function getHeaders() {

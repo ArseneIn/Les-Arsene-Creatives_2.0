@@ -23,12 +23,14 @@ const AuthContext = createContext<AuthContextType | null>(null);
 export function useAuth() {
     const context = useContext(AuthContext);
     if (!context) {
+        console.error('useAuth failed: context is null');
         throw new Error('useAuth must be used within an AuthProvider');
     }
     return context;
 }
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
+    console.log('AuthProvider rendering');
     const [user, setUser] = useState<User | null>(null);
     const [token, setToken] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(true);

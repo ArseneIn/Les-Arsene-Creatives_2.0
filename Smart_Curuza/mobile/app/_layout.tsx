@@ -4,8 +4,10 @@ import { Poppins_600SemiBold, Poppins_700Bold } from '@expo-google-fonts/poppins
 import { Montserrat_400Regular, Montserrat_500Medium } from '@expo-google-fonts/montserrat';
 import { useEffect } from 'react';
 import * as SplashScreen from 'expo-splash-screen';
-import "../global.css";
+
+
 import { AuthProvider } from '../lib/auth/AuthContext';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -28,12 +30,14 @@ export default function RootLayout() {
     }
 
     return (
-        <AuthProvider>
-            <Stack screenOptions={{ headerShown: false }}>
-                <Stack.Screen name="index" />
-                <Stack.Screen name="(tabs)" />
-                <Stack.Screen name="login" />
-            </Stack>
-        </AuthProvider>
+        <SafeAreaProvider>
+            <AuthProvider>
+                <Stack screenOptions={{ headerShown: false }}>
+                    <Stack.Screen name="index" />
+                    <Stack.Screen name="(tabs)" />
+                    <Stack.Screen name="login" />
+                </Stack>
+            </AuthProvider>
+        </SafeAreaProvider>
     );
 }
