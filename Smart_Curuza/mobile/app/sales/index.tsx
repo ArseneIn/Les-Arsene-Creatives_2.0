@@ -1,20 +1,18 @@
-import { View, Text, TouchableOpacity, ScrollView, ActivityIndicator, Alert } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { ArrowLeft, Search, ShoppingCart } from 'lucide-react-native';
-import { useRouter } from 'expo-router';
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
+import { View, StyleSheet, Alert, SafeAreaView, ActivityIndicator } from 'react-native';
+import { Stack, useRouter } from 'expo-router';
 import { ApiClient } from '../../lib/api_client';
 import { Product, CartItem } from '../../lib/types';
-import ProductCard from '../../components/ProductCard';
-import CartModal from '../../components/CartModal';
+import ProductGrid from '../../components/ProductGrid';
+import CartSidebar from '../../components/CartSidebar';
+import CheckoutModal from '../../components/CheckoutModal';
 
-export default function Sales() {
+export default function SalesScreen() {
     const router = useRouter();
     const [products, setProducts] = useState<Product[]>([]);
-    const [loading, setLoading] = useState(true);
     const [cart, setCart] = useState<CartItem[]>([]);
-    const [cartModalVisible, setCartModalVisible] = useState(false);
-    const [processing, setProcessing] = useState(false);
+    const [loading, setLoading] = useState(true);
+    const [checkoutVisible, setCheckoutVisible] = useState(false);
 
     useEffect(() => {
         loadProducts();
@@ -33,8 +31,8 @@ export default function Sales() {
 
     const addToCart = (product: Product) => {
         setCart(currentCart => {
-            const existing = currentCart.find(item => item.id === product.id);
-            if (existing) {
+            const existingItem = currentCart.find(item => item.id === product.id);
+            if (existingItem) {
                 return currentCart.map(item =>
                     item.id === product.id
                         ? { ...item, quantity: item.quantity + 1 }
@@ -49,22 +47,19 @@ export default function Sales() {
         setCart(currentCart => {
             return currentCart.map(item => {
                 if (item.id === productId) {
-                    const newQuantity = item.quantity + delta;
-                    return newQuantity > 0 ? { ...item, quantity: newQuantity } : item;
+                    const newQuantity = Math.max(0, item.quantity + delta);
+                    return { ...item, quantity: newQuantity };
                 }
                 return item;
-            });
+            }).filter(item => item.quantity > 0);
         });
     };
 
-    const removeFromCart = (productId: string) => {
+    const removeItem = (productId: string) => {
         setCart(currentCart => currentCart.filter(item => item.id !== productId));
     };
 
-    const handleCheckout = async () => {
-        if (cart.length === 0) return;
-
-        setProcessing(true);
+    const handleCheckout = async (method: 'CASH' | 'MOBILE_MONEY' | 'CREDIT') => {
         try {
             const totalAmount = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
 
@@ -75,87 +70,98 @@ export default function Sales() {
                     price: item.price
                 })),
                 totalAmount,
-                paymentMethod: 'CASH', // Default for now
+                paymentMethod: method,
             });
 
-            Alert.alert('Success', 'Sale completed successfully!', [
-                {
-                    text: 'OK', onPress: () => {
-                        setCart([]);
-                        setCartModalVisible(false);
-                    }
-                }
+            setCheckoutVisible(false);
+            setCart([]);
+            Alert.alert('Success', 'Sale completed successfully', [
+                { text: 'OK', onPress: () => router.back() }
             ]);
         } catch (error) {
             Alert.alert('Error', 'Failed to process sale');
-        } finally {
-            setProcessing(false);
         }
     };
 
-    const cartTotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-    const cartCount = cart.reduce((sum, item) => sum + item.quantity, 0);
+    if (loading) {
+        return (
+            <View style={styles.loadingContainer}>
+                <ActivityIndicator size="large" color="#fbe134" />
+            </View>
+        );
+    }
 
     return (
-        <SafeAreaView className="flex-1 bg-platinum">
-            {/* Header */}
-            <View className="px-4 py-3 bg-white shadow-sm flex-row items-center justify-between z-10">
-                <View className="flex-row items-center gap-3">
-                    <TouchableOpacity onPress={() => router.back()} className="p-2 bg-gray-50 rounded-full">
-                        <ArrowLeft size={24} color="#0b0c0c" />
-                    </TouchableOpacity>
-                    <Text className="font-heading text-lg font-bold text-onyx">New Sale</Text>
+        <SafeAreaView style={styles.container}>
+            <Stack.Screen options={{
+                headerShown: true,
+                title: 'New Sale',
+                headerStyle: { backgroundColor: '#FFFFFF' },
+                headerTitleStyle: { fontFamily: 'Poppins_700Bold' },
+                headerTintColor: '#0b0c0c',
+            }} />
+
+            <View style={styles.content}>
+                <View style={styles.gridContainer}>
+                    <ProductGrid
+                        products={products}
+                        onAddToCart={addToCart}
+                    />
                 </View>
-                <View className="flex-row items-center gap-2">
-                    <TouchableOpacity className="p-2 bg-gray-50 rounded-full">
-                        <Search size={24} color="#0b0c0c" />
-                    </TouchableOpacity>
+
+                {/* Cart is always visible on tablet/desktop, but for mobile we might want a different UX.
+                    For now, let's keep it simple: Split screen or Bottom Sheet.
+                    Given the "Sidebar" naming, let's try a split view if space allows, 
+                    or just put it at the bottom for now as a "Cart Summary" area.
+                    Actually, let's make it a bottom sheet style container.
+                */}
+                <View style={styles.cartContainer}>
+                    <CartSidebar
+                        cart={cart}
+                        onUpdateQuantity={updateQuantity}
+                        onRemoveItem={removeItem}
+                        onCheckout={() => setCheckoutVisible(true)}
+                    />
                 </View>
             </View>
 
-            {/* Content */}
-            <View className="flex-1">
-                {loading ? (
-                    <View className="flex-1 justify-center items-center">
-                        <ActivityIndicator size="large" color="#D4AF37" />
-                    </View>
-                ) : (
-                    <ScrollView className="flex-1 p-4" contentContainerStyle={{ paddingBottom: 100 }}>
-                        {products.map(product => (
-                            <ProductCard
-                                key={product.id}
-                                product={product}
-                                onAddToCart={addToCart}
-                            />
-                        ))}
-                    </ScrollView>
-                )}
-            </View>
-
-            {/* Bottom Cart Bar */}
-            <View className="bg-white p-4 shadow-2xl border-t border-gray-100">
-                <View className="flex-row justify-between items-center mb-3">
-                    <Text className="text-gray-400 font-medium">Total ({cartCount} items)</Text>
-                    <Text className="font-heading font-bold text-xl text-onyx">{cartTotal.toLocaleString()} RWF</Text>
-                </View>
-                <TouchableOpacity
-                    onPress={() => setCartModalVisible(true)}
-                    className="bg-gold py-4 rounded-xl items-center shadow-md active:bg-yellow-400 flex-row justify-center gap-2"
-                >
-                    <ShoppingCart size={20} color="#0b0c0c" />
-                    <Text className="font-bold text-onyx uppercase tracking-wider">View Cart</Text>
-                </TouchableOpacity>
-            </View>
-
-            <CartModal
-                visible={cartModalVisible}
-                onClose={() => setCartModalVisible(false)}
-                cartItems={cart}
-                onUpdateQuantity={updateQuantity}
-                onRemoveItem={removeFromCart}
-                onCheckout={handleCheckout}
-                total={cartTotal}
+            <CheckoutModal
+                visible={checkoutVisible}
+                totalAmount={cart.reduce((sum, item) => sum + (item.price * item.quantity), 0)}
+                onClose={() => setCheckoutVisible(false)}
+                onConfirm={handleCheckout}
             />
         </SafeAreaView>
     );
 }
+
+const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        backgroundColor: '#F9FAFB',
+    },
+    loadingContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    content: {
+        flex: 1,
+        flexDirection: 'column', // Stack vertically on mobile
+    },
+    gridContainer: {
+        flex: 1,
+        padding: 16,
+    },
+    cartContainer: {
+        height: '40%', // Take up bottom 40% of screen for cart
+        backgroundColor: '#FFFFFF',
+        borderTopLeftRadius: 32,
+        borderTopRightRadius: 32,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: -4 },
+        shadowOpacity: 0.1,
+        shadowRadius: 10,
+        elevation: 20,
+    },
+});
