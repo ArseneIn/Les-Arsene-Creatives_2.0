@@ -127,7 +127,7 @@ export default function History() {
     );
 
     return (
-    return (
+
         <ScreenWrapper>
             {/* Header */}
             <View style={styles.header}>
@@ -230,7 +230,7 @@ export default function History() {
             />
         </ScreenWrapper>
     );
-    );
+
 }
 
 const styles = StyleSheet.create({

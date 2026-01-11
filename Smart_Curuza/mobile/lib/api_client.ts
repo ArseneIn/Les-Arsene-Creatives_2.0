@@ -5,7 +5,7 @@ import { Product, CreateSaleDto } from './types';
 // Android emulator uses 10.0.2.2 to access host localhost
 // Real device would need the actual LAN IP of the computer
 const BASE_URL = Platform.OS === 'android'
-    ? 'http://192.168.1.74:3001' // Use LAN IP for both Emulator and Physical Device
+    ? 'http://10.10.6.80:3001' // Use LAN IP for both Emulator and Physical Device
     : 'http://localhost:3001';
 
 async function getHeaders() {
@@ -146,7 +146,8 @@ export const ApiClient = {
                 headers: headers as any,
             });
             if (!response.ok) {
-                throw new Error(`API Error: ${response.statusText}`);
+                const errorBody = await response.text();
+                throw new Error(`API Error: ${response.status} - ${errorBody}`);
             }
             return await response.json();
         } catch (error) {

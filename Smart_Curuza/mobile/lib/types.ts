@@ -7,6 +7,7 @@ export interface Product {
     category?: string;
     image?: string;
     unit?: string;
+    status?: 'active' | 'inactive';
 }
 
 export interface CartItem extends Product {
