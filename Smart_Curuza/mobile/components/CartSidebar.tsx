@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
-import { Trash2, Minus, Plus, ArrowRight } from 'lucide-react-native';
+import { Trash2, Minus, Plus, ArrowRight, ChevronDown } from 'lucide-react-native';
 import { CartItem } from '../lib/types';
 
 interface CartSidebarProps {
@@ -8,19 +8,28 @@ interface CartSidebarProps {
     onUpdateQuantity: (productId: string, delta: number) => void;
     onRemoveItem: (productId: string) => void;
     onCheckout: () => void;
+    onClose: () => void;
 }
 
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-export default function CartSidebar({ cart, onUpdateQuantity, onRemoveItem, onCheckout }: CartSidebarProps) {
+export default function CartSidebar({ cart, onUpdateQuantity, onRemoveItem, onCheckout, onClose }: CartSidebarProps) {
     const insets = useSafeAreaInsets();
     const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
 
     if (cart.length === 0) {
         return (
             <View style={styles.emptyContainer}>
-                <Text style={styles.emptyText}>Cart is empty</Text>
-                <Text style={styles.emptySubText}>Select products to start a sale</Text>
+                <View style={styles.header}>
+                    <Text style={styles.title}>Current Sale</Text>
+                    <TouchableOpacity onPress={onClose} style={styles.closeButton}>
+                        <ChevronDown size={24} color="#FFFFFF" />
+                    </TouchableOpacity>
+                </View>
+                <View style={styles.emptyContent}>
+                    <Text style={styles.emptyText}>Cart is empty</Text>
+                    <Text style={styles.emptySubText}>Select products to start a sale</Text>
+                </View>
             </View>
         );
     }
@@ -29,6 +38,9 @@ export default function CartSidebar({ cart, onUpdateQuantity, onRemoveItem, onCh
         <View style={styles.container}>
             <View style={styles.header}>
                 <Text style={styles.title}>Current Sale</Text>
+                <TouchableOpacity onPress={onClose} style={styles.closeButton}>
+                    <ChevronDown size={24} color="#FFFFFF" />
+                </TouchableOpacity>
             </View>
 
             <ScrollView style={styles.itemList} showsVerticalScrollIndicator={false}>
@@ -96,10 +108,17 @@ const styles = StyleSheet.create({
         overflow: 'hidden',
     },
     emptyContainer: {
-        padding: 24,
+        flex: 1,
+        backgroundColor: '#FFFFFF',
+        borderTopLeftRadius: 32,
+        borderTopRightRadius: 32,
+        overflow: 'hidden',
+    },
+    emptyContent: {
+        flex: 1,
         alignItems: 'center',
         justifyContent: 'center',
-        height: 200,
+        padding: 24,
     },
     emptyText: {
         fontSize: 18,
@@ -116,11 +135,17 @@ const styles = StyleSheet.create({
         backgroundColor: '#2a2e34', // Jet (Consistent with Dashboard Header)
         padding: 24,
         paddingBottom: 32,
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
     },
     title: {
         fontSize: 18,
         fontFamily: 'Poppins_700Bold',
         color: '#FFFFFF',
+    },
+    closeButton: {
+        padding: 4,
     },
     itemList: {
         flex: 1,

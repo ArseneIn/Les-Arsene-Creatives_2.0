@@ -12,6 +12,7 @@ import { Merchant } from './merchant.entity';
 import { Customer } from './customer.entity';
 import { DebtLedger } from './debt-ledger.entity';
 import { User } from './user.entity';
+import { SaleItem } from '../sales/sales.types';
 
 @Entity('sales')
 @Index(['merchant_id'])
@@ -48,7 +49,7 @@ export class Sale {
   refund_reason: string;
 
   @Column({ type: 'jsonb', nullable: true })
-  items: any;
+  items: SaleItem[];
 
   @CreateDateColumn({ type: 'timestamptz' })
   created_at: Date;
