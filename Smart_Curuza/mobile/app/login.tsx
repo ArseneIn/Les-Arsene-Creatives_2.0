@@ -3,8 +3,8 @@ import { View, Text, TextInput, TouchableOpacity, ActivityIndicator, KeyboardAvo
 import { useRouter } from 'expo-router';
 import { useAuth } from '../lib/auth/AuthContext';
 import { ApiClient } from '../lib/api_client';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { Smartphone, Lock, Eye, EyeOff, LogIn, WifiOff, Mail } from 'lucide-react-native';
+import ScreenWrapper from '../components/ScreenWrapper';
 
 type LoginMethod = 'phone' | 'email';
 
@@ -60,7 +60,7 @@ export default function LoginScreen() {
     };
 
     return (
-        <SafeAreaView style={styles.container}>
+        <ScreenWrapper>
             <KeyboardAvoidingView
                 behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
                 style={styles.keyboardView}
@@ -245,14 +245,14 @@ export default function LoginScreen() {
 
                 </ScrollView>
             </KeyboardAvoidingView>
-        </SafeAreaView>
+        </ScreenWrapper>
     );
 }
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#e9eaec', // platinum
+        // backgroundColor: '#e9eaec', // platinum
     },
     keyboardView: {
         flex: 1,

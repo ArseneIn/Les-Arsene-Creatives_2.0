@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Switch, ScrollView, Alert } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from '../../lib/auth/AuthContext';
 import { Bell, ChevronRight, User, Shield, CircleHelp, LogOut, Settings, Moon, Store, Users, FileText } from 'lucide-react-native';
 import ShopSettingsModal from '../../components/ShopSettingsModal';
+import ScreenWrapper from '../../components/ScreenWrapper';
 
 export default function Profile() {
     const { logout, user } = useAuth();
@@ -53,7 +53,7 @@ export default function Profile() {
     );
 
     return (
-        <SafeAreaView style={styles.container}>
+        <ScreenWrapper>
             <ScrollView showsVerticalScrollIndicator={false}>
                 <View style={styles.header}>
                     <View style={styles.avatar}>
@@ -143,14 +143,14 @@ export default function Profile() {
                 visible={showShopSettings}
                 onClose={() => setShowShopSettings(false)}
             />
-        </SafeAreaView>
+        </ScreenWrapper>
     );
 }
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#F3F4F6', // platinum/gray-100
+        // backgroundColor: '#F3F4F6', // Removed for background
     },
     header: {
         backgroundColor: '#FFFFFF',

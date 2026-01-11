@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, TextInput, RefreshControl, ActivityIndicator, ScrollView } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { Search, Filter, Download, Calendar, ArrowRight, Check, Clock, AlertTriangle, CreditCard, Banknote, Smartphone } from 'lucide-react-native';
+import ScreenWrapper from '../../components/ScreenWrapper';
 import { ApiClient } from '../../lib/api_client';
 import SaleDetailsModal from '../../components/SaleDetailsModal';
 import ExportSalesModal from '../../components/ExportSalesModal';
@@ -127,7 +127,8 @@ export default function History() {
     );
 
     return (
-        <SafeAreaView style={styles.container}>
+    return (
+        <ScreenWrapper>
             {/* Header */}
             <View style={styles.header}>
                 <Text style={styles.headerTitle}>Sales History</Text>
@@ -227,14 +228,15 @@ export default function History() {
                 visible={showExportModal}
                 onClose={() => setShowExportModal(false)}
             />
-        </SafeAreaView>
+        </ScreenWrapper>
+    );
     );
 }
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#F3F4F6', // Platinum-100
+        // backgroundColor: '#F3F4F6', // Removed to show background
     },
     header: {
         flexDirection: 'row',

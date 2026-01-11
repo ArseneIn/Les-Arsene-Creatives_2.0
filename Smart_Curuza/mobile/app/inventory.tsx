@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, TextInput, RefreshControl, ActivityIndicator, Switch, Alert } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, TextInput, RefreshControl, ActivityIndicator, Switch, Alert } from 'react-native';
 import { Search, Filter, Plus, ArrowLeft, Package, AlertTriangle, CheckCircle, XCircle } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
+import ScreenWrapper from '../components/ScreenWrapper';
 import { ApiClient } from '../lib/api_client';
 import { Product } from '../lib/types';
 import AddProductModal from '../components/AddProductModal';
@@ -106,7 +107,7 @@ export default function InventoryScreen() {
     );
 
     return (
-        <SafeAreaView style={styles.container}>
+        <ScreenWrapper>
             <View style={styles.header}>
                 <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
                     <ArrowLeft size={24} color="#111827" />
@@ -180,14 +181,14 @@ export default function InventoryScreen() {
                 onClose={() => setShowAddModal(false)}
                 onSuccess={handleRefresh}
             />
-        </SafeAreaView>
+        </ScreenWrapper>
     );
 }
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#F3F4F6',
+        // backgroundColor: '#F3F4F6',
     },
     header: {
         flexDirection: 'row',

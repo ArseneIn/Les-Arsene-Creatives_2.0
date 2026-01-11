@@ -1,11 +1,32 @@
-import { View, Text } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { View, Text, StyleSheet } from 'react-native';
+import ScreenWrapper from '../../components/ScreenWrapper';
 
 export default function Reports() {
     return (
-        <SafeAreaView className="flex-1 bg-platinum items-center justify-center">
-            <Text className="font-heading text-xl text-onyx">Reports Screen</Text>
-            <Text className="text-gray-400">Coming Soon</Text>
-        </SafeAreaView>
+        <ScreenWrapper>
+            <View style={styles.container}>
+                <Text style={styles.title}>Reports Screen</Text>
+                <Text style={styles.subtitle}>Coming Soon</Text>
+            </View>
+        </ScreenWrapper>
     );
 }
+
+const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    title: {
+        fontSize: 20,
+        fontFamily: 'Poppins_700Bold',
+        color: '#111827',
+        marginBottom: 8,
+    },
+    subtitle: {
+        fontSize: 14,
+        fontFamily: 'Montserrat_500Medium',
+        color: '#9CA3AF',
+    },
+});

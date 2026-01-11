@@ -1,49 +1,33 @@
 import React from 'react';
-import { View, ScrollView, ImageBackground, StyleSheet } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { StatusBar } from 'expo-status-bar';
+import { ScrollView, StyleSheet } from 'react-native';
 import DashboardHeader from '../../components/DashboardHeader';
 import DashboardStats from '../../components/DashboardStats';
 import QuickActions from '../../components/QuickActions';
 import RecentActivity from '../../components/RecentActivity';
+import ScreenWrapper from '../../components/ScreenWrapper';
 
 export default function Dashboard() {
     return (
-        <ImageBackground
-            source={require('../../assets/doodle-bg.png')}
-            style={styles.background}
-            imageStyle={styles.backgroundImage}
-        >
-            <SafeAreaView style={styles.safeArea}>
-                <StatusBar style="dark" />
+        <ScreenWrapper backgroundImageStyle={styles.backgroundImage}>
+            <DashboardHeader />
 
-                <DashboardHeader />
-
-                <ScrollView
-                    style={styles.scrollView}
-                    contentContainerStyle={styles.scrollContent}
-                    showsVerticalScrollIndicator={false}
-                >
-                    <DashboardStats />
-                    <QuickActions />
-                    <RecentActivity />
-                </ScrollView>
-            </SafeAreaView>
-        </ImageBackground>
+            <ScrollView
+                style={styles.scrollView}
+                contentContainerStyle={styles.scrollContent}
+                showsVerticalScrollIndicator={false}
+            >
+                <DashboardStats />
+                <QuickActions />
+                <RecentActivity />
+            </ScrollView>
+        </ScreenWrapper>
     );
 }
 
 const styles = StyleSheet.create({
-    background: {
-        flex: 1,
-        backgroundColor: '#F9FAFB', // Light gray fallback
-    },
     backgroundImage: {
-        // Removed opacity to make it visible like POS
-        resizeMode: 'cover',
-    },
-    safeArea: {
-        flex: 1,
+        // Override opacity if needed, or keep default
+        opacity: 1,
     },
     scrollView: {
         flex: 1,
