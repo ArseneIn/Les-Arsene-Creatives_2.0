@@ -1,4 +1,5 @@
-import { View, StyleSheet, Alert, SafeAreaView, ActivityIndicator, ImageBackground } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, StyleSheet, Alert, SafeAreaView, ActivityIndicator, ImageBackground, Text } from 'react-native';
 import { Stack, useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { ApiClient } from '../../lib/api_client';
@@ -14,10 +15,24 @@ export default function SalesScreen() {
     const [cart, setCart] = useState<CartItem[]>([]);
     const [loading, setLoading] = useState(true);
     const [checkoutVisible, setCheckoutVisible] = useState(false);
+    const [toast, setToast] = useState<{ message: string; visible: boolean }>({ message: '', visible: false });
 
     useEffect(() => {
         loadProducts();
     }, []);
+
+    useEffect(() => {
+        if (toast.visible) {
+            const timer = setTimeout(() => {
+                setToast(prev => ({ ...prev, visible: false }));
+            }, 2000);
+            return () => clearTimeout(timer);
+        }
+    }, [toast.visible]);
+
+    const showToast = (message: string) => {
+        setToast({ message, visible: true });
+    };
 
     const loadProducts = async () => {
         try {
@@ -33,14 +48,23 @@ export default function SalesScreen() {
     const addToCart = (product: Product) => {
         setCart(currentCart => {
             const existingItem = currentCart.find(item => item.id === product.id);
+            let newQuantity = 1;
+            let newCart;
+
             if (existingItem) {
-                return currentCart.map(item =>
+                newQuantity = existingItem.quantity + 1;
+                newCart = currentCart.map(item =>
                     item.id === product.id
-                        ? { ...item, quantity: item.quantity + 1 }
+                        ? { ...item, quantity: newQuantity }
                         : item
                 );
+            } else {
+                newCart = [...currentCart, { ...product, quantity: 1 }];
             }
-            return [...currentCart, { ...product, quantity: 1 }];
+
+            const unitLabel = product.unit ? ` ${product.unit}` : '';
+            showToast(`Added ${product.name} - Total: ${newQuantity}${unitLabel}`);
+            return newCart;
         });
     };
 
@@ -60,9 +84,12 @@ export default function SalesScreen() {
         setCart(currentCart => currentCart.filter(item => item.id !== productId));
     };
 
-    const handleCheckout = async (method: 'CASH' | 'MOBILE_MONEY' | 'CREDIT') => {
+    const handleCheckout = async (method: 'CASH' | 'MOBILE_MONEY' | 'CREDIT', phoneNumber?: string) => {
         try {
             const totalAmount = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+
+            // In a real app, we would pass phoneNumber to the API for STK push
+            console.log('Processing payment:', method, phoneNumber);
 
             await ApiClient.createSale({
                 items: cart.map(item => ({
@@ -72,11 +99,17 @@ export default function SalesScreen() {
                 })),
                 totalAmount,
                 paymentMethod: method,
+                // phoneNumber, // Add this to API client later
             });
 
             setCheckoutVisible(false);
             setCart([]);
-            Alert.alert('Success', 'Sale completed successfully', [
+
+            const successMessage = method === 'MOBILE_MONEY'
+                ? 'Payment request sent to your phone!'
+                : 'Sale completed successfully';
+
+            Alert.alert('Success', successMessage, [
                 { text: 'OK', onPress: () => router.back() }
             ]);
         } catch (error) {
@@ -91,8 +124,6 @@ export default function SalesScreen() {
             </View>
         );
     }
-
-
 
     return (
         <View style={styles.container}>
@@ -124,6 +155,13 @@ export default function SalesScreen() {
                     </View>
                 </View>
             </ImageBackground>
+
+            {/* Toast Notification */}
+            {toast.visible && (
+                <View style={styles.toastContainer}>
+                    <Text style={styles.toastText}>{toast.message}</Text>
+                </View>
+            )}
 
             <CheckoutModal
                 visible={checkoutVisible}
@@ -167,5 +205,25 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.1,
         shadowRadius: 10,
         elevation: 20,
+    },
+    toastContainer: {
+        position: 'absolute',
+        top: 100, // Below header
+        alignSelf: 'center',
+        backgroundColor: '#10B981', // Success Green
+        paddingHorizontal: 20,
+        paddingVertical: 10,
+        borderRadius: 20,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.2,
+        shadowRadius: 4,
+        elevation: 5,
+        zIndex: 100,
+    },
+    toastText: {
+        color: '#FFFFFF',
+        fontFamily: 'Montserrat_600SemiBold',
+        fontSize: 14,
     },
 });

@@ -36,11 +36,11 @@ export default function Dashboard() {
 const styles = StyleSheet.create({
     background: {
         flex: 1,
-        backgroundColor: '#e9eaec', // platinum
+        backgroundColor: '#F9FAFB', // Light gray fallback
     },
     backgroundImage: {
-        opacity: 0.05,
-        resizeMode: 'repeat',
+        // Removed opacity to make it visible like POS
+        resizeMode: 'cover',
     },
     safeArea: {
         flex: 1,

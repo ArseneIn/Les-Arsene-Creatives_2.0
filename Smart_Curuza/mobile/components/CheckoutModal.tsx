@@ -1,22 +1,28 @@
 import React, { useState } from 'react';
-import { View, Text, Modal, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
+import { View, Text, Modal, TouchableOpacity, StyleSheet, ActivityIndicator, TextInput } from 'react-native';
 import { X, Banknote, Smartphone, CreditCard, Check, ArrowRight } from 'lucide-react-native';
 
 interface CheckoutModalProps {
     visible: boolean;
     totalAmount: number;
     onClose: () => void;
-    onConfirm: (method: 'CASH' | 'MOBILE_MONEY' | 'CREDIT') => Promise<void>;
+    onConfirm: (method: 'CASH' | 'MOBILE_MONEY' | 'CREDIT', phoneNumber?: string) => Promise<void>;
 }
 
 export default function CheckoutModal({ visible, totalAmount, onClose, onConfirm }: CheckoutModalProps) {
     const [selectedMethod, setSelectedMethod] = useState<'CASH' | 'MOBILE_MONEY' | 'CREDIT'>('CASH');
+    const [phoneNumber, setPhoneNumber] = useState('');
     const [processing, setProcessing] = useState(false);
 
     const handleConfirm = async () => {
+        if (selectedMethod === 'MOBILE_MONEY' && !phoneNumber) {
+            // Basic validation
+            return;
+        }
+
         setProcessing(true);
         try {
-            await onConfirm(selectedMethod);
+            await onConfirm(selectedMethod, phoneNumber);
         } finally {
             setProcessing(false);
         }
@@ -88,16 +94,36 @@ export default function CheckoutModal({ visible, totalAmount, onClose, onConfirm
                         </TouchableOpacity>
                     </View>
 
+                    {/* Phone Number Input for MoMo */}
+                    {selectedMethod === 'MOBILE_MONEY' && (
+                        <View style={styles.inputContainer}>
+                            <Text style={styles.inputLabel}>Phone Number</Text>
+                            <TextInput
+                                style={styles.input}
+                                placeholder="078..."
+                                value={phoneNumber}
+                                onChangeText={setPhoneNumber}
+                                keyboardType="phone-pad"
+                                placeholderTextColor="#9CA3AF"
+                            />
+                        </View>
+                    )}
+
                     <TouchableOpacity
-                        style={[styles.confirmButton, processing && styles.disabledButton]}
+                        style={[
+                            styles.confirmButton,
+                            (processing || (selectedMethod === 'MOBILE_MONEY' && !phoneNumber)) && styles.disabledButton
+                        ]}
                         onPress={handleConfirm}
-                        disabled={processing}
+                        disabled={processing || (selectedMethod === 'MOBILE_MONEY' && !phoneNumber)}
                     >
                         {processing ? (
                             <ActivityIndicator color="#FFFFFF" />
                         ) : (
                             <>
-                                <Text style={styles.confirmText}>Confirm Payment</Text>
+                                <Text style={styles.confirmText}>
+                                    {selectedMethod === 'MOBILE_MONEY' ? 'Pay with MoMo' : 'Confirm Payment'}
+                                </Text>
                                 <ArrowRight size={20} color="#FFFFFF" />
                             </>
                         )}
@@ -252,5 +278,25 @@ const styles = StyleSheet.create({
         color: '#FFFFFF',
         textTransform: 'uppercase',
         letterSpacing: 1,
+    },
+    inputContainer: {
+        marginBottom: 24,
+    },
+    inputLabel: {
+        fontSize: 12,
+        fontFamily: 'Montserrat_600SemiBold',
+        color: '#6B7280',
+        marginBottom: 8,
+        textTransform: 'uppercase',
+    },
+    input: {
+        backgroundColor: '#F9FAFB',
+        borderWidth: 1,
+        borderColor: '#E5E7EB',
+        borderRadius: 16,
+        padding: 16,
+        fontSize: 16,
+        fontFamily: 'Montserrat_500Medium',
+        color: '#0b0c0c',
     },
 });

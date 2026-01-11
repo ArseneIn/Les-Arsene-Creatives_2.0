@@ -10,7 +10,10 @@ interface CartSidebarProps {
     onCheckout: () => void;
 }
 
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
 export default function CartSidebar({ cart, onUpdateQuantity, onRemoveItem, onCheckout }: CartSidebarProps) {
+    const insets = useSafeAreaInsets();
     const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
 
     if (cart.length === 0) {
@@ -64,7 +67,7 @@ export default function CartSidebar({ cart, onUpdateQuantity, onRemoveItem, onCh
                 ))}
             </ScrollView>
 
-            <View style={styles.footer}>
+            <View style={[styles.footer, { paddingBottom: insets.bottom + 16 }]}>
                 <View style={styles.totalRow}>
                     <Text style={styles.totalLabel}>Total</Text>
                     <Text style={styles.totalAmount}>{total.toLocaleString()} RWF</Text>
@@ -90,7 +93,7 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.1,
         shadowRadius: 10,
         elevation: 20,
-        overflow: 'hidden', // Ensure header radius is respected
+        overflow: 'hidden',
     },
     emptyContainer: {
         padding: 24,
@@ -110,18 +113,18 @@ const styles = StyleSheet.create({
         marginTop: 8,
     },
     header: {
-        backgroundColor: '#2a2e34', // Jet
+        backgroundColor: '#2a2e34', // Jet (Consistent with Dashboard Header)
         padding: 24,
         paddingBottom: 32,
     },
     title: {
         fontSize: 18,
         fontFamily: 'Poppins_700Bold',
-        color: '#FFFFFF', // White text on dark header
+        color: '#FFFFFF',
     },
     itemList: {
         flex: 1,
-        marginTop: -20, // Overlap with header
+        marginTop: -20,
         backgroundColor: '#FFFFFF',
         borderTopLeftRadius: 24,
         borderTopRightRadius: 24,
@@ -179,6 +182,8 @@ const styles = StyleSheet.create({
         borderTopWidth: 1,
         borderTopColor: '#F3F4F6',
         paddingTop: 16,
+        paddingHorizontal: 24,
+        backgroundColor: '#FFFFFF',
     },
     totalRow: {
         flexDirection: 'row',
