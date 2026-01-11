@@ -74,5 +74,21 @@ export const ApiClient = {
             console.error('Failed to create sale:', error);
             throw error;
         }
+    },
+
+    async getDashboardStats(): Promise<any> {
+        try {
+            const headers = await getHeaders();
+            const response = await fetch(`${BASE_URL}/dashboard/stats`, {
+                headers: headers as any,
+            });
+            if (!response.ok) {
+                throw new Error(`API Error: ${response.statusText}`);
+            }
+            return await response.json();
+        } catch (error) {
+            console.error('Failed to fetch dashboard stats:', error);
+            throw error;
+        }
     }
 };

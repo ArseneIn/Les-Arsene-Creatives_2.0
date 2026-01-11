@@ -1,7 +1,7 @@
 import { Stack } from 'expo-router';
 import { useFonts } from 'expo-font';
 import { Poppins_600SemiBold, Poppins_700Bold } from '@expo-google-fonts/poppins';
-import { Montserrat_400Regular, Montserrat_500Medium } from '@expo-google-fonts/montserrat';
+import { Montserrat_400Regular, Montserrat_500Medium, Montserrat_600SemiBold, Montserrat_700Bold } from '@expo-google-fonts/montserrat';
 import { useEffect } from 'react';
 import * as SplashScreen from 'expo-splash-screen';
 
@@ -17,6 +17,8 @@ export default function RootLayout() {
         Poppins_700Bold,
         Montserrat_400Regular,
         Montserrat_500Medium,
+        Montserrat_600SemiBold,
+        Montserrat_700Bold,
     });
 
     useEffect(() => {
