@@ -92,6 +92,23 @@ const styles = StyleSheet.create({
         elevation: 20,
         overflow: 'hidden', // Ensure header radius is respected
     },
+    emptyContainer: {
+        padding: 24,
+        alignItems: 'center',
+        justifyContent: 'center',
+        height: 200,
+    },
+    emptyText: {
+        fontSize: 18,
+        fontFamily: 'Poppins_700Bold',
+        color: '#9CA3AF',
+    },
+    emptySubText: {
+        fontSize: 14,
+        fontFamily: 'Montserrat_500Medium',
+        color: '#D1D5DB',
+        marginTop: 8,
+    },
     header: {
         backgroundColor: '#2a2e34', // Jet
         padding: 24,

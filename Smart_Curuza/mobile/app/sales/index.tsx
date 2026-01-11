@@ -1,11 +1,12 @@
-import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, Alert, SafeAreaView, ActivityIndicator } from 'react-native';
+import { View, StyleSheet, Alert, SafeAreaView, ActivityIndicator, ImageBackground } from 'react-native';
 import { Stack, useRouter } from 'expo-router';
+import { StatusBar } from 'expo-status-bar';
 import { ApiClient } from '../../lib/api_client';
 import { Product, CartItem } from '../../lib/types';
 import ProductGrid from '../../components/ProductGrid';
 import CartSidebar from '../../components/CartSidebar';
 import CheckoutModal from '../../components/CheckoutModal';
+import POSHeader from '../../components/POSHeader';
 
 export default function SalesScreen() {
     const router = useRouter();
@@ -91,39 +92,38 @@ export default function SalesScreen() {
         );
     }
 
+
+
     return (
-        <SafeAreaView style={styles.container}>
-            <Stack.Screen options={{
-                headerShown: true,
-                title: 'New Sale',
-                headerStyle: { backgroundColor: '#FFFFFF' },
-                headerTitleStyle: { fontFamily: 'Poppins_700Bold' },
-                headerTintColor: '#0b0c0c',
-            }} />
+        <View style={styles.container}>
+            <Stack.Screen options={{ headerShown: false }} />
+            <StatusBar style="light" />
 
-            <View style={styles.content}>
-                <View style={styles.gridContainer}>
-                    <ProductGrid
-                        products={products}
-                        onAddToCart={addToCart}
-                    />
-                </View>
+            <POSHeader />
 
-                {/* Cart is always visible on tablet/desktop, but for mobile we might want a different UX.
-                    For now, let's keep it simple: Split screen or Bottom Sheet.
-                    Given the "Sidebar" naming, let's try a split view if space allows, 
-                    or just put it at the bottom for now as a "Cart Summary" area.
-                    Actually, let's make it a bottom sheet style container.
-                */}
-                <View style={styles.cartContainer}>
-                    <CartSidebar
-                        cart={cart}
-                        onUpdateQuantity={updateQuantity}
-                        onRemoveItem={removeItem}
-                        onCheckout={() => setCheckoutVisible(true)}
-                    />
+            <ImageBackground
+                source={require('../../assets/doodle-bg.png')}
+                style={styles.backgroundImage}
+                resizeMode="cover"
+            >
+                <View style={styles.content}>
+                    <View style={styles.gridContainer}>
+                        <ProductGrid
+                            products={products}
+                            onAddToCart={addToCart}
+                        />
+                    </View>
+
+                    <View style={styles.cartContainer}>
+                        <CartSidebar
+                            cart={cart}
+                            onUpdateQuantity={updateQuantity}
+                            onRemoveItem={removeItem}
+                            onCheckout={() => setCheckoutVisible(true)}
+                        />
+                    </View>
                 </View>
-            </View>
+            </ImageBackground>
 
             <CheckoutModal
                 visible={checkoutVisible}
@@ -131,30 +131,34 @@ export default function SalesScreen() {
                 onClose={() => setCheckoutVisible(false)}
                 onConfirm={handleCheckout}
             />
-        </SafeAreaView>
+        </View>
     );
 }
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#F9FAFB',
+        backgroundColor: '#2a2e34', // Match header bg for overscroll
+    },
+    backgroundImage: {
+        flex: 1,
     },
     loadingContainer: {
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
+        backgroundColor: '#2a2e34',
     },
     content: {
         flex: 1,
-        flexDirection: 'column', // Stack vertically on mobile
+        flexDirection: 'column',
     },
     gridContainer: {
         flex: 1,
         padding: 16,
     },
     cartContainer: {
-        height: '40%', // Take up bottom 40% of screen for cart
+        height: '40%',
         backgroundColor: '#FFFFFF',
         borderTopLeftRadius: 32,
         borderTopRightRadius: 32,

@@ -96,146 +96,161 @@ export default function CheckoutModal({ visible, totalAmount, onClose, onConfirm
                         {processing ? (
                             <ActivityIndicator color="#FFFFFF" />
                         ) : (
-                            backgroundColor: '#FFFFFF',
-    },
-                        headerSection: {
-                            backgroundColor: '#2a2e34', // Jet (Dark Theme)
-                        padding: 24,
-                        paddingTop: 48, // Status bar space
-                        paddingBottom: 32,
-                        borderBottomLeftRadius: 32,
-                        borderBottomRightRadius: 32,
-    },
-                        headerTop: {
-                            flexDirection: 'row',
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
-                        marginBottom: 24,
-    },
-                        title: {
-                            fontSize: 20,
-                        fontFamily: 'Poppins_700Bold',
-                        color: '#FFFFFF',
-    },
-                        closeButton: {
-                            width: 36,
-                        height: 36,
-                        borderRadius: 18,
-                        backgroundColor: 'rgba(255, 255, 255, 0.1)',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-    },
-                        totalCard: {
-                            backgroundColor: '#fbe134', // Gold
-                        borderRadius: 24,
-                        padding: 20,
-                        alignItems: 'center',
-                        shadowColor: '#fbe134',
-                        shadowOffset: {width: 0, height: 8 },
-                        shadowOpacity: 0.3,
-                        shadowRadius: 12,
-                        elevation: 8,
-    },
-                        totalLabel: {
-                            fontSize: 12,
-                        fontFamily: 'Montserrat_600SemiBold',
-                        color: '#0b0c0c',
-                        textTransform: 'uppercase',
-                        letterSpacing: 1,
-                        marginBottom: 4,
-                        opacity: 0.7,
-    },
-                        totalAmount: {
-                            fontSize: 36,
-                        fontFamily: 'Poppins_700Bold',
-                        color: '#0b0c0c',
-    },
-                        contentSection: {
-                            padding: 24,
-    },
-                        sectionTitle: {
-                            fontSize: 14,
-                        fontFamily: 'Montserrat_600SemiBold',
-                        color: '#9CA3AF',
-                        marginBottom: 16,
-                        textTransform: 'uppercase',
-                        letterSpacing: 1,
-    },
-                        methodsGrid: {
-                            flexDirection: 'row',
-                        gap: 12,
-                        marginBottom: 32,
-    },
-                        methodCard: {
-                            flex: 1,
-                        backgroundColor: '#F9FAFB',
-                        borderRadius: 20,
-                        padding: 16,
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        borderWidth: 2,
-                        borderColor: 'transparent',
-                        height: 110,
-    },
-                        selectedCard: {
-                            backgroundColor: '#FFFFFF',
-                        borderColor: '#fbe134',
-                        shadowColor: '#000',
-                        shadowOffset: {width: 0, height: 4 },
-                        shadowOpacity: 0.05,
-                        shadowRadius: 8,
-                        elevation: 2,
-    },
-                        iconCircle: {
-                            width: 44,
-                        height: 44,
-                        borderRadius: 22,
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        marginBottom: 8,
-    },
-                        bgGray: {backgroundColor: '#E5E7EB' },
-                        bgGold: {backgroundColor: '#fbe134' },
+                            <>
+                                <Text style={styles.confirmText}>Confirm Payment</Text>
+                                <ArrowRight size={20} color="#FFFFFF" />
+                            </>
+                        )}
+                    </TouchableOpacity>
+                </View>
+            </View>
+        </Modal>
+    );
+}
 
-                        methodLabel: {
-                            fontSize: 12,
-                        fontFamily: 'Montserrat_600SemiBold',
-                        color: '#6B7280',
+const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        backgroundColor: '#FFFFFF',
     },
-                        selectedText: {
-                            color: '#0b0c0c',
+    headerSection: {
+        backgroundColor: '#2a2e34', // Jet (Dark Theme)
+        padding: 24,
+        paddingTop: 48, // Status bar space
+        paddingBottom: 32,
+        borderBottomLeftRadius: 32,
+        borderBottomRightRadius: 32,
     },
-                        activeIndicator: {
-                            position: 'absolute',
-                        top: 12,
-                        right: 12,
-                        width: 8,
-                        height: 8,
-                        borderRadius: 4,
-                        backgroundColor: '#fbe134',
+    headerTop: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: 24,
     },
-                        confirmButton: {
-                            backgroundColor: '#0b0c0c', // Onyx
-                        flexDirection: 'row',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        paddingVertical: 20,
-                        borderRadius: 20,
-                        gap: 12,
-                        shadowColor: '#000',
-                        shadowOffset: {width: 0, height: 4 },
-                        shadowOpacity: 0.2,
-                        shadowRadius: 8,
-                        elevation: 4,
+    title: {
+        fontSize: 20,
+        fontFamily: 'Poppins_700Bold',
+        color: '#FFFFFF',
     },
-                        disabledButton: {
-                            opacity: 0.7,
+    closeButton: {
+        width: 36,
+        height: 36,
+        borderRadius: 18,
+        backgroundColor: 'rgba(255, 255, 255, 0.1)',
+        alignItems: 'center',
+        justifyContent: 'center',
     },
-                        confirmText: {
-                            fontSize: 16,
-                        fontFamily: 'Poppins_700Bold',
-                        color: '#FFFFFF',
-                        textTransform: 'uppercase',
-                        letterSpacing: 1,
+    totalCard: {
+        backgroundColor: '#fbe134', // Gold
+        borderRadius: 24,
+        padding: 20,
+        alignItems: 'center',
+        shadowColor: '#fbe134',
+        shadowOffset: { width: 0, height: 8 },
+        shadowOpacity: 0.3,
+        shadowRadius: 12,
+        elevation: 8,
+    },
+    totalLabel: {
+        fontSize: 12,
+        fontFamily: 'Montserrat_600SemiBold',
+        color: '#0b0c0c',
+        textTransform: 'uppercase',
+        letterSpacing: 1,
+        marginBottom: 4,
+        opacity: 0.7,
+    },
+    totalAmount: {
+        fontSize: 36,
+        fontFamily: 'Poppins_700Bold',
+        color: '#0b0c0c',
+    },
+    contentSection: {
+        padding: 24,
+    },
+    sectionTitle: {
+        fontSize: 14,
+        fontFamily: 'Montserrat_600SemiBold',
+        color: '#9CA3AF',
+        marginBottom: 16,
+        textTransform: 'uppercase',
+        letterSpacing: 1,
+    },
+    methodsGrid: {
+        flexDirection: 'row',
+        gap: 12,
+        marginBottom: 32,
+    },
+    methodCard: {
+        flex: 1,
+        backgroundColor: '#F9FAFB',
+        borderRadius: 20,
+        padding: 16,
+        alignItems: 'center',
+        justifyContent: 'center',
+        borderWidth: 2,
+        borderColor: 'transparent',
+        height: 110,
+    },
+    selectedCard: {
+        backgroundColor: '#FFFFFF',
+        borderColor: '#fbe134',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.05,
+        shadowRadius: 8,
+        elevation: 2,
+    },
+    iconCircle: {
+        width: 44,
+        height: 44,
+        borderRadius: 22,
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginBottom: 8,
+    },
+    bgGray: { backgroundColor: '#E5E7EB' },
+    bgGold: { backgroundColor: '#fbe134' },
+
+    methodLabel: {
+        fontSize: 12,
+        fontFamily: 'Montserrat_600SemiBold',
+        color: '#6B7280',
+    },
+    selectedText: {
+        color: '#0b0c0c',
+    },
+    activeIndicator: {
+        position: 'absolute',
+        top: 12,
+        right: 12,
+        width: 8,
+        height: 8,
+        borderRadius: 4,
+        backgroundColor: '#fbe134',
+    },
+    confirmButton: {
+        backgroundColor: '#0b0c0c', // Onyx
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        paddingVertical: 20,
+        borderRadius: 20,
+        gap: 12,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.2,
+        shadowRadius: 8,
+        elevation: 4,
+    },
+    disabledButton: {
+        opacity: 0.7,
+    },
+    confirmText: {
+        fontSize: 16,
+        fontFamily: 'Poppins_700Bold',
+        color: '#FFFFFF',
+        textTransform: 'uppercase',
+        letterSpacing: 1,
     },
 });
