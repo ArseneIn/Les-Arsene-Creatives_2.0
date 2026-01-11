@@ -24,7 +24,9 @@ export default function CartSidebar({ cart, onUpdateQuantity, onRemoveItem, onCh
 
     return (
         <View style={styles.container}>
-            <Text style={styles.title}>Current Sale</Text>
+            <View style={styles.header}>
+                <Text style={styles.title}>Current Sale</Text>
+            </View>
 
             <ScrollView style={styles.itemList} showsVerticalScrollIndicator={false}>
                 {cart.map(item => (
@@ -83,39 +85,31 @@ const styles = StyleSheet.create({
         backgroundColor: '#FFFFFF',
         borderTopLeftRadius: 32,
         borderTopRightRadius: 32,
-        padding: 24,
         shadowColor: '#000',
         shadowOffset: { width: 0, height: -4 },
         shadowOpacity: 0.1,
         shadowRadius: 10,
         elevation: 20,
+        overflow: 'hidden', // Ensure header radius is respected
     },
-    emptyContainer: {
+    header: {
+        backgroundColor: '#2a2e34', // Jet
         padding: 24,
-        alignItems: 'center',
-        justifyContent: 'center',
-        height: 200,
-    },
-    emptyText: {
-        fontSize: 18,
-        fontFamily: 'Poppins_700Bold',
-        color: '#9CA3AF',
-    },
-    emptySubText: {
-        fontSize: 14,
-        fontFamily: 'Montserrat_500Medium',
-        color: '#D1D5DB',
-        marginTop: 8,
+        paddingBottom: 32,
     },
     title: {
         fontSize: 18,
         fontFamily: 'Poppins_700Bold',
-        color: '#0b0c0c',
-        marginBottom: 16,
+        color: '#FFFFFF', // White text on dark header
     },
     itemList: {
         flex: 1,
-        marginBottom: 16,
+        marginTop: -20, // Overlap with header
+        backgroundColor: '#FFFFFF',
+        borderTopLeftRadius: 24,
+        borderTopRightRadius: 24,
+        paddingHorizontal: 24,
+        paddingTop: 24,
     },
     itemCard: {
         flexDirection: 'row',
