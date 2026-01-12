@@ -1,9 +1,35 @@
 @import "tailwindcss";
 
 @theme {
-  --color-primary: #134E6F;
+  --color-primary: #39E079;
   --color-secondary: #3BB46D;
+  /* Keeping this for now as fallback */
   --color-accent: #FFC107;
+  /* Keeping this for now */
+
+  /* New colors from design */
+  --color-background-light: #f6f8f7;
+  --color-background-dark: #122017;
+  --color-card-dark: #1c2136;
+  --color-emerald-accent: #10b981;
+  --color-yellow-accent: #eab308;
+
+  /* Facilitator colors */
+  --color-facilitator-primary: #11d493;
+  --color-facilitator-primary-dark: #0b8a5f;
+  --color-facilitator-bg-dark: #10221c;
+  --color-brand-navy: #0f172a;
+
+  /* Institution Admin colors */
+  --color-admin-primary: #38e07b;
+  --color-secondary-navy: #0e1a13;
+  --color-accent-yellow: #facc15;
+  --color-border-light: #d1e6d9;
+
+  /* Platform Admin colors */
+  --color-navy-blue: #0f172a;
+
+  --font-display: "Lexend", sans-serif;
 }
 
 :root {
