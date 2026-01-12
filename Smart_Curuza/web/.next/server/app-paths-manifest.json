@@ -1,10 +1,9 @@
 {
   "/[locale]/login/page": "app/[locale]/login/page.js",
   "/[locale]/(dashboard)/page": "app/[locale]/(dashboard)/page.js",
-  "/[locale]/(dashboard)/merchant/page": "app/[locale]/(dashboard)/merchant/page.js",
-  "/[locale]/(dashboard)/merchant/sales/page": "app/[locale]/(dashboard)/merchant/sales/page.js",
   "/[locale]/(dashboard)/merchant/sales/history/page": "app/[locale]/(dashboard)/merchant/sales/history/page.js",
-  "/[locale]/(dashboard)/merchant/inventory/page": "app/[locale]/(dashboard)/merchant/inventory/page.js",
+  "/[locale]/(dashboard)/merchant/page": "app/[locale]/(dashboard)/merchant/page.js",
+  "/[locale]/(dashboard)/merchant/crm/page": "app/[locale]/(dashboard)/merchant/crm/page.js",
   "/[locale]/(dashboard)/merchant/settings/page": "app/[locale]/(dashboard)/merchant/settings/page.js",
-  "/[locale]/(dashboard)/merchant/crm/page": "app/[locale]/(dashboard)/merchant/crm/page.js"
+  "/[locale]/(dashboard)/merchant/inventory/page": "app/[locale]/(dashboard)/merchant/inventory/page.js"
 }

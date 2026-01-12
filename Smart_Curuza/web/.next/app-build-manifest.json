@@ -26,16 +26,6 @@
       "static/chunks/main-app.js",
       "static/chunks/app/[locale]/(dashboard)/merchant/layout.js"
     ],
-    "/[locale]/login/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/[locale]/login/page.js"
-    ],
-    "/[locale]/(dashboard)/merchant/sales/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/[locale]/(dashboard)/merchant/sales/page.js"
-    ],
     "/[locale]/(dashboard)/merchant/sales/history/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
@@ -55,6 +45,11 @@
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
       "static/chunks/app/[locale]/(dashboard)/merchant/settings/page.js"
+    ],
+    "/[locale]/login/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/[locale]/login/page.js"
     ]
   }
 }
