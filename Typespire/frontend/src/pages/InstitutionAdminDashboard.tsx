@@ -13,6 +13,7 @@ import {
     Cell,
     Legend
 } from 'recharts';
+import { useInstitution } from '../context/InstitutionContext';
 
 // --- Types ---
 interface Facilitator {
@@ -33,13 +34,6 @@ const FACILITATORS: Facilitator[] = [
     { id: '4', name: 'Robert Brown', email: 'r.brown@kepler.edu', role: 'Facilitator', intakes: ['Spring 2024'], status: 'Inactive', students: 45 },
 ];
 
-const INTAKE_PERFORMANCE = [
-    { name: 'Fall 2023', avgWpm: 45, target: 40 },
-    { name: 'Spring 2024', avgWpm: 38, target: 40 },
-    { name: 'Summer 2024', avgWpm: 42, target: 40 },
-    { name: 'Fall 2024', avgWpm: 35, target: 40 },
-];
-
 const STATUS_DATA = [
     { name: 'Active', value: 22, color: '#22c55e' },
     { name: 'Pending', value: 2, color: '#eab308' },
@@ -49,6 +43,16 @@ const STATUS_DATA = [
 const COLORS = ['#22c55e', '#eab308', '#94a3b8'];
 
 const InstitutionAdminDashboard: React.FC = () => {
+    const { intakes } = useInstitution();
+
+    // Transform context intakes to chart data
+    // In a real app, this would calculate actual averages from student data
+    const intakePerformanceData = intakes.map(intake => ({
+        name: intake.name,
+        avgWpm: Math.floor(Math.random() * (55 - 35) + 35), // Mock WPM between 35-55
+        target: 40
+    }));
+
     // Custom Tooltip for Charts
     const CustomTooltip = ({ active, payload, label }: any) => {
         if (active && payload && payload.length) {
@@ -119,7 +123,7 @@ const InstitutionAdminDashboard: React.FC = () => {
                     <div className="flex justify-between items-start">
                         <div>
                             <p className="text-gray-500 text-sm font-medium mb-1">Active Intakes</p>
-                            <h3 className="text-[#0d1b17] text-4xl font-bold">8</h3>
+                            <h3 className="text-[#0d1b17] text-4xl font-bold">{intakes.length}</h3>
                         </div>
                         <div className="p-2 bg-purple-50 rounded-lg text-purple-600 group-hover:bg-purple-100 transition-colors">
                             <span className="material-symbols-outlined icon-filled">folder_shared</span>
@@ -175,7 +179,7 @@ const InstitutionAdminDashboard: React.FC = () => {
                     </div>
                     <div className="h-64 w-full">
                         <ResponsiveContainer width="100%" height="100%">
-                            <BarChart data={INTAKE_PERFORMANCE} margin={{ top: 10, right: 10, left: -20, bottom: 0 }} barSize={40}>
+                            <BarChart data={intakePerformanceData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }} barSize={40}>
                                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f3f4f6" />
                                 <XAxis
                                     dataKey="name"
@@ -299,8 +303,8 @@ const InstitutionAdminDashboard: React.FC = () => {
                                     <td className="px-6 py-4 text-gray-600 font-bold">{facilitator.students}</td>
                                     <td className="px-6 py-4 text-center">
                                         <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold ${facilitator.status === 'Active' ? 'bg-green-100 text-green-700' :
-                                                facilitator.status === 'Pending' ? 'bg-yellow-100 text-yellow-700' :
-                                                    'bg-gray-100 text-gray-600'
+                                            facilitator.status === 'Pending' ? 'bg-yellow-100 text-yellow-700' :
+                                                'bg-gray-100 text-gray-600'
                                             }`}>
                                             {facilitator.status}
                                         </span>

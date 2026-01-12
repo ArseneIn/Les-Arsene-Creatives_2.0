@@ -1,75 +1,109 @@
 import React from 'react';
-import { Outlet, Link } from 'react-router-dom';
+import { Outlet, Link, useLocation } from 'react-router-dom';
 
 const InstitutionAdminLayout: React.FC = () => {
+    const location = useLocation();
+    const isActive = (path: string) => location.pathname === path;
+
     return (
-        <div className="bg-[#f8fcfa] text-[#0d1b17] antialiased min-h-screen font-sans">
-            {/* TopNavBar */}
-            <header className="sticky top-0 z-50 w-full border-b border-[#cfe7df] bg-white/90 backdrop-blur-md">
-                <div className="max-w-[1280px] mx-auto px-6 h-16 flex items-center justify-between">
-                    <div className="flex items-center gap-8">
-                        <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 bg-[#0d1b17] rounded-lg flex items-center justify-center text-white shadow-sm">
-                                <span className="material-symbols-outlined text-[20px]">keyboard</span>
-                            </div>
-                            <div className="flex flex-col">
-                                <h2 className="text-[#0d1b17] text-lg font-bold leading-none tracking-tight">Typespire Hub</h2>
-                                <span className="text-[10px] uppercase tracking-widest font-bold text-gray-500">Institution Admin</span>
-                            </div>
+        <div className="flex h-screen w-full flex-row overflow-hidden bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100">
+            {/* Sidebar Navigation */}
+            <aside className="w-64 bg-navy-blue text-white flex flex-col h-full flex-shrink-0">
+                <div className="p-6">
+                    <div className="flex items-center gap-3 mb-10">
+                        <div className="bg-admin-primary rounded-lg p-2 flex items-center justify-center">
+                            <span className="material-symbols-outlined text-navy-blue text-2xl">keyboard</span>
                         </div>
-                        <nav className="hidden md:flex items-center gap-6">
-                            <Link to="/admin" className="text-gray-600 hover:text-[#0d1b17] text-sm font-bold transition-colors">Dashboard</Link>
-                            <Link to="/admin/analytics" className="text-gray-600 hover:text-[#0d1b17] text-sm font-bold transition-colors">Analytics</Link>
-                            <Link to="/admin/reports" className="text-gray-600 hover:text-[#0d1b17] text-sm font-bold transition-colors">Reports</Link>
-                            <Link to="/admin/support" className="text-gray-600 hover:text-[#0d1b17] text-sm font-bold transition-colors">Support</Link>
-                        </nav>
+                        <div>
+                            <h1 className="text-xl font-bold tracking-tight">Typespire</h1>
+                            <p className="text-xs text-slate-400 uppercase tracking-widest font-semibold">Institution Admin</p>
+                        </div>
                     </div>
-                    <div className="flex items-center gap-4">
-                        <div className="relative hidden sm:block">
-                            <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-[18px]">search</span>
-                            <input className="w-64 pl-10 pr-4 py-2 rounded-lg border border-gray-200 bg-gray-50 text-sm focus:ring-2 focus:ring-[#0d1b17]/10 focus:border-[#0d1b17] outline-none transition-all" placeholder="Search accounts..." type="text" />
+                    <nav className="space-y-1">
+                        <Link
+                            to="/admin"
+                            className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors border-l-4 ${isActive('/admin')
+                                ? 'bg-admin-primary/10 text-admin-primary border-admin-primary'
+                                : 'text-slate-400 hover:text-white hover:bg-white/5 border-transparent'
+                                }`}
+                        >
+                            <span className="material-symbols-outlined">dashboard</span>
+                            <span className="font-medium">Dashboard</span>
+                        </Link>
+                        <Link
+                            to="/admin/intakes"
+                            className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors border-l-4 ${isActive('/admin/intakes')
+                                ? 'bg-admin-primary/10 text-admin-primary border-admin-primary'
+                                : 'text-slate-400 hover:text-white hover:bg-white/5 border-transparent'
+                                }`}
+                        >
+                            <span className="material-symbols-outlined">calendar_month</span>
+                            <span className="font-medium">Intakes & Sections</span>
+                        </Link>
+                        <Link
+                            to="/admin/facilitators"
+                            className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors border-l-4 ${isActive('/admin/facilitators')
+                                ? 'bg-admin-primary/10 text-admin-primary border-admin-primary'
+                                : 'text-slate-400 hover:text-white hover:bg-white/5 border-transparent'
+                                }`}
+                        >
+                            <span className="material-symbols-outlined">group</span>
+                            <span className="font-medium">Facilitators</span>
+                        </Link>
+                        <Link
+                            to="/admin/analytics"
+                            className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors border-l-4 ${isActive('/admin/analytics')
+                                ? 'bg-admin-primary/10 text-admin-primary border-admin-primary'
+                                : 'text-slate-400 hover:text-white hover:bg-white/5 border-transparent'
+                                }`}
+                        >
+                            <span className="material-symbols-outlined">analytics</span>
+                            <span className="font-medium">Analytics</span>
+                        </Link>
+                        <Link
+                            to="/admin/reports"
+                            className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors border-l-4 ${isActive('/admin/reports')
+                                ? 'bg-admin-primary/10 text-admin-primary border-admin-primary'
+                                : 'text-slate-400 hover:text-white hover:bg-white/5 border-transparent'
+                                }`}
+                        >
+                            <span className="material-symbols-outlined">description</span>
+                            <span className="font-medium">Reports</span>
+                        </Link>
+                        <Link
+                            to="/admin/settings"
+                            className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors border-l-4 ${isActive('/admin/settings')
+                                ? 'bg-admin-primary/10 text-admin-primary border-admin-primary'
+                                : 'text-slate-400 hover:text-white hover:bg-white/5 border-transparent'
+                                }`}
+                        >
+                            <span className="material-symbols-outlined">settings</span>
+                            <span className="font-medium">Settings</span>
+                        </Link>
+                    </nav>
+                </div>
+                <div className="mt-auto p-6 space-y-4">
+                    <div className="flex items-center gap-3 p-2">
+                        <div
+                            className="size-10 rounded-full bg-center bg-cover border-2 border-admin-primary/50"
+                            style={{ backgroundImage: "url('https://lh3.googleusercontent.com/aida-public/AB6AXuDnqzAOeX1XfN82EJ_uOk9P6n0niJbbsId9F7JIoiwjwzt_ZyxItvopzLPVLDjKcbJDRtMCf7PuvF6HlH8By-59-Zv4BsxHFEB8cUJcYkE6qgJ9aHLG-eeeBLP5gBVAAsJWEGz3CKY-yezTEfWBIyXIP6DEaVDZg_t6d30_4-8jbbC2cjgzAk1NFTKX5weqcxYbXPJublmpVMDxI8_FPKHVLHVR36z08OrF5rLT0nADAi4KWBLPQEiwvCgGZ3KvfJeEp1MOAHnglWJy')" }}
+                        ></div>
+                        <div className="flex-1 overflow-hidden">
+                            <p className="text-sm font-bold truncate">Kepler Admin</p>
+                            <p className="text-xs text-slate-400 truncate">admin@kepler.edu</p>
                         </div>
-                        <button className="p-2 rounded-lg text-gray-500 hover:bg-gray-100 transition-colors relative">
-                            <span className="material-symbols-outlined">notifications</span>
-                            <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full border-2 border-white"></span>
-                        </button>
-                        <div className="h-8 w-[1px] bg-gray-200 mx-2"></div>
-                        <div className="flex items-center gap-3">
-                            <div
-                                className="bg-center bg-no-repeat aspect-square bg-cover rounded-full w-9 h-9 border-2 border-white shadow-sm"
-                                style={{ backgroundImage: "url('https://lh3.googleusercontent.com/aida-public/AB6AXuDnqzAOeX1XfN82EJ_uOk9P6n0niJbbsId9F7JIoiwjwzt_ZyxItvopzLPVLDjKcbJDRtMCf7PuvF6HlH8By-59-Zv4BsxHFEB8cUJcYkE6qgJ9aHLG-eeeBLP5gBVAAsJWEGz3CKY-yezTEfWBIyXIP6DEaVDZg_t6d30_4-8jbbC2cjgzAk1NFTKX5weqcxYbXPJublmpVMDxI8_FPKHVLHVR36z08OrF5rLT0nADAi4KWBLPQEiwvCgGZ3KvfJeEp1MOAHnglWJy')" }}
-                            ></div>
-                            <div className="hidden lg:block">
-                                <p className="text-xs font-bold leading-none text-[#0d1b17]">Kepler Admin</p>
-                                <p className="text-[10px] text-gray-500 font-medium">Institutional Manager</p>
-                            </div>
-                            <button className="ml-2 p-2 rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 transition-colors" title="Log Out">
-                                <span className="material-symbols-outlined text-[20px]">logout</span>
-                            </button>
-                        </div>
+                        <button className="material-symbols-outlined text-slate-400 cursor-pointer hover:text-white">logout</button>
                     </div>
                 </div>
-            </header>
+            </aside>
 
-            <main className="max-w-[1280px] mx-auto px-6 py-8">
+            {/* Main Content */}
+            <main className="flex-1 flex flex-col h-full overflow-y-auto bg-background-light dark:bg-background-dark relative">
                 <Outlet />
             </main>
-
-            <footer className="max-w-[1280px] mx-auto px-6 py-12 border-t border-[#cfe7df] mt-12">
-                <div className="flex flex-col md:flex-row justify-between items-center gap-6">
-                    <div className="flex items-center gap-2 opacity-50">
-                        <span className="material-symbols-outlined text-xl">keyboard</span>
-                        <p className="text-sm font-bold">Typespire © 2024</p>
-                    </div>
-                    <div className="flex gap-8">
-                        <a className="text-sm text-gray-500 hover:text-[#0d1b17] font-medium" href="#">System Status</a>
-                        <a className="text-sm text-gray-500 hover:text-[#0d1b17] font-medium" href="#">Privacy Policy</a>
-                        <a className="text-sm text-gray-500 hover:text-[#0d1b17] font-medium" href="#">Terms of Service</a>
-                    </div>
-                </div>
-            </footer>
         </div>
     );
 };
 
 export default InstitutionAdminLayout;
+

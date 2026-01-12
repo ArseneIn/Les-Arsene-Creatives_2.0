@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useFacilitator } from '../context/FacilitatorContext';
+import { useInstitution } from '../context/InstitutionContext';
 
 const FacilitatorTestLaunch: React.FC = () => {
     const navigate = useNavigate();
     const { publishAssignment } = useFacilitator();
+    const { intakes } = useInstitution();
 
     const [selectedText, setSelectedText] = useState('The Velveteen Rabbit');
     const [targetSection, setTargetSection] = useState('');
@@ -200,9 +202,13 @@ const FacilitatorTestLaunch: React.FC = () => {
                                             required
                                         >
                                             <option disabled value="">Select a class...</option>
-                                            <option value="10A">Grade 10 - Section A</option>
-                                            <option value="10B">Grade 10 - Section B</option>
-                                            <option value="11A">Grade 11 - CS Intro</option>
+                                            {intakes?.flatMap(intake =>
+                                                intake.sections?.map(section => (
+                                                    <option key={section.id} value={section.id}>
+                                                        {intake.name} - {section.name}
+                                                    </option>
+                                                ))
+                                            )}
                                         </select>
                                         <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-text-secondary">
                                             <span className="material-symbols-outlined">expand_more</span>

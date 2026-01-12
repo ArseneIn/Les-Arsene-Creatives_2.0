@@ -1,9 +1,14 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useUserProgress } from '../context/UserProgressContext';
+import { useFacilitator } from '../context/FacilitatorContext';
 
 const StudentDashboard: React.FC = () => {
     const { stats, recentResults } = useUserProgress();
+    const { assignments } = useFacilitator();
+
+    // Get the latest active assignment
+    const latestAssignment = assignments.find(a => a.status === 'Active');
 
     return (
         <div className="layout-container flex flex-col items-center w-full py-8 px-4 md:px-8 lg:px-12">
@@ -25,18 +30,26 @@ const StudentDashboard: React.FC = () => {
                         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
                             <div className="flex flex-col gap-3">
                                 <div className="flex items-center gap-2">
-                                    <span className="px-2 py-1 rounded bg-primary/10 text-primary dark:text-blue-300 text-xs font-bold uppercase tracking-wider">Today's Drill</span>
-                                    <span className="text-slate-400 dark:text-[#929bc9] text-xs">~1 min</span>
+                                    <span className="px-2 py-1 rounded bg-primary/10 text-primary dark:text-blue-300 text-xs font-bold uppercase tracking-wider">
+                                        {latestAssignment ? 'New Assignment' : 'No Active Assignments'}
+                                    </span>
+                                    {latestAssignment && <span className="text-slate-400 dark:text-[#929bc9] text-xs">Due: {latestAssignment.dueDate}</span>}
                                 </div>
-                                <h2 className="text-xl font-bold leading-tight">Speed Drill A: Pangrams</h2>
+                                <h2 className="text-xl font-bold leading-tight">
+                                    {latestAssignment ? latestAssignment.title : 'You are all caught up!'}
+                                </h2>
                                 <p className="text-slate-500 dark:text-[#929bc9] text-sm md:text-base font-light leading-relaxed max-w-xl">
-                                    "The quick brown fox jumps over the lazy dog." Complete this 1-minute trial to track your daily progress and boost your muscle memory.
+                                    {latestAssignment
+                                        ? "Complete this assignment to keep up with your class progress."
+                                        : "Great job! You have no pending assignments. Feel free to practice on your own."}
                                 </p>
                             </div>
-                            <Link to="/test" className="shrink-0 flex items-center justify-center gap-2 bg-primary hover:bg-blue-700 text-white font-medium py-3 px-6 rounded-lg transition-all duration-200 shadow-lg shadow-primary/25">
-                                <span className="material-symbols-outlined text-[20px]">play_arrow</span>
-                                <span>Start Trial</span>
-                            </Link>
+                            {latestAssignment && (
+                                <Link to="/test" className="shrink-0 flex items-center justify-center gap-2 bg-primary hover:bg-blue-700 text-white font-medium py-3 px-6 rounded-lg transition-all duration-200 shadow-lg shadow-primary/25">
+                                    <span className="material-symbols-outlined text-[20px]">play_arrow</span>
+                                    <span>Start Assignment</span>
+                                </Link>
+                            )}
                         </div>
                     </div>
 
@@ -186,8 +199,8 @@ const StudentDashboard: React.FC = () => {
                                         </td>
                                         <td className="py-4 px-4">
                                             <span className={`inline-flex items-center gap-1 rounded-full px-2 py-1 text-xs font-medium ${result.status === 'Completed'
-                                                    ? 'bg-emerald-100 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400'
-                                                    : 'bg-slate-100 dark:bg-[#323b67] text-slate-600 dark:text-slate-300'
+                                                ? 'bg-emerald-100 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400'
+                                                : 'bg-slate-100 dark:bg-[#323b67] text-slate-600 dark:text-slate-300'
                                                 }`}>
                                                 <span className="material-symbols-outlined text-[14px]">
                                                     {result.status === 'Completed' ? 'check_circle' : 'history'}
