@@ -5,23 +5,45 @@ const InstitutionAdminLayout: React.FC = () => {
     const location = useLocation();
     const isActive = (path: string) => location.pathname === path;
 
+    const [isSidebarOpen, setIsSidebarOpen] = React.useState(false);
+
     return (
         <div className="flex h-screen w-full flex-row overflow-hidden bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100">
+            {/* Mobile Sidebar Overlay */}
+            {isSidebarOpen && (
+                <div
+                    className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+                    onClick={() => setIsSidebarOpen(false)}
+                />
+            )}
+
             {/* Sidebar Navigation */}
-            <aside className="w-64 bg-navy-blue text-white flex flex-col h-full flex-shrink-0">
+            <aside className={`
+                fixed lg:static inset-y-0 left-0 z-50 w-64 bg-navy-blue text-white flex flex-col h-full flex-shrink-0 transition-transform duration-300 ease-in-out
+                ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
+            `}>
                 <div className="p-6">
-                    <div className="flex items-center gap-3 mb-10">
-                        <div className="bg-admin-primary rounded-lg p-2 flex items-center justify-center">
-                            <span className="material-symbols-outlined text-navy-blue text-2xl">keyboard</span>
+                    <div className="flex items-center justify-between mb-10">
+                        <div className="flex items-center gap-3">
+                            <div className="bg-admin-primary rounded-lg p-2 flex items-center justify-center">
+                                <span className="material-symbols-outlined text-navy-blue text-2xl">keyboard</span>
+                            </div>
+                            <div>
+                                <h1 className="text-xl font-bold tracking-tight">Typespire</h1>
+                                <p className="text-xs text-slate-400 uppercase tracking-widest font-semibold">Institution Admin</p>
+                            </div>
                         </div>
-                        <div>
-                            <h1 className="text-xl font-bold tracking-tight">Typespire</h1>
-                            <p className="text-xs text-slate-400 uppercase tracking-widest font-semibold">Institution Admin</p>
-                        </div>
+                        <button
+                            className="lg:hidden text-slate-400 hover:text-white"
+                            onClick={() => setIsSidebarOpen(false)}
+                        >
+                            <span className="material-symbols-outlined">close</span>
+                        </button>
                     </div>
                     <nav className="space-y-1">
                         <Link
                             to="/admin"
+                            onClick={() => setIsSidebarOpen(false)}
                             className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors border-l-4 ${isActive('/admin')
                                 ? 'bg-admin-primary/10 text-admin-primary border-admin-primary'
                                 : 'text-slate-400 hover:text-white hover:bg-white/5 border-transparent'
@@ -32,6 +54,7 @@ const InstitutionAdminLayout: React.FC = () => {
                         </Link>
                         <Link
                             to="/admin/intakes"
+                            onClick={() => setIsSidebarOpen(false)}
                             className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors border-l-4 ${isActive('/admin/intakes')
                                 ? 'bg-admin-primary/10 text-admin-primary border-admin-primary'
                                 : 'text-slate-400 hover:text-white hover:bg-white/5 border-transparent'
@@ -42,6 +65,7 @@ const InstitutionAdminLayout: React.FC = () => {
                         </Link>
                         <Link
                             to="/admin/facilitators"
+                            onClick={() => setIsSidebarOpen(false)}
                             className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors border-l-4 ${isActive('/admin/facilitators')
                                 ? 'bg-admin-primary/10 text-admin-primary border-admin-primary'
                                 : 'text-slate-400 hover:text-white hover:bg-white/5 border-transparent'
@@ -52,6 +76,7 @@ const InstitutionAdminLayout: React.FC = () => {
                         </Link>
                         <Link
                             to="/admin/analytics"
+                            onClick={() => setIsSidebarOpen(false)}
                             className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors border-l-4 ${isActive('/admin/analytics')
                                 ? 'bg-admin-primary/10 text-admin-primary border-admin-primary'
                                 : 'text-slate-400 hover:text-white hover:bg-white/5 border-transparent'
@@ -62,6 +87,7 @@ const InstitutionAdminLayout: React.FC = () => {
                         </Link>
                         <Link
                             to="/admin/reports"
+                            onClick={() => setIsSidebarOpen(false)}
                             className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors border-l-4 ${isActive('/admin/reports')
                                 ? 'bg-admin-primary/10 text-admin-primary border-admin-primary'
                                 : 'text-slate-400 hover:text-white hover:bg-white/5 border-transparent'
@@ -72,6 +98,7 @@ const InstitutionAdminLayout: React.FC = () => {
                         </Link>
                         <Link
                             to="/admin/settings"
+                            onClick={() => setIsSidebarOpen(false)}
                             className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors border-l-4 ${isActive('/admin/settings')
                                 ? 'bg-admin-primary/10 text-admin-primary border-admin-primary'
                                 : 'text-slate-400 hover:text-white hover:bg-white/5 border-transparent'
@@ -99,6 +126,16 @@ const InstitutionAdminLayout: React.FC = () => {
 
             {/* Main Content */}
             <main className="flex-1 flex flex-col h-full overflow-y-auto bg-background-light dark:bg-background-dark relative">
+                {/* Mobile Header Toggle */}
+                <div className="lg:hidden p-4 bg-white dark:bg-navy-blue border-b border-gray-200 dark:border-white/10 flex items-center gap-3">
+                    <button
+                        onClick={() => setIsSidebarOpen(true)}
+                        className="p-2 -ml-2 text-slate-600 dark:text-white hover:bg-gray-100 dark:hover:bg-white/10 rounded-lg"
+                    >
+                        <span className="material-symbols-outlined">menu</span>
+                    </button>
+                    <span className="font-bold text-lg text-slate-900 dark:text-white">Typespire Admin</span>
+                </div>
                 <Outlet />
             </main>
         </div>

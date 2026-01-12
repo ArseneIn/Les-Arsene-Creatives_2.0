@@ -1,5 +1,4 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useMemo } from 'react';
 import {
     BarChart,
     Bar,
@@ -40,37 +39,49 @@ const STATUS_DATA = [
     { name: 'Inactive', value: 5, color: '#94a3b8' },
 ];
 
-const COLORS = ['#22c55e', '#eab308', '#94a3b8'];
+// Custom Tooltip for Charts
+interface TooltipProps {
+    active?: boolean;
+    payload?: Array<{
+        name: string;
+        value: number;
+        color: string;
+    }>;
+    label?: string;
+}
+
+const CustomTooltip = ({ active, payload, label }: TooltipProps) => {
+    if (active && payload && payload.length) {
+        return (
+            <div className="bg-white p-4 rounded-xl shadow-xl border border-gray-100">
+                <p className="font-bold text-gray-800 mb-2">{label}</p>
+                {payload.map((entry, index) => (
+                    <div key={index} className="flex items-center gap-2 text-sm mb-1">
+                        <div className="w-3 h-3 rounded-full" style={{ backgroundColor: entry.color }}></div>
+                        <span className="text-gray-500 capitalize">{entry.name}:</span>
+                        <span className="font-bold text-gray-800">{entry.value}</span>
+                    </div>
+                ))}
+            </div>
+        );
+    }
+    return null;
+};
 
 const InstitutionAdminDashboard: React.FC = () => {
     const { intakes } = useInstitution();
 
     // Transform context intakes to chart data
     // In a real app, this would calculate actual averages from student data
-    const intakePerformanceData = intakes.map(intake => ({
-        name: intake.name,
-        avgWpm: Math.floor(Math.random() * (55 - 35) + 35), // Mock WPM between 35-55
-        target: 40
-    }));
-
-    // Custom Tooltip for Charts
-    const CustomTooltip = ({ active, payload, label }: any) => {
-        if (active && payload && payload.length) {
-            return (
-                <div className="bg-white p-4 rounded-xl shadow-xl border border-gray-100">
-                    <p className="font-bold text-gray-800 mb-2">{label}</p>
-                    {payload.map((entry: any, index: number) => (
-                        <div key={index} className="flex items-center gap-2 text-sm mb-1">
-                            <div className="w-3 h-3 rounded-full" style={{ backgroundColor: entry.color }}></div>
-                            <span className="text-gray-500 capitalize">{entry.name}:</span>
-                            <span className="font-bold text-gray-800">{entry.value}</span>
-                        </div>
-                    ))}
-                </div>
-            );
-        }
-        return null;
-    };
+    const intakePerformanceData = useMemo(() => intakes.map(intake => {
+        // Deterministic pseudo-random based on intake name length or char codes
+        const pseudoRandom = (intake.name.length * 7) % 20;
+        return {
+            name: intake.name,
+            avgWpm: 35 + pseudoRandom, // Mock WPM between 35-55
+            target: 40
+        };
+    }), [intakes]);
 
     return (
         <>
@@ -86,7 +97,7 @@ const InstitutionAdminDashboard: React.FC = () => {
                         <h2 className="text-[#0d1b17] text-3xl font-bold leading-tight">Institution Hub</h2>
                     </div>
 
-                    <div className="flex gap-3">
+                    <div className="flex flex-wrap gap-3">
                         <button className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-lg text-gray-700 text-sm font-bold hover:bg-gray-50 transition-colors shadow-sm">
                             <span className="material-symbols-outlined text-[20px]">download</span>
                             Export Data
@@ -236,7 +247,7 @@ const InstitutionAdminDashboard: React.FC = () => {
                     </div>
 
                     <div className="mt-6 space-y-3">
-                        {STATUS_DATA.map((entry, index) => (
+                        {STATUS_DATA.map((entry) => (
                             <div key={entry.name} className="flex items-center justify-between text-sm">
                                 <div className="flex items-center gap-3">
                                     <div className="w-3 h-3 rounded-full" style={{ backgroundColor: entry.color }}></div>

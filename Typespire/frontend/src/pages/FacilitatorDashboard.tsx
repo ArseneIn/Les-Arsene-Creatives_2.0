@@ -64,6 +64,35 @@ const LEVEL_COLORS = {
     passed: '#34d399'  // Emerald-400
 };
 
+// Custom Tooltip for Charts
+interface TooltipProps {
+    active?: boolean;
+    payload?: Array<{
+        name: string;
+        value: number;
+        color: string;
+    }>;
+    label?: string;
+}
+
+const CustomTooltip = ({ active, payload, label }: TooltipProps) => {
+    if (active && payload && payload.length) {
+        return (
+            <div className="bg-white p-4 rounded-xl shadow-xl border border-gray-100">
+                <p className="font-bold text-gray-800 mb-2">{label}</p>
+                {payload.map((entry, index) => (
+                    <div key={index} className="flex items-center gap-2 text-sm mb-1">
+                        <div className="w-3 h-3 rounded-full" style={{ backgroundColor: entry.color }}></div>
+                        <span className="text-gray-500 capitalize">{entry.name}:</span>
+                        <span className="font-bold text-gray-800">{entry.value}</span>
+                    </div>
+                ))}
+            </div>
+        );
+    }
+    return null;
+};
+
 const FacilitatorDashboard: React.FC = () => {
     // State for expanded accordion items (default all expanded for visibility)
     const [expandedMajors, setExpandedMajors] = useState<Record<string, boolean>>({
@@ -101,35 +130,22 @@ const FacilitatorDashboard: React.FC = () => {
         };
     });
 
-    // Custom Tooltip for Charts
-    const CustomTooltip = ({ active, payload, label }: any) => {
-        if (active && payload && payload.length) {
-            return (
-                <div className="bg-white p-4 rounded-xl shadow-xl border border-gray-100">
-                    <p className="font-bold text-gray-800 mb-2">{label}</p>
-                    {payload.map((entry: any, index: number) => (
-                        <div key={index} className="flex items-center gap-2 text-sm mb-1">
-                            <div className="w-3 h-3 rounded-full" style={{ backgroundColor: entry.color }}></div>
-                            <span className="text-gray-500 capitalize">{entry.name}:</span>
-                            <span className="font-bold text-gray-800">{entry.value}</span>
-                        </div>
-                    ))}
-                </div>
-            );
-        }
-        return null;
-    };
-
     return (
         <>
             {/* Top Bar / Header */}
             <header className="flex-none p-6 md:px-10 md:py-6 bg-white border-b border-[#cfe7df]">
                 <div className="max-w-7xl mx-auto w-full">
-                    <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                        <h2 className="text-[#0d1b17] text-2xl md:text-3xl font-bold leading-tight">Instructor Progress Snapshot</h2>
+                    <div className="flex flex-col gap-4">
+                        <div className="flex items-center justify-between">
+                            <h2 className="text-[#0d1b17] text-2xl md:text-3xl font-bold leading-tight">Instructor Progress Snapshot</h2>
+                            <button className="relative p-2 text-gray-500 hover:bg-gray-100 rounded-full transition-colors md:hidden">
+                                <span className="material-symbols-outlined icon-filled">notifications</span>
+                                <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full border-2 border-white"></span>
+                            </button>
+                        </div>
 
-                        <div className="flex items-center gap-4">
-                            <div className="relative hidden md:block w-64">
+                        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                            <div className="relative w-full md:w-64 md:ml-auto">
                                 <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-[20px]">search</span>
                                 <input
                                     className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-200 bg-gray-50 text-sm focus:ring-2 focus:ring-facilitator-primary/20 focus:border-facilitator-primary outline-none transition-all"
@@ -137,7 +153,7 @@ const FacilitatorDashboard: React.FC = () => {
                                     type="text"
                                 />
                             </div>
-                            <button className="relative p-2 text-gray-500 hover:bg-gray-100 rounded-full transition-colors">
+                            <button className="relative p-2 text-gray-500 hover:bg-gray-100 rounded-full transition-colors hidden md:block">
                                 <span className="material-symbols-outlined icon-filled">notifications</span>
                                 <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full border-2 border-white"></span>
                             </button>
@@ -287,7 +303,7 @@ const FacilitatorDashboard: React.FC = () => {
                                             dataKey="total"
                                             stroke="none"
                                         >
-                                            {chartData.map((entry, index) => (
+                                            {chartData.map((_, index) => (
                                                 <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                                             ))}
                                         </Pie>

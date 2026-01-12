@@ -7,8 +7,18 @@ const StudentDashboard: React.FC = () => {
     const { stats, recentResults } = useUserProgress();
     const { assignments } = useFacilitator();
 
-    // Get the latest active assignment
-    const latestAssignment = assignments.find(a => a.status === 'Active');
+    // Mock current user ID for demonstration
+    const currentUserId = '1';
+    const currentUserSectionId = '10A';
+
+    // Get the latest active assignment for this student
+    const latestAssignment = assignments.find(a =>
+        a.status === 'Active' &&
+        (
+            (a.sectionId === currentUserSectionId) ||
+            (a.studentIds && a.studentIds.includes(currentUserId))
+        )
+    );
 
     return (
         <div className="layout-container flex flex-col items-center w-full py-8 px-4 md:px-8 lg:px-12">
@@ -45,7 +55,7 @@ const StudentDashboard: React.FC = () => {
                                 </p>
                             </div>
                             {latestAssignment && (
-                                <Link to="/test" className="shrink-0 flex items-center justify-center gap-2 bg-primary hover:bg-blue-700 text-white font-medium py-3 px-6 rounded-lg transition-all duration-200 shadow-lg shadow-primary/25">
+                                <Link to="/test" className="w-full md:w-auto shrink-0 flex items-center justify-center gap-2 bg-primary hover:bg-blue-700 text-white font-medium py-3 px-6 rounded-lg transition-all duration-200 shadow-lg shadow-primary/25 active:scale-95">
                                     <span className="material-symbols-outlined text-[20px]">play_arrow</span>
                                     <span>Start Assignment</span>
                                 </Link>

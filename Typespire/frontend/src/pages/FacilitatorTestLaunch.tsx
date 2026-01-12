@@ -5,24 +5,33 @@ import { useInstitution } from '../context/InstitutionContext';
 
 const FacilitatorTestLaunch: React.FC = () => {
     const navigate = useNavigate();
-    const { publishAssignment } = useFacilitator();
+    const { publishAssignment, students } = useFacilitator();
     const { intakes } = useInstitution();
 
     const [selectedText, setSelectedText] = useState('The Velveteen Rabbit');
     const [targetSection, setTargetSection] = useState('');
+    const [assignmentMode, setAssignmentMode] = useState<'section' | 'students'>('section');
+    const [selectedStudentIds, setSelectedStudentIds] = useState<string[]>([]);
     const [timeLimit, setTimeLimit] = useState('1');
     const [allowedTrials, setAllowedTrials] = useState('');
 
     const handlePublish = (e: React.FormEvent) => {
         e.preventDefault();
-        if (!targetSection) {
+
+        if (assignmentMode === 'section' && !targetSection) {
             alert('Please select a target section.');
+            return;
+        }
+
+        if (assignmentMode === 'students' && selectedStudentIds.length === 0) {
+            alert('Please select at least one student.');
             return;
         }
 
         publishAssignment({
             title: selectedText,
-            sectionId: targetSection,
+            sectionId: assignmentMode === 'section' ? targetSection : undefined,
+            studentIds: assignmentMode === 'students' ? selectedStudentIds : undefined,
             dueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toLocaleDateString(), // Due in 1 week
         });
 
@@ -48,7 +57,7 @@ const FacilitatorTestLaunch: React.FC = () => {
                 </div>
 
                 {/* Content Grid */}
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 px-0 md:px-4">
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 md:gap-8 px-0 md:px-4">
                     {/* LEFT COLUMN: Content Selection */}
                     <div className="lg:col-span-8 flex flex-col gap-6">
                         {/* Tabs */}
@@ -191,30 +200,86 @@ const FacilitatorTestLaunch: React.FC = () => {
                                 <h3 className="text-kepler-navy dark:text-white font-bold text-xl">Session Settings</h3>
                             </div>
                             <form className="flex flex-col gap-6" onSubmit={handlePublish}>
-                                {/* Target Section */}
+                                {/* Assignment Mode */}
                                 <div className="flex flex-col gap-2">
-                                    <label className="text-sm font-bold text-kepler-navy dark:text-white">Target Section</label>
-                                    <div className="relative">
-                                        <select
-                                            className="w-full appearance-none rounded-lg bg-surface-light dark:bg-white/5 border-transparent focus:border-facilitator-primary focus:bg-white dark:focus:bg-white/10 focus:ring-0 text-kepler-navy dark:text-white py-3 px-4 pr-10"
-                                            value={targetSection}
-                                            onChange={(e) => setTargetSection(e.target.value)}
-                                            required
+                                    <label className="text-sm font-bold text-kepler-navy dark:text-white">Assign To</label>
+                                    <div className="flex bg-surface-light dark:bg-white/5 p-1 rounded-lg">
+                                        <button
+                                            type="button"
+                                            onClick={() => setAssignmentMode('section')}
+                                            className={`flex-1 py-2 text-sm font-bold rounded-md transition-all ${assignmentMode === 'section' ? 'bg-white dark:bg-white/10 text-facilitator-primary shadow-sm' : 'text-text-secondary hover:text-kepler-navy dark:hover:text-white'}`}
                                         >
-                                            <option disabled value="">Select a class...</option>
-                                            {intakes?.flatMap(intake =>
-                                                intake.sections?.map(section => (
-                                                    <option key={section.id} value={section.id}>
-                                                        {intake.name} - {section.name}
-                                                    </option>
-                                                ))
-                                            )}
-                                        </select>
-                                        <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-text-secondary">
-                                            <span className="material-symbols-outlined">expand_more</span>
-                                        </div>
+                                            Entire Section
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={() => setAssignmentMode('students')}
+                                            className={`flex-1 py-2 text-sm font-bold rounded-md transition-all ${assignmentMode === 'students' ? 'bg-white dark:bg-white/10 text-facilitator-primary shadow-sm' : 'text-text-secondary hover:text-kepler-navy dark:hover:text-white'}`}
+                                        >
+                                            Specific Students
+                                        </button>
                                     </div>
                                 </div>
+
+                                {/* Target Section (Conditional) */}
+                                {assignmentMode === 'section' && (
+                                    <div className="flex flex-col gap-2">
+                                        <label className="text-sm font-bold text-kepler-navy dark:text-white">Target Section</label>
+                                        <div className="relative">
+                                            <select
+                                                className="w-full appearance-none rounded-lg bg-surface-light dark:bg-white/5 border-transparent focus:border-facilitator-primary focus:bg-white dark:focus:bg-white/10 focus:ring-0 text-kepler-navy dark:text-white py-3 px-4 pr-10"
+                                                value={targetSection}
+                                                onChange={(e) => setTargetSection(e.target.value)}
+                                                required={assignmentMode === 'section'}
+                                            >
+                                                <option disabled value="">Select a class...</option>
+                                                {intakes?.flatMap(intake =>
+                                                    intake.sections?.map(section => (
+                                                        <option key={section.id} value={section.id}>
+                                                            {intake.name} - {section.name}
+                                                        </option>
+                                                    ))
+                                                )}
+                                            </select>
+                                            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-text-secondary">
+                                                <span className="material-symbols-outlined">expand_more</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* Specific Students (Conditional) */}
+                                {assignmentMode === 'students' && (
+                                    <div className="flex flex-col gap-2">
+                                        <label className="text-sm font-bold text-kepler-navy dark:text-white">Select Students</label>
+                                        <div className="max-h-48 overflow-y-auto bg-surface-light dark:bg-white/5 rounded-lg border border-transparent focus-within:border-facilitator-primary p-2">
+                                            {students.map(student => (
+                                                <label key={student.id} className="flex items-center gap-3 p-2 hover:bg-white dark:hover:bg-white/10 rounded cursor-pointer">
+                                                    <input
+                                                        type="checkbox"
+                                                        className="rounded text-facilitator-primary focus:ring-facilitator-primary bg-white dark:bg-white/10 border-gray-300 dark:border-white/20"
+                                                        checked={selectedStudentIds.includes(student.id)}
+                                                        onChange={(e) => {
+                                                            if (e.target.checked) {
+                                                                setSelectedStudentIds(prev => [...prev, student.id]);
+                                                            } else {
+                                                                setSelectedStudentIds(prev => prev.filter(id => id !== student.id));
+                                                            }
+                                                        }}
+                                                    />
+                                                    <div className="flex flex-col">
+                                                        <span className="text-sm font-medium text-kepler-navy dark:text-white">{student.name}</span>
+                                                        <span className="text-xs text-text-secondary">{student.major} - {student.sectionId}</span>
+                                                    </div>
+                                                </label>
+                                            ))}
+                                            {students.length === 0 && (
+                                                <p className="text-sm text-text-secondary p-2">No students found.</p>
+                                            )}
+                                        </div>
+                                        <p className="text-xs text-text-secondary text-right">{selectedStudentIds.length} students selected</p>
+                                    </div>
+                                )}
 
                                 {/* Time Limit */}
                                 <div className="flex flex-col gap-2">
