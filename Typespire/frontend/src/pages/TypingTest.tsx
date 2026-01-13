@@ -1,13 +1,31 @@
-import React, { useEffect, useRef } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useMemo, useState } from 'react';
+import { Link, useSearchParams } from 'react-router-dom';
 import { useTypingEngine } from '../hooks/useTypingEngine';
 import { useUserProgress } from '../context/UserProgressContext';
-
-const TARGET_TEXT = "The rapid development of digital communication has transformed how we share information across the globe. Mastering the keyboard is a fundamental skill for academic and professional success in the twenty-first century. As students navigate through increasingly complex digital landscapes, the ability to translate thoughts to text with speed and precision becomes a critical advantage. This standardized assessment measures both technical proficiency and cognitive processing speed.";
+import { TypingArea } from '../components/TypingTest/TypingArea';
+import { TestStats } from '../components/TypingTest/TestStats';
+import { PRACTICE_MODULES_CONTENT, DEFAULT_TEXT } from '../data/practiceModules';
 
 const TypingTest: React.FC = () => {
-    const inputRef = useRef<HTMLTextAreaElement>(null);
+    const [searchParams] = useSearchParams();
     const { saveResult } = useUserProgress();
+
+    const moduleId = searchParams.get('moduleId');
+
+    const testConfig = useMemo(() => {
+        if (moduleId && PRACTICE_MODULES_CONTENT[moduleId]) {
+            return {
+                text: PRACTICE_MODULES_CONTENT[moduleId].text,
+                duration: PRACTICE_MODULES_CONTENT[moduleId].duration,
+                title: PRACTICE_MODULES_CONTENT[moduleId].title
+            };
+        }
+        return {
+            text: DEFAULT_TEXT,
+            duration: 60,
+            title: 'Standardized Trial 1'
+        };
+    }, [moduleId]);
 
     const {
         started,
@@ -16,26 +34,42 @@ const TypingTest: React.FC = () => {
         wpm,
         accuracy,
         isFinished,
+        strugglingKeys,
         startTest,
         handleInputChange
     } = useTypingEngine({
-        targetText: TARGET_TEXT,
-        duration: 60,
+        targetText: testConfig.text,
+        duration: testConfig.duration,
         onFinish: (results) => {
             saveResult({
-                testName: 'Standardized Trial 1',
+                testName: testConfig.title,
                 wpm: results.wpm,
-                accuracy: results.accuracy
+                accuracy: results.accuracy,
+                duration: testConfig.duration,
+                strugglingKeys: results.strugglingKeys,
             });
         }
     });
 
-    // Auto-focus input when test starts
-    useEffect(() => {
-        if (started && inputRef.current) {
-            inputRef.current.focus();
-        }
-    }, [started]);
+    const [isCountingDown, setIsCountingDown] = useState(false);
+    const [countdown, setCountdown] = useState(3);
+
+    const handleStart = () => {
+        setIsCountingDown(true);
+        setCountdown(3);
+
+        const interval = setInterval(() => {
+            setCountdown((prev) => {
+                if (prev <= 1) {
+                    clearInterval(interval);
+                    setIsCountingDown(false);
+                    startTest(); // Start the actual test logic
+                    return 0;
+                }
+                return prev - 1;
+            });
+        }, 1000);
+    };
 
     // Format time
     const formatTime = (seconds: number) => {
@@ -49,49 +83,54 @@ const TypingTest: React.FC = () => {
 
     const { mins, secs } = formatTime(timeLeft);
 
-    // Render text with highlighting
-    const renderHighlightedText = () => {
-        return TARGET_TEXT.split('').map((char, index) => {
-            let colorClass = "text-gray-400 dark:text-gray-500"; // Default (untouched)
-            let bgClass = "";
-
-            if (index < userInput.length) {
-                if (userInput[index] === char) {
-                    colorClass = "text-green-600 dark:text-green-400"; // Correct
-                } else {
-                    colorClass = "text-red-600 dark:text-red-400"; // Incorrect
-                    bgClass = "bg-red-100 dark:bg-red-900/30";
-                }
-            } else if (index === userInput.length) {
-                bgClass = "bg-admin-primary/20 animate-pulse"; // Cursor position
-            }
-
-            return (
-                <span key={index} className={`${colorClass} ${bgClass} transition-colors duration-75`}>
-                    {char}
-                </span>
-            );
-        });
-    };
-
     return (
-        <div className="bg-background-light dark:bg-background-dark text-[#0e1a13] dark:text-white transition-colors duration-200 min-h-screen font-display relative overflow-hidden">
+        <div className="text-[#0e1a13] dark:text-white transition-colors duration-200 min-h-screen font-display relative overflow-hidden">
+            {/* Solid Background Layer */}
+            <div className="fixed inset-0 -z-30 bg-background-light dark:bg-background-dark transition-colors duration-200"></div>
             {/* Start Test Overlay */}
-            {!started && !isFinished && (
+            {!started && !isFinished && !isCountingDown && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-background-dark/80 backdrop-blur-sm">
-                    <div className="bg-white dark:bg-[#1a2e21] p-10 rounded-xl shadow-2xl max-w-md w-full text-center border border-admin-primary/20">
-                        <div className="mb-6 inline-flex h-20 w-20 items-center justify-center rounded-full bg-admin-primary/10 text-admin-primary">
-                            <span className="material-symbols-outlined text-4xl">keyboard</span>
+                    <div className="bg-white/90 dark:bg-[#1a2e21]/90 backdrop-blur-2xl p-12 rounded-3xl shadow-2xl max-w-lg w-full text-center border border-white/20 dark:border-white/10 relative overflow-hidden ring-1 ring-black/5">
+                        {/* Doodle Background for Modal */}
+                        <div className="absolute inset-0 z-0 opacity-[0.1] pointer-events-none" style={{ backgroundImage: "url('/assets/login_doodle_bg.png')", backgroundSize: '300px' }}></div>
+
+                        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-admin-primary to-transparent opacity-50 z-10"></div>
+
+                        <div className="relative z-10 mb-8 inline-flex h-24 w-24 items-center justify-center rounded-full bg-admin-primary/5 text-admin-primary ring-1 ring-admin-primary/20 shadow-[0_0_40px_-10px_rgba(16,185,129,0.3)]">
+                            <span className="material-symbols-outlined text-5xl">keyboard</span>
                         </div>
-                        <h2 className="text-3xl font-bold mb-2">Ready to start?</h2>
-                        <p className="text-gray-600 dark:text-gray-400 mb-8">This is a 60-second standardized test. Once you click "Begin", the timer will start immediately.</p>
+                        <h2 className="relative z-10 text-4xl font-bold mb-3 tracking-tight text-gray-900 dark:text-white">Ready to start?</h2>
+                        <p className="relative z-10 text-gray-500 dark:text-gray-400 mb-10 text-lg leading-relaxed">
+                            This is a <span className="font-bold text-gray-900 dark:text-white">{testConfig.duration}-second</span> {moduleId ? 'test' : 'practice session'}.
+                            <br />Focus on accuracy and rhythm.
+                        </p>
+
                         <button
-                            onClick={startTest}
-                            className="w-full bg-admin-primary hover:bg-admin-primary/90 text-[#0e1a13] font-bold py-4 rounded-lg text-lg transition-all transform hover:scale-[1.02]"
+                            onClick={handleStart}
+                            className="relative z-10 w-full bg-admin-primary hover:bg-admin-primary/90 text-white font-bold py-5 rounded-xl text-xl transition-all duration-300 shadow-[0_10px_30px_-10px_rgba(16,185,129,0.4)] hover:shadow-[0_20px_40px_-10px_rgba(16,185,129,0.6)] hover:-translate-y-1 mb-6"
                         >
-                            Begin Typing Test
+                            {moduleId ? 'Start Test' : 'Start Practice'}
                         </button>
-                        <p className="mt-4 text-xs text-gray-500 uppercase tracking-widest">Standardized Trial 1 of 2</p>
+
+                        <button
+                            onClick={() => window.history.back()}
+                            className="relative z-10 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 text-sm font-bold tracking-widest uppercase transition-colors py-2"
+                        >
+                            Not ready? Go back
+                        </button>
+
+                        <div className="relative z-10 mt-8 pt-8 border-t border-gray-100 dark:border-white/5">
+                            <p className="text-xs text-gray-400 uppercase tracking-widest font-medium">{testConfig.title}</p>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Countdown Overlay */}
+            {isCountingDown && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-background-dark/90 backdrop-blur-md">
+                    <div className="text-9xl font-bold text-admin-primary animate-bounce">
+                        {countdown}
                     </div>
                 </div>
             )}
@@ -104,7 +143,8 @@ const TypingTest: React.FC = () => {
                             <span className="material-symbols-outlined text-4xl">flag</span>
                         </div>
                         <h2 className="text-3xl font-bold mb-2">Test Complete!</h2>
-                        <div className="grid grid-cols-2 gap-4 my-8">
+
+                        <div className="grid grid-cols-2 gap-4 my-6">
                             <div className="p-4 bg-gray-50 dark:bg-white/5 rounded-lg">
                                 <p className="text-sm text-gray-500">WPM</p>
                                 <p className="text-3xl font-bold text-admin-primary">{wpm}</p>
@@ -114,10 +154,29 @@ const TypingTest: React.FC = () => {
                                 <p className="text-3xl font-bold text-admin-primary">{accuracy}%</p>
                             </div>
                         </div>
+
+                        {/* Struggling Keys Section */}
+                        {Object.keys(strugglingKeys).length > 0 && (
+                            <div className="mb-8">
+                                <p className="text-sm text-gray-500 mb-3">Struggling Keys</p>
+                                <div className="flex flex-wrap justify-center gap-2">
+                                    {Object.entries(strugglingKeys)
+                                        .sort(([, a], [, b]) => b - a) // Sort by error count desc
+                                        .slice(0, 5) // Top 5
+                                        .map(([key, count]) => (
+                                            <div key={key} className="flex flex-col items-center bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-900/30 px-3 py-2 rounded-lg">
+                                                <span className="text-lg font-bold text-red-600 dark:text-red-400 font-mono">{key === ' ' ? 'Space' : key}</span>
+                                                <span className="text-xs text-red-400 dark:text-red-500">{count} miss{count > 1 ? 'es' : ''}</span>
+                                            </div>
+                                        ))}
+                                </div>
+                            </div>
+                        )}
+
                         <div className="flex flex-col gap-3">
                             <Link
                                 to="/results"
-                                state={{ wpm, accuracy }} // Pass state to results page
+                                state={{ wpm, accuracy, strugglingKeys }} // Pass state to results page
                                 className="w-full bg-admin-primary hover:bg-admin-primary/90 text-[#0e1a13] font-bold py-4 rounded-lg text-lg transition-all transform hover:scale-[1.02]"
                             >
                                 View Detailed Results
@@ -135,129 +194,104 @@ const TypingTest: React.FC = () => {
 
             <div className="relative flex min-h-screen flex-col">
                 {/* TopNavBar Component */}
-                <header className="flex items-center justify-between border-b border-solid border-[#e8f2ec] dark:border-[#2a3d31] px-10 py-3 bg-white dark:bg-[#1a2e21]">
+                {/* TopNavBar Component */}
+                <header className="flex items-center justify-between border-b border-solid border-slate-800 px-10 py-3 bg-navy-blue text-white shadow-md">
                     <div className="flex items-center gap-4">
-                        <Link to="/" className="size-8 text-admin-primary">
-                            <svg fill="none" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M13.8261 30.5736C16.7203 29.8826 20.2244 29.4783 24 29.4783C27.7756 29.4783 31.2797 29.8826 34.1739 30.5736C36.9144 31.2278 39.9967 32.7669 41.3563 33.8352L24.8486 7.36089C24.4571 6.73303 23.5429 6.73303 23.1514 7.36089L6.64374 33.8352C8.00331 32.7669 11.0856 31.2278 13.8261 30.5736Z" fill="currentColor"></path>
-                                <path clipRule="evenodd" d="M39.998 35.764C39.9944 35.7463 39.9875 35.7155 39.9748 35.6706C39.9436 35.5601 39.8949 35.4259 39.8346 35.2825C39.8168 35.2403 39.7989 35.1993 39.7813 35.1602C38.5103 34.2887 35.9788 33.0607 33.7095 32.5189C30.9875 31.8691 27.6413 31.4783 24 31.4783C20.3587 31.4783 17.0125 31.8691 14.2905 32.5189C12.0012 33.0654 9.44505 34.3104 8.18538 35.1832C8.17384 35.2075 8.16216 35.233 8.15052 35.2592C8.09919 35.3751 8.05721 35.4886 8.02977 35.589C8.00356 35.6848 8.00039 35.7333 8.00004 35.7388C8.00004 35.739 8 35.7393 8.00004 35.7388C8.00004 35.7641 8.0104 36.0767 8.68485 36.6314C9.34546 37.1746 10.4222 37.7531 11.9291 38.2772C14.9242 39.319 19.1919 40 24 40C28.8081 40 33.0758 39.319 36.0709 38.2772C37.5778 37.7531 38.6545 37.1746 39.3151 36.6314C39.9006 36.1499 39.9857 35.8511 39.998 35.764ZM4.95178 32.7688L21.4543 6.30267C22.6288 4.4191 25.3712 4.41909 26.5457 6.30267L43.0534 32.777C43.0709 32.8052 43.0878 32.8338 43.104 32.8629L41.3563 33.8352C43.104 32.8629 43.1038 32.8626 43.104 32.8629L43.1051 32.865L43.1065 32.8675L43.1101 32.8739L43.1199 32.8918C43.1276 32.906 43.1377 32.9246 43.1497 32.9473C43.1738 32.9925 43.2062 33.0545 43.244 33.1299C43.319 33.2792 43.4196 33.489 43.5217 33.7317C43.6901 34.1321 44 34.9311 44 35.7391C44 37.4427 43.003 38.7775 41.8558 39.7209C40.6947 40.6757 39.1354 41.4464 37.385 42.0552C33.8654 43.2794 29.133 44 24 44C18.867 44 14.1346 43.2794 10.615 42.0552C8.86463 41.4464 7.30529 40.6757 6.14419 39.7209C4.99695 38.7775 3.99999 37.4427 3.99999 35.7391C3.99999 34.8725 4.29264 34.0922 4.49321 33.6393C4.60375 33.3898 4.71348 33.1804 4.79687 33.0311C4.83898 32.9556 4.87547 32.8935 4.9035 32.8471C4.91754 32.8238 4.92954 32.8043 4.93916 32.7889L4.94662 32.777L4.95178 32.7688ZM35.9868 29.004L24 9.77997L12.0131 29.004C12.4661 28.8609 12.9179 28.7342 13.3617 28.6282C16.4281 27.8961 20.0901 27.4783 24 27.4783C27.9099 27.4783 31.5719 27.8961 34.6383 28.6282C35.082 28.7342 35.5339 28.8609 35.9868 29.004Z" fill="currentColor" fillRule="evenodd"></path>
-                            </svg>
+                        <Link to="/" className="flex items-center gap-3 group">
+                            <div className="bg-admin-primary rounded-lg p-2 flex items-center justify-center group-hover:bg-admin-primary/90 transition-colors shadow-lg shadow-admin-primary/20">
+                                <span className="material-symbols-outlined text-navy-blue text-2xl">keyboard</span>
+                            </div>
                         </Link>
-                        <h2 className="text-xl font-bold leading-tight tracking-[-0.015em]">Typespire</h2>
-                        <div className="h-6 w-px bg-gray-200 dark:bg-gray-700 mx-2"></div>
-                        <span className="text-sm font-medium text-gray-500">Academic Portal</span>
+                        <h2 className="text-xl font-bold leading-tight tracking-[-0.015em] text-white">Typespire</h2>
+                        <div className="h-6 w-px bg-slate-700 mx-2"></div>
+                        <span className="text-sm font-medium text-slate-400">Academic Portal</span>
                     </div>
                     <div className="flex flex-1 justify-end items-center gap-6">
                         <div className="text-right">
-                            <p className="text-sm font-bold">Alex Rivera</p>
-                            <p className="text-[10px] uppercase text-gray-400">Student ID: 48291</p>
+                            <p className="text-sm font-bold text-white">Alex Rivera</p>
+                            <p className="text-[10px] uppercase text-slate-400">Student ID: 48291</p>
                         </div>
                         <div
                             className="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10 border-2 border-admin-primary"
-                            style={{ backgroundImage: "url('https://lh3.googleusercontent.com/aida-public/AB6AXuBWxsMfecaynYAAwK2wZkCmOOgclRjfPh1T5ax-p80mI1dq_Z-5rLfqhHcvrhuzRr-N8uIW7FkMHMIuyz_P_UxMcdxoTzixLkEE3ihPUoi1AWH64yTX1_PWac71SnRCUL3L_7srL3HYYmn-GCk_PPKFPEsGB6F4CyEMuqEDGbxDv6w7DrsVyRDlgX707nA9vgGPQMmtdvr08Wjgv0WDcUoGuBFcX_J5FMgBmz77Y8__3JownNqtPJEecAPq1W3PMqboY1kxEnOh2Xbh')" }}
+                            style={{ backgroundImage: "url('https://lh3.googleusercontent.com/aida-public/AB6AXuBWxsMfecaynYAAwK2wZkCmOOgclRjfPh1T5ax-p80mI1dq_Z-5rLfqhHcvrhuzRr-N8uIW7FkMHMIuyz_P_UxMcdxoTzixLkEE3ihPUoi1AWH64yTX1_PWac71SnRCUL3L_7srL3HYYmn-GCk_PPKFPEsGB6F4CyEMuqEDGbxDv6w7DrsVyRDlgX707nA9vgGPQMmtdvr08Wjgv0WDcUoGuBFcX_J5FMgBmz77Y8__3JownNqtPJEecAPq1W3PMq1W3PMbboY1kxEnOh2Xbh')" }}
                         ></div>
                     </div>
                 </header>
 
-                <main className="flex-1 max-w-5xl mx-auto w-full px-10 py-8">
-                    {/* Header Section with Timer */}
-                    <div className="flex justify-between items-end mb-10">
-                        <div className="flex flex-col">
-                            <span className="bg-admin-primary/20 text-admin-primary px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider mb-2 w-fit">In Progress</span>
-                            {/* SectionHeader */}
-                            <h2 className="text-3xl font-bold leading-tight tracking-tight">Standardized Trial 1 of 2</h2>
+                <main className="flex-1 max-w-6xl mx-auto w-full px-8 py-12 flex flex-col items-center">
+                    {/* Header Section */}
+                    <div className="w-full flex justify-between items-center mb-12">
+                        <div className="flex flex-col gap-2">
+                            <div className="flex items-center gap-3">
+                                <div className={`h-2.5 w-2.5 rounded-full ${started ? 'bg-admin-primary animate-pulse' : 'bg-gray-300 dark:bg-gray-600'}`}></div>
+                                <span className="text-xs font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500">
+                                    {started ? 'In Progress' : 'Ready to Start'}
+                                </span>
+                            </div>
+                            <h2 className="text-4xl font-bold tracking-tight text-gray-900 dark:text-white">{testConfig.title}</h2>
                         </div>
-                        {/* Timer Component Integrated */}
-                        <div className="flex gap-3">
-                            <div className="flex flex-col items-center">
-                                <div className="flex h-16 w-20 items-center justify-center rounded-xl bg-white dark:bg-[#1a2e21] shadow-sm border border-[#d1e6d9] dark:border-[#2a3d31]">
-                                    <p className="text-3xl font-bold leading-tight tracking-[-0.015em]">{mins}</p>
-                                </div>
-                                <p className="text-xs font-medium text-gray-500 mt-2">MIN</p>
+
+                        <div className="flex items-center gap-10">
+                            {/* Timer */}
+                            <div className="flex items-baseline gap-1 font-variant-numeric tabular-nums">
+                                <span className="text-6xl font-light tracking-tighter text-gray-900 dark:text-white">{mins}</span>
+                                <span className="text-2xl text-gray-300 dark:text-gray-600 font-light">:</span>
+                                <span className="text-6xl font-light tracking-tighter text-gray-900 dark:text-white">{secs}</span>
                             </div>
-                            <div className="flex items-center text-2xl font-bold pb-6">:</div>
-                            <div className="flex flex-col items-center">
-                                <div className="flex h-16 w-20 items-center justify-center rounded-xl bg-white dark:bg-[#1a2e21] shadow-sm border border-[#d1e6d9] dark:border-[#2a3d31]">
-                                    <p className="text-3xl font-bold leading-tight tracking-[-0.015em]">{secs}</p>
-                                </div>
-                                <p className="text-xs font-medium text-gray-500 mt-2">SEC</p>
-                            </div>
+
+                            {/* Restart Button */}
+                            <button
+                                onClick={startTest}
+                                className="group p-4 rounded-full bg-gray-50 dark:bg-white/5 hover:bg-admin-primary hover:text-white text-gray-400 transition-all duration-300 shadow-sm hover:shadow-lg hover:shadow-admin-primary/30"
+                                title="Restart Test"
+                            >
+                                <span className="material-symbols-outlined text-xl group-hover:rotate-180 transition-transform duration-500">refresh</span>
+                            </button>
                         </div>
                     </div>
 
-                    {/* Stats Component Integrated (Floating HUD style) */}
-                    <div className="grid grid-cols-2 gap-4 mb-8">
-                        <div className="flex items-center gap-4 rounded-xl p-6 bg-white dark:bg-[#1a2e21] shadow-sm border border-[#d1e6d9] dark:border-[#2a3d31]">
-                            <div className="p-3 bg-admin-primary/10 rounded-lg text-admin-primary">
-                                <span className="material-symbols-outlined">speed</span>
-                            </div>
-                            <div>
-                                <p className="text-gray-500 text-sm font-medium">Current WPM</p>
-                                <p className="text-3xl font-bold leading-tight">{wpm}</p>
-                            </div>
-                        </div>
-                        <div className="flex items-center gap-4 rounded-xl p-6 bg-white dark:bg-[#1a2e21] shadow-sm border border-[#d1e6d9] dark:border-[#2a3d31]">
-                            <div className="p-3 bg-admin-primary/10 rounded-lg text-admin-primary">
-                                <span className="material-symbols-outlined">verified</span>
-                            </div>
-                            <div>
-                                <p className="text-gray-500 text-sm font-medium">Accuracy %</p>
-                                <p className="text-3xl font-bold leading-tight text-admin-primary">{accuracy}%</p>
-                            </div>
-                        </div>
-                    </div>
+                    {/* Stats Bar */}
+                    <TestStats wpm={wpm} accuracy={accuracy} />
 
                     {/* Main Typing Area */}
-                    <div className="bg-white dark:bg-[#1a2e21] rounded-2xl p-10 shadow-sm border border-[#d1e6d9] dark:border-[#2a3d31] relative">
-                        {/* Overlay Text (The Target) */}
-                        <div className="absolute top-10 left-10 right-10 bottom-10 pointer-events-none select-none">
-                            <h3 className="text-2xl font-display leading-relaxed text-left break-words whitespace-pre-wrap">
-                                {renderHighlightedText()}
-                            </h3>
-                        </div>
-
-                        {/* Invisible Textarea for Input */}
-                        <textarea
-                            ref={inputRef}
-                            value={userInput}
-                            onChange={handleInputChange}
-                            className="w-full h-full absolute inset-0 opacity-0 cursor-text z-10 resize-none"
-                            autoFocus
-                            spellCheck="false"
-                            disabled={!started || isFinished}
-                        ></textarea>
-
-                        {/* Visual Placeholder to maintain height */}
-                        <div className="invisible text-2xl font-display leading-relaxed text-left break-words whitespace-pre-wrap">
-                            {TARGET_TEXT}
-                        </div>
+                    <div className="w-full mb-8">
+                        <TypingArea
+                            targetText={testConfig.text}
+                            userInput={userInput}
+                            started={started}
+                            isFinished={isFinished}
+                            onInputChange={handleInputChange}
+                        />
                     </div>
 
                     {/* Footer Support */}
-                    <div className="mt-8 flex justify-between items-center text-gray-400 text-sm">
-                        <div className="flex gap-6">
-                            <div className="flex items-center gap-2">
-                                <span className="material-symbols-outlined text-sm">keyboard_capslock</span>
-                                <span className="uppercase">Caps Lock is OFF</span>
+                    <div className="w-full flex justify-between items-center text-gray-400 dark:text-gray-500 text-sm mt-auto px-4">
+                        <div className="flex gap-8">
+                            <div className="flex items-center gap-2 transition-colors hover:text-gray-600 dark:hover:text-gray-300">
+                                <span className="material-symbols-outlined text-lg">keyboard_capslock</span>
+                                <span className="uppercase tracking-wider text-xs font-bold">Caps Lock is OFF</span>
                             </div>
                             <div className="flex items-center gap-2 text-admin-primary">
-                                <span className="material-symbols-outlined text-sm">check_circle</span>
-                                <span>Keyboard Connected</span>
+                                <span className="material-symbols-outlined text-lg">check_circle</span>
+                                <span className="tracking-wider text-xs font-bold">System Ready</span>
                             </div>
                         </div>
-                        <div className="flex gap-4">
-                            <button className="hover:text-admin-primary transition-colors">Accessibility Options</button>
-                            <span>|</span>
-                            <button className="hover:text-admin-primary transition-colors">Support</button>
+                        <div className="flex gap-6 text-xs font-bold tracking-widest uppercase">
+                            <button className="hover:text-admin-primary transition-colors">Accessibility</button>
+                            <button className="hover:text-admin-primary transition-colors">Shortcuts</button>
                         </div>
                     </div>
                 </main>
             </div>
 
             {/* Background Decorative Element */}
+            {/* Background Decorative Element (Blur Blob) */}
             <div className="fixed top-0 right-0 -z-10 opacity-10 pointer-events-none translate-x-1/2 -translate-y-1/2">
                 <div className="w-[800px] h-[800px] rounded-full bg-admin-primary blur-[120px]"></div>
             </div>
+
+            {/* Doodle Background Pattern */}
+            <div className="fixed inset-0 -z-20 pointer-events-none opacity-[0.1] dark:opacity-[0.15]" style={{ backgroundImage: "url('/assets/login_doodle_bg.png')", backgroundSize: '400px' }}></div>
         </div>
     );
 };

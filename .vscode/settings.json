@@ -1,4 +1,5 @@
 {
+    "css.lint.unknownAtRules": "ignore",
     "files.exclude": {
         "Smart_Curuza/mobile_flutter_backup": true
     },

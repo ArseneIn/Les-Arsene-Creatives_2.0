@@ -3,7 +3,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 interface UseTypingEngineProps {
     targetText: string;
     duration?: number; // in seconds
-    onFinish?: (results: { wpm: number; accuracy: number; errors: number }) => void;
+    onFinish?: (results: { wpm: number; accuracy: number; errors: number; strugglingKeys: Record<string, number> }) => void;
 }
 
 export const useTypingEngine = ({ targetText, duration = 60, onFinish }: UseTypingEngineProps) => {
@@ -14,24 +14,38 @@ export const useTypingEngine = ({ targetText, duration = 60, onFinish }: UseTypi
     const [accuracy, setAccuracy] = useState(100);
     const [isFinished, setIsFinished] = useState(false);
     const [errors, setErrors] = useState(0);
+    const [strugglingKeys, setStrugglingKeys] = useState<Record<string, number>>({});
 
     const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
     const startTimeRef = useRef<number | null>(null);
+
+    const finishTest = useCallback(() => {
+        if (intervalRef.current) clearInterval(intervalRef.current);
+        setIsFinished(true);
+        setStarted(false);
+    }, []);
 
     const calculateStats = useCallback(() => {
         if (!startTimeRef.current) return;
 
         const timeElapsedMin = (Date.now() - startTimeRef.current) / 60000;
-        const wordsTyped = userInput.length / 5;
-        const currentWpm = timeElapsedMin > 0 ? Math.round(wordsTyped / timeElapsedMin) : 0;
 
-        // Calculate errors
+        // Calculate errors and struggling keys
         let errorCount = 0;
+        const keyErrors: Record<string, number> = {};
+
         for (let i = 0; i < userInput.length; i++) {
             if (userInput[i] !== targetText[i]) {
                 errorCount++;
+                const expectedKey = targetText[i];
+                keyErrors[expectedKey] = (keyErrors[expectedKey] || 0) + 1;
             }
         }
+
+        // Net WPM Calculation: (Total Characters - Errors) / 5 / Time
+        const netCharacters = Math.max(0, userInput.length - errorCount);
+        const wordsTyped = netCharacters / 5;
+        const currentWpm = timeElapsedMin > 0 ? Math.round(wordsTyped / timeElapsedMin) : 0;
 
         const currentAccuracy = userInput.length > 0
             ? Math.max(0, Math.round(((userInput.length - errorCount) / userInput.length) * 100))
@@ -40,6 +54,7 @@ export const useTypingEngine = ({ targetText, duration = 60, onFinish }: UseTypi
         setWpm(currentWpm);
         setAccuracy(currentAccuracy);
         setErrors(errorCount);
+        setStrugglingKeys(keyErrors);
     }, [userInput, targetText]);
 
     const startTest = useCallback(() => {
@@ -50,6 +65,7 @@ export const useTypingEngine = ({ targetText, duration = 60, onFinish }: UseTypi
         setWpm(0);
         setAccuracy(100);
         setErrors(0);
+        setStrugglingKeys({});
         startTimeRef.current = Date.now();
 
         if (intervalRef.current) clearInterval(intervalRef.current);
@@ -65,34 +81,26 @@ export const useTypingEngine = ({ targetText, duration = 60, onFinish }: UseTypi
             // Recalculate stats every second to keep WPM updated even if user stops typing
             calculateStats();
         }, 1000);
-    }, [duration, calculateStats]);
+    }, [duration, calculateStats, finishTest]);
 
-    const finishTest = useCallback(() => {
-        if (intervalRef.current) clearInterval(intervalRef.current);
-        setIsFinished(true);
-        setStarted(false);
 
-        // Final calculation
-        if (onFinish) {
-            // We need to recalculate one last time to ensure latest data
-            // Note: We can't use the state variables directly here reliably due to closure staleness 
-            // if we were calling this from an effect, but since it's called from the interval, 
-            // we rely on the latest render cycle's calculateStats. 
-            // For simplicity, we'll pass the current state values which should be close enough 
-            // or we could recalculate locally.
-            // Let's rely on the state for now as it updates every keystroke.
-        }
-    }, [onFinish]);
 
     // Trigger onFinish when isFinished becomes true
     useEffect(() => {
         if (isFinished && onFinish) {
-            onFinish({ wpm, accuracy, errors });
+            onFinish({ wpm, accuracy, errors, strugglingKeys });
         }
-    }, [isFinished, onFinish, wpm, accuracy, errors]);
+    }, [isFinished, onFinish, wpm, accuracy, errors, strugglingKeys]);
 
     const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
-        if (!started || isFinished) return;
+        if (isFinished) return;
+
+        // Start test on first input if not already started
+        if (!started) {
+            // If not started, prevent input (or allow it but don't start timer? User requested explicit start)
+            // Given the new flow, we should probably block input until started.
+            return;
+        }
 
         const value = e.target.value;
 
@@ -102,18 +110,26 @@ export const useTypingEngine = ({ targetText, duration = 60, onFinish }: UseTypi
         setUserInput(value);
 
         // Calculate stats immediately on input
-        // We duplicate logic here slightly to ensure instant feedback
-        if (startTimeRef.current) {
-            const timeElapsedMin = (Date.now() - startTimeRef.current) / 60000;
-            const wordsTyped = value.length / 5;
-            const currentWpm = timeElapsedMin > 0 ? Math.round(wordsTyped / timeElapsedMin) : 0;
-
+        if (startTimeRef.current || !started) {
+            // If just started, use current time as start time for calc
+            const startTime = startTimeRef.current || Date.now();
+            const timeElapsedMin = (Date.now() - startTime) / 60000;
             let errorCount = 0;
+            const keyErrors: Record<string, number> = {};
+
             for (let i = 0; i < value.length; i++) {
                 if (value[i] !== targetText[i]) {
                     errorCount++;
+                    const expectedKey = targetText[i];
+                    keyErrors[expectedKey] = (keyErrors[expectedKey] || 0) + 1;
                 }
             }
+
+            // Net WPM Calculation
+            const netCharacters = Math.max(0, value.length - errorCount);
+            const wordsTyped = netCharacters / 5;
+            const currentWpm = timeElapsedMin > 0 ? Math.round(wordsTyped / timeElapsedMin) : 0;
+
             const currentAccuracy = value.length > 0
                 ? Math.max(0, Math.round(((value.length - errorCount) / value.length) * 100))
                 : 100;
@@ -121,6 +137,7 @@ export const useTypingEngine = ({ targetText, duration = 60, onFinish }: UseTypi
             setWpm(currentWpm);
             setAccuracy(currentAccuracy);
             setErrors(errorCount);
+            setStrugglingKeys(keyErrors);
         }
 
         // Auto-finish if text is complete
@@ -144,6 +161,7 @@ export const useTypingEngine = ({ targetText, duration = 60, onFinish }: UseTypi
         accuracy,
         isFinished,
         errors,
+        strugglingKeys,
         startTest,
         handleInputChange,
         resetTest: startTest // Alias for restarting

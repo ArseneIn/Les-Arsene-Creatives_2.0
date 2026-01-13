@@ -6,6 +6,8 @@ export interface TestResult {
     testName: string;
     wpm: number;
     accuracy: number;
+    duration: number;
+    strugglingKeys?: Record<string, number>;
     status: 'Completed' | 'Incomplete';
 }
 
@@ -26,9 +28,9 @@ const UserProgressContext = createContext<UserProgressContextType | undefined>(u
 
 // Mock initial data
 const INITIAL_RESULTS: TestResult[] = [
-    { id: '1', date: 'Oct 24, 2023', testName: 'Home Row - Basic', wpm: 35, accuracy: 98, status: 'Completed' },
-    { id: '2', date: 'Oct 23, 2023', testName: 'Common Words 100', wpm: 32, accuracy: 92, status: 'Completed' },
-    { id: '3', date: 'Oct 22, 2023', testName: 'Shift Key Practice', wpm: 28, accuracy: 96, status: 'Completed' },
+    { id: '1', date: 'Oct 24, 2023', testName: 'Home Row - Basic', wpm: 35, accuracy: 98, duration: 60, status: 'Completed' },
+    { id: '2', date: 'Oct 23, 2023', testName: 'Common Words 100', wpm: 32, accuracy: 92, duration: 60, status: 'Completed' },
+    { id: '3', date: 'Oct 22, 2023', testName: 'Shift Key Practice', wpm: 28, accuracy: 96, duration: 60, status: 'Completed' },
 ];
 
 const INITIAL_STATS: UserStats = {

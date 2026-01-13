@@ -7,6 +7,10 @@ import InstitutionAdminLayout from './layouts/InstitutionAdminLayout';
 import InstitutionAdminDashboard from './pages/InstitutionAdminDashboard';
 import PlatformAdminLayout from './layouts/PlatformAdminLayout';
 import PlatformAdminDashboard from './pages/PlatformAdminDashboard';
+import PlatformAnalytics from './pages/PlatformAnalytics';
+import PlatformBilling from './pages/PlatformBilling';
+import PlatformLogs from './pages/PlatformLogs';
+import PlatformSettings from './pages/PlatformSettings';
 import TypingTest from './pages/TypingTest';
 import StudentResults from './pages/StudentResults';
 import FacilitatorTestLaunch from './pages/FacilitatorTestLaunch';
@@ -61,6 +65,10 @@ function App() {
               </Route>
               <Route path="/super-admin" element={<PlatformAdminLayout />}>
                 <Route index element={<PlatformAdminDashboard />} />
+                <Route path="analytics" element={<PlatformAnalytics />} />
+                <Route path="billing" element={<PlatformBilling />} />
+                <Route path="logs" element={<PlatformLogs />} />
+                <Route path="settings" element={<PlatformSettings />} />
               </Route>
             </Routes>
           </BrowserRouter>
