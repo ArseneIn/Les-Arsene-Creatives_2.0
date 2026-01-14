@@ -1,8 +1,16 @@
 import React from 'react';
-import { Outlet, Link } from 'react-router-dom';
+import { Outlet, Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 
 const StudentLayout: React.FC = () => {
     const [isSidebarOpen, setIsSidebarOpen] = React.useState(false);
+    const { user, logout } = useAuth();
+    const navigate = useNavigate();
+
+    const handleLogout = () => {
+        logout();
+        navigate('/login');
+    };
 
     return (
         <div className="flex h-screen w-full flex-row overflow-hidden bg-background-light dark:bg-background-dark text-slate-900 dark:text-white font-display">
@@ -80,11 +88,16 @@ const StudentLayout: React.FC = () => {
                             style={{ backgroundImage: 'url("https://lh3.googleusercontent.com/aida-public/AB6AXuBZkSKXQ6p812ruveY9CRkth1Agia_3BUKkC-yHBsap_klO7GEdemi-i7lElNzWx8RKRq_brGQsPYwJZTpaOZ2zhwlIhVIRXzp7N-NWIBz5Ukw3XvQxhQ3Yf9zSMff9tGUBACp6xmgJrAEUXppWAVq_pjIDFBkK1uLzkVareMHQfzO9vYDOoODHGLZnMfwax9VMiTWjiKq-31_pru2xSPlXMZ-Ss-jZ3TOlJIqdo7L5-pWgsnwAcBja8Bq0ZcBzNQI4iebNB1BoWVok")' }}
                         ></div>
                         <div className="flex flex-col">
-                            <h1 className="text-white text-sm font-bold leading-normal tracking-wide">Alex Rivera</h1>
-                            <p className="text-[#929bc9] text-xs font-normal">Student ID: 48291</p>
+                            <h1 className="text-white text-sm font-bold leading-normal tracking-wide">
+                                {user ? `${user.firstName || ''} ${user.lastName || ''}` : 'Student'}
+                            </h1>
+                            <p className="text-[#929bc9] text-xs font-normal">{user?.email || 'Loading...'}</p>
                         </div>
                     </div>
-                    <button className="w-full flex items-center justify-center gap-2 rounded-lg h-10 px-4 bg-white/5 hover:bg-white/10 text-white text-sm font-medium transition-colors border border-white/10">
+                    <button
+                        onClick={handleLogout}
+                        className="w-full flex items-center justify-center gap-2 rounded-lg h-10 px-4 bg-white/5 hover:bg-white/10 text-white text-sm font-medium transition-colors border border-white/10"
+                    >
                         <span className="material-symbols-outlined text-[18px]">logout</span>
                         <span>Log Out</span>
                     </button>

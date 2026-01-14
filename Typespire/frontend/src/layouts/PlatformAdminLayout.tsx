@@ -1,7 +1,16 @@
 import React from 'react';
-import { Outlet, Link } from 'react-router-dom';
+import { Outlet, Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 
 const PlatformAdminLayout: React.FC = () => {
+    const { user, logout } = useAuth();
+    const navigate = useNavigate();
+
+    const handleLogout = () => {
+        logout();
+        navigate('/login');
+    };
+
     return (
         <div className="flex h-screen w-full flex-row overflow-hidden bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100">
             {/* Sidebar Navigation */}
@@ -53,10 +62,17 @@ const PlatformAdminLayout: React.FC = () => {
                             style={{ backgroundImage: "url('https://lh3.googleusercontent.com/aida-public/AB6AXuBUZ5TwRRqDZut38NcPVmugcjfvYMhx72OUmBECzCHrO5EzqfVBWtKMj14N1CrfwbJ46TP1_eIxSHKpPtxQepoRtjWgDLm68CGLqWxltYQHXWvloMJtNTcA4oYQLZ8l6ou8yOip4RvWFJOVKgR8hbJAvo5J95hlcCLjuqmkHFMMSE5oiA6lRejvfIXFzMhgBKCKgIFt4vGcip6WqQW1y57RrTYvOWO7yP8al8esAWcjxbIeGR3RHySrdVAhDcL8p2Yo03ZNFPSQOoUU')" }}
                         ></div>
                         <div className="flex-1 overflow-hidden">
-                            <p className="text-sm font-bold truncate">Alex Chen</p>
-                            <p className="text-xs text-slate-400 truncate">Global Controller</p>
+                            <p className="text-sm font-bold truncate">
+                                {user ? `${user.firstName || ''} ${user.lastName || ''}` : 'Platform Admin'}
+                            </p>
+                            <p className="text-xs text-slate-400 truncate">{user?.email || 'Loading...'}</p>
                         </div>
-                        <span className="material-symbols-outlined text-slate-400 cursor-pointer hover:text-white">logout</span>
+                        <button
+                            onClick={handleLogout}
+                            className="material-symbols-outlined text-slate-400 cursor-pointer hover:text-white"
+                        >
+                            logout
+                        </button>
                     </div>
                 </div>
             </aside>

@@ -1,13 +1,49 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import api from '../api/axios';
+import type { Institution, CreateInstitutionDto } from '../types/institution';
 
 const PlatformAdminDashboard: React.FC = () => {
-    const [filter, setFilter] = React.useState<'all' | 'active' | 'suspended'>('all');
-    const [showOnboardModal, setShowOnboardModal] = React.useState(false);
+    const [filter, setFilter] = useState<'all' | 'active' | 'suspended'>('all');
+    const [showOnboardModal, setShowOnboardModal] = useState(false);
+    const [institutions, setInstitutions] = useState<Institution[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [newInstitution, setNewInstitution] = useState<CreateInstitutionDto>({
+        name: '',
+        slug: '',
+        contactEmail: '',
+        address: ''
+    });
+
+    useEffect(() => {
+        fetchInstitutions();
+    }, []);
+
+    const fetchInstitutions = async () => {
+        try {
+            const response = await api.get<Institution[]>('/institution');
+            setInstitutions(response.data);
+        } catch (error) {
+            console.error('Failed to fetch institutions', error);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     const handleOnboardClick = () => {
         setShowOnboardModal(true);
-        // In a real app, this would open a modal or navigate to a form
-        alert("Onboard Institution feature coming soon!");
+    };
+
+    const handleCreateInstitution = async (e: React.FormEvent) => {
+        e.preventDefault();
+        try {
+            await api.post('/institution', newInstitution);
+            setShowOnboardModal(false);
+            fetchInstitutions();
+            setNewInstitution({ name: '', slug: '', contactEmail: '', address: '' });
+        } catch (error) {
+            console.error('Failed to create institution', error);
+            alert('Failed to create institution');
+        }
     };
 
     return (
@@ -54,8 +90,9 @@ const PlatformAdminDashboard: React.FC = () => {
                             <span className="text-emerald-500 text-sm font-bold flex items-center gap-1">+4.2% <span className="material-symbols-outlined text-xs">trending_up</span></span>
                         </div>
                         <p className="text-slate-500 dark:text-slate-400 text-sm font-medium">Total Institutions</p>
-                        <h3 className="text-3xl font-bold mt-1">128</h3>
+                        <h3 className="text-3xl font-bold mt-1">{institutions.length}</h3>
                     </div>
+                    {/* ... other stats ... */}
                     <div className="bg-white dark:bg-slate-800/50 p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
                         <div className="flex items-center justify-between mb-4">
                             <span className="p-2 bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 rounded-lg">
@@ -131,46 +168,56 @@ const PlatformAdminDashboard: React.FC = () => {
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-slate-200 dark:divide-slate-800">
-                                <tr className="hover:bg-slate-50/80 dark:hover:bg-slate-700/20 transition-colors">
-                                    <td className="px-6 py-4">
-                                        <div className="flex items-center gap-3">
-                                            <div className="size-10 bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center rounded-lg text-blue-600 font-bold">OA</div>
-                                            <div>
-                                                <p className="font-bold text-sm">Oxford Academy</p>
-                                                <p className="text-xs text-slate-500 dark:text-slate-400">oxford.typespire.edu</p>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td className="px-6 py-4 text-sm text-slate-600 dark:text-slate-300">
-                                        <p className="font-medium">sarah.j@oxford.edu</p>
-                                        <p className="text-xs">Primary Admin</p>
-                                    </td>
-                                    <td className="px-6 py-4">
-                                        <div className="flex flex-col items-center gap-1">
-                                            <span className="text-sm font-bold">12,402</span>
-                                            <div className="w-24 h-1 bg-slate-100 dark:bg-slate-800 rounded-full">
-                                                <div className="bg-admin-primary h-full w-[85%] rounded-full"></div>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td className="px-6 py-4">
-                                        <span className="px-2.5 py-1 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 text-xs font-bold rounded-full">Active</span>
-                                    </td>
-                                    <td className="px-6 py-4 text-right">
-                                        <div className="flex items-center justify-end gap-2">
-                                            <button className="p-2 text-slate-400 hover:text-admin-primary transition-colors">
-                                                <span className="material-symbols-outlined text-xl">settings_account_box</span>
-                                            </button>
-                                            <button className="px-3 py-1.5 bg-navy-blue dark:bg-slate-700 text-white text-xs font-bold rounded-lg hover:bg-navy-blue/80 transition-colors">Manage</button>
-                                        </div>
-                                    </td>
-                                </tr>
-                                {/* More rows can be added here */}
+                                {loading ? (
+                                    <tr>
+                                        <td colSpan={5} className="px-6 py-4 text-center text-slate-500">Loading...</td>
+                                    </tr>
+                                ) : institutions.length === 0 ? (
+                                    <tr>
+                                        <td colSpan={5} className="px-6 py-4 text-center text-slate-500">No institutions found.</td>
+                                    </tr>
+                                ) : (
+                                    institutions.map((inst) => (
+                                        <tr key={inst.id} className="hover:bg-slate-50/80 dark:hover:bg-slate-700/20 transition-colors">
+                                            <td className="px-6 py-4">
+                                                <div className="flex items-center gap-3">
+                                                    <div className="size-10 bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center rounded-lg text-blue-600 font-bold">
+                                                        {inst.name.substring(0, 2).toUpperCase()}
+                                                    </div>
+                                                    <div>
+                                                        <p className="font-bold text-sm">{inst.name}</p>
+                                                        <p className="text-xs text-slate-500 dark:text-slate-400">{inst.slug}.typespire.edu</p>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td className="px-6 py-4 text-sm text-slate-600 dark:text-slate-300">
+                                                <p className="font-medium">{inst.contactEmail || 'N/A'}</p>
+                                                <p className="text-xs">Primary Admin</p>
+                                            </td>
+                                            <td className="px-6 py-4">
+                                                <div className="flex flex-col items-center gap-1">
+                                                    <span className="text-sm font-bold">-</span>
+                                                </div>
+                                            </td>
+                                            <td className="px-6 py-4">
+                                                <span className="px-2.5 py-1 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 text-xs font-bold rounded-full">Active</span>
+                                            </td>
+                                            <td className="px-6 py-4 text-right">
+                                                <div className="flex items-center justify-end gap-2">
+                                                    <button className="p-2 text-slate-400 hover:text-admin-primary transition-colors">
+                                                        <span className="material-symbols-outlined text-xl">settings_account_box</span>
+                                                    </button>
+                                                    <button className="px-3 py-1.5 bg-navy-blue dark:bg-slate-700 text-white text-xs font-bold rounded-lg hover:bg-navy-blue/80 transition-colors">Manage</button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    ))
+                                )}
                             </tbody>
                         </table>
                     </div>
                     <div className="p-6 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between">
-                        <p className="text-sm text-slate-500">Showing <span className="font-bold">1-4</span> of <span className="font-bold">128</span> institutions</p>
+                        <p className="text-sm text-slate-500">Showing <span className="font-bold">{institutions.length}</span> institutions</p>
                         <div className="flex gap-2">
                             <button className="px-4 py-2 border border-slate-200 dark:border-slate-700 rounded-lg text-sm font-medium hover:bg-slate-50 dark:hover:bg-slate-800">Previous</button>
                             <button className="px-4 py-2 border border-slate-200 dark:border-slate-700 rounded-lg text-sm font-medium hover:bg-slate-50 dark:hover:bg-slate-800">Next</button>
@@ -209,6 +256,71 @@ const PlatformAdminDashboard: React.FC = () => {
                     </div>
                 </div>
             </div>
+
+            {/* Onboard Modal */}
+            {showOnboardModal && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+                    <div className="bg-white dark:bg-slate-800 rounded-xl p-8 w-full max-w-md shadow-2xl">
+                        <h2 className="text-2xl font-bold mb-6">Onboard Institution</h2>
+                        <form onSubmit={handleCreateInstitution} className="flex flex-col gap-4">
+                            <div>
+                                <label className="block text-sm font-medium mb-1">Name</label>
+                                <input
+                                    type="text"
+                                    value={newInstitution.name}
+                                    onChange={(e) => setNewInstitution({ ...newInstitution, name: e.target.value })}
+                                    className="w-full p-2 rounded border dark:bg-slate-700"
+                                    required
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium mb-1">Slug</label>
+                                <input
+                                    type="text"
+                                    value={newInstitution.slug}
+                                    onChange={(e) => setNewInstitution({ ...newInstitution, slug: e.target.value })}
+                                    className="w-full p-2 rounded border dark:bg-slate-700"
+                                    required
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium mb-1">Contact Email</label>
+                                <input
+                                    type="email"
+                                    value={newInstitution.contactEmail}
+                                    onChange={(e) => setNewInstitution({ ...newInstitution, contactEmail: e.target.value })}
+                                    className="w-full p-2 rounded border dark:bg-slate-700"
+                                    required
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium mb-1">Address</label>
+                                <input
+                                    type="text"
+                                    value={newInstitution.address}
+                                    onChange={(e) => setNewInstitution({ ...newInstitution, address: e.target.value })}
+                                    className="w-full p-2 rounded border dark:bg-slate-700"
+                                />
+                            </div>
+                            <div className="flex justify-end gap-2 mt-4">
+                                <button
+                                    type="button"
+                                    onClick={() => setShowOnboardModal(false)}
+                                    className="px-4 py-2 text-slate-500 hover:text-slate-700"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    type="submit"
+                                    className="px-4 py-2 bg-admin-primary text-navy-blue font-bold rounded hover:bg-admin-primary/90"
+                                >
+                                    Create
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
         </>
     );
 };

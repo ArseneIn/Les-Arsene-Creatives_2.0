@@ -20,10 +20,15 @@ import InstitutionFacilitators from './pages/InstitutionFacilitators';
 import InstitutionAnalytics from './pages/InstitutionAnalytics';
 import InstitutionReports from './pages/InstitutionReports';
 import Login from './pages/Login';
+import Register from './pages/Register';
+import Unauthorized from './pages/Unauthorized';
+import RequireAuth from './components/RequireAuth';
+import { UserRole } from './types/auth';
 
 import { UserProgressProvider } from './context/UserProgressContext';
 import { FacilitatorProvider } from './context/FacilitatorContext';
 import { InstitutionProvider } from './context/InstitutionContext';
+import { AuthProvider } from './context/AuthProvider';
 import StudentHistory from './pages/StudentHistory';
 import StudentPractice from './pages/StudentPractice';
 
@@ -38,39 +43,60 @@ function App() {
       <InstitutionProvider>
         <FacilitatorProvider>
           <BrowserRouter>
-            <Routes>
-              <Route path="/login" element={<Login />} />
-              <Route path="/test" element={<TypingTest />} />
-              <Route path="/" element={<StudentLayout />}>
-                <Route index element={<StudentDashboard />} />
-                <Route path="results" element={<StudentResults />} />
-                <Route path="practice" element={<StudentPractice />} />
-                <Route path="history" element={<StudentHistory />} />
-              </Route>
-              <Route path="/facilitator" element={<FacilitatorLayout />}>
-                <Route index element={<FacilitatorDashboard />} />
-                <Route path="launch" element={<FacilitatorTestLaunch />} />
-                <Route path="classes" element={<FacilitatorClasses />} />
-                <Route path="analytics" element={<FacilitatorAnalytics />} />
-                <Route path="reports" element={<FacilitatorReports />} />
-                <Route path="settings" element={<FacilitatorSettings />} />
-              </Route>
-              <Route path="/admin" element={<InstitutionAdminLayout />}>
-                <Route index element={<InstitutionAdminDashboard />} />
-                <Route path="intakes" element={<InstitutionIntakes />} />
-                <Route path="facilitators" element={<InstitutionFacilitators />} />
-                <Route path="analytics" element={<InstitutionAnalytics />} />
-                <Route path="reports" element={<InstitutionReports />} />
-                <Route path="settings" element={<InstitutionSettings />} />
-              </Route>
-              <Route path="/super-admin" element={<PlatformAdminLayout />}>
-                <Route index element={<PlatformAdminDashboard />} />
-                <Route path="analytics" element={<PlatformAnalytics />} />
-                <Route path="billing" element={<PlatformBilling />} />
-                <Route path="logs" element={<PlatformLogs />} />
-                <Route path="settings" element={<PlatformSettings />} />
-              </Route>
-            </Routes>
+            <AuthProvider>
+              <Routes>
+                <Route path="/login" element={<Login />} />
+                <Route path="/register" element={<Register />} />
+                <Route path="/unauthorized" element={<Unauthorized />} />
+
+                {/* Public or Protected Test Route? Assuming Protected for now or Public? */}
+                {/* TypingTest might be accessible to anyone or just students? Let's assume students for now. */}
+                <Route element={<RequireAuth allowedRoles={[UserRole.STUDENT, UserRole.FACILITATOR, UserRole.INSTITUTION_ADMIN, UserRole.PLATFORM_ADMIN]} />}>
+                  <Route path="/test" element={<TypingTest />} />
+                </Route>
+
+                <Route element={<RequireAuth allowedRoles={[UserRole.STUDENT]} />}>
+                  <Route path="/" element={<StudentLayout />}>
+                    <Route index element={<StudentDashboard />} />
+                    <Route path="results" element={<StudentResults />} />
+                    <Route path="practice" element={<StudentPractice />} />
+                    <Route path="history" element={<StudentHistory />} />
+                  </Route>
+                </Route>
+
+                <Route element={<RequireAuth allowedRoles={[UserRole.FACILITATOR]} />}>
+                  <Route path="/facilitator" element={<FacilitatorLayout />}>
+                    <Route index element={<FacilitatorDashboard />} />
+                    <Route path="launch" element={<FacilitatorTestLaunch />} />
+                    <Route path="classes" element={<FacilitatorClasses />} />
+                    <Route path="analytics" element={<FacilitatorAnalytics />} />
+                    <Route path="reports" element={<FacilitatorReports />} />
+                    <Route path="settings" element={<FacilitatorSettings />} />
+                  </Route>
+                </Route>
+
+                <Route element={<RequireAuth allowedRoles={[UserRole.INSTITUTION_ADMIN]} />}>
+                  <Route path="/admin" element={<InstitutionAdminLayout />}>
+                    <Route index element={<InstitutionAdminDashboard />} />
+                    <Route path="intakes" element={<InstitutionIntakes />} />
+                    <Route path="facilitators" element={<InstitutionFacilitators />} />
+                    <Route path="analytics" element={<InstitutionAnalytics />} />
+                    <Route path="reports" element={<InstitutionReports />} />
+                    <Route path="settings" element={<InstitutionSettings />} />
+                  </Route>
+                </Route>
+
+                <Route element={<RequireAuth allowedRoles={[UserRole.PLATFORM_ADMIN]} />}>
+                  <Route path="/super-admin" element={<PlatformAdminLayout />}>
+                    <Route index element={<PlatformAdminDashboard />} />
+                    <Route path="analytics" element={<PlatformAnalytics />} />
+                    <Route path="billing" element={<PlatformBilling />} />
+                    <Route path="logs" element={<PlatformLogs />} />
+                    <Route path="settings" element={<PlatformSettings />} />
+                  </Route>
+                </Route>
+              </Routes>
+            </AuthProvider>
           </BrowserRouter>
         </FacilitatorProvider>
       </InstitutionProvider>

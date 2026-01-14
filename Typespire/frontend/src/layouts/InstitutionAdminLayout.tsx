@@ -1,11 +1,19 @@
 import React from 'react';
-import { Outlet, Link, useLocation } from 'react-router-dom';
+import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 
 const InstitutionAdminLayout: React.FC = () => {
     const location = useLocation();
     const isActive = (path: string) => location.pathname === path;
 
     const [isSidebarOpen, setIsSidebarOpen] = React.useState(false);
+    const { user, logout } = useAuth();
+    const navigate = useNavigate();
+
+    const handleLogout = () => {
+        logout();
+        navigate('/login');
+    };
 
     return (
         <div className="flex h-screen w-full flex-row overflow-hidden bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100">
@@ -116,10 +124,17 @@ const InstitutionAdminLayout: React.FC = () => {
                             style={{ backgroundImage: "url('https://lh3.googleusercontent.com/aida-public/AB6AXuDnqzAOeX1XfN82EJ_uOk9P6n0niJbbsId9F7JIoiwjwzt_ZyxItvopzLPVLDjKcbJDRtMCf7PuvF6HlH8By-59-Zv4BsxHFEB8cUJcYkE6qgJ9aHLG-eeeBLP5gBVAAsJWEGz3CKY-yezTEfWBIyXIP6DEaVDZg_t6d30_4-8jbbC2cjgzAk1NFTKX5weqcxYbXPJublmpVMDxI8_FPKHVLHVR36z08OrF5rLT0nADAi4KWBLPQEiwvCgGZ3KvfJeEp1MOAHnglWJy')" }}
                         ></div>
                         <div className="flex-1 overflow-hidden">
-                            <p className="text-sm font-bold truncate">Kepler Admin</p>
-                            <p className="text-xs text-slate-400 truncate">admin@kepler.edu</p>
+                            <p className="text-sm font-bold truncate">
+                                {user ? `${user.firstName || ''} ${user.lastName || ''}` : 'Institution Admin'}
+                            </p>
+                            <p className="text-xs text-slate-400 truncate">{user?.email || 'Loading...'}</p>
                         </div>
-                        <button className="material-symbols-outlined text-slate-400 cursor-pointer hover:text-white">logout</button>
+                        <button
+                            onClick={handleLogout}
+                            className="material-symbols-outlined text-slate-400 cursor-pointer hover:text-white"
+                        >
+                            logout
+                        </button>
                     </div>
                 </div>
             </aside>

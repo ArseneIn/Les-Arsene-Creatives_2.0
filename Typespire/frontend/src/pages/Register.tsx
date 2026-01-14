@@ -1,45 +1,50 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
-import { UserRole } from '../types/auth';
+import { isAxiosError } from 'axios';
+import api from '../api/axios';
 
-const Login: React.FC = () => {
+const Register: React.FC = () => {
+    const [firstName, setFirstName] = useState('');
+    const [lastName, setLastName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [confirmPassword, setConfirmPassword] = useState('');
     const [institution, setInstitution] = useState('');
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
 
-    const { login } = useAuth();
     const navigate = useNavigate();
 
-    const handleLogin = async (e: React.FormEvent) => {
+    const handleRegister = async (e: React.FormEvent) => {
         e.preventDefault();
         setError('');
+
+        if (password !== confirmPassword) {
+            setError('Passwords do not match');
+            return;
+        }
+
         setLoading(true);
 
         try {
-            const user = await login(email, password);
+            await api.post('/auth/register', {
+                email,
+                password,
+                firstName,
+                lastName,
+                // Institution ID would typically be selected or determined by a code
+                // For now, we'll assume it's handled or optional in the backend for basic registration
+            });
 
-            switch (user.role) {
-                case UserRole.PLATFORM_ADMIN:
-                    navigate('/super-admin');
-                    break;
-                case UserRole.INSTITUTION_ADMIN:
-                    navigate('/admin');
-                    break;
-                case UserRole.FACILITATOR:
-                    navigate('/facilitator');
-                    break;
-                case UserRole.STUDENT:
-                    navigate('/');
-                    break;
-                default:
-                    navigate('/');
-            }
+            // Redirect to login on success
+            navigate('/login');
         } catch (err) {
             console.error(err);
-            setError('Invalid credentials. Please try again.');
+            if (isAxiosError(err)) {
+                setError(err.response?.data?.message || 'Registration failed. Please try again.');
+            } else {
+                setError('Registration failed. Please try again.');
+            }
         } finally {
             setLoading(false);
         }
@@ -67,9 +72,9 @@ const Login: React.FC = () => {
                         <h1 className="text-2xl font-bold tracking-tight text-white">Typespire</h1>
                     </div>
                     <div className="max-w-md">
-                        <h2 className="text-3xl font-bold leading-tight mb-4">Master the Art of <span className="text-primary">Professional Typing</span></h2>
+                        <h2 className="text-3xl font-bold leading-tight mb-4">Join the <span className="text-primary">Typing Revolution</span></h2>
                         <p className="text-slate-300 text-base leading-relaxed">
-                            Join thousands of students and professionals enhancing their productivity through our advanced typing analytics and adaptive learning platform.
+                            Create your account to start tracking your progress, competing with peers, and mastering professional typing skills.
                         </p>
                     </div>
                 </div>
@@ -83,19 +88,19 @@ const Login: React.FC = () => {
                             <span className="material-symbols-outlined text-sm icon-filled">star</span>
                             <span className="material-symbols-outlined text-sm icon-filled">star</span>
                         </div>
-                        <p className="text-slate-200 italic text-sm mb-3">"Typespire has completely transformed how our institution approaches digital literacy. The analytics are unmatched."</p>
+                        <p className="text-slate-200 italic text-sm mb-3">"I improved my typing speed by 40 WPM in just two weeks. Typespire is incredible!"</p>
                         <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 rounded-full bg-gray-300 bg-[url('https://randomuser.me/api/portraits/women/44.jpg')] bg-cover"></div>
+                            <div className="w-8 h-8 rounded-full bg-gray-300 bg-[url('https://randomuser.me/api/portraits/men/32.jpg')] bg-cover"></div>
                             <div>
-                                <p className="font-bold text-sm">Dr. Sarah Mitchell</p>
-                                <p className="text-xs text-slate-400">Dean of Technology, Kepler College</p>
+                                <p className="font-bold text-sm">David Kim</p>
+                                <p className="text-xs text-slate-400">Student, MIT</p>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            {/* Right Side - Login Form */}
+            {/* Right Side - Register Form */}
             <div
                 className="flex flex-col justify-center items-center p-6 relative bg-white dark:bg-slate-900 h-full overflow-y-auto"
                 style={{
@@ -112,8 +117,8 @@ const Login: React.FC = () => {
                     </div>
 
                     <div className="flex flex-col gap-1">
-                        <h2 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">Welcome back</h2>
-                        <p className="text-slate-500 dark:text-slate-400 text-sm">Please enter your details to sign in.</p>
+                        <h2 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">Create an account</h2>
+                        <p className="text-slate-500 dark:text-slate-400 text-sm">Enter your details to get started.</p>
                     </div>
 
                     {error && (
@@ -122,7 +127,32 @@ const Login: React.FC = () => {
                         </div>
                     )}
 
-                    <form className="flex flex-col gap-4" onSubmit={handleLogin}>
+                    <form className="flex flex-col gap-4" onSubmit={handleRegister}>
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="flex flex-col gap-1">
+                                <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">First Name</label>
+                                <input
+                                    type="text"
+                                    value={firstName}
+                                    onChange={(e) => setFirstName(e.target.value)}
+                                    placeholder="John"
+                                    className="w-full px-4 py-2.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition-all placeholder:text-slate-400 text-sm"
+                                    required
+                                />
+                            </div>
+                            <div className="flex flex-col gap-1">
+                                <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">Last Name</label>
+                                <input
+                                    type="text"
+                                    value={lastName}
+                                    onChange={(e) => setLastName(e.target.value)}
+                                    placeholder="Doe"
+                                    className="w-full px-4 py-2.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition-all placeholder:text-slate-400 text-sm"
+                                    required
+                                />
+                            </div>
+                        </div>
+
                         {/* Institution Selector */}
                         <div className="flex flex-col gap-1">
                             <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">Institution</label>
@@ -142,16 +172,16 @@ const Login: React.FC = () => {
                             </div>
                         </div>
 
-                        {/* Email/ID Input */}
+                        {/* Email Input */}
                         <div className="flex flex-col gap-1">
-                            <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">Student ID or Email</label>
+                            <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">Email Address</label>
                             <div className="relative">
-                                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 material-symbols-outlined text-[18px]">person</span>
+                                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 material-symbols-outlined text-[18px]">email</span>
                                 <input
-                                    type="text"
+                                    type="email"
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
-                                    placeholder="Enter your ID or email"
+                                    placeholder="john.doe@example.com"
                                     className="w-full pl-9 pr-4 py-2.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition-all placeholder:text-slate-400 text-sm"
                                     required
                                 />
@@ -160,10 +190,7 @@ const Login: React.FC = () => {
 
                         {/* Password Input */}
                         <div className="flex flex-col gap-1">
-                            <div className="flex justify-between items-center">
-                                <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">Password</label>
-                                <a href="#" className="text-xs font-medium text-primary hover:text-primary/80 transition-colors">Forgot password?</a>
-                            </div>
+                            <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">Password</label>
                             <div className="relative">
                                 <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 material-symbols-outlined text-[18px]">lock</span>
                                 <input
@@ -174,59 +201,43 @@ const Login: React.FC = () => {
                                     className="w-full pl-9 pr-9 py-2.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition-all placeholder:text-slate-400 text-sm"
                                     required
                                 />
-                                <button type="button" className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors">
-                                    <span className="material-symbols-outlined text-[18px]">visibility</span>
-                                </button>
                             </div>
                         </div>
 
-                        {/* Actions */}
-                        <div className="flex items-center gap-2">
-                            <input type="checkbox" id="remember" className="w-3.5 h-3.5 rounded border-slate-300 text-primary focus:ring-primary" />
-                            <label htmlFor="remember" className="text-xs text-slate-600 dark:text-slate-400 cursor-pointer select-none">Remember for 30 days</label>
+                        {/* Confirm Password Input */}
+                        <div className="flex flex-col gap-1">
+                            <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">Confirm Password</label>
+                            <div className="relative">
+                                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 material-symbols-outlined text-[18px]">lock_reset</span>
+                                <input
+                                    type="password"
+                                    value={confirmPassword}
+                                    onChange={(e) => setConfirmPassword(e.target.value)}
+                                    placeholder="••••••••"
+                                    className="w-full pl-9 pr-9 py-2.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition-all placeholder:text-slate-400 text-sm"
+                                    required
+                                />
+                            </div>
                         </div>
 
                         <button
                             type="submit"
                             disabled={loading}
-                            className="w-full bg-primary hover:bg-primary/90 text-white font-bold py-3 rounded-lg shadow-lg shadow-primary/25 transition-all transform active:scale-[0.98] flex items-center justify-center gap-2 text-sm disabled:opacity-70 disabled:cursor-not-allowed"
+                            className="w-full bg-primary hover:bg-primary/90 text-white font-bold py-3 rounded-lg shadow-lg shadow-primary/25 transition-all transform active:scale-[0.98] flex items-center justify-center gap-2 text-sm disabled:opacity-70 disabled:cursor-not-allowed mt-2"
                         >
                             {loading ? (
-                                <span>Signing in...</span>
+                                <span>Creating Account...</span>
                             ) : (
                                 <>
-                                    <span>Sign in</span>
-                                    <span className="material-symbols-outlined text-[18px]">arrow_forward</span>
+                                    <span>Create Account</span>
+                                    <span className="material-symbols-outlined text-[18px]">person_add</span>
                                 </>
                             )}
                         </button>
                     </form>
 
-                    {/* Demo Access Section */}
-                    <div className="mt-4 pt-4 border-t border-slate-100 dark:border-slate-800">
-                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider text-center mb-3">Quick Demo Access</p>
-                        <div className="grid grid-cols-4 gap-2">
-                            <Link to="/" className="flex flex-col items-center justify-center gap-1 p-2 rounded-lg border border-slate-200 dark:border-slate-700 hover:border-primary hover:bg-primary/5 transition-all group">
-                                <span className="material-symbols-outlined text-slate-400 group-hover:text-primary transition-colors text-[20px]">school</span>
-                                <span className="text-[10px] font-medium text-slate-600 dark:text-slate-300 group-hover:text-primary">Student</span>
-                            </Link>
-                            <Link to="/facilitator" className="flex flex-col items-center justify-center gap-1 p-2 rounded-lg border border-slate-200 dark:border-slate-700 hover:border-facilitator-primary hover:bg-facilitator-primary/5 transition-all group">
-                                <span className="material-symbols-outlined text-slate-400 group-hover:text-facilitator-primary transition-colors text-[20px]">cast_for_education</span>
-                                <span className="text-[10px] font-medium text-slate-600 dark:text-slate-300 group-hover:text-facilitator-primary">Facilitator</span>
-                            </Link>
-                            <Link to="/admin" className="flex flex-col items-center justify-center gap-1 p-2 rounded-lg border border-slate-200 dark:border-slate-700 hover:border-admin-primary hover:bg-admin-primary/5 transition-all group">
-                                <span className="material-symbols-outlined text-slate-400 group-hover:text-admin-primary transition-colors text-[20px]">domain</span>
-                                <span className="text-[10px] font-medium text-slate-600 dark:text-slate-300 group-hover:text-admin-primary">Inst.</span>
-                            </Link>
-                            <Link to="/super-admin" className="flex flex-col items-center justify-center gap-1 p-2 rounded-lg border border-slate-200 dark:border-slate-700 hover:border-blue-500 hover:bg-blue-500/5 transition-all group">
-                                <span className="material-symbols-outlined text-slate-400 group-hover:text-blue-500 transition-colors text-[20px]">admin_panel_settings</span>
-                                <span className="text-[10px] font-medium text-slate-600 dark:text-slate-300 group-hover:text-blue-500">Admin</span>
-                            </Link>
-                        </div>
-                    </div>
-
                     <p className="text-center text-xs text-slate-500 dark:text-slate-400">
-                        Don't have an account? <Link to="/register" className="font-bold text-primary hover:underline">Create an account</Link>
+                        Already have an account? <Link to="/login" className="font-bold text-primary hover:underline">Sign in</Link>
                     </p>
                 </div>
             </div>
@@ -234,4 +245,4 @@ const Login: React.FC = () => {
     );
 };
 
-export default Login;
+export default Register;
