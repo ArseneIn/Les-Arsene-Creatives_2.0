@@ -206,22 +206,51 @@ const Login: React.FC = () => {
                     <div className="mt-4 pt-4 border-t border-slate-100 dark:border-slate-800">
                         <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider text-center mb-3">Quick Demo Access</p>
                         <div className="grid grid-cols-4 gap-2">
-                            <Link to="/" className="flex flex-col items-center justify-center gap-1 p-2 rounded-lg border border-slate-200 dark:border-slate-700 hover:border-primary hover:bg-primary/5 transition-all group">
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    setEmail('student@example.com');
+                                    setPassword('password123');
+                                }}
+                                className="flex flex-col items-center justify-center gap-1 p-2 rounded-lg border border-slate-200 dark:border-slate-700 hover:border-primary hover:bg-primary/5 transition-all group"
+                            >
                                 <span className="material-symbols-outlined text-slate-400 group-hover:text-primary transition-colors text-[20px]">school</span>
                                 <span className="text-[10px] font-medium text-slate-600 dark:text-slate-300 group-hover:text-primary">Student</span>
-                            </Link>
-                            <Link to="/facilitator" className="flex flex-col items-center justify-center gap-1 p-2 rounded-lg border border-slate-200 dark:border-slate-700 hover:border-facilitator-primary hover:bg-facilitator-primary/5 transition-all group">
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    setEmail('facilitator@example.com');
+                                    setPassword('password123');
+                                }}
+                                className="flex flex-col items-center justify-center gap-1 p-2 rounded-lg border border-slate-200 dark:border-slate-700 hover:border-facilitator-primary hover:bg-facilitator-primary/5 transition-all group"
+                            >
                                 <span className="material-symbols-outlined text-slate-400 group-hover:text-facilitator-primary transition-colors text-[20px]">cast_for_education</span>
                                 <span className="text-[10px] font-medium text-slate-600 dark:text-slate-300 group-hover:text-facilitator-primary">Facilitator</span>
-                            </Link>
-                            <Link to="/admin" className="flex flex-col items-center justify-center gap-1 p-2 rounded-lg border border-slate-200 dark:border-slate-700 hover:border-admin-primary hover:bg-admin-primary/5 transition-all group">
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    setEmail('admin@example.com');
+                                    setPassword('password123');
+                                }}
+                                className="flex flex-col items-center justify-center gap-1 p-2 rounded-lg border border-slate-200 dark:border-slate-700 hover:border-admin-primary hover:bg-admin-primary/5 transition-all group"
+                            >
                                 <span className="material-symbols-outlined text-slate-400 group-hover:text-admin-primary transition-colors text-[20px]">domain</span>
                                 <span className="text-[10px] font-medium text-slate-600 dark:text-slate-300 group-hover:text-admin-primary">Inst.</span>
-                            </Link>
-                            <Link to="/super-admin" className="flex flex-col items-center justify-center gap-1 p-2 rounded-lg border border-slate-200 dark:border-slate-700 hover:border-blue-500 hover:bg-blue-500/5 transition-all group">
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    setEmail('admin@typespire.com');
+                                    setPassword('password123');
+                                    setInstitution(''); // Clear institution for Super Admin
+                                }}
+                                className="flex flex-col items-center justify-center gap-1 p-2 rounded-lg border border-slate-200 dark:border-slate-700 hover:border-blue-500 hover:bg-blue-500/5 transition-all group"
+                            >
                                 <span className="material-symbols-outlined text-slate-400 group-hover:text-blue-500 transition-colors text-[20px]">admin_panel_settings</span>
                                 <span className="text-[10px] font-medium text-slate-600 dark:text-slate-300 group-hover:text-blue-500">Admin</span>
-                            </Link>
+                            </button>
                         </div>
                     </div>
 

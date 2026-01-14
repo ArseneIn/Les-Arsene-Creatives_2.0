@@ -15,6 +15,10 @@ export interface CreateInstitutionDto {
     address?: string;
     contactEmail?: string;
     contactPhone?: string;
+    adminEmail?: string;
+    adminPassword?: string;
+    adminFirstName?: string;
+    adminLastName?: string;
 }
 
 export type UpdateInstitutionDto = Partial<CreateInstitutionDto>;

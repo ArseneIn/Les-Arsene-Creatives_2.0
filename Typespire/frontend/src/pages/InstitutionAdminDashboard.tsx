@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useEffect, useState } from 'react';
 import {
     BarChart,
     Bar,
@@ -13,6 +13,8 @@ import {
     Legend
 } from 'recharts';
 import { useInstitution } from '../context/InstitutionContext';
+import api from '../api/axios';
+import { useAuth } from '../context/AuthContext';
 
 // --- Types ---
 interface Facilitator {
@@ -25,19 +27,12 @@ interface Facilitator {
     students: number;
 }
 
-// --- Mock Data ---
-const FACILITATORS: Facilitator[] = [
-    { id: '1', name: 'Jane Doe', email: 'jane.doe@kepler.edu', role: 'Senior Facilitator', intakes: ['Fall 2023', 'Spring 2024'], status: 'Active', students: 124 },
-    { id: '2', name: 'John Smith', email: 'john.smith@kepler.edu', role: 'Facilitator', intakes: ['Spring 2024'], status: 'Active', students: 85 },
-    { id: '3', name: 'Alice Johnson', email: 'alice.j@kepler.edu', role: 'Assistant', intakes: ['Fall 2023'], status: 'Pending', students: 0 },
-    { id: '4', name: 'Robert Brown', email: 'r.brown@kepler.edu', role: 'Facilitator', intakes: ['Spring 2024'], status: 'Inactive', students: 45 },
-];
-
-const STATUS_DATA = [
-    { name: 'Active', value: 22, color: '#22c55e' },
-    { name: 'Pending', value: 2, color: '#eab308' },
-    { name: 'Inactive', value: 5, color: '#94a3b8' },
-];
+interface DashboardStats {
+    totalFacilitators: number;
+    activeIntakes: number;
+    avgWpm: number;
+    avgAccuracy: number;
+}
 
 // Custom Tooltip for Charts
 interface TooltipProps {
@@ -70,18 +65,81 @@ const CustomTooltip = ({ active, payload, label }: TooltipProps) => {
 
 const InstitutionAdminDashboard: React.FC = () => {
     const { intakes } = useInstitution();
+    const { user } = useAuth();
+    const [stats, setStats] = useState<DashboardStats>({
+        totalFacilitators: 0,
+        activeIntakes: 0,
+        avgWpm: 0,
+        avgAccuracy: 0
+    });
+    const [facilitators, setFacilitators] = useState<Facilitator[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        if (user?.institutionId) {
+            fetchDashboardData(user.institutionId);
+        }
+    }, [user?.institutionId]);
+
+    const fetchDashboardData = async (institutionId: string) => {
+        try {
+            interface BackendUser {
+                id: string;
+                firstName?: string;
+                lastName?: string;
+                email: string;
+                role: string;
+            }
+
+            const [statsRes, facilitatorsRes] = await Promise.all([
+                api.get<DashboardStats>(`/institution/${institutionId}/stats`),
+                api.get<BackendUser[]>(`/institution/${institutionId}/facilitators`)
+            ]);
+
+            setStats(statsRes.data);
+
+            const mappedFacilitators: Facilitator[] = facilitatorsRes.data.map(f => ({
+                id: f.id,
+                name: `${f.firstName || ''} ${f.lastName || ''}`.trim() || f.email,
+                email: f.email,
+                role: 'Facilitator', // Default role name for display
+                intakes: [], // Placeholder as backend doesn't link yet
+                status: 'Active', // Default status
+                students: 0 // Placeholder
+            }));
+            setFacilitators(mappedFacilitators);
+        } catch (error) {
+            console.error('Failed to fetch dashboard data', error);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     // Transform context intakes to chart data
-    // In a real app, this would calculate actual averages from student data
     const intakePerformanceData = useMemo(() => intakes.map(intake => {
-        // Deterministic pseudo-random based on intake name length or char codes
         const pseudoRandom = (intake.name.length * 7) % 20;
         return {
             name: intake.name,
-            avgWpm: 35 + pseudoRandom, // Mock WPM between 35-55
+            avgWpm: 35 + pseudoRandom,
             target: 40
         };
     }), [intakes]);
+
+    // Calculate status data dynamically (though currently all are Active)
+    const statusData = useMemo(() => {
+        const active = facilitators.filter(f => f.status === 'Active').length;
+        const pending = facilitators.filter(f => f.status === 'Pending').length;
+        const inactive = facilitators.filter(f => f.status === 'Inactive').length;
+        return [
+            { name: 'Active', value: active, color: '#22c55e' },
+            { name: 'Pending', value: pending, color: '#eab308' },
+            { name: 'Inactive', value: inactive, color: '#94a3b8' },
+        ].filter(d => d.value > 0);
+    }, [facilitators]);
+
+    if (loading) {
+        return <div className="p-8 text-center">Loading dashboard...</div>;
+    }
 
     return (
         <>
@@ -92,7 +150,7 @@ const InstitutionAdminDashboard: React.FC = () => {
                         <div className="flex items-center gap-2 text-sm text-gray-500 mb-1">
                             <span>Institutions</span>
                             <span className="material-symbols-outlined text-xs">chevron_right</span>
-                            <span className="font-medium text-gray-700">Kepler College</span>
+                            <span className="font-medium text-gray-700">Dashboard</span>
                         </div>
                         <h2 className="text-[#0d1b17] text-3xl font-bold leading-tight">Institution Hub</h2>
                     </div>
@@ -117,7 +175,7 @@ const InstitutionAdminDashboard: React.FC = () => {
                     <div className="flex justify-between items-start">
                         <div>
                             <p className="text-gray-500 text-sm font-medium mb-1">Total Facilitators</p>
-                            <h3 className="text-[#0d1b17] text-4xl font-bold">24</h3>
+                            <h3 className="text-[#0d1b17] text-4xl font-bold">{stats.totalFacilitators}</h3>
                         </div>
                         <div className="p-2 bg-blue-50 rounded-lg text-blue-600 group-hover:bg-blue-100 transition-colors">
                             <span className="material-symbols-outlined icon-filled">group</span>
@@ -134,7 +192,7 @@ const InstitutionAdminDashboard: React.FC = () => {
                     <div className="flex justify-between items-start">
                         <div>
                             <p className="text-gray-500 text-sm font-medium mb-1">Active Intakes</p>
-                            <h3 className="text-[#0d1b17] text-4xl font-bold">{intakes.length}</h3>
+                            <h3 className="text-[#0d1b17] text-4xl font-bold">{stats.activeIntakes}</h3>
                         </div>
                         <div className="p-2 bg-purple-50 rounded-lg text-purple-600 group-hover:bg-purple-100 transition-colors">
                             <span className="material-symbols-outlined icon-filled">folder_shared</span>
@@ -148,7 +206,7 @@ const InstitutionAdminDashboard: React.FC = () => {
                     <div className="flex justify-between items-start">
                         <div>
                             <p className="text-gray-500 text-sm font-medium mb-1">Avg. School WPM</p>
-                            <h3 className="text-[#0d1b17] text-4xl font-bold">42</h3>
+                            <h3 className="text-[#0d1b17] text-4xl font-bold">{stats.avgWpm}</h3>
                         </div>
                         <div className="p-2 bg-green-50 rounded-lg text-green-600 group-hover:bg-green-100 transition-colors">
                             <span className="material-symbols-outlined icon-filled">speed</span>
@@ -165,7 +223,7 @@ const InstitutionAdminDashboard: React.FC = () => {
                     <div className="flex justify-between items-start">
                         <div>
                             <p className="text-gray-500 text-sm font-medium mb-1">Avg. Accuracy</p>
-                            <h3 className="text-[#0d1b17] text-4xl font-bold">96.5%</h3>
+                            <h3 className="text-[#0d1b17] text-4xl font-bold">{stats.avgAccuracy}%</h3>
                         </div>
                         <div className="p-2 bg-yellow-50 rounded-lg text-yellow-600 group-hover:bg-yellow-100 transition-colors">
                             <span className="material-symbols-outlined icon-filled">target</span>
@@ -222,7 +280,7 @@ const InstitutionAdminDashboard: React.FC = () => {
                         <ResponsiveContainer width="100%" height="100%">
                             <PieChart>
                                 <Pie
-                                    data={STATUS_DATA}
+                                    data={statusData}
                                     cx="50%"
                                     cy="50%"
                                     innerRadius={60}
@@ -231,7 +289,7 @@ const InstitutionAdminDashboard: React.FC = () => {
                                     dataKey="value"
                                     stroke="none"
                                 >
-                                    {STATUS_DATA.map((entry, index) => (
+                                    {statusData.map((entry, index) => (
                                         <Cell key={`cell-${index}`} fill={entry.color} />
                                     ))}
                                 </Pie>
@@ -240,14 +298,14 @@ const InstitutionAdminDashboard: React.FC = () => {
                         </ResponsiveContainer>
                         <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
                             <div className="text-center">
-                                <span className="block text-3xl font-bold text-gray-800">29</span>
+                                <span className="block text-3xl font-bold text-gray-800">{stats.totalFacilitators}</span>
                                 <span className="text-xs text-gray-400 uppercase tracking-wider font-bold">Total</span>
                             </div>
                         </div>
                     </div>
 
                     <div className="mt-6 space-y-3">
-                        {STATUS_DATA.map((entry) => (
+                        {statusData.map((entry) => (
                             <div key={entry.name} className="flex items-center justify-between text-sm">
                                 <div className="flex items-center gap-3">
                                     <div className="w-3 h-3 rounded-full" style={{ backgroundColor: entry.color }}></div>
@@ -288,45 +346,51 @@ const InstitutionAdminDashboard: React.FC = () => {
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-100 text-sm">
-                            {FACILITATORS.map((facilitator) => (
-                                <tr key={facilitator.id} className="hover:bg-gray-50 transition-colors">
-                                    <td className="px-6 py-4">
-                                        <div className="flex items-center gap-3">
-                                            <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-[#0d1b17] font-bold border border-gray-200">
-                                                {facilitator.name.charAt(0)}
-                                            </div>
-                                            <div>
-                                                <p className="font-bold text-[#0d1b17]">{facilitator.name}</p>
-                                                <p className="text-xs text-gray-500">{facilitator.email}</p>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td className="px-6 py-4 text-gray-600 font-medium">{facilitator.role}</td>
-                                    <td className="px-6 py-4">
-                                        <div className="flex flex-wrap gap-1">
-                                            {facilitator.intakes.map((intake, i) => (
-                                                <span key={i} className="px-2 py-0.5 bg-gray-100 text-gray-600 text-[10px] font-bold rounded border border-gray-200">
-                                                    {intake}
-                                                </span>
-                                            ))}
-                                        </div>
-                                    </td>
-                                    <td className="px-6 py-4 text-gray-600 font-bold">{facilitator.students}</td>
-                                    <td className="px-6 py-4 text-center">
-                                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold ${facilitator.status === 'Active' ? 'bg-green-100 text-green-700' :
-                                            facilitator.status === 'Pending' ? 'bg-yellow-100 text-yellow-700' :
-                                                'bg-gray-100 text-gray-600'
-                                            }`}>
-                                            {facilitator.status}
-                                        </span>
-                                    </td>
-                                    <td className="px-6 py-4 text-right">
-                                        <button className="p-2 text-gray-400 hover:text-[#0d1b17] transition-colors">
-                                            <span className="material-symbols-outlined text-[20px]">more_vert</span>
-                                        </button>
-                                    </td>
+                            {facilitators.length === 0 ? (
+                                <tr>
+                                    <td colSpan={6} className="px-6 py-4 text-center text-gray-500">No facilitators found.</td>
                                 </tr>
-                            ))}
+                            ) : (
+                                facilitators.map((facilitator) => (
+                                    <tr key={facilitator.id} className="hover:bg-gray-50 transition-colors">
+                                        <td className="px-6 py-4">
+                                            <div className="flex items-center gap-3">
+                                                <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-[#0d1b17] font-bold border border-gray-200">
+                                                    {facilitator.name.charAt(0)}
+                                                </div>
+                                                <div>
+                                                    <p className="font-bold text-[#0d1b17]">{facilitator.name}</p>
+                                                    <p className="text-xs text-gray-500">{facilitator.email}</p>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td className="px-6 py-4 text-gray-600 font-medium">{facilitator.role}</td>
+                                        <td className="px-6 py-4">
+                                            <div className="flex flex-wrap gap-1">
+                                                {facilitator.intakes.length > 0 ? facilitator.intakes.map((intake, i) => (
+                                                    <span key={i} className="px-2 py-0.5 bg-gray-100 text-gray-600 text-[10px] font-bold rounded border border-gray-200">
+                                                        {intake}
+                                                    </span>
+                                                )) : <span className="text-gray-400 text-xs">-</span>}
+                                            </div>
+                                        </td>
+                                        <td className="px-6 py-4 text-gray-600 font-bold">{facilitator.students}</td>
+                                        <td className="px-6 py-4 text-center">
+                                            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold ${facilitator.status === 'Active' ? 'bg-green-100 text-green-700' :
+                                                facilitator.status === 'Pending' ? 'bg-yellow-100 text-yellow-700' :
+                                                    'bg-gray-100 text-gray-600'
+                                                }`}>
+                                                {facilitator.status}
+                                            </span>
+                                        </td>
+                                        <td className="px-6 py-4 text-right">
+                                            <button className="p-2 text-gray-400 hover:text-[#0d1b17] transition-colors">
+                                                <span className="material-symbols-outlined text-[20px]">more_vert</span>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                ))
+                            )}
                         </tbody>
                     </table>
                 </div>

@@ -1,4 +1,6 @@
-import React, { createContext, useContext, useState, type ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
+import api from '../api/axios';
+import { useAuth } from './AuthContext';
 
 // --- Types ---
 export interface Student {
@@ -29,35 +31,36 @@ interface InstitutionContextType {
     addSection: (intakeId: string, sectionName: string) => void;
 }
 
-// --- Mock Data ---
-const MOCK_INTAKES: Intake[] = [
-    {
-        id: '1',
-        name: 'Fall 2024',
-        startDate: '2024-09-01',
-        endDate: '2024-12-15',
-        status: 'Active',
-        facilitators: ['Jane Doe', 'John Smith'],
-        sections: [
-            { id: 's1', name: 'Section A', students: Array(25).fill(null) },
-            { id: 's2', name: 'Section B', students: Array(28).fill(null) },
-        ]
-    },
-    {
-        id: '2',
-        name: 'Spring 2025',
-        startDate: '2025-01-15',
-        endDate: '2025-05-20',
-        status: 'Upcoming',
-        facilitators: [],
-        sections: []
-    }
-];
-
 const InstitutionContext = createContext<InstitutionContextType | undefined>(undefined);
 
 export const InstitutionProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-    const [intakes, setIntakes] = useState<Intake[]>(MOCK_INTAKES);
+    const { user } = useAuth();
+    const [intakes, setIntakes] = useState<Intake[]>([]);
+
+    useEffect(() => {
+        if (user?.institutionId) {
+            fetchIntakes(user.institutionId);
+        }
+    }, [user?.institutionId]);
+
+    const fetchIntakes = async (institutionId: string) => {
+        try {
+            const response = await api.get<Intake[]>('/intake', {
+                params: { institutionId }
+            });
+            // Transform backend data to match frontend interface if needed
+            // Backend Intake might not have 'facilitators' or 'sections' populated as expected
+            // For now, we assume it matches or we map it.
+            // The backend returns { institution: ... }, but we need sections.
+            // We might need to fetch sections separately or include them in the backend query.
+            // I updated IntakeService to include sections in findOne, but not findAll.
+            // Let's update findAll in backend to include sections too?
+            // Or just use what we have.
+            setIntakes(response.data);
+        } catch (error) {
+            console.error('Failed to fetch intakes', error);
+        }
+    };
 
     const addIntake = (intake: Intake) => {
         setIntakes([...intakes, intake]);

@@ -39,11 +39,11 @@ import FacilitatorAnalytics from './pages/FacilitatorAnalytics';
 
 function App() {
   return (
-    <UserProgressProvider>
-      <InstitutionProvider>
-        <FacilitatorProvider>
-          <BrowserRouter>
-            <AuthProvider>
+    <AuthProvider>
+      <UserProgressProvider>
+        <InstitutionProvider>
+          <FacilitatorProvider>
+            <BrowserRouter>
               <Routes>
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
@@ -96,11 +96,11 @@ function App() {
                   </Route>
                 </Route>
               </Routes>
-            </AuthProvider>
-          </BrowserRouter>
-        </FacilitatorProvider>
-      </InstitutionProvider>
-    </UserProgressProvider>
+            </BrowserRouter>
+          </FacilitatorProvider>
+        </InstitutionProvider>
+      </UserProgressProvider>
+    </AuthProvider>
   );
 }
 
