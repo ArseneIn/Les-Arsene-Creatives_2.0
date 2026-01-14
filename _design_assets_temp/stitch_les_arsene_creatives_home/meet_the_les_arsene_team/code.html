@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Les Arsene Creatives - Meet the Team</title>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Theme Config -->
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#e9b407",
+                        "background-light": "#fafafa",
+                        "background-dark": "#1d1b1b",
+                        "surface-dark": "#2a2828",
+                    },
+                    fontFamily: {
+                        "display": ["Plus Jakarta Sans", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.5rem", "lg": "1rem", "xl": "1.5rem", "2xl": "2rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        /* Custom utilities for smooth hover effects */
+        .card-zoom-image {
+            transition: transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94), filter 0.4s ease;
+        }
+        .group:hover .card-zoom-image {
+            transform: scale(1.1);
+            filter: grayscale(0%);
+        }
+        
+        .hover-reveal-content {
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease;
+        }
+        
+        /* Custom scrollbar for filter chips */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-white selection:bg-primary selection:text-background-dark min-h-screen flex flex-col overflow-x-hidden">
+<!-- Top Navigation -->
+<header class="sticky top-0 z-50 w-full border-b border-white/10 bg-background-dark/95 backdrop-blur-md">
+<div class="mx-auto flex h-20 max-w-7xl items-center justify-between px-6 lg:px-8">
+<div class="flex items-center gap-3">
+<div class="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-background-dark">
+<span class="material-symbols-outlined text-2xl font-bold">all_inclusive</span>
+</div>
+<h1 class="text-xl font-bold tracking-tight text-white">Les Arsene <span class="text-primary">Creatives</span></h1>
+</div>
+<nav class="hidden md:flex items-center gap-8">
+<a class="text-sm font-medium text-gray-300 hover:text-white transition-colors" href="#">Work</a>
+<a class="text-sm font-medium text-gray-300 hover:text-white transition-colors" href="#">Agency</a>
+<a class="text-sm font-medium text-white transition-colors" href="#">Team</a>
+<a class="text-sm font-medium text-gray-300 hover:text-white transition-colors" href="#">Contact</a>
+</nav>
+<button class="hidden sm:flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-sm font-bold text-background-dark transition-transform hover:scale-105 active:scale-95">
+<span>Get in Touch</span>
+<span class="material-symbols-outlined text-[20px]">arrow_outward</span>
+</button>
+<button class="md:hidden text-white">
+<span class="material-symbols-outlined text-3xl">menu</span>
+</button>
+</div>
+</header>
+<main class="flex-grow">
+<div class="mx-auto max-w-7xl px-6 lg:px-8 py-12 lg:py-20">
+<!-- Page Heading & Filters -->
+<div class="flex flex-col gap-10 mb-16">
+<div class="flex flex-col lg:flex-row lg:items-end justify-between gap-6">
+<div class="max-w-2xl">
+<h2 class="text-5xl md:text-6xl font-black tracking-tighter text-white mb-4">
+                            The Minds Behind <br class="hidden md:block"/>
+<span class="text-transparent bg-clip-text bg-gradient-to-r from-primary to-orange-400">The Magic</span>
+</h2>
+<p class="text-lg text-gray-400 font-medium">
+                            Meet the collective defining the future of creative strategy.
+                        </p>
+</div>
+<!-- Filter Chips -->
+<div class="flex items-center gap-3 overflow-x-auto no-scrollbar pb-1 w-full lg:w-auto lg:justify-end">
+<button class="whitespace-nowrap flex items-center gap-2 rounded-full bg-primary px-5 py-2.5 text-sm font-bold text-background-dark shadow-[0_0_15px_rgba(233,180,7,0.3)] transition-all">
+<span class="material-symbols-outlined text-[18px]">emergency</span>
+                            All Talent
+                        </button>
+<button class="whitespace-nowrap flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-5 py-2.5 text-sm font-medium text-gray-300 hover:bg-white/10 hover:border-white/20 transition-all">
+<span class="material-symbols-outlined text-[18px]">design_services</span>
+                            Design
+                        </button>
+<button class="whitespace-nowrap flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-5 py-2.5 text-sm font-medium text-gray-300 hover:bg-white/10 hover:border-white/20 transition-all">
+<span class="material-symbols-outlined text-[18px]">lightbulb</span>
+                            Strategy
+                        </button>
+<button class="whitespace-nowrap flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-5 py-2.5 text-sm font-medium text-gray-300 hover:bg-white/10 hover:border-white/20 transition-all">
+<span class="material-symbols-outlined text-[18px]">slow_motion_video</span>
+                            Motion
+                        </button>
+</div>
+</div>
+</div>
+<!-- Founders Grid (Bento Large) -->
+<div class="mb-16">
+<div class="flex items-center gap-2 mb-6 opacity-80">
+<span class="h-px flex-1 bg-gradient-to-r from-transparent to-white/20"></span>
+<span class="text-xs uppercase tracking-[0.2em] text-primary font-bold">Founders</span>
+<span class="h-px flex-1 bg-gradient-to-l from-transparent to-white/20"></span>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<!-- Founder 1 -->
+<div class="group relative h-[500px] w-full overflow-hidden rounded-2xl bg-surface-dark cursor-pointer">
+<div class="absolute inset-0 z-0">
+<div class="card-zoom-image h-full w-full bg-cover bg-center bg-no-repeat grayscale brightness-90" data-alt="Portrait of Arsene Lupin looking confident" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBeI-uFC_I15qom9EU03EDAjxDh9jRrEUQr1QewlX--Zimmr6MF-28Rm5sLnaxwOoWPH-QueXtx8kU_nepcGPn-to6ilhy9EtGJ-FKE1AMC4tpp-K_hxuACrB2UyaxHHMzi-wEThpSk2SnrPvFcRseLGDSsxhLisyphyw40VBISu-REoMSZo0pnZ378OBfG9PFQf6flumDkV7OBiANrzm1p1fSf3uoTe0SBgwb0K2Tod7L87KvTJZnFTwkpw9ajs6X8RU-xfQpgpUMR');"></div>
+</div>
+<div class="absolute inset-0 bg-gradient-to-t from-background-dark via-background-dark/40 to-transparent opacity-80 group-hover:opacity-60 transition-opacity"></div>
+<!-- Badge -->
+<div class="absolute top-6 left-6 z-10 flex items-center gap-1.5 rounded bg-white/10 px-3 py-1 text-xs font-bold uppercase tracking-wider text-white backdrop-blur-md border border-white/10 group-hover:bg-primary group-hover:text-background-dark group-hover:border-primary transition-colors">
+<span class="material-symbols-outlined text-[14px] fill-current">star</span>
+                            Founder
+                        </div>
+<!-- Content Overlay -->
+<div class="absolute bottom-0 left-0 w-full p-8 z-20 translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
+<div class="relative overflow-hidden">
+<h3 class="text-4xl font-bold text-white mb-1 group-hover:text-primary transition-colors">Arsene Lupin</h3>
+<p class="text-lg text-gray-300 font-medium mb-4">Co-Founder &amp; Creative Director</p>
+<div class="grid grid-rows-[0fr] group-hover:grid-rows-[1fr] transition-[grid-template-rows] duration-500 ease-out">
+<div class="overflow-hidden">
+<div class="border-t border-white/20 pt-4 flex items-start gap-3">
+<span class="material-symbols-outlined text-primary pt-1">psychology</span>
+<div>
+<p class="text-xs uppercase text-white/50 tracking-wider font-bold mb-1">Superpower</p>
+<p class="text-white text-base font-bold italic">"The Visionary Architect"</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Founder 2 -->
+<div class="group relative h-[500px] w-full overflow-hidden rounded-2xl bg-surface-dark cursor-pointer">
+<div class="absolute inset-0 z-0">
+<div class="card-zoom-image h-full w-full bg-cover bg-center bg-no-repeat grayscale brightness-90" data-alt="Portrait of Arsene Wenger smiling professionally" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCPGSicHucW6gG-3QUOW59y1E2cJJWMnSEIa_XjckiIPwdtjLMWATUDieWyGPo-7-Ee8yEFJcPr9LNR1EGqBQ4xymaSl-PsYff2VCWWLnYOrnOQfUXT3nF2lcTdZCMa56uZaEOYlNsaGsF0WRInqPGm1Q4ghlpCy4ohIY9rbO8RcUJjz8hs52lyoloeKZAJ2p3jxCJWfDzafRrPuD5WmGHHCHM35Eh5kRuj2a79JSgY7QUmvbjczdSdjK9NR5Scu_QfuigQPHmW54j7');"></div>
+</div>
+<div class="absolute inset-0 bg-gradient-to-t from-background-dark via-background-dark/40 to-transparent opacity-80 group-hover:opacity-60 transition-opacity"></div>
+<div class="absolute top-6 left-6 z-10 flex items-center gap-1.5 rounded bg-white/10 px-3 py-1 text-xs font-bold uppercase tracking-wider text-white backdrop-blur-md border border-white/10 group-hover:bg-primary group-hover:text-background-dark group-hover:border-primary transition-colors">
+<span class="material-symbols-outlined text-[14px] fill-current">star</span>
+                            Founder
+                        </div>
+<div class="absolute bottom-0 left-0 w-full p-8 z-20 translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
+<div class="relative overflow-hidden">
+<h3 class="text-4xl font-bold text-white mb-1 group-hover:text-primary transition-colors">Arsene Wenger</h3>
+<p class="text-lg text-gray-300 font-medium mb-4">Co-Founder &amp; Lead Strategist</p>
+<div class="grid grid-rows-[0fr] group-hover:grid-rows-[1fr] transition-[grid-template-rows] duration-500 ease-out">
+<div class="overflow-hidden">
+<div class="border-t border-white/20 pt-4 flex items-start gap-3">
+<span class="material-symbols-outlined text-primary pt-1">strategy</span>
+<div>
+<p class="text-xs uppercase text-white/50 tracking-wider font-bold mb-1">Superpower</p>
+<p class="text-white text-base font-bold italic">"The Master Tactician"</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Team Grid -->
+<div>
+<div class="flex items-center gap-2 mb-8 opacity-80">
+<span class="h-px flex-1 bg-gradient-to-r from-transparent to-white/20"></span>
+<span class="text-xs uppercase tracking-[0.2em] text-white/60 font-bold">The Squad</span>
+<span class="h-px flex-1 bg-gradient-to-l from-transparent to-white/20"></span>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+<!-- Team Member 1 -->
+<div class="group relative h-[400px] overflow-hidden rounded-xl bg-surface-dark">
+<div class="card-zoom-image absolute inset-0 bg-cover bg-center grayscale" data-alt="Portrait of Elena smiling" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuA1xlQl61uHnnUKUh7dL3UTp3kyGVW79uIcYA3umIP-KWevZsIQ7xVt5wYAC_0gdZhSe3MhuduoEZoWy7MMR5M9jhWIBbPnwSWDIt_gUP1dOwSK8Z0BfkJoUGIxaQ678hA6jc6bY8t6vpi35MQxw1C-THAyxDt7VNcU-JgeRNuFf7m55iBc2nOQ1oi8V_EDAjcZAz7yracd1PQQo80Xq1srvMzNGolN_t_27jtpzyF2JvgZNX_nOtqJBcp3kFjimy4wa7sYWRyrrTXa');"></div>
+<!-- Hover Overlay (Yellow Pop) -->
+<div class="absolute inset-0 bg-primary/90 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-6 z-10">
+<div class="transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300 delay-75">
+<p class="text-background-dark font-black text-2xl leading-none mb-1">Elena Rostova</p>
+<p class="text-background-dark/70 font-bold text-sm mb-4">Sr. Product Designer</p>
+<div class="bg-background-dark/10 p-3 rounded-lg backdrop-blur-sm border border-black/5">
+<p class="text-[10px] uppercase font-bold text-background-dark/60 mb-1">Unique Strength</p>
+<p class="text-background-dark font-bold text-sm flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">auto_fix_high</span>
+                                        Pixel Perfectionist
+                                    </p>
+</div>
+</div>
+</div>
+<!-- Default Overlay (Dark) -->
+<div class="absolute inset-x-0 bottom-0 p-4 bg-gradient-to-t from-black/90 to-transparent group-hover:opacity-0 transition-opacity duration-300">
+<p class="text-white font-bold text-lg">Elena Rostova</p>
+<p class="text-gray-400 text-sm">Design</p>
+</div>
+</div>
+<!-- Team Member 2 -->
+<div class="group relative h-[400px] overflow-hidden rounded-xl bg-surface-dark">
+<div class="card-zoom-image absolute inset-0 bg-cover bg-center grayscale" data-alt="Portrait of Marcus" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDPpiXQWjv2ufALgIqL3SG3Bfln6YbbhwX8_zIm1jjnT9eFfivVnJVxee5Fx05x0lKQeoNPfFh63EJNTER7hBnhWy7QvbhGWchfcdyioV6mDHSr4t5ldVONjGYd0uXPR4XLZxu2Us-2zO5faKprTbz3bAh6aQpk1mFuSPTDoPqlGYdl2BO0K6JUSnDYFhUeD9whb5w_3E5GVDj-Ga6181pWtK3tJLRMcXGsDl7CaTYrq8tFV1ENb8nCXTLSV3MHL5BlQD39yRL4-lN3');"></div>
+<div class="absolute inset-0 bg-primary/90 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-6 z-10">
+<div class="transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300 delay-75">
+<p class="text-background-dark font-black text-2xl leading-none mb-1">Marcus Chen</p>
+<p class="text-background-dark/70 font-bold text-sm mb-4">Lead Developer</p>
+<div class="bg-background-dark/10 p-3 rounded-lg backdrop-blur-sm border border-black/5">
+<p class="text-[10px] uppercase font-bold text-background-dark/60 mb-1">Unique Strength</p>
+<p class="text-background-dark font-bold text-sm flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">terminal</span>
+                                        Code Whisperer
+                                    </p>
+</div>
+</div>
+</div>
+<div class="absolute inset-x-0 bottom-0 p-4 bg-gradient-to-t from-black/90 to-transparent group-hover:opacity-0 transition-opacity duration-300">
+<p class="text-white font-bold text-lg">Marcus Chen</p>
+<p class="text-gray-400 text-sm">Development</p>
+</div>
+</div>
+<!-- Team Member 3 -->
+<div class="group relative h-[400px] overflow-hidden rounded-xl bg-surface-dark">
+<div class="card-zoom-image absolute inset-0 bg-cover bg-center grayscale" data-alt="Portrait of Sarah" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuA27mWQG_o_qpxGDfFayFnCQlQRccGhTe9kl4Ff7pHMkkqBJh4uMXPcxBNN5iqNwZeamk8PdppcCOBwbEZXSqm8gProebztg-wfk8gnD0W5qaN5wsjFo99JgmFZ7BaU39ff2_R3fnda9Od241MlklKZb_Wcbn84dLL68DyBe7BSxbGha_8tl1D9bh-4kvPHV-s48Yv2Um5IwOWv5FTNjDEH23-4uRh-QjQ9tYAKcMvRFN0jfmKYi76HEJnXG49cvBVY6Y_Ft9t7ampx');"></div>
+<div class="absolute inset-0 bg-primary/90 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-6 z-10">
+<div class="transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300 delay-75">
+<p class="text-background-dark font-black text-2xl leading-none mb-1">Sarah Jenkins</p>
+<p class="text-background-dark/70 font-bold text-sm mb-4">Motion Director</p>
+<div class="bg-background-dark/10 p-3 rounded-lg backdrop-blur-sm border border-black/5">
+<p class="text-[10px] uppercase font-bold text-background-dark/60 mb-1">Unique Strength</p>
+<p class="text-background-dark font-bold text-sm flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">animation</span>
+                                        The Keyframe Wizard
+                                    </p>
+</div>
+</div>
+</div>
+<div class="absolute inset-x-0 bottom-0 p-4 bg-gradient-to-t from-black/90 to-transparent group-hover:opacity-0 transition-opacity duration-300">
+<p class="text-white font-bold text-lg">Sarah Jenkins</p>
+<p class="text-gray-400 text-sm">Motion</p>
+</div>
+</div>
+<!-- Team Member 4 -->
+<div class="group relative h-[400px] overflow-hidden rounded-xl bg-surface-dark">
+<div class="card-zoom-image absolute inset-0 bg-cover bg-center grayscale" data-alt="Portrait of David" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBPksaTxWNM9qy1RC4ndtlxRWLYer2uxBv_FL3hppt19f9tedwPKStt6Tz0lzo82JF7NuzcOPmLkt90KXTHg1xlI-KRiuRkOsLBAps1RgzEB3TI_XjaYF_YgSy2ahNjsO2QiN0sFkXJq3YvtUfjAfeP4CtvnXIWKl-X9b3U4adSAxLGkCXu4TDvL0pOwrgBDe_gUuSV2rR-PV4FAKSA5q2AJKDMEYdGRkAujUK__wZH3-BSXsZNdUvuVnIiztXHq9Ofo9QxCFVBS7ii');"></div>
+<div class="absolute inset-0 bg-primary/90 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-6 z-10">
+<div class="transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300 delay-75">
+<p class="text-background-dark font-black text-2xl leading-none mb-1">David Okonjo</p>
+<p class="text-background-dark/70 font-bold text-sm mb-4">Brand Strategist</p>
+<div class="bg-background-dark/10 p-3 rounded-lg backdrop-blur-sm border border-black/5">
+<p class="text-[10px] uppercase font-bold text-background-dark/60 mb-1">Unique Strength</p>
+<p class="text-background-dark font-bold text-sm flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">psychology_alt</span>
+                                        Insight Hunter
+                                    </p>
+</div>
+</div>
+</div>
+<div class="absolute inset-x-0 bottom-0 p-4 bg-gradient-to-t from-black/90 to-transparent group-hover:opacity-0 transition-opacity duration-300">
+<p class="text-white font-bold text-lg">David Okonjo</p>
+<p class="text-gray-400 text-sm">Strategy</p>
+</div>
+</div>
+<!-- Team Member 5 -->
+<div class="group relative h-[400px] overflow-hidden rounded-xl bg-surface-dark">
+<div class="card-zoom-image absolute inset-0 bg-cover bg-center grayscale" data-alt="Portrait of Priya" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDeVyhOncfqYQ4s54NEQQCF9zqgJsZy1hbXQnTyEOEpC2VcB0UlPhsJFqNCdJ7gauxOddeY8697ooHp-ZIW7tcgC1AEJhJEIPVqZ2HlM-up3vVVfEP1dEzKVyYjK3MWkWDwk7YzJzjQL6K6be_P8Br2C-sQT1cvty_QGGMRXmKgBner6lAbP7N2e_sRoVjvmrkPALj1oWp1djjsafbCfd5a8n4cNQb1_GxdmCWv3pIHCeV4qNVcwmBrYLI6U6is4YdUsePO_S_hcGN1');"></div>
+<div class="absolute inset-0 bg-primary/90 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-6 z-10">
+<div class="transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300 delay-75">
+<p class="text-background-dark font-black text-2xl leading-none mb-1">Priya Patel</p>
+<p class="text-background-dark/70 font-bold text-sm mb-4">UX Researcher</p>
+<div class="bg-background-dark/10 p-3 rounded-lg backdrop-blur-sm border border-black/5">
+<p class="text-[10px] uppercase font-bold text-background-dark/60 mb-1">Unique Strength</p>
+<p class="text-background-dark font-bold text-sm flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">person_search</span>
+                                        Empathy Engine
+                                    </p>
+</div>
+</div>
+</div>
+<div class="absolute inset-x-0 bottom-0 p-4 bg-gradient-to-t from-black/90 to-transparent group-hover:opacity-0 transition-opacity duration-300">
+<p class="text-white font-bold text-lg">Priya Patel</p>
+<p class="text-gray-400 text-sm">Strategy</p>
+</div>
+</div>
+<!-- Team Member 6 -->
+<div class="group relative h-[400px] overflow-hidden rounded-xl bg-surface-dark">
+<div class="card-zoom-image absolute inset-0 bg-cover bg-center grayscale" data-alt="Portrait of Julian" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAFQBFEJcLnXcHvE7v3Dwff9XPNhB-zVEeeuDo_BOu-TmjzIDOs_Xk0mpwAhZMgTi90manObl7HKCO4jethrimHBhfFQ0vcr2ejMWMeEYEFJn0rPEGjv9rvpDyIA_06t3OmKWeApZb0RpixxPAfAN9qxV65DaOHoTIDLtQLO_utjK6YNAfr5JxyI4fzj2EZ-03ZBkeaQBY4BpAbZBS9_lpy3cUkAjaZ_bqIZ8WMJ2RLlr11fIMxD6gEHfTT6ccjBUDJLZgm63xSnUaN');"></div>
+<div class="absolute inset-0 bg-primary/90 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-6 z-10">
+<div class="transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300 delay-75">
+<p class="text-background-dark font-black text-2xl leading-none mb-1">Julian Ross</p>
+<p class="text-background-dark/70 font-bold text-sm mb-4">3D Artist</p>
+<div class="bg-background-dark/10 p-3 rounded-lg backdrop-blur-sm border border-black/5">
+<p class="text-[10px] uppercase font-bold text-background-dark/60 mb-1">Unique Strength</p>
+<p class="text-background-dark font-bold text-sm flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">view_in_ar</span>
+                                        Polygon Master
+                                    </p>
+</div>
+</div>
+</div>
+<div class="absolute inset-x-0 bottom-0 p-4 bg-gradient-to-t from-black/90 to-transparent group-hover:opacity-0 transition-opacity duration-300">
+<p class="text-white font-bold text-lg">Julian Ross</p>
+<p class="text-gray-400 text-sm">Motion</p>
+</div>
+</div>
+<!-- Join Us Card -->
+<div class="relative h-[400px] flex flex-col items-center justify-center rounded-xl bg-[#2a2828] border-2 border-dashed border-white/10 group cursor-pointer hover:border-primary transition-colors text-center p-6">
+<div class="h-20 w-20 rounded-full bg-white/5 flex items-center justify-center mb-6 group-hover:bg-primary group-hover:text-background-dark transition-colors">
+<span class="material-symbols-outlined text-4xl">add</span>
+</div>
+<h3 class="text-2xl font-bold text-white mb-2">You?</h3>
+<p class="text-gray-400 text-sm mb-6 max-w-[200px]">We are always looking for new superpowers.</p>
+<span class="text-primary font-bold text-sm border-b-2 border-primary pb-0.5 group-hover:text-white group-hover:border-white transition-colors">Apply Now</span>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Footer -->
+<footer class="border-t border-white/10 bg-background-dark pt-16 pb-8">
+<div class="mx-auto max-w-7xl px-6 lg:px-8 text-center">
+<h2 class="text-4xl md:text-5xl font-black text-white mb-8">Ready to define the future?</h2>
+<button class="inline-flex items-center justify-center gap-3 rounded-xl bg-primary px-8 py-4 text-base font-bold text-background-dark transition-transform hover:scale-105 active:scale-95 shadow-[0_0_30px_rgba(233,180,7,0.2)]">
+                Join the Arsenes
+                <span class="material-symbols-outlined">arrow_forward</span>
+</button>
+<div class="mt-20 pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-4 text-white/40 text-sm font-medium">
+<p>© 2024 Les Arsene Creatives. All rights reserved.</p>
+<div class="flex gap-6">
+<a class="hover:text-white transition-colors" href="#">Privacy</a>
+<a class="hover:text-white transition-colors" href="#">Terms</a>
+<a class="hover:text-white transition-colors" href="#">Instagram</a>
+<a class="hover:text-white transition-colors" href="#">LinkedIn</a>
+</div>
+</div>
+</div>
+</footer>
+</body></html>

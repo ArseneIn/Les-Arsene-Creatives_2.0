@@ -1,0 +1,234 @@
+<html lang="en"><head></head><body class="bg-background-light dark:bg-background-dark text-gray-900 dark:text-gray-100 font-body transition-colors duration-300 min-h-screen">```html
+
+
+
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Our Creative Work Portfolio</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&amp;family=Poppins:wght@300;400;500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
+<script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#EBB507", // Yellow from logo/brief
+                        "background-light": "#F8F8F8",
+                        "background-dark": "#1c1b1b", // Deep black from brief
+                        "card-dark": "#2a2929",
+                        "card-light": "#ffffff",
+                    },
+                    fontFamily: {
+                        display: ["Montserrat", "sans-serif"],
+                        body: ["Poppins", "sans-serif"],
+                    },
+                    borderRadius: {
+                        DEFAULT: "0.5rem",
+                        'xl': '1rem',
+                        '2xl': '1.5rem',
+                    },
+                    aspectRatio: {
+                        'portrait': '3/4',
+                    }
+                },
+            },
+        };
+    </script>
+<style>.project-card:hover .project-overlay {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .project-card:hover img {
+            transform: scale(1.05);
+        }
+        .project-overlay {
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        .project-image-container img {
+            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+    </style>
+
+
+<nav class="sticky top-0 z-50 bg-background-light/90 dark:bg-background-dark/90 backdrop-blur-md border-b border-gray-200 dark:border-gray-800">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+<div class="flex justify-between h-20 items-center">
+<div class="flex-shrink-0 flex items-center gap-3">
+<img alt="Les Arsene Creatives Logo" class="h-10 w-auto hidden sm:block" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBAbDsygJylSTz1z4AT8RIb4sorP4JO3nnq3DCYJXrJbh6-vQeAmwHfB6-2ADoMQ5R6Dl9wWFh9cJmt6M59JXHkO-NSPI0UP0VirhH6a4-1NIKa2Yx_C9aA-Ru_bAZX2JCCHYCbZopfsrMF42BzTVvCLq0bYKFzztcUDaYnxF8WNfLM83g7W4EdvuNf3ZOh9OzT_3kXoZ_205lPqUuI44I3azjCEwLXjv4AusfNerv8Q0q3oyXb6WzsWhbvVXfR7fvclJ7Sj2s438yB"/>
+<img alt="Les Arsene Creatives Icon" class="h-10 w-auto sm:hidden" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDyLfu4ib1YWlz2iS_3ltshXHL6_I3KsDrSGrNVJX-tL-RedEf_UUM5_DqWYc1Julm5U-VGKX9t0KvqteCKm_bWH-7E1v_eWDvxtBO__nHzI6eT0iPYLrakfyO3KMeu3z7IXtzBno7VVvxsS-87YLaIxh5s5dwNkwHGbRxWcylsBUIj3JxFbnZIFAZRbL6Jw0gIMY17D7GceXZqDpjlyDDg-lo9FQ9p5riZLVcD04tyPFOBzZqN-MdkgzszYlQ0MirKuaM9QyTU2KBl"/>
+<span class="font-display font-bold text-xl tracking-tight hidden">Les <span class="text-primary">ARSENE</span> Creatives</span>
+</div>
+<div class="hidden md:flex space-x-8 items-center">
+<a class="text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary font-medium transition-colors" href="#">Home</a>
+<a class="text-primary font-bold border-b-2 border-primary pb-1" href="#">Work</a>
+<a class="text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary font-medium transition-colors" href="#">Services</a>
+<a class="text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary font-medium transition-colors" href="#">About</a>
+<a class="bg-primary text-background-dark px-6 py-2.5 rounded-full font-bold hover:brightness-110 transition-all transform hover:-translate-y-0.5 shadow-lg shadow-primary/20" href="#">Let's Talk</a>
+</div>
+<div class="md:hidden flex items-center">
+<button class="text-gray-600 dark:text-gray-300 hover:text-primary" type="button">
+<span class="material-icons-outlined text-3xl">menu</span>
+</button>
+</div>
+</div>
+</div>
+</nav>
+<header class="py-16 md:py-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+<h2 class="text-primary font-display font-bold text-sm tracking-widest uppercase mb-4">Our Creative Portfolio</h2>
+<h1 class="font-display font-extrabold text-4xl md:text-6xl mb-6 text-gray-900 dark:text-white leading-tight">
+            Crafting Digital <br class="hidden md:block"/>
+<span class="text-transparent bg-clip-text bg-gradient-to-r from-primary to-yellow-200">Masterpieces</span>
+</h1>
+<p class="max-w-2xl mx-auto text-gray-600 dark:text-gray-400 text-lg md:text-xl leading-relaxed">
+            We blend strategy, design, and technology to build brands that stand out in the digital landscape. Explore our selected works.
+        </p>
+<div class="mt-12 flex flex-wrap justify-center gap-4">
+<button class="px-6 py-2 rounded-full border border-primary bg-primary text-background-dark font-semibold shadow-lg shadow-primary/25 transition-all">All Work</button>
+<button class="px-6 py-2 rounded-full border border-gray-300 dark:border-gray-700 hover:border-primary text-gray-600 dark:text-gray-300 hover:text-primary transition-all bg-transparent">Branding</button>
+<button class="px-6 py-2 rounded-full border border-gray-300 dark:border-gray-700 hover:border-primary text-gray-600 dark:text-gray-300 hover:text-primary transition-all bg-transparent">Web Design</button>
+<button class="px-6 py-2 rounded-full border border-gray-300 dark:border-gray-700 hover:border-primary text-gray-600 dark:text-gray-300 hover:text-primary transition-all bg-transparent">Marketing</button>
+<button class="px-6 py-2 rounded-full border border-gray-300 dark:border-gray-700 hover:border-primary text-gray-600 dark:text-gray-300 hover:text-primary transition-all bg-transparent">Motion</button>
+</div>
+</header>
+<main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-24">
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+<div class="group project-card relative rounded-2xl overflow-hidden cursor-pointer shadow-xl bg-card-dark aspect-portrait md:aspect-auto md:h-[500px]">
+<div class="project-image-container w-full h-full overflow-hidden">
+<img alt="Abstract colorful branding design for NeoTech" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCxpfURf390YKe6hHwTER3V95elQhy9ctOBHE1onFnfhCh_9l74Qd9h7m8CE5a2aTesDAhnnyedFJwsqhM2W5-nxFT9tzZVwIgDpd4PGZcpDZRjCtXV25UPS37QedIPI84r7Uuz1mIKukySOMtY7Jq7sh8oizn5WPZTIy6OUSVk3abNnYS8j1WsFjrjoMsr45daB230jfkLeH5ssKosxKylxj7LewbGvEzIJIPEL7_IYaJAj-QSosORNuf3qCKwsljwyECoRFTFrT30"/>
+</div>
+<div class="project-overlay absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent p-8 flex flex-col justify-end">
+<span class="text-primary font-bold text-sm tracking-wider uppercase mb-2">Branding Identity</span>
+<h3 class="text-white font-display font-bold text-2xl md:text-3xl mb-2">NeoTech Evolution</h3>
+<p class="text-gray-300 text-sm line-clamp-2">A complete rebrand for the future of technology, focusing on bold colors and geometric precision.</p>
+<div class="mt-4 flex items-center text-white font-medium group-hover:gap-2 transition-all">
+                        View Case Study <span class="material-icons-outlined text-sm ml-1">arrow_forward</span>
+</div>
+</div>
+</div>
+<div class="group project-card relative rounded-2xl overflow-hidden cursor-pointer shadow-xl bg-card-dark aspect-square">
+<div class="project-image-container w-full h-full overflow-hidden">
+<img alt="Sleek dark mode mobile app interface" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDinuQCr9NttYIv3W87YeWU-ImfbDSUY8aXqeWoXvUei6uH8doHdcR1qtIBXP_mtrROFDGcFOY9IMNgB882rMwpgTmy5wgYaAZyfdastOzc4jGEBdKwVSVrudiOa0LZroshyasWOqWZvyWWHNMaAwM_nNLOoGJ4eA3MOxskQHy05iVB_VsGl9l6VC6r2MxwhMv6lWj_VAEu3cNM1M37fc8DGsDG1Hte_kd7J8aTBh6FzUvd6ggGDkkk8BCSYChmk0i-liuUkOfFVk14"/>
+</div>
+<div class="project-overlay absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent p-8 flex flex-col justify-end">
+<span class="text-primary font-bold text-sm tracking-wider uppercase mb-2">UI/UX Design</span>
+<h3 class="text-white font-display font-bold text-2xl mb-2">FinFlow App</h3>
+<div class="mt-2 flex items-center text-white font-medium group-hover:gap-2 transition-all">
+                        View Project <span class="material-icons-outlined text-sm ml-1">arrow_forward</span>
+</div>
+</div>
+</div>
+<div class="group project-card relative rounded-2xl overflow-hidden cursor-pointer shadow-xl bg-card-dark aspect-square">
+<div class="project-image-container w-full h-full overflow-hidden">
+<img alt="Minimalist packaging design for cosmetic brand" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDNRIyHVDj5Z2YBpsLiD-vYr51FqLp3QxC8oldPtpnDoQYgZDZUcG92t90bwXIykzEEu_Q0d0Ozbg4sTR8jpwd2H7Mfh_GB38kaxNwbymImpnmbI5Q-vxUoKB4PXVbrxXTqPMU11XwFLbJpslUtzrkjYP2Oc-mdYm8YxmDu5dLBApGb6_i_iXrDrQEer4zhFa-MbKyA29Sa1iARErNjyi_noO4-wUHO5DC7bdBkjWRdpfZEZUOI7m856jBlWVVlRBjelwuZg-4nXMe8"/>
+</div>
+<div class="project-overlay absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent p-8 flex flex-col justify-end">
+<span class="text-primary font-bold text-sm tracking-wider uppercase mb-2">Packaging</span>
+<h3 class="text-white font-display font-bold text-2xl mb-2">Lura Cosmetics</h3>
+<div class="mt-2 flex items-center text-white font-medium group-hover:gap-2 transition-all">
+                        View Project <span class="material-icons-outlined text-sm ml-1">arrow_forward</span>
+</div>
+</div>
+</div>
+<div class="group project-card relative rounded-2xl overflow-hidden cursor-pointer shadow-xl bg-card-dark aspect-square">
+<div class="project-image-container w-full h-full overflow-hidden">
+<img alt="Corporate website dashboard on laptop screen" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBWqUgKuMSZmnJwiMuVJwBZyGWH1fieygo08OCcLP8ptMIRZcXkMOm1Q7_wRWttP-f1z0BGG0e_qoNHtf1KT_HEd648PD5T-J6MggvvULKfG3pioCmD9_PzolTl6ZsK_lbTlOUtCAPxqi0xwr9kFEwiM6e4m1I7L6GUqtAwTd-5ZH9nyCJfGBnawCoWlcuaOKS9eY5TsYZKwADWNzDY7csweqqW9-iGVvlM2dthxuCvSdiVHFNMIzbPRY3ZQZ8s6QpQXUq7K6ZmHqOl"/>
+</div>
+<div class="project-overlay absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent p-8 flex flex-col justify-end">
+<span class="text-primary font-bold text-sm tracking-wider uppercase mb-2">Web Development</span>
+<h3 class="text-white font-display font-bold text-2xl mb-2">Apex Dashboard</h3>
+<div class="mt-2 flex items-center text-white font-medium group-hover:gap-2 transition-all">
+                        View Project <span class="material-icons-outlined text-sm ml-1">arrow_forward</span>
+</div>
+</div>
+</div>
+<div class="group project-card relative rounded-2xl overflow-hidden cursor-pointer shadow-xl bg-card-dark aspect-portrait md:aspect-auto md:col-span-2 md:h-[500px]">
+<div class="project-image-container w-full h-full overflow-hidden">
+<img alt="Futuristic neon city scene for game art" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBQWK3Q7_fc7YB9Mzt2tJBLpUNvOuggA9ghImK183hijXlAkakLg73pDoK3tK0rnwPvzkYvX5abD7Kfky3xmoJ-vBM3StvGQWtNF5Gdk15kGKBjnF0sUqIEx46kUorNzwocURVUsdt_ggCfmNvB1y5fZ1NlXM1OvCOTiVvnATHXsUrMSD6p1McogjAH3suhG2XtLanJq3cBfCDyujb4UlHRqIYJSgz7GphJDd-HZn3s-XSvtpI34c0ko3H-QwuBWk2DToS5Jedq_LDe"/>
+</div>
+<div class="project-overlay absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent p-8 flex flex-col justify-end">
+<span class="text-primary font-bold text-sm tracking-wider uppercase mb-2">Motion &amp; 3D</span>
+<h3 class="text-white font-display font-bold text-2xl md:text-3xl mb-2">CyberCore Advertising</h3>
+<p class="text-gray-300 text-sm line-clamp-2 max-w-lg">An immersive 3D advertising campaign that blurs the lines between reality and the digital world.</p>
+<div class="mt-4 flex items-center text-white font-medium group-hover:gap-2 transition-all">
+                        View Case Study <span class="material-icons-outlined text-sm ml-1">arrow_forward</span>
+</div>
+</div>
+</div>
+<div class="group project-card relative rounded-2xl overflow-hidden cursor-pointer shadow-xl bg-card-dark aspect-square">
+<div class="project-image-container w-full h-full overflow-hidden">
+<img alt="Editorial layout magazine spread" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCGTLuWTVrfcLauQpGUyWmYou8fUiOOl51TOgw7pgUiUhXq2ZTGUKKgr23EAPIn3KE-7hAihYR-hLcFvsVYZLJMX2S8r-jBmSZOWHvGfQKXBNw_kCA0daF12cyuipGtfL7gNf7kQ8SW9GZsrG_mDoyIcKhbhu5ZPYVrQABZMe6TTbtRYEHgGLGCXjSOa9pgfKgF6NXqC_URTfJhHh9faaUIslEdUlibUVXuubIsQTZUzPtjDz-ou7iaqIE31UEy_G91AI0b_MLx3wAi"/>
+</div>
+<div class="project-overlay absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent p-8 flex flex-col justify-end">
+<span class="text-primary font-bold text-sm tracking-wider uppercase mb-2">Print Media</span>
+<h3 class="text-white font-display font-bold text-2xl mb-2">Vogue Refresh</h3>
+<div class="mt-2 flex items-center text-white font-medium group-hover:gap-2 transition-all">
+                        View Project <span class="material-icons-outlined text-sm ml-1">arrow_forward</span>
+</div>
+</div>
+</div>
+</div>
+<div class="mt-20 text-center">
+<button class="group relative inline-flex items-center justify-center px-8 py-3 overflow-hidden font-bold text-white transition-all duration-300 bg-transparent border-2 border-white dark:border-gray-600 rounded-full hover:bg-white hover:text-background-dark dark:hover:bg-white dark:hover:text-background-dark">
+<span class="mr-2">Load More Projects</span>
+<span class="material-icons-outlined group-hover:translate-y-1 transition-transform">expand_more</span>
+</button>
+</div>
+</main>
+<footer class="bg-card-light dark:bg-card-dark border-t border-gray-200 dark:border-gray-800 py-16">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+<div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-8">
+<div>
+<img alt="Les Arsene Creatives Logo Stacked" class="h-16 w-auto mb-4 invert dark:invert-0" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCjkSgFaBR5CLF96Xq14NnhbQmd_gX6hQkYesz-BRF02gR15-RJUNoRKaDdrHl7xG4mjuDDCZffl79WhAwaBbRxtnxWTD1Vtiu-rtU2T4JdSdNVXaUQ5DvduPr1qxy8v_Cbnr_Lp8wT5AbmjITolAea_nzj4iNAzXkOWxYYdp5tjkQv-K-1TfKY2qO95lDZzAtkGnV8JgVRLF_WFiPHNkPo7-jo-Lc4nqJ02osoE94ki2onqnReN5nesxbmjqeHCn2JHIXK35nsvQK1"/>
+<p class="text-gray-500 dark:text-gray-400 max-w-xs">
+                        Elevating brands through bold creativity and strategic design thinking.
+                    </p>
+</div>
+<div class="flex flex-col gap-4">
+<h4 class="text-gray-900 dark:text-white font-display font-bold text-lg">Let's create something together</h4>
+<a class="text-2xl md:text-3xl font-display font-bold text-gray-900 dark:text-white hover:text-primary transition-colors underline decoration-primary decoration-4 underline-offset-4" href="mailto:hello@lesarsene.com">
+                        hello@lesarsene.com
+                    </a>
+<div class="flex space-x-4 mt-2">
+<a class="w-10 h-10 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-gray-600 dark:text-gray-300 hover:bg-primary hover:text-background-dark transition-all" href="#">
+<span class="sr-only">Instagram</span>
+<svg class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.072 3.269.156 4.785 1.698 4.942 4.942.059 1.265.071 1.645.071 4.851 0 3.205-.012 3.584-.072 4.849-.156 3.26-1.687 4.786-4.942 4.943-1.266.059-1.646.072-4.851.072-3.205 0-3.584-.012-4.85-.072-3.26-1.686-4.786-1.686-4.943-4.943C2.175 15.584 2.163 15.205 2.163 12c0-3.205.012-3.584.072-4.851.156-3.269 1.698-4.785 4.942-4.942C8.416 2.175 8.795 2.163 12 2.163zm0-2.163C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0z"></path></svg>
+</a>
+<a class="w-10 h-10 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-gray-600 dark:text-gray-300 hover:bg-primary hover:text-background-dark transition-all" href="#">
+<span class="sr-only">Twitter</span>
+<svg class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24"><path d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616-.054 2.281 1.581 4.415 3.949 4.89-.693.188-1.452.232-2.224.084.626 1.956 2.444 3.379 4.6 3.419-2.07 1.623-4.678 2.348-7.29 2.04 2.179 1.397 4.768 2.212 7.548 2.212 9.142 0 14.307-7.721 13.995-14.646.962-.695 1.797-1.562 2.457-2.549z"></path></svg>
+</a>
+<a class="w-10 h-10 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-gray-600 dark:text-gray-300 hover:bg-primary hover:text-background-dark transition-all" href="#">
+<span class="sr-only">LinkedIn</span>
+<svg class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"></path></svg>
+</a>
+</div>
+</div>
+</div>
+<div class="mt-12 border-t border-gray-200 dark:border-gray-800 pt-8 flex flex-col md:flex-row justify-between items-center text-sm text-gray-500 dark:text-gray-500">
+<p>© 2024 Les Arsene Creatives. All rights reserved.</p>
+<div class="flex space-x-6 mt-4 md:mt-0">
+<a class="hover:text-gray-900 dark:hover:text-white transition-colors" href="#">Privacy Policy</a>
+<a class="hover:text-gray-900 dark:hover:text-white transition-colors" href="#">Terms of Service</a>
+</div>
+</div>
+</div>
+</footer>
+<script>
+        // Check local storage or system preference
+        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark')
+        } else {
+            document.documentElement.classList.remove('dark')
+        }
+        // Just ensuring it stays dark for the "deep black" request context mostly, but functional toggling exists
+        // Force dark mode for the demo since the brief asked for a deep black bg screen primarily
+        document.documentElement.classList.add('dark');
+    </script>
+
+</body></html>

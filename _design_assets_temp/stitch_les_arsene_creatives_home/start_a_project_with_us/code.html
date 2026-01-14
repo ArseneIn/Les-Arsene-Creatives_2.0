@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Start a Project - Les Arsene Creatives</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
+<script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#FFC20E", // Extracted yellow from logo
+                        "background-light": "#F3F4F6", // Light gray for light mode
+                        "background-dark": "#050505", // Very dark charcoal/black for dark mode
+                        "surface-light": "#FFFFFF",
+                        "surface-dark": "#121212",
+                    },
+                    fontFamily: {
+                        display: ["Inter", "sans-serif"],
+                        body: ["Inter", "sans-serif"],
+                    },
+                    borderRadius: {
+                        DEFAULT: "0.375rem",
+                    },
+                },
+            },
+        };
+    </script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
+<style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-gray-900 dark:text-gray-100 min-h-screen flex flex-col">
+<nav class="w-full bg-surface-light dark:bg-surface-dark border-b border-gray-200 dark:border-gray-800">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+<div class="flex justify-between items-center h-20">
+<div class="flex-shrink-0 flex items-center gap-3">
+<img alt="Les Arsene Creatives Logo" class="h-10 w-auto bg-black p-1 rounded" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDtS7_XQvB7IDjjy0sTfP5k21GeyldkBFmLfszgwdL6Bp7IccDopik7SznHakNqgxoQKcRHbDhQkdkL9r5Qo-BA8nAV9wtWtG_jqX3I4PXeAYM6F1bMIOTYKB0FSZtw0NizLz-EI6xQYxeFaSCuvzgLbdJrhGCNl6aJZpaPq9D0ATzeENgphOiuDQBNtVINQoSHevSg087Toma7ExyV1y-zOsnLCO1Sx8tejmU8zIzTPzi2Ucm8lsIZz1iRUVoiajqNiJSsrxNFWyWt"/>
+<span class="font-bold text-xl tracking-tight uppercase hidden md:block">Les <span class="text-primary">Arsene</span> Creatives</span>
+</div>
+<div class="hidden md:flex space-x-8 items-center">
+<a class="text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary transition-colors text-sm font-medium" href="#">Work</a>
+<a class="text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary transition-colors text-sm font-medium" href="#">Services</a>
+<a class="text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary transition-colors text-sm font-medium" href="#">About</a>
+<a class="bg-primary text-black px-5 py-2 rounded font-semibold hover:bg-yellow-400 transition-colors text-sm" href="#">Start a Project</a>
+</div>
+<div class="md:hidden flex items-center">
+<button class="text-gray-600 dark:text-gray-300 hover:text-white focus:outline-none">
+<span class="material-icons">menu</span>
+</button>
+</div>
+</div>
+</div>
+</nav>
+<main class="flex-grow">
+<section class="pt-16 pb-12 sm:pt-24 sm:pb-16 lg:pt-32 lg:pb-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+<div class="text-center max-w-3xl mx-auto mb-16">
+<h1 class="text-4xl sm:text-5xl font-bold tracking-tight mb-6">Let's build something <span class="text-primary">extraordinary</span>.</h1>
+<p class="text-lg text-gray-600 dark:text-gray-400 leading-relaxed">
+                    Have a vision? We'd love to hear about it. Tell us about your project, timeline, and budget, and we'll help you bring it to life.
+                </p>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-start">
+<div class="bg-surface-light dark:bg-surface-dark p-8 rounded-xl shadow-lg border border-gray-200 dark:border-gray-800">
+<h2 class="text-2xl font-bold mb-6 flex items-center gap-2">
+<span class="material-icons text-primary">edit_note</span> Project Inquiry
+                    </h2>
+<form action="#" class="space-y-6" method="POST">
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+<div>
+<label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1" for="first-name">First Name</label>
+<input class="block w-full rounded border-gray-300 dark:border-gray-700 bg-white dark:bg-black text-gray-900 dark:text-white shadow-sm focus:border-primary focus:ring-primary sm:text-sm py-3 px-4" id="first-name" name="first-name" placeholder="Jane" type="text"/>
+</div>
+<div>
+<label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1" for="last-name">Last Name</label>
+<input class="block w-full rounded border-gray-300 dark:border-gray-700 bg-white dark:bg-black text-gray-900 dark:text-white shadow-sm focus:border-primary focus:ring-primary sm:text-sm py-3 px-4" id="last-name" name="last-name" placeholder="Doe" type="text"/>
+</div>
+</div>
+<div>
+<label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1" for="email">Work Email</label>
+<input class="block w-full rounded border-gray-300 dark:border-gray-700 bg-white dark:bg-black text-gray-900 dark:text-white shadow-sm focus:border-primary focus:ring-primary sm:text-sm py-3 px-4" id="email" name="email" placeholder="jane@company.com" type="email"/>
+</div>
+<div>
+<label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1" for="budget">Estimated Budget (USD)</label>
+<select class="block w-full rounded border-gray-300 dark:border-gray-700 bg-white dark:bg-black text-gray-900 dark:text-white shadow-sm focus:border-primary focus:ring-primary sm:text-sm py-3 px-4" id="budget" name="budget">
+<option>$5k - $10k</option>
+<option>$10k - $25k</option>
+<option>$25k - $50k</option>
+<option>$50k+</option>
+</select>
+</div>
+<div>
+<label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1" for="message">Tell us about your project</label>
+<textarea class="block w-full rounded border-gray-300 dark:border-gray-700 bg-white dark:bg-black text-gray-900 dark:text-white shadow-sm focus:border-primary focus:ring-primary sm:text-sm py-3 px-4" id="message" name="message" placeholder="What are your goals? Who is your audience?" rows="4"></textarea>
+</div>
+<div class="pt-2">
+<button class="w-full flex justify-center py-3 px-4 border border-transparent rounded shadow-sm text-sm font-bold text-black bg-primary hover:bg-yellow-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-all uppercase tracking-wide" type="submit">
+                                Send Message
+                            </button>
+</div>
+</form>
+</div>
+<div class="space-y-12 py-4">
+<div>
+<h3 class="text-xl font-bold mb-4 text-gray-900 dark:text-white">Contact Information</h3>
+<p class="text-gray-600 dark:text-gray-400 mb-8">
+                            Prefer to email us directly? Reach out anytime. We're always open to discussing new projects, creative ideas or opportunities to be part of your visions.
+                        </p>
+<div class="space-y-6">
+<div class="flex items-start">
+<div class="flex-shrink-0">
+<span class="material-icons text-primary">email</span>
+</div>
+<div class="ml-4">
+<p class="text-sm font-medium text-gray-900 dark:text-white">Email</p>
+<a class="text-sm text-gray-600 dark:text-gray-400 hover:text-primary dark:hover:text-primary transition-colors" href="mailto:hello@lesarsene.com">hello@lesarsene.com</a>
+</div>
+</div>
+<div class="flex items-start">
+<div class="flex-shrink-0">
+<span class="material-icons text-primary">location_on</span>
+</div>
+<div class="ml-4">
+<p class="text-sm font-medium text-gray-900 dark:text-white">Office</p>
+<p class="text-sm text-gray-600 dark:text-gray-400">
+                                        123 Creative Avenue, Suite 400<br/>
+                                        Paris, France 75001
+                                    </p>
+</div>
+</div>
+<div class="flex items-start">
+<div class="flex-shrink-0">
+<span class="material-icons text-primary">phone</span>
+</div>
+<div class="ml-4">
+<p class="text-sm font-medium text-gray-900 dark:text-white">Phone</p>
+<p class="text-sm text-gray-600 dark:text-gray-400">+33 1 23 45 67 89</p>
+</div>
+</div>
+</div>
+</div>
+<div class="border-t border-gray-200 dark:border-gray-800 pt-8">
+<h3 class="text-xl font-bold mb-4 text-gray-900 dark:text-white">Follow Us</h3>
+<div class="flex space-x-6">
+<a class="text-gray-400 hover:text-primary transition-colors" href="#">
+<span class="sr-only">Instagram</span>
+<svg aria-hidden="true" class="h-6 w-6" fill="currentColor" viewBox="0 0 24 24"><path clip-rule="evenodd" d="M12.315 2c2.43 0 2.784.013 3.808.06 1.064.049 1.791.218 2.427.465a4.902 4.902 0 011.772 1.153 4.902 4.902 0 011.153 1.772c.247.636.416 1.363.465 2.427.048 1.067.06 1.407.06 4.123v.08c0 2.643-.012 2.987-.06 4.043-.049 1.064-.218 1.791-.465 2.427a4.902 4.902 0 01-1.153 1.772 4.902 4.902 0 01-1.772 1.153c-.636.247-1.363.416-2.427.465-1.067.048-1.407.06-4.123.06h-.08c-2.643 0-2.987-.012-4.043-.06-1.064-.049-1.791-.218-2.427-.465a4.902 4.902 0 01-1.772-1.153 4.902 4.902 0 01-1.153-1.772c-.247-.636-.416-1.363-.465-2.427-.047-1.024-.06-1.379-.06-3.808v-.63c0-2.43.013-2.784.06-3.808.049-1.064.218-1.791.465-2.427a4.902 4.902 0 011.153-1.772A4.902 4.902 0 015.468 3.37c.636-.247 1.363-.416 2.427-.465C8.901 2.013 9.256 2 11.685 2h.63zm-.081 1.802h-.468c-2.456 0-2.784.011-3.807.058-.975.045-1.504.207-1.857.344-.467.182-.8.398-1.15.748-.35.35-.566.683-.748 1.15-.137.353-.3.882-.344 1.857-.047 1.023-.058 1.351-.058 3.807v.468c0 2.456.011 2.784.058 3.807.045.975.207 1.504.344 1.857.182.466.399.8.748 1.15.35.35.683.566 1.15.748.353.137.882.3 1.857.344 1.054.048 1.37.058 4.041.058h.08c2.597 0 2.917-.01 3.96-.058.976-.045 1.505-.207 1.858-.344.466-.182.8-.398 1.15-.748.35-.35.566-.683.748-1.15.137-.353.3-.882.344-1.857.048-1.055.058-1.37.058-4.041v-.08c0-2.597-.01-2.917-.058-3.96-.045-.976-.207-1.505-.344-1.858a3.097 3.097 0 00-.748-1.15 3.098 3.098 0 00-1.15-.748c-.353-.137-.882-.3-1.857-.344-1.023-.047-1.351-.058-3.807-.058zM12 6.865a5.135 5.135 0 110 10.27 5.135 5.135 0 010-10.27zm0 1.802a3.333 3.333 0 100 6.666 3.333 3.333 0 000-6.666zm5.338-3.205a1.2 1.2 0 110 2.4 1.2 1.2 0 010-2.4z" fill-rule="evenodd"></path></svg>
+</a>
+<a class="text-gray-400 hover:text-primary transition-colors" href="#">
+<span class="sr-only">Twitter</span>
+<svg aria-hidden="true" class="h-6 w-6" fill="currentColor" viewBox="0 0 24 24"><path d="M8.29 20.251c7.547 0 11.675-6.253 11.675-11.675 0-.178 0-.355-.012-.53A8.348 8.348 0 0022 5.92a8.19 8.19 0 01-2.357.646 4.118 4.118 0 001.804-2.27 8.224 8.224 0 01-2.605.996 4.107 4.107 0 00-6.993 3.743 11.65 11.65 0 01-8.457-4.287 4.106 4.106 0 001.27 5.477A4.072 4.072 0 012.8 9.713v.052a4.105 4.105 0 003.292 4.022 4.095 4.095 0 01-1.853.07 4.108 4.108 0 003.834 2.85A8.233 8.233 0 012 18.407a11.616 11.616 0 006.29 1.84"></path></svg>
+</a>
+<a class="text-gray-400 hover:text-primary transition-colors" href="#">
+<span class="sr-only">LinkedIn</span>
+<svg aria-hidden="true" class="h-6 w-6" fill="currentColor" viewBox="0 0 24 24"><path clip-rule="evenodd" d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z" fill-rule="evenodd"></path></svg>
+</a>
+</div>
+</div>
+</div>
+</div>
+</section>
+</main>
+<footer class="bg-surface-light dark:bg-surface-dark border-t border-gray-200 dark:border-gray-800 py-12">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center gap-6">
+<div class="flex items-center gap-3">
+<img alt="Les Arsene Logo Footer" class="h-8 w-auto bg-black p-1 rounded" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCGuYMdCvftjyXw-Wd1iZbQIEUIOSY6qPGZ0YjCTY4_OQdDL_6Hhi69wHnyB1B-WtXE1R0iJUrMr3VYon1xpODb_exm-ZSKo9BIx7KCD1qV7I32Chob52R8Bhl-04SBIblOwpBkTDdFBZUh7wenkliISublO1BV93wT9qoI-yY5TosO9Dq663MtdlrMW0LMFs9R4d7fGzPeOpbkSfzeSi9yGGEd3k-fcOBgjPc7Jmw99oNSflcoaS9e2pXEZiGmXikTbzYtIZyLm_Ek"/>
+<p class="text-gray-500 dark:text-gray-400 text-sm">© 2023 Les Arsene Creatives. All rights reserved.</p>
+</div>
+<div class="flex space-x-6">
+<a class="text-gray-500 hover:text-primary dark:text-gray-400 dark:hover:text-primary text-sm" href="#">Privacy Policy</a>
+<a class="text-gray-500 hover:text-primary dark:text-gray-400 dark:hover:text-primary text-sm" href="#">Terms of Service</a>
+</div>
+</div>
+</footer>
+
+</body></html>
