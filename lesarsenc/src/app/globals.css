@@ -11,6 +11,11 @@
   --font-heading: var(--font-nunito), sans-serif;
   --font-sans: var(--font-poppins), sans-serif;
   --font-body: var(--font-inter), sans-serif;
+
+  --font-manrope: var(--font-manrope), sans-serif;
+  --font-syne: var(--font-syne), sans-serif;
+  --font-space: var(--font-space), sans-serif;
+  --font-jakarta: var(--font-jakarta), sans-serif;
 }
 
 /* Custom Utilities */

@@ -1,5 +1,14 @@
 import type { Metadata } from "next";
-import { Montserrat, Nunito, Poppins, Inter } from "next/font/google";
+import {
+  Montserrat,
+  Nunito,
+  Poppins,
+  Inter,
+  Manrope,
+  Syne,
+  Space_Grotesk,
+  Plus_Jakarta_Sans,
+} from "next/font/google";
 import "./globals.css";
 
 const montserrat = Montserrat({
@@ -27,6 +36,30 @@ const inter = Inter({
   display: "swap",
 });
 
+const manrope = Manrope({
+  subsets: ["latin"],
+  variable: "--font-manrope",
+  display: "swap",
+});
+
+const syne = Syne({
+  subsets: ["latin"],
+  variable: "--font-syne",
+  display: "swap",
+});
+
+const spaceGrotesk = Space_Grotesk({
+  subsets: ["latin"],
+  variable: "--font-space",
+  display: "swap",
+});
+
+const jakarta = Plus_Jakarta_Sans({
+  subsets: ["latin"],
+  variable: "--font-jakarta",
+  display: "swap",
+});
+
 export const metadata: Metadata = {
   title: "Les Arsene Creatives",
   description: "Premium design agency transforming brands.",
@@ -40,7 +73,7 @@ export default function RootLayout({
   return (
     <html lang="en" className="scroll-smooth">
       <body
-        className={`${montserrat.variable} ${nunito.variable} ${poppins.variable} ${inter.variable} antialiased bg-background-light dark:bg-background-dark text-gray-900 dark:text-white`}
+        className={`${montserrat.variable} ${nunito.variable} ${poppins.variable} ${inter.variable} ${manrope.variable} ${syne.variable} ${spaceGrotesk.variable} ${jakarta.variable} antialiased bg-background-light dark:bg-background-dark text-gray-900 dark:text-white`}
       >
         {children}
       </body>

@@ -1,6 +1,6 @@
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import { Mail, MapPin, Phone, Instagram, Twitter, Linkedin, Edit3 } from "lucide-react";
+import { Mail, MapPin, Phone, Instagram, Twitter, Linkedin, Edit3, MessageCircle } from "lucide-react";
 
 export default function Contact() {
     return (
@@ -152,6 +152,10 @@ export default function Contact() {
                                     <a href="#" className="text-gray-400 hover:text-primary transition-colors">
                                         <span className="sr-only">LinkedIn</span>
                                         <Linkedin className="h-6 w-6" />
+                                    </a>
+                                    <a href="#" className="text-gray-400 hover:text-primary transition-colors">
+                                        <span className="sr-only">WhatsApp</span>
+                                        <MessageCircle className="h-6 w-6" />
                                     </a>
                                 </div>
                             </div>

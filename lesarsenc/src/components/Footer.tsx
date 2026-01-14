@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Instagram, Twitter, Linkedin } from "lucide-react";
+import { Instagram, Twitter, Linkedin, MessageCircle } from "lucide-react";
 
 export default function Footer() {
     return (
@@ -59,6 +59,10 @@ export default function Footer() {
                             <a href="#" className="text-gray-500 hover:text-primary transition-colors">
                                 <span className="sr-only">LinkedIn</span>
                                 <Linkedin className="h-6 w-6" />
+                            </a>
+                            <a href="#" className="text-gray-500 hover:text-primary transition-colors">
+                                <span className="sr-only">WhatsApp</span>
+                                <MessageCircle className="h-6 w-6" />
                             </a>
                         </div>
                     </div>

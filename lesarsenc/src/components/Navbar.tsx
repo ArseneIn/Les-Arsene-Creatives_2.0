@@ -19,8 +19,8 @@ export default function Navbar() {
     return (
         <nav
             className={`fixed w-full z-50 transition-all duration-300 ${scrolled
-                    ? "bg-background-light/90 dark:bg-background-dark/90 backdrop-blur-md border-b border-gray-200 dark:border-gray-800 shadow-sm"
-                    : "bg-transparent"
+                ? "bg-background-light/90 dark:bg-background-dark/90 backdrop-blur-md border-b border-gray-200 dark:border-gray-800 shadow-sm"
+                : "bg-transparent"
                 }`}
         >
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -44,6 +44,7 @@ export default function Navbar() {
                             <NavLink href="/services">Services</NavLink>
                             <NavLink href="/portfolio">Portfolio</NavLink>
                             <NavLink href="/about">About</NavLink>
+                            <NavLink href="/team">Team</NavLink>
                             <Link
                                 href="/contact"
                                 className="bg-primary text-background-dark px-5 py-2 rounded-full text-sm font-bold hover:bg-yellow-400 transition-colors shadow-lg shadow-yellow-500/20"
@@ -72,6 +73,7 @@ export default function Navbar() {
                         <MobileNavLink href="/services" onClick={() => setIsOpen(false)}>Services</MobileNavLink>
                         <MobileNavLink href="/portfolio" onClick={() => setIsOpen(false)}>Portfolio</MobileNavLink>
                         <MobileNavLink href="/about" onClick={() => setIsOpen(false)}>About</MobileNavLink>
+                        <MobileNavLink href="/team" onClick={() => setIsOpen(false)}>Team</MobileNavLink>
                         <Link
                             href="/contact"
                             className="block w-full text-center bg-primary text-background-dark px-5 py-3 rounded-md text-base font-bold hover:bg-yellow-400 transition-colors mt-4"

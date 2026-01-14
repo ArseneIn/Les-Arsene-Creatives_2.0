@@ -5,7 +5,7 @@ import { ArrowRight, Fingerprint, Palette, Rocket } from "lucide-react";
 
 export default function Home() {
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col font-manrope">
       <Navbar />
       <main className="flex-grow">
         {/* Hero Section */}
