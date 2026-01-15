@@ -8,6 +8,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowUpRight } from "lucide-react";
 import Image from "next/image";
+import DigitalAlchemyBackground from "@/components/DigitalAlchemyBackground";
 
 const projects = [
     {
@@ -81,27 +82,30 @@ export default function Portfolio() {
         <div className="min-h-screen flex flex-col bg-background-light dark:bg-background-dark font-space">
             <Navbar />
             <main className="flex-grow pt-32">
-                <div className="max-w-7xl mx-auto px-6 lg:px-8 mb-20">
-                    <h1 className="text-6xl md:text-8xl font-syne font-black tracking-tighter text-gray-900 dark:text-white mb-12">
-                        <KineticText>SELECTED</KineticText> <br />
-                        <span className="text-primary"><KineticText>WORKS</KineticText></span>
-                    </h1>
+                <div className="max-w-7xl mx-auto px-6 lg:px-8 mb-20 relative">
+                    <DigitalAlchemyBackground />
+                    <div className="relative z-10 pt-10">
+                        <h1 className="text-6xl md:text-8xl font-syne font-black tracking-tighter text-gray-900 dark:text-white mb-12">
+                            <KineticText>SELECTED</KineticText> <br />
+                            <span className="text-primary"><KineticText>WORKS</KineticText></span>
+                        </h1>
 
-                    {/* Filters */}
-                    <div className="flex flex-wrap gap-4">
-                        {filters.map((filter) => (
-                            <Magnetic key={filter}>
-                                <button
-                                    onClick={() => setActiveFilter(filter)}
-                                    className={`px-6 py-2 rounded-full border text-sm font-bold uppercase tracking-wider transition-all duration-300 ${activeFilter === filter
-                                        ? "bg-primary border-primary text-background-dark"
-                                        : "border-gray-300 dark:border-white/20 text-gray-500 dark:text-gray-400 hover:border-primary hover:text-primary"
-                                        }`}
-                                >
-                                    {filter}
-                                </button>
-                            </Magnetic>
-                        ))}
+                        {/* Filters */}
+                        <div className="flex flex-wrap gap-4">
+                            {filters.map((filter) => (
+                                <Magnetic key={filter}>
+                                    <button
+                                        onClick={() => setActiveFilter(filter)}
+                                        className={`px-6 py-2 rounded-full border text-sm font-bold uppercase tracking-wider transition-all duration-300 ${activeFilter === filter
+                                            ? "bg-primary border-primary text-background-dark"
+                                            : "border-gray-300 dark:border-white/20 text-gray-500 dark:text-gray-400 hover:border-primary hover:text-primary"
+                                            }`}
+                                    >
+                                        {filter}
+                                    </button>
+                                </Magnetic>
+                            ))}
+                        </div>
                     </div>
                 </div>
 

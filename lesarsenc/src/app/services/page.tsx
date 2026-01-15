@@ -5,10 +5,11 @@ import Footer from "@/components/Footer";
 import KineticText from "@/components/KineticText";
 import Magnetic from "@/components/Magnetic";
 import Link from "next/link";
-import { ArrowRight, Fingerprint, Palette, Rocket, Search, Code, Zap } from "lucide-react";
-import { motion, useScroll, useTransform } from "framer-motion";
+import { ArrowRight } from "lucide-react";
+import { motion, useScroll } from "framer-motion";
 import { useRef } from "react";
 import ImigongoPattern from "@/components/ImigongoPattern";
+import DigitalAlchemyBackground from "@/components/DigitalAlchemyBackground";
 
 export default function Services() {
     return (
@@ -16,8 +17,9 @@ export default function Services() {
             <Navbar />
             <main className="flex-grow pt-32">
                 {/* Hero */}
-                <section className="px-6 lg:px-8 mb-32">
-                    <div className="max-w-7xl mx-auto">
+                <section className="px-6 lg:px-8 mb-32 relative">
+                    <DigitalAlchemyBackground />
+                    <div className="max-w-7xl mx-auto relative z-10 pt-20">
                         <h1 className="text-6xl md:text-8xl font-syne font-black tracking-tighter text-gray-900 dark:text-white mb-8">
                             <KineticText>OUR</KineticText> <br />
                             <span className="text-primary"><KineticText>EXPERTISE</KineticText></span>
@@ -72,7 +74,7 @@ export default function Services() {
                                 href="/contact"
                                 className="inline-block bg-primary text-background-dark font-bold text-lg px-12 py-5 rounded-full hover:bg-white transition-colors"
                             >
-                                Let's Discuss
+                                Let&apos;s Discuss
                             </Link>
                         </Magnetic>
                     </div>
@@ -120,7 +122,7 @@ function ServiceBlock({ number, title, desc, tags }: { number: string; title: st
 
 function Process() {
     const container = useRef(null);
-    const { scrollYProgress } = useScroll({
+    useScroll({
         target: container,
         offset: ["start end", "end start"],
     });
