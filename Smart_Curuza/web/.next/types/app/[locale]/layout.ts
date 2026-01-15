@@ -1,4 +1,4 @@
-// File: D:\PROJECTS\Les-Arsene-Creatives_2.0\Smart_Curuza\web\app\[locale]\layout.tsx
+// File: D:\Les-Arsene-Creatives_2.0\Smart_Curuza\web\app\[locale]\layout.tsx
 import * as entry from '../../../../app/[locale]/layout.js'
 import type { ResolvingMetadata, ResolvingViewport } from 'next/dist/lib/metadata/types/metadata-interface.js'
 

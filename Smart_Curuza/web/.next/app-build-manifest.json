@@ -1,5 +1,11 @@
 {
   "pages": {
+    "/[locale]/layout": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/css/app/[locale]/layout.css",
+      "static/chunks/app/[locale]/layout.js"
+    ],
     "/[locale]/(dashboard)/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
@@ -9,42 +15,6 @@
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
       "static/chunks/app/[locale]/(dashboard)/layout.js"
-    ],
-    "/[locale]/layout": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/css/app/[locale]/layout.css",
-      "static/chunks/app/[locale]/layout.js"
-    ],
-    "/[locale]/(dashboard)/merchant/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/[locale]/(dashboard)/merchant/page.js"
-    ],
-    "/[locale]/(dashboard)/merchant/layout": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/[locale]/(dashboard)/merchant/layout.js"
-    ],
-    "/[locale]/(dashboard)/merchant/sales/history/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/[locale]/(dashboard)/merchant/sales/history/page.js"
-    ],
-    "/[locale]/(dashboard)/merchant/inventory/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/[locale]/(dashboard)/merchant/inventory/page.js"
-    ],
-    "/[locale]/(dashboard)/merchant/crm/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/[locale]/(dashboard)/merchant/crm/page.js"
-    ],
-    "/[locale]/(dashboard)/merchant/settings/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/[locale]/(dashboard)/merchant/settings/page.js"
     ],
     "/[locale]/login/page": [
       "static/chunks/webpack.js",
