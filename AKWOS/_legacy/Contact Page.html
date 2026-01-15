@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>AKWOS Secure Contact Hub</title>
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Theme Configuration -->
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#135bec", // Bright Blue
+                        "brand-dark": "#0d121b", // Deep Navy/Black
+                        "brand-green": "#10b981", // Emerald Green for safety/accents
+                        "background-light": "#f8f9fc",
+                        "background-dark": "#101622",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.375rem", // rounded-md
+                        "lg": "0.5rem", 
+                        "xl": "0.75rem", 
+                        "2xl": "1rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        /* Custom scrollbar for webkit */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-brand-dark dark:text-white font-display antialiased overflow-x-hidden">
+<!-- Top Navbar -->
+<header class="sticky top-0 z-50 w-full border-b border-[#e7ebf3] dark:border-gray-800 bg-white/90 dark:bg-[#101622]/90 backdrop-blur-md">
+<div class="px-6 md:px-10 lg:px-20 py-4 max-w-7xl mx-auto flex items-center justify-between">
+<div class="flex items-center gap-4">
+<div class="size-8 text-primary">
+<svg class="w-full h-full" fill="none" viewbox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+<path d="M42.1739 20.1739L27.8261 5.82609C29.1366 7.13663 28.3989 10.1876 26.2002 13.7654C24.8538 15.9564 22.9595 18.3449 20.6522 20.6522C18.3449 22.9595 15.9564 24.8538 13.7654 26.2002C10.1876 28.3989 7.13663 29.1366 5.82609 27.8261L20.1739 42.1739C21.4845 43.4845 24.5355 42.7467 28.1133 40.548C30.3042 39.2016 32.6927 37.3073 35 35C37.3073 32.6927 39.2016 30.3042 40.548 28.1133C42.7467 24.5355 43.4845 21.4845 42.1739 20.1739Z" fill="currentColor"></path>
+<path clip-rule="evenodd" d="M7.24189 26.4066C7.31369 26.4411 7.64204 26.5637 8.52504 26.3738C9.59462 26.1438 11.0343 25.5311 12.7183 24.4963C14.7583 23.2426 17.0256 21.4503 19.238 19.238C21.4503 17.0256 23.2426 14.7583 24.4963 12.7183C25.5311 11.0343 26.1438 9.59463 26.3738 8.52504C26.5637 7.64204 26.4411 7.31369 26.4066 7.24189C26.345 7.21246 26.143 7.14535 25.6664 7.1918C24.9745 7.25925 23.9954 7.5498 22.7699 8.14278C20.3369 9.32007 17.3369 11.4915 14.4142 14.4142C11.4915 17.3369 9.32007 20.3369 8.14278 22.7699C7.5498 23.9954 7.25925 24.9745 7.1918 25.6664C7.14534 26.143 7.21246 26.345 7.24189 26.4066ZM29.9001 10.7285C29.4519 12.0322 28.7617 13.4172 27.9042 14.8126C26.465 17.1544 24.4686 19.6641 22.0664 22.0664C19.6641 24.4686 17.1544 26.465 14.8126 27.9042C13.4172 28.7617 12.0322 29.4519 10.7285 29.9001L21.5754 40.747C21.6001 40.7606 21.8995 40.931 22.8729 40.7217C23.9424 40.4916 25.3821 39.879 27.0661 38.8441C29.1062 37.5904 31.3734 35.7982 33.5858 33.5858C35.7982 31.3734 37.5904 29.1062 38.8441 27.0661C39.879 25.3821 40.4916 23.9425 40.7216 22.8729C40.931 21.8995 40.7606 21.6001 40.747 21.5754L29.9001 10.7285ZM29.2403 4.41187L43.5881 18.7597C44.9757 20.1473 44.9743 22.1235 44.6322 23.7139C44.2714 25.3919 43.4158 27.2666 42.252 29.1604C40.8128 31.5022 38.8165 34.012 36.4142 36.4142C34.012 38.8165 31.5022 40.8128 29.1604 42.252C27.2666 43.4158 25.3919 44.2714 23.7139 44.6322C22.1235 44.9743 20.1473 44.9757 18.7597 43.5881L4.41187 29.2403C3.29027 28.1187 3.08209 26.5973 3.21067 25.2783C3.34099 23.9415 3.8369 22.4852 4.54214 21.0277C5.96129 18.0948 8.43335 14.7382 11.5858 11.5858C14.7382 8.43335 18.0948 5.9613 21.0277 4.54214C22.4852 3.8369 23.9415 3.34099 25.2783 3.21067C26.5973 3.08209 28.1187 3.29028 29.2403 4.41187Z" fill="currentColor" fill-rule="evenodd"></path>
+</svg>
+</div>
+<h2 class="text-brand-dark dark:text-white text-xl font-bold tracking-tight">AKWOS</h2>
+</div>
+<nav class="hidden md:flex items-center gap-8">
+<a class="text-brand-dark/80 hover:text-primary dark:text-white/80 dark:hover:text-primary transition-colors text-sm font-medium" href="#">Home</a>
+<a class="text-brand-dark/80 hover:text-primary dark:text-white/80 dark:hover:text-primary transition-colors text-sm font-medium" href="#">About Us</a>
+<a class="text-brand-dark/80 hover:text-primary dark:text-white/80 dark:hover:text-primary transition-colors text-sm font-medium" href="#">Programs</a>
+<a class="text-brand-dark/80 hover:text-primary dark:text-white/80 dark:hover:text-primary transition-colors text-sm font-medium" href="#">Impact</a>
+</nav>
+<button class="hidden md:flex bg-primary hover:bg-primary/90 text-white text-sm font-bold px-5 py-2.5 rounded-lg transition-all shadow-md hover:shadow-lg">
+                Donate
+            </button>
+<!-- Mobile Menu Icon (Placeholder) -->
+<button class="md:hidden text-brand-dark dark:text-white">
+<span class="material-symbols-outlined">menu</span>
+</button>
+</div>
+</header>
+<!-- Floating Sidebar -->
+<div class="fixed right-0 top-1/2 -translate-y-1/2 z-40 hidden lg:flex flex-col bg-white dark:bg-[#1e293b] shadow-xl rounded-l-xl border-y border-l border-gray-100 dark:border-gray-700 py-3">
+<a aria-label="Facebook" class="p-3 text-gray-400 hover:text-[#1877F2] transition-colors group relative" href="#">
+<svg class="w-5 h-5 fill-current" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.101 23.691v-7.98H6.627v-3.667h2.474v-1.58c0-4.085 1.848-5.978 5.858-5.978.401 0 .955.042 1.468.103a8.68 8.68 0 0 1 1.141.195v3.325a8.623 8.623 0 0 0-.653-.036c-2.048 0-2.606.498-2.606 1.691v1.861h3.879l-.666 3.667h-3.213v7.98h-4.933z"></path></svg>
+<span class="absolute right-12 top-1/2 -translate-y-1/2 bg-gray-900 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">Facebook</span>
+</a>
+<a aria-label="LinkedIn" class="p-3 text-gray-400 hover:text-[#0A66C2] transition-colors group relative" href="#">
+<svg class="w-5 h-5 fill-current" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"></path></svg>
+<span class="absolute right-12 top-1/2 -translate-y-1/2 bg-gray-900 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">LinkedIn</span>
+</a>
+<a aria-label="YouTube" class="p-3 text-gray-400 hover:text-[#FF0000] transition-colors group relative" href="#">
+<svg class="w-5 h-5 fill-current" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"></path></svg>
+<span class="absolute right-12 top-1/2 -translate-y-1/2 bg-gray-900 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">YouTube</span>
+</a>
+<a aria-label="X" class="p-3 text-gray-400 hover:text-black dark:hover:text-white transition-colors group relative" href="#">
+<svg class="w-5 h-5 fill-current" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M18.901 1.153h3.68l-8.04 9.19L24 22.846h-7.406l-5.8-7.584-6.638 7.584H.474l8.6-9.83L0 1.154h7.594l5.243 6.932ZM17.61 20.644h2.039L6.486 3.24H4.298Z"></path></svg>
+<span class="absolute right-12 top-1/2 -translate-y-1/2 bg-gray-900 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">X</span>
+</a>
+<a aria-label="Instagram" class="p-3 text-gray-400 hover:text-[#E4405F] transition-colors group relative" href="#">
+<svg class="w-5 h-5 fill-current" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.069-4.85.069-3.204 0-3.584-.012-4.849-.069-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 1 0 0 12.324 6.162 6.162 0 0 0 0-12.324zM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm6.406-11.845a1.44 1.44 0 1 0 0 2.881 1.44 1.44 0 0 0 0-2.881z"></path></svg>
+<span class="absolute right-12 top-1/2 -translate-y-1/2 bg-gray-900 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">Instagram</span>
+</a>
+</div>
+<!-- Main Content -->
+<main class="min-h-screen pb-16">
+<!-- Hero & Contact Section -->
+<div class="px-6 md:px-10 lg:px-20 py-12 max-w-7xl mx-auto">
+<div class="flex flex-col lg:flex-row gap-12 xl:gap-24">
+<!-- Section 1: Office Details (Left) -->
+<div class="flex-1 flex flex-col gap-8">
+<div class="space-y-4">
+<span class="inline-block py-1 px-3 rounded-full bg-primary/10 text-primary text-xs font-bold tracking-wider uppercase">Contact Us</span>
+<h1 class="text-4xl md:text-5xl font-black text-brand-dark dark:text-white leading-tight tracking-tight">Connect with <span class="text-primary">AKWOS</span></h1>
+<p class="text-slate-500 dark:text-slate-400 text-lg leading-relaxed max-w-lg">
+                            We are here to answer your questions and explore partnerships to empower women in sports. Reach out to our team in Kigali.
+                        </p>
+</div>
+<!-- Details Grid/List -->
+<div class="grid gap-6 mt-4">
+<!-- Headquarters -->
+<div class="flex items-start gap-4 p-5 rounded-xl bg-white dark:bg-[#1e293b] border border-[#e7ebf3] dark:border-gray-700 shadow-sm hover:shadow-md transition-shadow">
+<div class="size-12 rounded-full bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center shrink-0 text-primary">
+<span class="material-symbols-outlined text-2xl">location_on</span>
+</div>
+<div>
+<h3 class="text-base font-bold text-brand-dark dark:text-white mb-1">Headquarters</h3>
+<p class="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
+                                    KG 11 Ave, Remera Sector<br/>
+                                    Gasabo District, Kigali<br/>
+                                    Rwanda
+                                </p>
+</div>
+</div>
+<!-- Email Contacts -->
+<div class="flex items-start gap-4 p-5 rounded-xl bg-white dark:bg-[#1e293b] border border-[#e7ebf3] dark:border-gray-700 shadow-sm hover:shadow-md transition-shadow">
+<div class="size-12 rounded-full bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center shrink-0 text-primary">
+<span class="material-symbols-outlined text-2xl">mail</span>
+</div>
+<div class="w-full">
+<h3 class="text-base font-bold text-brand-dark dark:text-white mb-3">Email Us</h3>
+<div class="grid gap-3 sm:grid-cols-2">
+<div>
+<p class="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-0.5">General</p>
+<a class="text-sm font-medium text-primary hover:underline" href="mailto:general@akwos.org">info@akwos.org</a>
+</div>
+<div>
+<p class="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-0.5">Partnerships</p>
+<a class="text-sm font-medium text-primary hover:underline" href="mailto:partnerships@akwos.org">partners@akwos.org</a>
+</div>
+<div>
+<p class="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-0.5">Programs</p>
+<a class="text-sm font-medium text-primary hover:underline" href="mailto:programs@akwos.org">programs@akwos.org</a>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Section 2: Contact Form (Right) -->
+<div class="flex-1 lg:max-w-[540px]">
+<div class="bg-white dark:bg-[#1e293b] rounded-2xl shadow-xl border border-[#e7ebf3] dark:border-gray-700 overflow-hidden">
+<div class="p-8">
+<div class="flex items-center justify-between mb-6">
+<h2 class="text-2xl font-bold text-brand-dark dark:text-white">Send a Secure Message</h2>
+<span class="material-symbols-outlined text-slate-300 dark:text-slate-600 text-3xl">lock</span>
+</div>
+<form class="space-y-5">
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+<label class="block">
+<span class="text-sm font-medium text-brand-dark dark:text-slate-200 mb-1.5 block">Full Name</span>
+<input class="w-full h-12 rounded-lg border-[#cfd7e7] dark:border-gray-600 bg-[#f8f9fc] dark:bg-[#0f172a] text-brand-dark dark:text-white px-4 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all placeholder:text-slate-400" placeholder="Jane Doe" type="text"/>
+</label>
+<label class="block">
+<span class="text-sm font-medium text-brand-dark dark:text-slate-200 mb-1.5 block">Organization</span>
+<input class="w-full h-12 rounded-lg border-[#cfd7e7] dark:border-gray-600 bg-[#f8f9fc] dark:bg-[#0f172a] text-brand-dark dark:text-white px-4 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all placeholder:text-slate-400" placeholder="Org Name" type="text"/>
+</label>
+</div>
+<label class="block">
+<span class="text-sm font-medium text-brand-dark dark:text-slate-200 mb-1.5 block">Email Address</span>
+<input class="w-full h-12 rounded-lg border-[#cfd7e7] dark:border-gray-600 bg-[#f8f9fc] dark:bg-[#0f172a] text-brand-dark dark:text-white px-4 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all placeholder:text-slate-400" placeholder="jane@example.com" type="email"/>
+</label>
+<label class="block">
+<span class="text-sm font-medium text-brand-dark dark:text-slate-200 mb-1.5 block">Reason for Inquiry</span>
+<div class="relative">
+<select class="w-full h-12 rounded-lg border-[#cfd7e7] dark:border-gray-600 bg-[#f8f9fc] dark:bg-[#0f172a] text-brand-dark dark:text-white px-4 pr-10 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all appearance-none cursor-pointer">
+<option>General Inquiry</option>
+<option>Partnership Opportunity</option>
+<option>Program Information</option>
+<option>Press &amp; Media</option>
+</select>
+<div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-slate-500">
+<span class="material-symbols-outlined text-xl">expand_more</span>
+</div>
+</div>
+</label>
+<label class="block">
+<span class="text-sm font-medium text-brand-dark dark:text-slate-200 mb-1.5 block">Subject / Message</span>
+<textarea class="w-full rounded-lg border-[#cfd7e7] dark:border-gray-600 bg-[#f8f9fc] dark:bg-[#0f172a] text-brand-dark dark:text-white p-4 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all resize-none placeholder:text-slate-400" placeholder="How can we help you?" rows="4"></textarea>
+</label>
+<button class="w-full h-12 bg-primary hover:bg-blue-600 active:bg-blue-700 text-white font-bold rounded-lg transition-colors flex items-center justify-center gap-2 mt-2" type="button">
+<span class="material-symbols-outlined text-[20px]">lock</span>
+                                    Send Secure Message
+                                </button>
+</form>
+</div>
+<!-- Section 4 (Moved inline): Beneficiary Safety Box -->
+<div class="bg-brand-dark dark:bg-black/40 border-t border-gray-800 p-5">
+<div class="flex gap-4">
+<div class="shrink-0 p-2 bg-brand-green/20 rounded-lg h-fit">
+<span class="material-symbols-outlined text-brand-green">encrypted</span>
+</div>
+<div>
+<h4 class="text-white text-sm font-bold mb-1">Beneficiary Safety is Our Priority</h4>
+<p class="text-slate-400 text-xs leading-relaxed">
+                                        All communications through this portal are encrypted. We handle beneficiary reports with strict confidentiality and in accordance with international protection standards.
+                                    </p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Section 3: Map Section -->
+<div class="mt-8 relative w-full h-[450px] bg-slate-200 dark:bg-slate-800 overflow-hidden group">
+<!-- Map Placeholder Background -->
+<div class="absolute inset-0 bg-cover bg-center grayscale group-hover:grayscale-0 transition-all duration-700 ease-in-out" data-alt="Satellite map view of Kigali city with roads and green spaces" data-location="Kigali" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCX61cENyZRLOlV4Sl55js7nZ0iseyC-ZsHIqTFb--6NXYvW9-T5WCFXZGcn1EjJr2uwc-pxsUckcJY_9z8AhK2alS5MjfDUt0OS-_sfwqeL1bCN51E7A4zXdmbthlINqP2n4Do_kECFRx8J2h87x9UY-9gcx1wkkkcJyy9Z0qLvI4oiJI2DOq7hO5Fk7EGfHvcYrmrKFRsUKAX8rnZ6_1GfJMTjbOtA-aS-4c-IIr8OaOl-r16O9fZE0Kp6EnJn1CcXUgwzFactyk');">
+</div>
+<!-- Map Overlay UI -->
+<div class="absolute inset-0 bg-primary/10 pointer-events-none"></div>
+<!-- Location Pin -->
+<div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center drop-shadow-2xl">
+<div class="relative">
+<div class="size-16 bg-primary rounded-full flex items-center justify-center text-white shadow-xl animate-bounce">
+<span class="material-symbols-outlined text-4xl">location_on</span>
+</div>
+<div class="absolute -bottom-2 left-1/2 -translate-x-1/2 w-8 h-2 bg-black/30 rounded-full blur-sm"></div>
+</div>
+<div class="mt-4 bg-white dark:bg-[#1e293b] py-2 px-4 rounded-lg shadow-lg text-center border border-gray-100 dark:border-gray-700">
+<p class="font-bold text-brand-dark dark:text-white text-sm">AKWOS HQ</p>
+<p class="text-xs text-slate-500">Kigali, Rwanda</p>
+</div>
+</div>
+</div>
+</main>
+<!-- Footer -->
+<footer class="bg-white dark:bg-[#101622] border-t border-[#e7ebf3] dark:border-gray-800 py-12">
+<div class="max-w-7xl mx-auto px-6 md:px-10 lg:px-20">
+<div class="flex flex-col md:flex-row justify-between items-center gap-6">
+<div class="flex items-center gap-3">
+<div class="size-6 text-primary">
+<svg class="w-full h-full" fill="none" viewbox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+<path d="M42.1739 20.1739L27.8261 5.82609C29.1366 7.13663 28.3989 10.1876 26.2002 13.7654C24.8538 15.9564 22.9595 18.3449 20.6522 20.6522C18.3449 22.9595 15.9564 24.8538 13.7654 26.2002C10.1876 28.3989 7.13663 29.1366 5.82609 27.8261L20.1739 42.1739C21.4845 43.4845 24.5355 42.7467 28.1133 40.548C30.3042 39.2016 32.6927 37.3073 35 35C37.3073 32.6927 39.2016 30.3042 40.548 28.1133C42.7467 24.5355 43.4845 21.4845 42.1739 20.1739Z" fill="currentColor"></path>
+</svg>
+</div>
+<p class="text-sm text-slate-500">© 2024 Organization of Women in Sports (AKWOS). All rights reserved.</p>
+</div>
+<div class="flex gap-6">
+<a class="text-slate-500 hover:text-primary text-sm" href="#">Privacy Policy</a>
+<a class="text-slate-500 hover:text-primary text-sm" href="#">Terms of Service</a>
+</div>
+</div>
+</div>
+</footer>
+</body></html>
