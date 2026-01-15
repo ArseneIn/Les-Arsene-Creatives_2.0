@@ -65,6 +65,13 @@ export const metadata: Metadata = {
   description: "Premium design agency transforming brands.",
 };
 
+import SmoothScroll from "@/components/SmoothScroll";
+import PageTransition from "@/components/PageTransition";
+import BackgroundTexture from "@/components/BackgroundTexture";
+import Preloader from "@/components/Preloader";
+
+// ... existing imports
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -75,7 +82,11 @@ export default function RootLayout({
       <body
         className={`${montserrat.variable} ${nunito.variable} ${poppins.variable} ${inter.variable} ${manrope.variable} ${syne.variable} ${spaceGrotesk.variable} ${jakarta.variable} antialiased bg-background-light dark:bg-background-dark text-gray-900 dark:text-white`}
       >
-        {children}
+        <Preloader />
+        <BackgroundTexture />
+        <SmoothScroll>
+          <PageTransition>{children}</PageTransition>
+        </SmoothScroll>
       </body>
     </html>
   );

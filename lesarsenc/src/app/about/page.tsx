@@ -1,7 +1,18 @@
+import KineticText from "@/components/KineticText";
 import Navbar from "@/components/Navbar";
+
+// ...
+
+<h1 className="font-syne text-5xl md:text-7xl font-extrabold leading-tight mb-6 text-gray-900 dark:text-white">
+    <KineticText>Two Arsenes.</KineticText><br />
+    <span className="text-transparent bg-clip-text bg-gradient-to-r from-gray-400 to-gray-600 dark:from-gray-500 dark:to-gray-300">
+        <KineticText>One Vision.</KineticText>
+    </span>
+</h1>
 import Footer from "@/components/Footer";
 import { ArrowRight, Brain, Sparkles, ShieldCheck } from "lucide-react";
 import Link from "next/link";
+import ImigongoPattern from "@/components/ImigongoPattern";
 
 export default function About() {
     return (
@@ -158,6 +169,7 @@ export default function About() {
                         <div className="absolute -right-20 top-20 text-[20rem] font-display font-black text-white leading-none">
                             A
                         </div>
+                        <ImigongoPattern opacity={0.05} />
                     </div>
                     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
                         <div className="text-center max-w-3xl mx-auto mb-16">

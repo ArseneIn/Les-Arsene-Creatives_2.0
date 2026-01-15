@@ -2,7 +2,10 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { Menu, X } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import Magnetic from "./Magnetic";
 
 export default function Navbar() {
     const [isOpen, setIsOpen] = useState(false);
@@ -10,101 +13,156 @@ export default function Navbar() {
 
     useEffect(() => {
         const handleScroll = () => {
-            setScrolled(window.scrollY > 20);
+            setScrolled(window.scrollY > 50);
         };
         window.addEventListener("scroll", handleScroll);
         return () => window.removeEventListener("scroll", handleScroll);
     }, []);
 
     return (
-        <nav
-            className={`fixed w-full z-50 transition-all duration-300 ${scrolled
-                ? "bg-background-light/90 dark:bg-background-dark/90 backdrop-blur-md border-b border-gray-200 dark:border-gray-800 shadow-sm"
-                : "bg-transparent"
-                }`}
-        >
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div className="flex items-center justify-between h-20">
-                    <div className="flex-shrink-0 flex items-center">
-                        <Link href="/" className="flex items-center gap-2">
-                            {/* Using the image URL from the design for now */}
-                            <img
-                                src="https://lh3.googleusercontent.com/aida-public/AB6AXuDvjcibI-vclK9BE1r8IYF-kD4TKvzeUC9W3p-VAeLjVpBwlwgLs3F15-O-XonHqI9cAg3yGSD4bWeflaPS2UShXpxrY1t8u1HQDHMDYak8K6OV18mYbpeEZaXVvuT3ancwo02PHJ8xnkpmZspmft2AhVODlyhUJLptzhxooLbiDEwoH0Jo-vUm38L-_c49bHOrloV2p_hDcc2QygsbKiShe5EcxvnWw3Jml-ZPoWwKir1QcMqYKr7uCuHCDCbNpwEx90pftpFvESOU"
-                                alt="Les Arsene Creatives Logo"
-                                className="h-10 w-auto"
-                            />
-                            <span className="font-display font-bold text-xl tracking-wider uppercase text-gray-900 dark:text-white hidden sm:block">
-                                Les Arsene
-                            </span>
-                        </Link>
-                    </div>
-                    <div className="hidden md:block">
-                        <div className="ml-10 flex items-baseline space-x-8">
-                            <NavLink href="/">Home</NavLink>
-                            <NavLink href="/services">Services</NavLink>
-                            <NavLink href="/portfolio">Portfolio</NavLink>
-                            <NavLink href="/about">About</NavLink>
-                            <NavLink href="/team">Team</NavLink>
+        <>
+            <motion.nav
+                initial={{ y: -100, x: "-50%" }}
+                animate={{ y: 0, x: "-50%" }}
+                transition={{ duration: 0.8, ease: [0.76, 0, 0.24, 1] }}
+                className={`fixed top-6 left-1/2 z-50 transition-all duration-500 w-[95%] max-w-5xl rounded-full border ${scrolled
+                    ? "bg-white/70 dark:bg-black/70 backdrop-blur-xl border-gray-200/50 dark:border-white/10 py-3 shadow-lg shadow-black/5"
+                    : "bg-white/10 dark:bg-black/10 backdrop-blur-md border-white/20 py-4"
+                    }`}
+            >
+                <div className="px-6 lg:px-8 flex items-center justify-between">
+                    {/* Logo */}
+                    {/* Logo */}
+                    <Link href="/" className="relative h-12 w-48">
+                        {/* Dark Logo (for Light Mode) */}
+                        <Image
+                            src="/LAC newFor white  bg @4x.png"
+                            alt="Les Arsene Creatives"
+                            fill
+                            className="object-contain dark:hidden"
+                            priority
+                        />
+                        {/* Light Logo (for Dark Mode) */}
+                        <Image
+                            src="/LAC newforblack@4x.png"
+                            alt="Les Arsene Creatives"
+                            fill
+                            className="object-contain hidden dark:block"
+                            priority
+                        />
+                    </Link>
+
+                    {/* Desktop Menu */}
+                    <div className="hidden md:flex items-center gap-8">
+                        <NavLinks />
+                        <Magnetic>
                             <Link
                                 href="/contact"
-                                className="bg-primary text-background-dark px-5 py-2 rounded-full text-sm font-bold hover:bg-yellow-400 transition-colors shadow-lg shadow-yellow-500/20"
+                                className="relative px-6 py-3 rounded-full bg-primary text-background-dark font-bold text-sm uppercase tracking-wider overflow-hidden group"
                             >
-                                Let's Talk
+                                <span className="relative z-10 group-hover:text-white transition-colors duration-300">
+                                    Let&apos;s Talk
+                                </span>
+                                <div className="absolute inset-0 bg-black transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-300 ease-out"></div>
+                            </Link>
+                        </Magnetic>
+                    </div>
+
+                    {/* Mobile Toggle */}
+                    <button
+                        onClick={() => setIsOpen(!isOpen)}
+                        className="md:hidden relative z-50 w-10 h-10 flex items-center justify-center rounded-full bg-gray-100 dark:bg-white/10"
+                    >
+                        {isOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+                    </button>
+                </div>
+            </motion.nav>
+
+            {/* Mobile Menu Overlay */}
+            <AnimatePresence>
+                {isOpen && (
+                    <motion.div
+                        initial={{ opacity: 0, y: "-100%" }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: "-100%" }}
+                        transition={{ duration: 0.5, ease: [0.76, 0, 0.24, 1] }}
+                        className="fixed inset-0 z-40 bg-background-light dark:bg-background-dark flex flex-col items-center justify-center"
+                    >
+                        <div className="flex flex-col items-center gap-8">
+                            <MobileNavLink href="/" onClick={() => setIsOpen(false)}>
+                                Home
+                            </MobileNavLink>
+                            <MobileNavLink href="/services" onClick={() => setIsOpen(false)}>
+                                Services
+                            </MobileNavLink>
+                            <MobileNavLink href="/products" onClick={() => setIsOpen(false)}>
+                                Products
+                            </MobileNavLink>
+                            <MobileNavLink href="/portfolio" onClick={() => setIsOpen(false)}>
+                                Portfolio
+                            </MobileNavLink>
+                            <MobileNavLink href="/team" onClick={() => setIsOpen(false)}>
+                                Team
+                            </MobileNavLink>
+                            <MobileNavLink href="/about" onClick={() => setIsOpen(false)}>
+                                About
+                            </MobileNavLink>
+                            <Link
+                                href="/contact"
+                                onClick={() => setIsOpen(false)}
+                                className="text-4xl font-display font-black text-primary uppercase tracking-tighter mt-8"
+                            >
+                                Let&apos;s Talk
                             </Link>
                         </div>
-                    </div>
-                    <div className="-mr-2 flex md:hidden">
-                        <button
-                            onClick={() => setIsOpen(!isOpen)}
-                            className="bg-gray-200 dark:bg-surface-dark inline-flex items-center justify-center p-2 rounded-md text-gray-700 dark:text-gray-400 hover:text-white hover:bg-gray-300 dark:hover:bg-gray-700 focus:outline-none"
-                        >
-                            <span className="sr-only">Open main menu</span>
-                            {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            {/* Mobile Menu */}
-            {isOpen && (
-                <div className="md:hidden bg-background-light dark:bg-background-dark border-b border-gray-200 dark:border-gray-800">
-                    <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
-                        <MobileNavLink href="/" onClick={() => setIsOpen(false)}>Home</MobileNavLink>
-                        <MobileNavLink href="/services" onClick={() => setIsOpen(false)}>Services</MobileNavLink>
-                        <MobileNavLink href="/portfolio" onClick={() => setIsOpen(false)}>Portfolio</MobileNavLink>
-                        <MobileNavLink href="/about" onClick={() => setIsOpen(false)}>About</MobileNavLink>
-                        <MobileNavLink href="/team" onClick={() => setIsOpen(false)}>Team</MobileNavLink>
-                        <Link
-                            href="/contact"
-                            className="block w-full text-center bg-primary text-background-dark px-5 py-3 rounded-md text-base font-bold hover:bg-yellow-400 transition-colors mt-4"
-                            onClick={() => setIsOpen(false)}
-                        >
-                            Let's Talk
-                        </Link>
-                    </div>
-                </div>
-            )}
-        </nav>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+        </>
     );
 }
 
-function NavLink({ href, children }: { href: string; children: React.ReactNode }) {
+function NavLinks() {
+    const links = [
+        { name: "Home", href: "/" },
+        { name: "Services", href: "/services" },
+        { name: "Products", href: "/products" },
+        { name: "Work", href: "/portfolio" },
+        { name: "Team", href: "/team" },
+        { name: "About", href: "/about" },
+    ];
+
     return (
-        <Link
-            href={href}
-            className="text-gray-700 dark:text-gray-300 hover:text-primary dark:hover:text-primary px-3 py-2 rounded-md text-sm font-medium transition-colors"
-        >
-            {children}
-        </Link>
+        <>
+            {links.map((link) => (
+                <Magnetic key={link.name}>
+                    <Link
+                        href={link.href}
+                        className="relative text-sm font-medium uppercase tracking-wider text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors group"
+                    >
+                        {link.name}
+                        <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary transition-all duration-300 group-hover:w-full"></span>
+                    </Link>
+                </Magnetic>
+            ))}
+        </>
     );
 }
 
-function MobileNavLink({ href, children, onClick }: { href: string; children: React.ReactNode; onClick: () => void }) {
+function MobileNavLink({
+    href,
+    children,
+    onClick,
+}: {
+    href: string;
+    children: React.ReactNode;
+    onClick: () => void;
+}) {
     return (
         <Link
             href={href}
             onClick={onClick}
-            className="text-gray-700 dark:text-gray-300 hover:text-primary dark:hover:text-primary block px-3 py-2 rounded-md text-base font-medium"
+            className="text-5xl font-display font-bold text-gray-900 dark:text-white hover:text-primary transition-colors"
         >
             {children}
         </Link>
