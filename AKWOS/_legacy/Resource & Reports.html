@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>AKWOS Resource Hub &amp; Reports</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#135bec",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#101622",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-[#0d121b] dark:text-white font-display">
+<!-- TopNavBar -->
+<div class="relative w-full bg-[#f8f9fc] dark:bg-[#111827] border-b border-[#e7ebf3] dark:border-gray-800">
+<div class="px-4 md:px-10 lg:px-40 flex justify-center py-3">
+<header class="flex w-full max-w-[1200px] items-center justify-between whitespace-nowrap">
+<div class="flex items-center gap-4 text-[#0d121b] dark:text-white">
+<div class="size-8 text-primary">
+<svg class="w-full h-full" fill="none" viewbox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+<g clip-path="url(#clip0_6_543)">
+<path d="M42.1739 20.1739L27.8261 5.82609C29.1366 7.13663 28.3989 10.1876 26.2002 13.7654C24.8538 15.9564 22.9595 18.3449 20.6522 20.6522C18.3449 22.9595 15.9564 24.8538 13.7654 26.2002C10.1876 28.3989 7.13663 29.1366 5.82609 27.8261L20.1739 42.1739C21.4845 43.4845 24.5355 42.7467 28.1133 40.548C30.3042 39.2016 32.6927 37.3073 35 35C37.3073 32.6927 39.2016 30.3042 40.548 28.1133C42.7467 24.5355 43.4845 21.4845 42.1739 20.1739Z" fill="currentColor"></path>
+<path clip-rule="evenodd" d="M7.24189 26.4066C7.31369 26.4411 7.64204 26.5637 8.52504 26.3738C9.59462 26.1438 11.0343 25.5311 12.7183 24.4963C14.7583 23.2426 17.0256 21.4503 19.238 19.238C21.4503 17.0256 23.2426 14.7583 24.4963 12.7183C25.5311 11.0343 26.1438 9.59463 26.3738 8.52504C26.5637 7.64204 26.4411 7.31369 26.4066 7.24189C26.345 7.21246 26.143 7.14535 25.6664 7.1918C24.9745 7.25925 23.9954 7.5498 22.7699 8.14278C20.3369 9.32007 17.3369 11.4915 14.4142 14.4142C11.4915 17.3369 9.32007 20.3369 8.14278 22.7699C7.5498 23.9954 7.25925 24.9745 7.1918 25.6664C7.14534 26.143 7.21246 26.345 7.24189 26.4066ZM29.9001 10.7285C29.4519 12.0322 28.7617 13.4172 27.9042 14.8126C26.465 17.1544 24.4686 19.6641 22.0664 22.0664C19.6641 24.4686 17.1544 26.465 14.8126 27.9042C13.4172 28.7617 12.0322 29.4519 10.7285 29.9001L21.5754 40.747C21.6001 40.7606 21.8995 40.931 22.8729 40.7217C23.9424 40.4916 25.3821 39.879 27.0661 38.8441C29.1062 37.5904 31.3734 35.7982 33.5858 33.5858C35.7982 31.3734 37.5904 29.1062 38.8441 27.0661C39.879 25.3821 40.4916 23.9425 40.7216 22.8729C40.931 21.8995 40.7606 21.6001 40.747 21.5754L29.9001 10.7285ZM29.2403 4.41187L43.5881 18.7597C44.9757 20.1473 44.9743 22.1235 44.6322 23.7139C44.2714 25.3919 43.4158 27.2666 42.252 29.1604C40.8128 31.5022 38.8165 34.012 36.4142 36.4142C34.012 38.8165 31.5022 40.8128 29.1604 42.252C27.2666 43.4158 25.3919 44.2714 23.7139 44.6322C22.1235 44.9743 20.1473 44.9757 18.7597 43.5881L4.41187 29.2403C3.29027 28.1187 3.08209 26.5973 3.21067 25.2783C3.34099 23.9415 3.8369 22.4852 4.54214 21.0277C5.96129 18.0948 8.43335 14.7382 11.5858 11.5858C14.7382 8.43335 18.0948 5.9613 21.0277 4.54214C22.4852 3.8369 23.9415 3.34099 25.2783 3.21067C26.5973 3.08209 28.1187 3.29028 29.2403 4.41187Z" fill="currentColor" fill-rule="evenodd"></path>
+</g>
+<defs>
+<clippath id="clip0_6_543"><rect fill="white" height="48" width="48"></rect></clippath>
+</defs>
+</svg>
+</div>
+<h2 class="text-[#0d121b] dark:text-white text-lg font-bold leading-tight tracking-[-0.015em]">AKWOS</h2>
+</div>
+<div class="hidden lg:flex items-center gap-9">
+<a class="text-[#0d121b] dark:text-gray-200 text-sm font-medium leading-normal hover:text-primary transition-colors" href="#">About</a>
+<a class="text-[#0d121b] dark:text-gray-200 text-sm font-medium leading-normal hover:text-primary transition-colors" href="#">Programs</a>
+<a class="text-primary text-sm font-bold leading-normal" href="#">Resources</a>
+<a class="text-[#0d121b] dark:text-gray-200 text-sm font-medium leading-normal hover:text-primary transition-colors" href="#">Contact</a>
+</div>
+<div class="flex items-center gap-4">
+<button class="lg:hidden p-2 text-gray-600 dark:text-gray-300">
+<span class="material-symbols-outlined">menu</span>
+</button>
+<button class="hidden md:flex min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-primary text-white text-sm font-bold leading-normal tracking-[0.015em] hover:bg-blue-700 transition-colors shadow-sm">
+<span class="truncate">Donate</span>
+</button>
+</div>
+</header>
+</div>
+</div>
+<!-- Main Content Wrapper -->
+<div class="flex flex-col items-center w-full">
+<div class="w-full max-w-[1200px] px-4 md:px-10 lg:px-40 pb-20">
+<!-- Breadcrumbs -->
+<div class="flex flex-wrap gap-2 pt-6 pb-2 text-sm">
+<a class="text-[#4c669a] dark:text-gray-400 font-medium hover:text-primary transition-colors" href="#">Home</a>
+<span class="text-[#4c669a] dark:text-gray-500">/</span>
+<span class="text-[#0d121b] dark:text-white font-medium">Resources</span>
+</div>
+<!-- Page Heading -->
+<div class="py-6">
+<div class="flex flex-col gap-3">
+<h1 class="text-[#0d121b] dark:text-white text-3xl md:text-4xl font-black leading-tight tracking-[-0.033em]">AKWOS Knowledge &amp; Impact Hub</h1>
+<p class="text-[#4c669a] dark:text-gray-400 text-base md:text-lg font-normal leading-normal max-w-3xl">Access our latest research, annual reports, and strategic policy documents driving gender equity in sports.</p>
+</div>
+</div>
+<!-- Hero Section: Featured Report -->
+<div class="mt-4 mb-12 bg-white dark:bg-[#1a202c] rounded-xl shadow-sm border border-[#e7ebf3] dark:border-gray-700 overflow-hidden">
+<div class="flex flex-col md:flex-row">
+<div class="w-full md:w-2/5 h-64 md:h-auto bg-cover bg-center bg-no-repeat relative group" data-alt="Group of young women playing football on a field" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuBsQ34G5vMgJlOmqyOSU5fEBkeWZiLQqalwrbTSFTFJgCT89-tKaDPn-xgobC-sXoKzOegUVmsXtY1zt5-mn5tIw5Q1lFBkCSVpx6jexRAfzczsVgin7j21xt6FQl0CM8xNuczOCkAaNcqffG6XrCXjY3x9iao6dKNmhypYlO24r1MoQ63DhBOluVn-GmT4q2rVzYYMmf1kIYoRqGCyDF70JlkFcjoJYHfuw2cRHuPG9zq06AUV540CWcyg4rFS3eiE5hAaWqkEzqI");'>
+<div class="absolute inset-0 bg-black/10 group-hover:bg-black/0 transition-all duration-300"></div>
+</div>
+<div class="flex flex-col justify-center p-8 md:p-10 md:w-3/5">
+<div class="flex items-center gap-2 mb-4">
+<span class="px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-primary dark:text-blue-300 text-xs font-bold rounded uppercase tracking-wider">Latest Publication</span>
+<span class="text-gray-500 dark:text-gray-400 text-xs font-medium">October 2024</span>
+</div>
+<h2 class="text-[#0d121b] dark:text-white text-2xl md:text-3xl font-bold leading-tight mb-4">
+                            2024 Annual Impact Report: Advancing Gender Equity
+                        </h2>
+<p class="text-gray-600 dark:text-gray-300 text-base mb-8 leading-relaxed">
+                            Our comprehensive analysis of sports development programs in Rwanda, highlighting key milestones in female participation, leadership development, and community outreach initiatives across 15 districts.
+                        </p>
+<div class="flex flex-wrap gap-4">
+<button class="flex items-center justify-center gap-2 rounded-lg h-12 px-6 bg-primary hover:bg-blue-700 text-white font-bold text-sm transition-all shadow-md">
+<span class="material-symbols-outlined text-[20px]">download</span>
+<span>Download PDF (2.4 MB)</span>
+</button>
+<button class="flex items-center justify-center gap-2 rounded-lg h-12 px-6 bg-white dark:bg-transparent border border-gray-300 dark:border-gray-600 text-[#0d121b] dark:text-white font-medium text-sm hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+<span>Read Executive Summary</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Content Area Layout: Sidebar + Grid -->
+<div class="flex flex-col lg:flex-row gap-8 items-start">
+<!-- Sidebar Navigation -->
+<aside class="w-full lg:w-64 flex-shrink-0 lg:sticky lg:top-8">
+<div class="bg-white dark:bg-[#1a202c] rounded-lg border border-[#e7ebf3] dark:border-gray-700 p-4">
+<h3 class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-4 px-2">Categories</h3>
+<nav class="flex flex-col space-y-1">
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-blue-50 dark:bg-blue-900/20 text-primary font-semibold text-sm" href="#">
+<span class="material-symbols-outlined text-[20px]">folder_open</span>
+                                All Resources
+                            </a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 font-medium text-sm transition-colors" href="#">
+<span class="material-symbols-outlined text-[20px]">bar_chart</span>
+                                Annual Reports
+                            </a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 font-medium text-sm transition-colors" href="#">
+<span class="material-symbols-outlined text-[20px]">flag</span>
+                                Strategic Plans
+                            </a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 font-medium text-sm transition-colors" href="#">
+<span class="material-symbols-outlined text-[20px]">policy</span>
+                                Policy Briefs
+                            </a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 font-medium text-sm transition-colors" href="#">
+<span class="material-symbols-outlined text-[20px]">mail</span>
+                                Newsletter Archive
+                            </a>
+</nav>
+</div>
+<!-- Newsletter Mini Module -->
+<div class="mt-6 bg-primary rounded-lg p-5 text-white shadow-md">
+<div class="flex items-center gap-2 mb-2">
+<span class="material-symbols-outlined">mark_email_unread</span>
+<h3 class="font-bold text-sm">Stay Updated</h3>
+</div>
+<p class="text-xs text-blue-100 mb-4 leading-relaxed">Get the latest policy briefs and impact reports directly to your inbox.</p>
+<form class="flex flex-col gap-2">
+<input class="w-full text-sm px-3 py-2 rounded border-none text-gray-900 placeholder:text-gray-400 focus:ring-2 focus:ring-white/50" placeholder="Your email address" type="email"/>
+<button class="w-full bg-blue-800 hover:bg-blue-900 text-white text-xs font-bold py-2 rounded transition-colors uppercase tracking-wide">Subscribe</button>
+</form>
+</div>
+</aside>
+<!-- Right Column: Search & Grid -->
+<div class="flex-1 w-full">
+<!-- Search & Filter Bar -->
+<div class="bg-white dark:bg-[#1a202c] p-4 rounded-lg border border-[#e7ebf3] dark:border-gray-700 mb-6 flex flex-col md:flex-row gap-4 items-center justify-between shadow-sm">
+<div class="relative w-full md:max-w-md">
+<span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+<span class="material-symbols-outlined">search</span>
+</span>
+<input class="w-full py-2.5 pl-10 pr-4 text-sm text-gray-900 bg-gray-50 dark:bg-gray-800 dark:text-white border-gray-200 dark:border-gray-600 rounded-lg focus:ring-primary focus:border-primary placeholder:text-gray-400" placeholder="Search documents, research, or topics..." type="text"/>
+</div>
+<div class="flex gap-3 w-full md:w-auto overflow-x-auto pb-1 md:pb-0">
+<select class="py-2.5 pl-3 pr-8 text-sm bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-600 rounded-lg focus:ring-primary focus:border-primary text-gray-700 dark:text-gray-200 cursor-pointer min-w-[120px]">
+<option>Sort by: Newest</option>
+<option>Sort by: Oldest</option>
+<option>Sort by: A-Z</option>
+</select>
+<select class="py-2.5 pl-3 pr-8 text-sm bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-600 rounded-lg focus:ring-primary focus:border-primary text-gray-700 dark:text-gray-200 cursor-pointer min-w-[120px]">
+<option>Topic: All</option>
+<option>Gender Equity</option>
+<option>Youth Sports</option>
+<option>Health</option>
+</select>
+</div>
+</div>
+<!-- Resource Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+<!-- Card 1 -->
+<div class="group flex flex-col bg-white dark:bg-[#1a202c] border border-[#e7ebf3] dark:border-gray-700 rounded-lg overflow-hidden hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
+<div class="h-40 bg-gray-100 dark:bg-gray-800 flex items-center justify-center relative overflow-hidden">
+<div class="absolute inset-0 bg-cover bg-center opacity-60 mix-blend-multiply" data-alt="Abstract soccer field texture with white lines" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuBCdAkibs4s_207DpEY-c3ajai3rpXuDR5bb7f4QB080YK7SjYth33HzaHWNq0m6U2aKPwDQbdAEiJ-F0zl6OaHjSOABaMhNL7Auqvfq6TZF3C8-_NdLMJLnFGiBNQdyYZnL9oUiJhYTSsmvqYWW0s1auRKIdI4JZN4PgM34u3DXw99QfV0lts0FXwKNZM2UiVs1G0KvHLTCtUwlTGqw0xaU1oEcJu3x61DBm0-aam_7KEXADt4LQ38RKNFTZjjbSX-RNfmsVGz8h4");'></div>
+<div class="bg-white dark:bg-gray-900 p-3 rounded shadow-sm z-10 flex flex-col items-center gap-1 w-24 h-32 justify-center border border-gray-200 dark:border-gray-700">
+<span class="material-symbols-outlined text-red-500 text-3xl">picture_as_pdf</span>
+<span class="text-[10px] font-bold text-gray-500 uppercase">PDF</span>
+</div>
+</div>
+<div class="p-5 flex flex-col flex-1">
+<div class="flex justify-between items-start mb-2">
+<span class="text-xs font-semibold text-primary uppercase tracking-wide">Policy Brief</span>
+<span class="text-xs text-gray-500">2023</span>
+</div>
+<h3 class="text-base font-bold text-[#0d121b] dark:text-white mb-2 group-hover:text-primary transition-colors leading-snug">
+                                    Rwanda National Sports Policy Review
+                                </h3>
+<div class="mt-auto pt-4 flex items-center justify-between border-t border-gray-100 dark:border-gray-700">
+<span class="text-xs text-gray-500 font-medium">1.8 MB</span>
+<button class="text-gray-400 hover:text-primary transition-colors">
+<span class="material-symbols-outlined">download</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Card 2 -->
+<div class="group flex flex-col bg-white dark:bg-[#1a202c] border border-[#e7ebf3] dark:border-gray-700 rounded-lg overflow-hidden hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
+<div class="h-40 bg-gray-100 dark:bg-gray-800 flex items-center justify-center relative overflow-hidden">
+<div class="absolute inset-0 bg-cover bg-center opacity-60 mix-blend-multiply" data-alt="Blue abstract pattern representing strategic planning" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDvrVVInnQwpLmykgjqoW3upVfcV2Ot1-TNGRGYZ4EK0aVZErNax1SeHAg3pH_TOVnPxxjmfq8jX8nlJT-9Ko0DJYvSmxEHUzeDTxOJW04567tK5ue-wnDYS-cs3-nNIG4PxK-sHtNKEaZazYCbBYLsK1DHVUbUelCGTHloBqVg_VbpxWcpiKU9fbrUpHwYok3v1ECNq0gu4kpTQl0RfSoiz04HPFmhE3M6otEO2mh_x1HitUqlDDmIS_rThBNhYQe7XexYcTs1bhw");'></div>
+<div class="bg-white dark:bg-gray-900 p-3 rounded shadow-sm z-10 flex flex-col items-center gap-1 w-24 h-32 justify-center border border-gray-200 dark:border-gray-700">
+<span class="material-symbols-outlined text-red-500 text-3xl">picture_as_pdf</span>
+<span class="text-[10px] font-bold text-gray-500 uppercase">PDF</span>
+</div>
+</div>
+<div class="p-5 flex flex-col flex-1">
+<div class="flex justify-between items-start mb-2">
+<span class="text-xs font-semibold text-primary uppercase tracking-wide">Strategic Plan</span>
+<span class="text-xs text-gray-500">2020-2025</span>
+</div>
+<h3 class="text-base font-bold text-[#0d121b] dark:text-white mb-2 group-hover:text-primary transition-colors leading-snug">
+                                    5-Year Strategic Roadmap: Vision 2025
+                                </h3>
+<div class="mt-auto pt-4 flex items-center justify-between border-t border-gray-100 dark:border-gray-700">
+<span class="text-xs text-gray-500 font-medium">4.2 MB</span>
+<button class="text-gray-400 hover:text-primary transition-colors">
+<span class="material-symbols-outlined">download</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Card 3 -->
+<div class="group flex flex-col bg-white dark:bg-[#1a202c] border border-[#e7ebf3] dark:border-gray-700 rounded-lg overflow-hidden hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
+<div class="h-40 bg-gray-100 dark:bg-gray-800 flex items-center justify-center relative overflow-hidden">
+<div class="absolute inset-0 bg-cover bg-center opacity-60 mix-blend-multiply" data-alt="Close up of sports equipment in black and white" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuAjOuGyvtKjL4yX1L9iskXDaBMxMMLUW0QX60V2C17cr2veija_OxAswgx3ro80MQkLn01RTHLPw3UqcFwiNlY-6yDn1_XNxwWoJqexHG60Z-0lwEiY6xg52rIWLb1_XaiE0z0VMH6MP9U5wfk05KIEamCphw4gGfCxwfxTsIFOkdr_yi4ULbf8r5bZ0ie_57K_N0y99vK9VGa4QlI3NDWIsKY9JTBega114_eO-CM-ss7TBzYUmGhKjq7P7ERsVPhw7uI2-NVkzuU");'></div>
+<div class="bg-white dark:bg-gray-900 p-3 rounded shadow-sm z-10 flex flex-col items-center gap-1 w-24 h-32 justify-center border border-gray-200 dark:border-gray-700">
+<span class="material-symbols-outlined text-red-500 text-3xl">picture_as_pdf</span>
+<span class="text-[10px] font-bold text-gray-500 uppercase">PDF</span>
+</div>
+</div>
+<div class="p-5 flex flex-col flex-1">
+<div class="flex justify-between items-start mb-2">
+<span class="text-xs font-semibold text-primary uppercase tracking-wide">Research</span>
+<span class="text-xs text-gray-500">2022</span>
+</div>
+<h3 class="text-base font-bold text-[#0d121b] dark:text-white mb-2 group-hover:text-primary transition-colors leading-snug">
+                                    Girl's Participation in Football: A Case Study
+                                </h3>
+<div class="mt-auto pt-4 flex items-center justify-between border-t border-gray-100 dark:border-gray-700">
+<span class="text-xs text-gray-500 font-medium">3.5 MB</span>
+<button class="text-gray-400 hover:text-primary transition-colors">
+<span class="material-symbols-outlined">download</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Card 4 -->
+<div class="group flex flex-col bg-white dark:bg-[#1a202c] border border-[#e7ebf3] dark:border-gray-700 rounded-lg overflow-hidden hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
+<div class="h-40 bg-gray-100 dark:bg-gray-800 flex items-center justify-center relative overflow-hidden">
+<div class="absolute inset-0 bg-gradient-to-tr from-blue-900 to-primary opacity-60 mix-blend-multiply" data-alt="Blue gradient background"></div>
+<div class="bg-white dark:bg-gray-900 p-3 rounded shadow-sm z-10 flex flex-col items-center gap-1 w-24 h-32 justify-center border border-gray-200 dark:border-gray-700">
+<span class="material-symbols-outlined text-red-500 text-3xl">picture_as_pdf</span>
+<span class="text-[10px] font-bold text-gray-500 uppercase">PDF</span>
+</div>
+</div>
+<div class="p-5 flex flex-col flex-1">
+<div class="flex justify-between items-start mb-2">
+<span class="text-xs font-semibold text-primary uppercase tracking-wide">Annual Report</span>
+<span class="text-xs text-gray-500">2022</span>
+</div>
+<h3 class="text-base font-bold text-[#0d121b] dark:text-white mb-2 group-hover:text-primary transition-colors leading-snug">
+                                    2022 Annual Impact Report
+                                </h3>
+<div class="mt-auto pt-4 flex items-center justify-between border-t border-gray-100 dark:border-gray-700">
+<span class="text-xs text-gray-500 font-medium">5.1 MB</span>
+<button class="text-gray-400 hover:text-primary transition-colors">
+<span class="material-symbols-outlined">download</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Card 5 -->
+<div class="group flex flex-col bg-white dark:bg-[#1a202c] border border-[#e7ebf3] dark:border-gray-700 rounded-lg overflow-hidden hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
+<div class="h-40 bg-gray-100 dark:bg-gray-800 flex items-center justify-center relative overflow-hidden">
+<div class="absolute inset-0 bg-cover bg-center opacity-60 mix-blend-multiply" data-alt="Close up of microphone at a conference" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuBvzR2D47YH5XLYrgpJax9BV5-bHDRbhGPcqVJcnamixqucyhXB8eusnk06sovcDcqEqKs-4kt-F6Lnd2EmVS9hV_fxl7ob8MgzWK2C7V-UJMjUYE0uYBnq6vZZ-t2X2WT4o6XCdIObhPhVG5sdrcZSyeU3_p01qAk8g5JK0WpJdabKz6irACVBrYjwth5zIuqGh_qFxKdmcil6Gl9l6mPlfYn43tyYnH6MV3mC_irgi9YnSC_UQbCuyz9ZI50YcV7BFz0FZ7syxHU");'></div>
+<div class="bg-white dark:bg-gray-900 p-3 rounded shadow-sm z-10 flex flex-col items-center gap-1 w-24 h-32 justify-center border border-gray-200 dark:border-gray-700">
+<span class="material-symbols-outlined text-green-600 text-3xl">description</span>
+<span class="text-[10px] font-bold text-gray-500 uppercase">DOCX</span>
+</div>
+</div>
+<div class="p-5 flex flex-col flex-1">
+<div class="flex justify-between items-start mb-2">
+<span class="text-xs font-semibold text-primary uppercase tracking-wide">Press Release</span>
+<span class="text-xs text-gray-500">2023</span>
+</div>
+<h3 class="text-base font-bold text-[#0d121b] dark:text-white mb-2 group-hover:text-primary transition-colors leading-snug">
+                                    Partnership Announcement: FIFA Foundation
+                                </h3>
+<div class="mt-auto pt-4 flex items-center justify-between border-t border-gray-100 dark:border-gray-700">
+<span class="text-xs text-gray-500 font-medium">120 KB</span>
+<button class="text-gray-400 hover:text-primary transition-colors">
+<span class="material-symbols-outlined">download</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Card 6 -->
+<div class="group flex flex-col bg-white dark:bg-[#1a202c] border border-[#e7ebf3] dark:border-gray-700 rounded-lg overflow-hidden hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
+<div class="h-40 bg-gray-100 dark:bg-gray-800 flex items-center justify-center relative overflow-hidden">
+<div class="absolute inset-0 bg-gradient-to-br from-gray-200 to-gray-400 opacity-60" data-alt="Gray abstract geometric pattern"></div>
+<div class="bg-white dark:bg-gray-900 p-3 rounded shadow-sm z-10 flex flex-col items-center gap-1 w-24 h-32 justify-center border border-gray-200 dark:border-gray-700">
+<span class="material-symbols-outlined text-red-500 text-3xl">picture_as_pdf</span>
+<span class="text-[10px] font-bold text-gray-500 uppercase">PDF</span>
+</div>
+</div>
+<div class="p-5 flex flex-col flex-1">
+<div class="flex justify-between items-start mb-2">
+<span class="text-xs font-semibold text-primary uppercase tracking-wide">Annual Report</span>
+<span class="text-xs text-gray-500">2021</span>
+</div>
+<h3 class="text-base font-bold text-[#0d121b] dark:text-white mb-2 group-hover:text-primary transition-colors leading-snug">
+                                    2021 Annual Impact Report
+                                </h3>
+<div class="mt-auto pt-4 flex items-center justify-between border-t border-gray-100 dark:border-gray-700">
+<span class="text-xs text-gray-500 font-medium">3.8 MB</span>
+<button class="text-gray-400 hover:text-primary transition-colors">
+<span class="material-symbols-outlined">download</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Pagination -->
+<div class="flex justify-center mt-10">
+<nav class="flex items-center gap-2">
+<button class="flex items-center justify-center w-10 h-10 rounded border border-[#e7ebf3] dark:border-gray-700 bg-white dark:bg-[#1a202c] text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-50">
+<span class="material-symbols-outlined">chevron_left</span>
+</button>
+<button class="flex items-center justify-center w-10 h-10 rounded bg-primary text-white font-bold text-sm">1</button>
+<button class="flex items-center justify-center w-10 h-10 rounded border border-[#e7ebf3] dark:border-gray-700 bg-white dark:bg-[#1a202c] text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 font-medium text-sm">2</button>
+<button class="flex items-center justify-center w-10 h-10 rounded border border-[#e7ebf3] dark:border-gray-700 bg-white dark:bg-[#1a202c] text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 font-medium text-sm">3</button>
+<span class="px-2 text-gray-400">...</span>
+<button class="flex items-center justify-center w-10 h-10 rounded border border-[#e7ebf3] dark:border-gray-700 bg-white dark:bg-[#1a202c] text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800">
+<span class="material-symbols-outlined">chevron_right</span>
+</button>
+</nav>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Footer -->
+<footer class="w-full bg-background-light dark:bg-[#111827] border-t border-[#e7ebf3] dark:border-gray-800 py-12 px-4 md:px-10 lg:px-40">
+<div class="max-w-[1200px] mx-auto flex flex-col md:flex-row justify-between gap-10">
+<div class="flex flex-col gap-4 max-w-sm">
+<div class="flex items-center gap-3">
+<div class="size-6 text-primary">
+<svg class="w-full h-full" fill="currentColor" viewbox="0 0 48 48">
+<path d="M42.1739 20.1739L27.8261 5.82609C29.1366 7.13663 28.3989 10.1876 26.2002 13.7654C24.8538 15.9564 22.9595 18.3449 20.6522 20.6522C18.3449 22.9595 15.9564 24.8538 13.7654 26.2002C10.1876 28.3989 7.13663 29.1366 5.82609 27.8261L20.1739 42.1739C21.4845 43.4845 24.5355 42.7467 28.1133 40.548C30.3042 39.2016 32.6927 37.3073 35 35C37.3073 32.6927 39.2016 30.3042 40.548 28.1133C42.7467 24.5355 43.4845 21.4845 42.1739 20.1739Z"></path>
+</svg>
+</div>
+<span class="text-xl font-bold text-[#0d121b] dark:text-white">AKWOS</span>
+</div>
+<p class="text-sm text-gray-500 dark:text-gray-400">
+                    Organization of Women in Sports (AKWOS) empowers women through sports, education, and leadership development across East Africa.
+                </p>
+<div class="flex gap-4 mt-2">
+<a class="text-gray-400 hover:text-primary" href="#"><span class="material-symbols-outlined text-[20px]">public</span></a>
+<a class="text-gray-400 hover:text-primary" href="#"><span class="material-symbols-outlined text-[20px]">group</span></a>
+<a class="text-gray-400 hover:text-primary" href="#"><span class="material-symbols-outlined text-[20px]">share</span></a>
+</div>
+</div>
+<div class="flex flex-wrap gap-12 lg:gap-24">
+<div class="flex flex-col gap-3">
+<h4 class="font-bold text-[#0d121b] dark:text-white text-sm">Organization</h4>
+<a class="text-sm text-gray-500 dark:text-gray-400 hover:text-primary" href="#">About Us</a>
+<a class="text-sm text-gray-500 dark:text-gray-400 hover:text-primary" href="#">Our Team</a>
+<a class="text-sm text-gray-500 dark:text-gray-400 hover:text-primary" href="#">Careers</a>
+<a class="text-sm text-gray-500 dark:text-gray-400 hover:text-primary" href="#">Partners</a>
+</div>
+<div class="flex flex-col gap-3">
+<h4 class="font-bold text-[#0d121b] dark:text-white text-sm">Resources</h4>
+<a class="text-sm text-gray-500 dark:text-gray-400 hover:text-primary" href="#">Annual Reports</a>
+<a class="text-sm text-gray-500 dark:text-gray-400 hover:text-primary" href="#">Research</a>
+<a class="text-sm text-gray-500 dark:text-gray-400 hover:text-primary" href="#">Media Kit</a>
+</div>
+<div class="flex flex-col gap-3">
+<h4 class="font-bold text-[#0d121b] dark:text-white text-sm">Contact</h4>
+<span class="text-sm text-gray-500 dark:text-gray-400">info@akwos.org</span>
+<span class="text-sm text-gray-500 dark:text-gray-400">+250 788 123 456</span>
+<span class="text-sm text-gray-500 dark:text-gray-400">Kigali, Rwanda</span>
+</div>
+</div>
+</div>
+<div class="max-w-[1200px] mx-auto mt-12 pt-8 border-t border-gray-200 dark:border-gray-800 flex flex-col md:flex-row justify-between gap-4">
+<p class="text-xs text-gray-400">© 2024 AKWOS. All rights reserved.</p>
+<div class="flex gap-6">
+<a class="text-xs text-gray-400 hover:text-primary" href="#">Privacy Policy</a>
+<a class="text-xs text-gray-400 hover:text-primary" href="#">Terms of Service</a>
+</div>
+</div>
+</footer>
+</body></html>

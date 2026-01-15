@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Women Peace and Security Program - AKWOS</title>
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#135bec",
+                        "accent-gold": "#C5A059",
+                        "background-light": "#f8f9fc",
+                        "background-dark": "#101622",
+                        "surface-light": "#ffffff",
+                        "surface-dark": "#1a2230",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"],
+                        "sans": ["Inter", "sans-serif"],
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.375rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-white antialiased transition-colors duration-200">
+<div class="relative flex min-h-screen w-full flex-col overflow-x-hidden">
+<!-- Top Navigation -->
+<header class="sticky top-0 z-50 w-full bg-surface-light dark:bg-surface-dark border-b border-slate-200 dark:border-slate-800 shadow-sm">
+<div class="layout-container flex justify-center">
+<div class="flex w-full max-w-[1200px] items-center justify-between px-4 py-3 md:px-10">
+<div class="flex items-center gap-8">
+<div class="flex items-center gap-3 text-slate-900 dark:text-white">
+<div class="size-8 text-primary">
+<svg fill="none" viewbox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+<path d="M42.1739 20.1739L27.8261 5.82609C29.1366 7.13663 28.3989 10.1876 26.2002 13.7654C24.8538 15.9564 22.9595 18.3449 20.6522 20.6522C18.3449 22.9595 15.9564 24.8538 13.7654 26.2002C10.1876 28.3989 7.13663 29.1366 5.82609 27.8261L20.1739 42.1739C21.4845 43.4845 24.5355 42.7467 28.1133 40.548C30.3042 39.2016 32.6927 37.3073 35 35C37.3073 32.6927 39.2016 30.3042 40.548 28.1133C42.7467 24.5355 43.4845 21.4845 42.1739 20.1739Z" fill="currentColor"></path>
+<path clip-rule="evenodd" d="M7.24189 26.4066C7.31369 26.4411 7.64204 26.5637 8.52504 26.3738C9.59462 26.1438 11.0343 25.5311 12.7183 24.4963C14.7583 23.2426 17.0256 21.4503 19.238 19.238C21.4503 17.0256 23.2426 14.7583 24.4963 12.7183C25.5311 11.0343 26.1438 9.59463 26.3738 8.52504C26.5637 7.64204 26.4411 7.31369 26.4066 7.24189C26.345 7.21246 26.143 7.14535 25.6664 7.1918C24.9745 7.25925 23.9954 7.5498 22.7699 8.14278C20.3369 9.32007 17.3369 11.4915 14.4142 14.4142C11.4915 17.3369 9.32007 20.3369 8.14278 22.7699C7.5498 23.9954 7.25925 24.9745 7.1918 25.6664C7.14534 26.143 7.21246 26.345 7.24189 26.4066ZM29.9001 10.7285C29.4519 12.0322 28.7617 13.4172 27.9042 14.8126C26.465 17.1544 24.4686 19.6641 22.0664 22.0664C19.6641 24.4686 17.1544 26.465 14.8126 27.9042C13.4172 28.7617 12.0322 29.4519 10.7285 29.9001L21.5754 40.747C21.6001 40.7606 21.8995 40.931 22.8729 40.7217C23.9424 40.4916 25.3821 39.879 27.0661 38.8441C29.1062 37.5904 31.3734 35.7982 33.5858 33.5858C35.7982 31.3734 37.5904 29.1062 38.8441 27.0661C39.879 25.3821 40.4916 23.9425 40.7216 22.8729C40.931 21.8995 40.7606 21.6001 40.747 21.5754L29.9001 10.7285ZM29.2403 4.41187L43.5881 18.7597C44.9757 20.1473 44.9743 22.1235 44.6322 23.7139C44.2714 25.3919 43.4158 27.2666 42.252 29.1604C40.8128 31.5022 38.8165 34.012 36.4142 36.4142C34.012 38.8165 31.5022 40.8128 29.1604 42.252C27.2666 43.4158 25.3919 44.2714 23.7139 44.6322C22.1235 44.9743 20.1473 44.9757 18.7597 43.5881L4.41187 29.2403C3.29027 28.1187 3.08209 26.5973 3.21067 25.2783C3.34099 23.9415 3.8369 22.4852 4.54214 21.0277C5.96129 18.0948 8.43335 14.7382 11.5858 11.5858C14.7382 8.43335 18.0948 5.9613 21.0277 4.54214C22.4852 3.8369 23.9415 3.34099 25.2783 3.21067C26.5973 3.08209 28.1187 3.29028 29.2403 4.41187Z" fill="currentColor" fill-rule="evenodd"></path>
+</svg>
+</div>
+<h2 class="text-xl font-bold leading-tight tracking-tight">AKWOS</h2>
+</div>
+<nav class="hidden md:flex items-center gap-9">
+<a class="text-slate-900 dark:text-white text-sm font-medium leading-normal hover:text-primary transition-colors" href="#">Home</a>
+<a class="text-primary text-sm font-bold leading-normal border-b-2 border-primary" href="#">Programs</a>
+<a class="text-slate-900 dark:text-white text-sm font-medium leading-normal hover:text-primary transition-colors" href="#">About Us</a>
+<a class="text-slate-900 dark:text-white text-sm font-medium leading-normal hover:text-primary transition-colors" href="#">Impact</a>
+<a class="text-slate-900 dark:text-white text-sm font-medium leading-normal hover:text-primary transition-colors" href="#">Resources</a>
+</nav>
+</div>
+<div class="hidden md:flex flex-1 justify-end gap-6 items-center">
+<label class="flex flex-col min-w-40 !h-10 max-w-64">
+<div class="flex w-full flex-1 items-stretch rounded-lg h-full ring-1 ring-slate-200 dark:ring-slate-700 bg-background-light dark:bg-slate-800">
+<div class="text-slate-500 dark:text-slate-400 flex border-none items-center justify-center pl-4 rounded-l-lg border-r-0">
+<span class="material-symbols-outlined text-[20px]">search</span>
+</div>
+<input class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-slate-900 dark:text-white focus:outline-0 focus:ring-0 border-none bg-transparent focus:border-none h-full placeholder:text-slate-400 px-4 rounded-l-none border-l-0 pl-2 text-sm font-normal leading-normal" placeholder="Search" value=""/>
+</div>
+</label>
+<button class="flex min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-5 bg-primary hover:bg-blue-700 transition-colors text-white text-sm font-bold leading-normal tracking-[0.015em] shadow-sm">
+<span class="truncate">Donate</span>
+</button>
+</div>
+</div>
+</div>
+</header>
+<!-- Main Content Wrapper -->
+<main class="flex-1">
+<!-- Breadcrumbs -->
+<div class="flex justify-center bg-background-light dark:bg-background-dark">
+<div class="w-full max-w-[1200px] px-4 md:px-10 py-4">
+<div class="flex flex-wrap items-center gap-2">
+<a class="text-slate-500 hover:text-primary transition-colors text-sm font-medium" href="#">Home</a>
+<span class="text-slate-400 text-sm">/</span>
+<a class="text-slate-500 hover:text-primary transition-colors text-sm font-medium" href="#">Programs</a>
+<span class="text-slate-400 text-sm">/</span>
+<span class="text-slate-900 dark:text-white text-sm font-semibold">WPS</span>
+</div>
+</div>
+</div>
+<!-- Hero Section -->
+<section class="flex justify-center px-4 md:px-10 pb-8">
+<div class="w-full max-w-[1200px] @container">
+<div class="rounded-2xl overflow-hidden shadow-lg relative min-h-[500px] flex flex-col justify-end">
+<!-- Hero Image Background -->
+<div class="absolute inset-0 z-0">
+<img alt="Rwandan women in leadership circle" class="w-full h-full object-cover" data-alt="Rwandan women standing in a circle on a football pitch during a sunny day" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCPrgcx9lQHeQ20G__m3xJpPA5meabtynK7SJoQChifzSL97jGRPMF9C30YwPhwErUSxVDLDybklk-ayW1sFWIG0KazACi-mxg1hrRpRhPZDLKVoy4apQHagA-z-k8u29YRrk223lMzinFS1VUI8XYvcMy9YqUsEfqynYHDprxMoVIFB7xAbkPrNONkOoQPsslhkMe3b1GJTFSTpo58VBvhSB66a82c7VLO-eh4nn_HTFS4xwcklRJBmLqlboxSGUkaH2sg1BtaWs8"/>
+<!-- Gradient Overlay -->
+<div class="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/40 to-transparent opacity-90"></div>
+</div>
+<!-- Hero Content -->
+<div class="relative z-10 p-8 md:p-12 max-w-3xl">
+<div class="flex flex-col gap-4">
+<span class="text-accent-gold font-bold tracking-wider text-sm uppercase">Program Focus</span>
+<h1 class="text-white text-4xl md:text-5xl lg:text-6xl font-black leading-tight tracking-[-0.033em]">
+                                    Women, Peace and Security (WPS)
+                                </h1>
+<p class="text-slate-200 text-lg md:text-xl font-normal leading-relaxed max-w-2xl border-l-4 border-accent-gold pl-4 mt-2">
+                                    Empowering leadership through sport and dialogue in alignment with UNSCR 1325.
+                                </p>
+</div>
+<div class="mt-8">
+<button class="flex items-center gap-2 h-12 px-6 rounded-lg bg-primary hover:bg-blue-600 transition-colors text-white text-base font-bold shadow-md">
+<span>Explore Program Impact</span>
+<span class="material-symbols-outlined text-sm">arrow_forward</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Contextual Text Block (Partnership & UNSCR 1325) -->
+<section class="flex justify-center py-16 px-4 md:px-10 bg-surface-light dark:bg-surface-dark">
+<div class="w-full max-w-[1200px] flex flex-col gap-12">
+<div class="flex flex-col gap-4 max-w-[720px]">
+<h2 class="text-slate-900 dark:text-white text-3xl md:text-4xl font-black tracking-tight">
+                            Strategic Context
+                        </h2>
+<p class="text-slate-600 dark:text-slate-300 text-lg leading-relaxed">
+                            Our approach aligns international mandates with grassroots action, creating a sustainable ecosystem for peace.
+                        </p>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-10 lg:gap-16">
+<!-- Left Column -->
+<div class="flex flex-col gap-4 p-6 rounded-xl bg-background-light dark:bg-slate-800 border-l-4 border-accent-gold shadow-sm">
+<div class="flex items-center gap-3 mb-2">
+<span class="material-symbols-outlined text-primary text-3xl">handshake</span>
+<h3 class="text-xl font-bold text-slate-900 dark:text-white">Partnership with Kvinna till Kvinna</h3>
+</div>
+<p class="text-slate-600 dark:text-slate-300 leading-relaxed">
+                                AKWOS maintains a robust strategic partnership with Kvinna till Kvinna, one of the world's leading women's rights organizations. Together, we leverage sports not just as a physical activity, but as a powerful, non-threatening vehicle for peacebuilding and dialogue. This collaboration ensures resources are directed effectively to empower women leaders at the community level.
+                            </p>
+</div>
+<!-- Right Column -->
+<div class="flex flex-col gap-4 p-6 rounded-xl bg-background-light dark:bg-slate-800 border-l-4 border-primary shadow-sm">
+<div class="flex items-center gap-3 mb-2">
+<span class="material-symbols-outlined text-primary text-3xl">public</span>
+<h3 class="text-xl font-bold text-slate-900 dark:text-white">UNSCR 1325 Alignment</h3>
+</div>
+<p class="text-slate-600 dark:text-slate-300 leading-relaxed">
+                                Our programmatic framework is rigorously aligned with UN Security Council Resolution 1325. We implement the resolution's mandate by ensuring women's full and meaningful participation in peace processes within Rwanda. By translating high-level policy into community sport initiatives, we bridge the gap between international diplomacy and local reality.
+                            </p>
+</div>
+</div>
+</div>
+</section>
+<!-- The Four Pillars -->
+<section class="flex justify-center py-16 px-4 md:px-10 bg-background-light dark:bg-background-dark">
+<div class="w-full max-w-[1200px] flex flex-col gap-10">
+<div class="text-center max-w-2xl mx-auto mb-6">
+<span class="text-primary font-bold tracking-widest text-xs uppercase mb-2 block">Our Framework</span>
+<h2 class="text-slate-900 dark:text-white text-3xl md:text-4xl font-black tracking-tight mb-4">
+                            The Four Pillars
+                        </h2>
+<p class="text-slate-500 dark:text-slate-400">
+                            A holistic approach to sustainable peace and security.
+                        </p>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+<!-- Pillar 1 -->
+<div class="group flex flex-col gap-4 rounded-xl bg-surface-light dark:bg-surface-dark p-6 shadow-sm border border-slate-200 dark:border-slate-800 hover:border-primary/50 transition-all hover:shadow-md">
+<div class="size-12 rounded-lg bg-primary/10 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-white transition-colors">
+<span class="material-symbols-outlined text-2xl">groups</span>
+</div>
+<div class="flex flex-col gap-2">
+<h3 class="text-slate-900 dark:text-white text-lg font-bold">Participation</h3>
+<p class="text-slate-500 dark:text-slate-400 text-sm leading-relaxed">
+                                    Promoting women's active role in decision-making processes at all levels of governance.
+                                </p>
+</div>
+</div>
+<!-- Pillar 2 -->
+<div class="group flex flex-col gap-4 rounded-xl bg-surface-light dark:bg-surface-dark p-6 shadow-sm border border-slate-200 dark:border-slate-800 hover:border-primary/50 transition-all hover:shadow-md">
+<div class="size-12 rounded-lg bg-primary/10 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-white transition-colors">
+<span class="material-symbols-outlined text-2xl">shield</span>
+</div>
+<div class="flex flex-col gap-2">
+<h3 class="text-slate-900 dark:text-white text-lg font-bold">Protection</h3>
+<p class="text-slate-500 dark:text-slate-400 text-sm leading-relaxed">
+                                    Ensuring safety and security for women and girls from gender-based violence.
+                                </p>
+</div>
+</div>
+<!-- Pillar 3 -->
+<div class="group flex flex-col gap-4 rounded-xl bg-surface-light dark:bg-surface-dark p-6 shadow-sm border border-slate-200 dark:border-slate-800 hover:border-primary/50 transition-all hover:shadow-md">
+<div class="size-12 rounded-lg bg-primary/10 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-white transition-colors">
+<span class="material-symbols-outlined text-2xl">warning</span>
+</div>
+<div class="flex flex-col gap-2">
+<h3 class="text-slate-900 dark:text-white text-lg font-bold">Prevention</h3>
+<p class="text-slate-500 dark:text-slate-400 text-sm leading-relaxed">
+                                    Strategies to prevent conflict and violence in communities through early warning systems.
+                                </p>
+</div>
+</div>
+<!-- Pillar 4 -->
+<div class="group flex flex-col gap-4 rounded-xl bg-surface-light dark:bg-surface-dark p-6 shadow-sm border border-slate-200 dark:border-slate-800 hover:border-primary/50 transition-all hover:shadow-md">
+<div class="size-12 rounded-lg bg-primary/10 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-white transition-colors">
+<span class="material-symbols-outlined text-2xl">medical_services</span>
+</div>
+<div class="flex flex-col gap-2">
+<h3 class="text-slate-900 dark:text-white text-lg font-bold">Relief &amp; Recovery</h3>
+<p class="text-slate-500 dark:text-slate-400 text-sm leading-relaxed">
+                                    Supporting victims, providing health services, and rebuilding resilient communities.
+                                </p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Resource Download Section -->
+<section class="flex justify-center pb-20 pt-10 px-4 md:px-10 bg-background-light dark:bg-background-dark">
+<div class="w-full max-w-[960px]">
+<div class="bg-surface-light dark:bg-surface-dark border border-slate-200 dark:border-slate-700 rounded-xl p-8 flex flex-col md:flex-row items-center justify-between gap-8 shadow-sm hover:shadow-md transition-shadow">
+<div class="flex items-start gap-5 w-full md:w-auto">
+<div class="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-full text-primary shrink-0">
+<span class="material-symbols-outlined text-3xl">description</span>
+</div>
+<div class="flex flex-col">
+<div class="flex items-center gap-3 mb-1">
+<h3 class="text-lg md:text-xl font-bold text-slate-900 dark:text-white">2022 Assessment Final Report</h3>
+<span class="bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wide">Public</span>
+</div>
+<p class="text-slate-500 dark:text-slate-400 text-sm md:text-base leading-normal">
+                                    Comprehensive analysis of the WPS program impact across 5 districts in Rwanda. Includes key metrics and success stories.
+                                </p>
+</div>
+</div>
+<button class="w-full md:w-auto shrink-0 bg-primary hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg transition-all flex items-center justify-center gap-2 group">
+<span class="material-symbols-outlined group-hover:animate-bounce">download</span>
+<span>Download PDF</span>
+</button>
+</div>
+</div>
+</section>
+</main>
+</div>
+</body></html>

@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>AKWOS - Organization of Women in Sports</title>
+    <link href="https://fonts.googleapis.com" rel="preconnect" />
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&amp;family=Open+Sans:wght@400;600&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#0B4A8F",
+                        secondary: "#D4AF37",
+                        "background-light": "#FFFFFF",
+                        "background-dark": "#111827",
+                        "surface-light": "#F3F4F6",
+                        "surface-dark": "#1F2937",
+                        "text-light": "#1F2937",
+                        "text-dark": "#F3F4F6",
+                    },
+                    fontFamily: {
+                        display: ["Montserrat", "sans-serif"],
+                        body: ["Open Sans", "sans-serif"],
+                    },
+                    borderRadius: {
+                        DEFAULT: "0.5rem",
+                    },
+                    animation: {
+                        'scroll': 'scroll 40s linear infinite',
+                    },
+                    keyframes: {
+                        scroll: {
+                            '0%': { transform: 'translateX(0)' },
+                            '100%': { transform: 'translateX(-50%)' },
+                        }
+                    }
+                },
+            },
+        };
+    </script>
+
+</head>
+
+<body
+    class="font-body bg-background-light dark:bg-background-dark text-text-light dark:text-text-dark antialiased transition-colors duration-300">
+    <div
+        class="bg-surface-light dark:bg-surface-dark py-2 px-6 hidden md:flex justify-end items-center gap-4 text-sm border-b border-gray-200 dark:border-gray-700">
+        <div class="flex items-center gap-3 text-primary dark:text-blue-400">
+            <a class="hover:text-secondary transition-colors" href="#"><i
+                    class="material-icons text-base">facebook</i></a>
+            <a class="hover:text-secondary transition-colors" href="#"><i class="material-icons text-base">link</i></a>
+            <a class="hover:text-secondary transition-colors" href="#"><i
+                    class="material-icons text-base">play_circle_filled</i></a>
+            <a class="hover:text-secondary transition-colors font-bold text-lg" href="#">X</a>
+            <a class="hover:text-secondary transition-colors" href="#"><i
+                    class="material-icons text-base">camera_alt</i></a>
+        </div>
+    </div>
+    <nav
+        class="sticky top-0 z-50 bg-background-light/95 dark:bg-background-dark/95 backdrop-blur-md shadow-sm border-b border-gray-100 dark:border-gray-800">
+        <div class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <a class="flex items-center gap-2 group" href="#">
+                <div class="flex flex-col">
+                    <span
+                        class="text-3xl font-display font-black text-primary tracking-tighter group-hover:opacity-90 transition-opacity">
+                        AKW<span class="text-secondary">O</span>S
+                    </span>
+                    <span
+                        class="text-[10px] uppercase tracking-widest text-primary/80 dark:text-blue-400 font-bold">Women
+                        Rise For Change</span>
+                </div>
+            </a>
+            <div class="hidden lg:flex items-center gap-8 font-display font-medium text-sm">
+                <a class="text-primary dark:text-blue-400 hover:text-secondary dark:hover:text-secondary transition-colors"
+                    href="#">Home</a>
+                <div class="relative group">
+                    <button
+                        class="flex items-center gap-1 hover:text-primary dark:hover:text-blue-400 transition-colors">About
+                        Us <i class="material-icons text-sm">expand_more</i></button>
+                </div>
+                <a class="hover:text-primary dark:hover:text-blue-400 transition-colors" href="#">Our Founder</a>
+                <div class="relative group">
+                    <button
+                        class="flex items-center gap-1 hover:text-primary dark:hover:text-blue-400 transition-colors">How
+                        We Work <i class="material-icons text-sm">expand_more</i></button>
+                </div>
+                <a class="hover:text-primary dark:hover:text-blue-400 transition-colors" href="#">Partners and
+                    Networks</a>
+                <a class="hover:text-primary dark:hover:text-blue-400 transition-colors" href="#">Contact Us</a>
+            </div>
+            <div class="flex items-center gap-4">
+                <a class="hidden md:inline-block px-6 py-2.5 bg-primary text-white rounded-full font-bold text-sm shadow-lg hover:bg-blue-800 hover:shadow-xl transition-all transform hover:-translate-y-0.5"
+                    href="#">
+                    Get Involved
+                </a>
+                <button class="lg:hidden text-gray-600 dark:text-gray-300">
+                    <i class="material-icons text-3xl">menu</i>
+                </button>
+            </div>
+        </div>
+    </nav>
+    <header class="relative w-full h-[600px] overflow-hidden">
+        <div class="absolute inset-0 bg-black/40 z-10"></div>
+        <img alt="Group of diverse female athletes smiling together outdoors"
+            class="w-full h-full object-cover object-center"
+            src="https://lh3.googleusercontent.com/aida-public/AB6AXuAOPFjOpoYh33ZmwJFtcHhEeTJU09Z33zu1ht9S3VFyaVgl-Mh_HBmgK69Rwai8cG-CGKNds8jPhJoju_Gz58YoJOkXSBckl7mxRJh_4JA3eedwod4TW_TBumhiRCwWvPtCRgZnI3EQoUFT713yXsFK6U1KzI6BKdIo87mdL8ZY6BN9RVP2jvjctbWmH3gy2lCy3F1eNA8LA2n79URRuWOTscjVzYTxG4q-aaI65_zQdtHov2-h6aq3_eriaZlfvTO_dmolaujl9iY" />
+        <div class="absolute inset-0 z-20 flex items-center justify-center text-center">
+            <div class="container mx-auto px-6 max-w-4xl">
+                <h1
+                    class="text-4xl md:text-5xl lg:text-6xl font-display font-bold text-white mb-6 leading-tight drop-shadow-lg">
+                    Organization of Women in Sports:<br />
+                    <span class="text-secondary">Empowering Through Play,</span><br />
+                    Leading Through Change
+                </h1>
+                <p class="text-lg md:text-xl text-gray-200 mb-8 max-w-2xl mx-auto drop-shadow-md">
+                    AKWOS is a Rwandan non-profit that uses the power of sport to transform lives, build confidence, and
+                    foster equality on and off the field.
+                </p>
+                <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                    <a class="px-8 py-3 bg-secondary text-primary font-bold rounded-full shadow-lg hover:bg-yellow-400 transition-all transform hover:scale-105"
+                        href="#">
+                        Our Impact
+                    </a>
+                    <a class="px-8 py-3 bg-transparent border-2 border-white text-white font-bold rounded-full hover:bg-white hover:text-primary transition-all"
+                        href="#">
+                        Learn More
+                    </a>
+                </div>
+            </div>
+        </div>
+    </header>
+    <div
+        class="bg-surface-light dark:bg-surface-dark border-b border-gray-200 dark:border-gray-700 py-10 overflow-hidden relative">
+        <div class="container mx-auto px-6 mb-6">
+            <p class="text-center text-xs font-bold tracking-widest text-gray-500 dark:text-gray-400 uppercase">Our
+                Global &amp; Local Partners</p>
+        </div>
+        <div class="relative flex overflow-x-hidden group">
+            <div class="flex animate-scroll whitespace-nowrap items-center">
+                <div
+                    class="flex items-center justify-center px-8 min-w-[200px] grayscale opacity-70 hover:grayscale-0 hover:opacity-100 transition-all duration-300">
+                    <img alt="PLAY International" class="h-10 md:h-12 w-auto"
+                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuDSKkhhWEd-gYKjm2Du_pOnM_kpAxbFQ8HrbKhlKcfiLwjvlEnkvXQsDcyXa2gLFjrAKDb_fEeJALBNE3Fjns9GA4EtOUKrlMQ92CwHFqqk2I7nAHwRHDErHdcMMvfGY9QJbx6L35FLybyNENynEsbOrkEM_G7_4Qh0zgCKJ1aQAKQZnuLJdHHYn1DzfDTIew0qUpnmxFlwsFgedY1HaKiArEym6_CKrU8IlXiPuT-EeNY1XDl5ZTkIKiT1JW592fo3Pg4_MRM00CI" />
+                </div>
+                <div
+                    class="flex items-center justify-center px-8 min-w-[200px] grayscale opacity-70 hover:grayscale-0 hover:opacity-100 transition-all duration-300">
+                    <img alt="SOL Foundation" class="h-10 md:h-12 w-auto"
+                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuCmxPwOs1YBDpPZld7kA99ntidDYefZTpmuc6lje-Dj4lRhMUmKG7YovEJsRDU57-l0ivkK4p-y8w_vDoT1_nSXRVd_7ccVIuipLxUNsgF2NkbsE1hjrwKp_04S9g0-aElnPRkF_gkhTm1kGswBDBbdhJ4GzOJeSD8gVmWceP8DSCQ0Sxx9KEVqTqtdCciad8Dva_0aTRQKLc7oqzdvMx2ZDoNu9xfM7k8wIMEgiCmZndCRrDexrXgaoemso1nA6GXCqvjbsgOdHpw" />
+                </div>
+                <div
+                    class="flex items-center justify-center px-8 min-w-[200px] grayscale opacity-70 hover:grayscale-0 hover:opacity-100 transition-all duration-300">
+                    <img alt="PRO-FEMMES TWESE HAMWE" class="h-10 md:h-12 w-auto"
+                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuAua6Ehqw50hD9BNQx-iHm7eg7Ff30uxHnlkDqOSmmLubFXKnxxZyX75zv9zN8wF5EvBj4pTjC1DhNA0shdZKICHDoxy-BlPmH3_Nv3QlPxKXGqsY0ciO-OKXpinyA8uqq5VxHwLOoFnSNaYW5oeiRTubRLTADJqoGkvkP4Q-WfO2j-enpQjjjHIo5FOy6XovtQv04KyqJ3Q93ByYeAVC3YYiNJNpjPWHfZ7TTVbvXlsMAqSHORZAdre2mfTe-42NBKhX8-t8hmRI4" />
+                </div>
+                <div
+                    class="flex items-center justify-center px-8 min-w-[200px] grayscale opacity-70 hover:grayscale-0 hover:opacity-100 transition-all duration-300">
+                    <img alt="Kvinna till Kvinna" class="h-10 md:h-12 w-auto"
+                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuBz-9huy22TfcxhPhnCO5yMHMQq5vnw9j8dOkbEGG4V2hDjtb0YLvJlRhh8VuqCA546m78p0HBk0pVtEroaCobIWKvZ_31Lf8foFaviAqg4cczd9KXdSQ-fBUPnhyZ6_0annbQaRv1sqoYXga5tyuCHrhCNZbs_u7-2R4JZm8z5aw6BJgkaHTUBNwzoopcVbrtR4YZ4BgzjyHuEsmbz5id6h-PK-FJBGCybYkG9SWlml5Qr2v53RjujJsccxtJm22g7pSEfT0MmtCQ" />
+                </div>
+                <div
+                    class="flex items-center justify-center px-8 min-w-[200px] grayscale opacity-70 hover:grayscale-0 hover:opacity-100 transition-all duration-300">
+                    <img alt="GIZ" class="h-10 md:h-12 w-auto"
+                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuD3YLDbfoZhDGOjCstAjl1hdg8peRD-51fFRbhwhutU9-SGt4ZE0etNqFG9eJc51gRg7lRHfa-uhimW4IpMJVgChx8Q7racA9ohuNv7TPCv_-9cFOrBrZXIfdHTYQb5VJcXUEbraczfnLKA2nejUqQPpgo04APgxX4xHGhdWElJRVRnLYslhPPTMLM4mia7vjE0BY19n3NIa5w-eU36STIWBdgWvAlHCwkt47syJ9wlItYDIbOj1uACurhobSuH-XRT_7H914XEkXc" />
+                </div>
+                <div
+                    class="flex items-center justify-center px-8 min-w-[200px] grayscale opacity-70 hover:grayscale-0 hover:opacity-100 transition-all duration-300">
+                    <img alt="MIGEPROF" class="h-10 md:h-12 w-auto"
+                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuBLXe0fxpCg3qoQA76uBvb0CsJ9pTKlZ2j1IgDVTb0AWbKQs-H-IRnK3TI-_KQnjEbyd-Mh3zWAW01sG1tXFzLczBEbbmNELfJ1mxlLcNWypAz6jspe8SQpfx-v47OPlNRXKQbmAUZAOpzUAwRbvcJcB1jUksHPSpUakcMH2QJlLiDPnj_63O5S2pkXpX7RqDafm-JdrjnV3UCTqOVmtfvYAcZTBYbgX90nHXFBvc08raZ088rMPY_M8Gm1p4BZqpFQpXsNhLuDhIA" />
+                </div>
+                <div
+                    class="flex items-center justify-center px-8 min-w-[200px] grayscale opacity-70 hover:grayscale-0 hover:opacity-100 transition-all duration-300">
+                    <img alt="Safiya Ibn Garba (OTRF)" class="h-10 md:h-12 w-auto"
+                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuAYUXhNU8vgUjFDMsKFX1RyFrmOYIZbA9eH-g80OizFF354BD5qPf9eao3_dAmZK9vR5ZH2LIas9SQOqqRL3RY1V-fD7euoS82-pSocbCU3aMw3FBX6dwpmAcOpcsOkXswbKLUJ4LCUbHTa2TefdjouNT5rLZFWSZXK-Fwq2CC1J3dS8CW2RmI7nsY-9cCAjZUhot7Nqqn8D6iZkm9C6-qH8qLoBFE-HcphW85XvF_r-UxTvaf2QbExv72v1aAVPtE2JsjZHR-iurQ" />
+                </div>
+                <div
+                    class="flex items-center justify-center px-8 min-w-[200px] grayscale opacity-70 hover:grayscale-0 hover:opacity-100 transition-all duration-300">
+                    <img alt="CECI" class="h-10 md:h-12 w-auto"
+                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuBG1LxFKLeFDbTefXDivxyumwKIAtDVAmVzdZWobgK660MkHWJWqhjaHrPbmvbN0pP6DhvAPdK992RZGl22U8dLXkI3Cu0FYiqtBgNi1fHvXntWEkE0Rr1weXN7yvjsvT64o_rSnJY3-uBTjQqSduMrQx3YOWezC_orNBr_iTYxU9a1tTFZ4aaX9T-SKBl6nAq8W6TMZg4ZKH4N13HeuXhdTr8Hf6pPM_DdZ5cuShQ4PosZnSgtydA8V4bZjpjQURCRxOptlMWC7Rw" />
+                </div>
+                <div
+                    class="flex items-center justify-center px-8 min-w-[200px] grayscale opacity-70 hover:grayscale-0 hover:opacity-100 transition-all duration-300">
+                    <img alt="WIIS Rwanda" class="h-10 md:h-12 w-auto"
+                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuDUCzUrs5PmSACfSytUjjKDPM6GD8ZDZIu0DsNV6Ifp5XW3r4_dGw2u3ce470rgd2jN_0M0Fx8RmR7mUh1vgvdHTS3dDPT2enYXcLvUrFjY1FB1kAKNzJj_zgVvx9qICa_3ouTw93jQoEqbOiRynu0qjRhlEN2mJZUgd9c0Zl1DY2gp4RM2OT0-LZMMG9uBU7pgLzyyp5Wslj9Bh7WRzAp2dTcVPokl4maMVRwcNrcBUcPmq7lm7hal0vgt2Mh8ScFjFV0xEgE5cm8" />
+                </div>
+                <div
+                    class="flex items-center justify-center px-8 min-w-[200px] grayscale opacity-70 hover:grayscale-0 hover:opacity-100 transition-all duration-300">
+                    <img alt="WhatWorks" class="h-10 md:h-12 w-auto"
+                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuC7MQWYsP-2AIQhSfuk8AW8DZohYpYjMAB-ZHX9mLv33T-ZcI-ImrqQGd3Bsgw8pOqm-aMCbK1r2PCIo4FiDvObwNZy1BHi1MNL72LSAOskR4QNmdTsKyZH9ZfhCVIL8ES-4uYpiCQVBP8QbHwGOZLv4iBQxRvUgcnxzX4Dg0wg2DzubxX1TSzHPS7bJ9uI9rPTK6T3qY2i1VFcC6nvGSSF1dRyjsQfpLBniQR_wx-jhj5uwsg2bTk8U0-5JdJtXBNHyS6P3gX98_0" />
+                </div>
+                <div
+                    class="flex items-center justify-center px-8 min-w-[200px] grayscale opacity-70 hover:grayscale-0 hover:opacity-100 transition-all duration-300">
+                    <img alt="WIHOGORA Psychosocial Centre" class="h-10 md:h-12 w-auto"
+                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuCqDNZwbvBlDK6l7jtCmqsUKg4QTdnU92DoZQh-cvQ5IcUOqC9QZZGR4vRbl4WJXzYtB4pbmGNx_tq9Z5ce5NIeTPWtI20E0Z9hUv3_bg_PFI_s9rrsVEjO2G03mfhHDMtgyQvyC7Tq-5xy0jgpTtM7ZnMaYYWsofKLoXqdy0mJjPg0ruHIoHlKV56AzJ5C2dpWxIEpRwQt_dAbFoV6WTWQYOL690a0MPBSwKcVra7wOnBUiXhyhT5QviahQO4Y_rUUfTZbFgKmRIo" />
+                </div>
+                <div
+                    class="flex items-center justify-center px-8 min-w-[200px] grayscale opacity-70 hover:grayscale-0 hover:opacity-100 transition-all duration-300">
+                    <img alt="PLAY International" class="h-10 md:h-12 w-auto"
+                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuBcXGpi-R0gdL-YeIjf0cB7XXpbk_-poOVFszSjhQe-wP1cht3oAx6VGGcMExYChXAx2i2V26KmVnhGnL6_oyZHINmLg7o1J5itMQXdhfwUoHRo99m1OCRD6g9ufzSRzIkhQJoEX-uVTKFzreMFt0nU0fwN6VJWWCjVS38MiHLpuv0_hKcPYwfOK0Up1XocvdVxLee0cnGydSoaWwLszay2CIuRZkknFwR4ZTui2J0y6tI4PrN9hNfADi8HQAxvcLoH0Yjh7b-TxR8" />
+                </div>
+                <div
+                    class="flex items-center justify-center px-8 min-w-[200px] grayscale opacity-70 hover:grayscale-0 hover:opacity-100 transition-all duration-300">
+                    <img alt="SOL Foundation" class="h-10 md:h-12 w-auto"
+                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuBe08iXZm4xvXRiq3uMeORd2ZOsujxiyDq14vd7Cz7XHgSqF9fE1cp4kMzKwbuwJcZngaGRWHqU2w0lEudxRpj6ONB1ZWiNLBBoQT3px2ZQ1Q__v_9Z3lEcI4tRa7rPaySomGUl9rhlCCoXkt5aEQywpAurlbJnY6aOTOtYNb5oEyxXcUnTBoVncs81EwjEjyQcTBN17f9F1TSTnwcBiNCN-JuT-WQdLxJSs0YzMBKCz_6RirLmeHQVcmW6WvDSmRpZRKoX03qoYNY" />
+                </div>
+                <div
+                    class="flex items-center justify-center px-8 min-w-[200px] grayscale opacity-70 hover:grayscale-0 hover:opacity-100 transition-all duration-300">
+                    <img alt="PRO-FEMMES TWESE HAMWE" class="h-10 md:h-12 w-auto"
+                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuA_avsnwWoS_jsEgOGqcANvAuL-edWVe_Hbw4Zsp8PZ08CEnQjLmvn3N9PgnOT8-Wh0-cergGNTvGSEgSWfHuObb3mQ3s41aYkxT1Im-1ZWNA3auWlXSWpasdTupTUo2nMgMxXSN5I4ZscxNd4UapPAz94cmwwyVY_DayId5m_bSXo6NsfNvzucMvo6cM8wuKDoVBJ2mje1_F3WaIM6qBqi5CmJwF4dH2VSTxZif13WrYMA4v8ZFNN09gGIoYukDyKfxZ8u_CD6sKg" />
+                </div>
+                <div
+                    class="flex items-center justify-center px-8 min-w-[200px] grayscale opacity-70 hover:grayscale-0 hover:opacity-100 transition-all duration-300">
+                    <img alt="Kvinna till Kvinna" class="h-10 md:h-12 w-auto"
+                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuBLay23CXpjtHRQF3TmCIJ1Tgmn5FDiV9ACfz139Par9TmNbffYgCuisD38MGbsGNlzw3W3eyAZr7au_JvzAyTG6G2Wch_qO_zZU7ddrl_u8qstBfcD8wO6mZc5tw7RA4LqVIBC799KDEBlxUO8kSu-2cgrNh13Apuzm9w4qKavSex5fxsCAq1YBW6TFphpKVUkC268mKivhRUnT02BHJK2Jzsb7CIHmmMvbfzZ4i7EkwiUH1_jDlb5Hk2P_OtnaOoi1p_SaB1hPWY" />
+                </div>
+                <div
+                    class="flex items-center justify-center px-8 min-w-[200px] grayscale opacity-70 hover:grayscale-0 hover:opacity-100 transition-all duration-300">
+                    <img alt="GIZ" class="h-10 md:h-12 w-auto"
+                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuC1bEGbhW79J8WTSpzHpIbQfh48ai-H4bg-j2hLJjdwGZfmIO1L45dnQDqOqjWiIxI2Y5G-JW6WmKS0ieKhT2YtNcJDNWj0UtZTALFJDuN77oLJK9RKi1fRs5h2joosT6Tsqnen9gOzJkv6MsyHtfZbio3aF_yUYYpoDg_RgEp64DNrBi1p60Z0NTqRbKhqqQ42yJ8Di4sDTlKjx-O44LLan6ere33QHOqYRWhAAV7hhO4TMXZ54UAbcdazxCSx81xri3B-1x-9l0E" />
+                </div>
+                <div
+                    class="flex items-center justify-center px-8 min-w-[200px] grayscale opacity-70 hover:grayscale-0 hover:opacity-100 transition-all duration-300">
+                    <img alt="MIGEPROF" class="h-10 md:h-12 w-auto"
+                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuCOcqdpGPvMvQFiE0Sgds0fJtZyACU4qmKrf39FB0hhlG7kbxEKmNmmshKFAyES-Gri54Weh_La4TExX7FoHJj7ssWF10biOqO3fwPLWXPDn0AbAwCq1npKZABKwAbt4A5wuEufXT_8JtLdcutN86-O-aO5uXYRfNqonOD2ow-tulJ_JpcZEsMAbNI8v-OMdMXFhRp5Zb2YL1TSUv1WK7x9ab8EJeZFGew_FsmoCv4Ym8c_hAvvZhW_ETOTcRb2QBZZJnnsDAu8khg" />
+                </div>
+                <div
+                    class="flex items-center justify-center px-8 min-w-[200px] grayscale opacity-70 hover:grayscale-0 hover:opacity-100 transition-all duration-300">
+                    <img alt="Safiya Ibn Garba (OTRF)" class="h-10 md:h-12 w-auto"
+                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuCWazKGQP0nOhW98VGBOU0ytWOxgMtdJSJwY-iRwd8bsgurNRk1-1gsp4UYVQgvDkDnbbBwjv6yaAvktqqSWl_Gbxlf06rEKh4wctMEfA2ZPlmfqCKqf1apo9nXgaiW7zeWS5QlvCwJiHHKIYKnnKlWz4q13RzsvyjqS1ecBXUQvyfXcwCyGROiytLZ6CDosbWsthZelR_GHGJZV3wgFIcYkWZyC_uK4QuzvGRPTA486xRRSk6-ae5mL7VFBYEnCRtkw9CzUwZJ_yM" />
+                </div>
+                <div
+                    class="flex items-center justify-center px-8 min-w-[200px] grayscale opacity-70 hover:grayscale-0 hover:opacity-100 transition-all duration-300">
+                    <img alt="CECI" class="h-10 md:h-12 w-auto"
+                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuBVDG7E0TcZVLJH8BOQcO4IbHbP3309vBokS-4TeTDYtDMJFgIX2B8jT3qnjMVZHKaIkvWoE-xsjv8IM-27lrcocWSuA0MEhdDFHMeHO_78h1yFXk2o1HTg3e5hCCkIA6Y0lTgeqnRApzlSrHXetcm5JMIIXgHg1JtRPtZ5od2UnaxEB6vntUFWehqEKNcA1mfzwFYSn9MKre980kqluprksWdzWtlHDT8t4pf4MB7CHvgC_InqmxcDq6-FtQCg1tVeou9eO7xhBkM" />
+                </div>
+                <div
+                    class="flex items-center justify-center px-8 min-w-[200px] grayscale opacity-70 hover:grayscale-0 hover:opacity-100 transition-all duration-300">
+                    <img alt="WIIS Rwanda" class="h-10 md:h-12 w-auto"
+                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuD7ezDuH9-bBnqBjaQXMhbumU8jjb6inym_JECVGkP47aQRLCOCmtEwMtr6LK0TVOPSMQFdoZMJ1jGRcF4I3vjKouxLtZSQSP0e-sMgzCN4edWTOc--7zSPmwHk3xVOhGevCFhTAOHJYBjNbpbwDcOEY5_Dc6wrQHooGndoLUhnIEg72hSpSmXlaMVLf2MRBMYt8Z9odZ7N2YZ0WLWeWsHmQ76AH2q9oHQAdSEo8hYFkD_bDNFB8b5_2FT7vdo2jYQvSDH_CRAHAMk" />
+                </div>
+                <div
+                    class="flex items-center justify-center px-8 min-w-[200px] grayscale opacity-70 hover:grayscale-0 hover:opacity-100 transition-all duration-300">
+                    <img alt="WhatWorks" class="h-10 md:h-12 w-auto"
+                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuDVOr-mckj5bUygK0BZWJOL1M4PxICRukmC-kn0-_5JHb2E8HAsnnxIoh4K9FYAQXIc2BOqEJ2nHw9j3sFyFhzFYln1U3Lia9uyDdAtl_lzGjtebPT-LJQyTHOUTW_u_Lfu5Ku1Gs2k1Nj8w7D23tE_MiP4bUPtsP4u1xxEghcre5Ys1ruW6HagSHaPBLi7MV_WB9HtAiVhM4HZ0iuTA0VZURH878scVs9dIh1Muu90kyXbYYp1eZcfXz7_ndmDtF2h-QM_UY_zpE8" />
+                </div>
+                <div
+                    class="flex items-center justify-center px-8 min-w-[200px] grayscale opacity-70 hover:grayscale-0 hover:opacity-100 transition-all duration-300">
+                    <img alt="WIHOGORA Psychosocial Centre" class="h-10 md:h-12 w-auto"
+                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuCL6B0IREVe5PxKJ2HGO9EIVw33Wkp9i033oOzwsin5uG2gm1EWxsUkBhSq_EuEcYhpAHOX0jpEoYxubZ6S4gNR3An-iEEvU1ALRnTSAQdphdS97X5Trk67Gn09soqKSzXVRitiQOtMW60XLzYrooXYVnUJP5gtaDgE368VlJuC6rTQIEEb5LRMb06fcVD-TBbHBBgeGnuw_2OKxm_pKBUDvgAeicTP_FnCutU60zVcI5ezujzb7_gu0nqSUNgjeS-eR3bLSwMBNpg" />
+                </div>
+            </div>
+        </div>
+    </div>
+    <section class="py-16 bg-white dark:bg-background-dark relative">
+        <div class="container mx-auto px-6">
+            <div
+                class="grid grid-cols-2 md:grid-cols-4 gap-8 divide-x-0 md:divide-x divide-gray-200 dark:divide-gray-700 text-center">
+                <div class="p-4 group">
+                    <h3
+                        class="text-4xl md:text-5xl font-display font-bold text-primary mb-2 group-hover:scale-110 transition-transform">
+                        10,000+</h3>
+                    <p class="text-sm font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wide">Community
+                        Members Reached</p>
+                </div>
+                <div class="p-4 group">
+                    <h3
+                        class="text-4xl md:text-5xl font-display font-bold text-primary mb-2 group-hover:scale-110 transition-transform">
+                        250</h3>
+                    <p class="text-sm font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wide">Women
+                        Sports Leaders Trained</p>
+                </div>
+                <div class="p-4 group">
+                    <h3
+                        class="text-4xl md:text-5xl font-display font-bold text-primary mb-2 group-hover:scale-110 transition-transform">
+                        53</h3>
+                    <p class="text-sm font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wide">Sports
+                        Clubs Created &amp; Supported</p>
+                </div>
+                <div class="p-4 group">
+                    <h3
+                        class="text-4xl md:text-5xl font-display font-bold text-primary mb-2 group-hover:scale-110 transition-transform">
+                        31</h3>
+                    <p class="text-sm font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wide">Youth
+                        Academies Empowered</p>
+                </div>
+            </div>
+        </div>
+    </section>
+    <section class="py-20 bg-surface-light dark:bg-surface-dark">
+        <div class="container mx-auto px-6 max-w-5xl text-center">
+            <h2 class="text-2xl md:text-3xl font-display font-bold text-gray-800 dark:text-white leading-relaxed">
+                AKWOS (The Organization of Women in Sports) is a Rwandan non-profit that uses the power of <span
+                    class="text-primary border-b-4 border-secondary">sport to transform lives.</span>
+            </h2>
+        </div>
+    </section>
+    <section class="bg-white dark:bg-background-dark">
+        <div class="flex flex-col md:flex-row items-center">
+            <div class="w-full md:w-1/2 h-[400px] md:h-[500px]">
+                <img alt="Women celebrating and cheering indoors at a workshop" class="w-full h-full object-cover"
+                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuByHFBjR8JGEanFxE5bYuoD_Z5W-swDn6FRgz94H04z-wFxQzzP6_6q9Sh7TZtI9FYPUjbT821Ga1nDF1Sj-plnMn_LF2PmtOmOQnlixOC3cSnTNx9aIFLnCyMPDhz27IijVrdEI9KMiTs7jdsCTSNjRlRVz79WFUP8a3hstyaJQq4fwWPyuaNDQ-of5L5bZLi_E8vcWK4PMZHga4T89Dba8Sr33M3HjtSo_z3YC-vVwcSMxPN0mVDWE2bjCVIG8UA6ykn4V0j4ASk" />
+            </div>
+            <div class="w-full md:w-1/2 p-10 md:p-16 flex flex-col justify-center bg-primary text-white">
+                <h3 class="text-2xl font-display font-bold mb-4 text-secondary">Empowerment</h3>
+                <p class="text-lg leading-relaxed mb-6 font-light">
+                    We empower women and girls to build confidence, leadership, and equality on and off the field. Our
+                    workshops provide safe spaces for self-expression and growth.
+                </p>
+                <a class="inline-flex items-center font-bold hover:text-secondary transition-colors group" href="#">
+                    View Our Programs <i
+                        class="material-icons ml-2 transform group-hover:translate-x-1 transition-transform">arrow_forward</i>
+                </a>
+            </div>
+        </div>
+    </section>
+    <section class="bg-white dark:bg-background-dark">
+        <div class="flex flex-col md:flex-row-reverse items-center">
+            <div class="w-full md:w-1/2 h-[400px] md:h-[500px]">
+                <img alt="Woman speaking at a conference podium with microphone" class="w-full h-full object-cover"
+                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuDeOyyBuc0cpaePbMlHXsF6zBJwIMwmScacKpzdrsjk0PBPy6Hu2rdcpzLTinWSI5ohTNo9TbhZqqkwVew0V0EosA7bQkFQRW5dAvcG1fcTLGgWGGGoSvYVJvO0qAk4ZwCjs4MofGSgzACa30cQ1cHm1kXwJbrUH75Y5OfOxTHVVIyp6gsIupCMU8utWmUK7V1UfL5fzWTf_w3G1GDF1vAnp74mrr5GU1g_1I625fzJbY-SEW_9KP6JFdxPToGkfplbd7iF9ZHEHWA" />
+            </div>
+            <div
+                class="w-full md:w-1/2 p-10 md:p-16 flex flex-col justify-center bg-surface-light dark:bg-surface-dark text-gray-800 dark:text-white">
+                <h3 class="text-2xl font-display font-bold mb-4 text-primary dark:text-blue-400">Leadership &amp;
+                    Advocacy</h3>
+                <p class="text-lg leading-relaxed mb-6 text-gray-600 dark:text-gray-300">
+                    Through training, mentorship, and community programmes, we create opportunities that strengthen
+                    families, promote peace, and inspire the next generation of leaders.
+                </p>
+                <a class="inline-flex items-center font-bold text-primary dark:text-blue-400 hover:text-secondary transition-colors group"
+                    href="#">
+                    Meet Our Leaders <i
+                        class="material-icons ml-2 transform group-hover:translate-x-1 transition-transform">arrow_forward</i>
+                </a>
+            </div>
+        </div>
+    </section>
+    <section class="w-full h-[500px] overflow-hidden relative">
+        <img alt="Team of young athletes in yellow jerseys smiling at camera" class="w-full h-full object-cover"
+            src="https://lh3.googleusercontent.com/aida-public/AB6AXuBXFOycGOrhM3tWCmuvjz5i4NFIH05WMm0J_xCHq2zUQeNuupP7uhHZOUtZqh009KJRb2CSwMuHHZTYgS6SQT8btTu71KbiR26J9CqsWKQO4eGkPV4IdD5Ri0tDs6jtpY1otnNjJQc0HA0QMk9lPkb9OFqh9vgJxj-D7vFCBkJSykim5MuyfLz_nr1U6Nxtm19naCwPCbe_HgxJoGD9L2yd1lUnCF6UijygJk83LeJC8nH6xuMvBULyQHlJ7W8Tjy0fdBNoHaVSg2U" />
+        <div
+            class="absolute inset-0 bg-gradient-to-t from-primary/90 to-transparent flex items-end justify-center pb-12">
+            <div class="text-center text-white max-w-3xl px-6">
+                <h2 class="text-3xl font-display font-bold mb-2">Building The Next Generation</h2>
+                <p class="text-lg opacity-90">Cultivating resilience and teamwork in Rwanda's youth.</p>
+            </div>
+        </div>
+    </section>
+    <section class="py-24 bg-white dark:bg-background-dark relative overflow-hidden">
+        <div
+            class="absolute top-10 left-10 text-primary/10 dark:text-white/5 font-serif text-[200px] leading-none select-none">
+            “</div>
+        <div
+            class="absolute bottom-10 right-10 text-primary/10 dark:text-white/5 font-serif text-[200px] leading-none select-none rotate-180">
+            “</div>
+        <div class="container mx-auto px-6 max-w-4xl relative z-10">
+            <div
+                class="bg-surface-light dark:bg-surface-dark p-8 md:p-12 rounded-xl border-l-8 border-primary shadow-lg">
+                <div class="mb-6">
+                    <i class="material-icons text-primary text-4xl">format_quote</i>
+                </div>
+                <p class="text-lg md:text-xl text-gray-700 dark:text-gray-300 mb-6 leading-relaxed">
+                    Rwanda's youth are the heartbeat of our nation, yet systemic barriers still prevent many from
+                    reaching their full potential. Young women, in particular, often lack access to leadership pathways,
+                    safe spaces for self-expression, and mentors who look like them. These gaps don't just affect
+                    individuals—they stall the progress of entire communities.
+                </p>
+                <div class="w-20 h-1 bg-secondary mb-6"></div>
+                <p class="text-lg md:text-xl font-bold text-gray-900 dark:text-white leading-relaxed">
+                    <span class="text-primary">AKWOS</span> bridges this divide.
+                </p>
+                <p class="text-lg md:text-xl text-gray-700 dark:text-gray-300 mt-2 leading-relaxed">
+                    By leveraging the universal language of sport, we break the cycle of inequality. We don't just build
+                    athletes; we cultivate leaders, health advocates, and agents of peace who transform a "game" into a
+                    movement for social justice.
+                </p>
+            </div>
+            <div class="w-full flex justify-center mt-12">
+                <hr class="w-1/3 border-gray-300 dark:border-gray-700" />
+            </div>
+        </div>
+    </section>
+    <section class="bg-primary py-16 text-center text-white relative overflow-hidden">
+        <div
+            class="absolute top-0 left-0 w-full h-full bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10">
+        </div>
+        <div class="container mx-auto px-6 relative z-10">
+            <h2 class="text-3xl md:text-4xl font-display font-bold mb-4">Make a Difference Today</h2>
+            <p class="text-xl mb-8 opacity-90 max-w-2xl mx-auto">Your support helps us provide equipment, training, and
+                mentorship to thousands of young women across Rwanda.</p>
+            <div class="flex flex-col sm:flex-row justify-center gap-4">
+                <button
+                    class="px-8 py-4 bg-secondary text-primary font-bold text-lg rounded-full shadow-lg hover:bg-yellow-400 hover:scale-105 transition-all">
+                    Donate Now
+                </button>
+                <button
+                    class="px-8 py-4 bg-transparent border-2 border-white text-white font-bold text-lg rounded-full hover:bg-white/10 transition-all">
+                    Become a Partner
+                </button>
+            </div>
+        </div>
+    </section>
+    <footer class="bg-surface-light dark:bg-surface-dark border-t border-gray-200 dark:border-gray-800 pt-16 pb-8">
+        <div class="container mx-auto px-6">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
+                <div class="md:col-span-1">
+                    <a class="flex flex-col mb-6" href="#">
+                        <span class="text-2xl font-display font-black text-primary tracking-tighter">
+                            AKW<span class="text-secondary">O</span>S
+                        </span>
+                        <span
+                            class="text-[10px] uppercase tracking-widest text-primary/80 dark:text-blue-400 font-bold">Women
+                            Rise For Change</span>
+                    </a>
+                    <p class="text-sm text-gray-600 dark:text-gray-400 mb-6">
+                        Empowering women and girls through sports, education, and leadership since 2002.
+                    </p>
+                    <div class="flex gap-4">
+                        <a class="text-gray-500 hover:text-primary transition-colors" href="#"><i
+                                class="material-icons">facebook</i></a>
+                        <a class="text-gray-500 hover:text-primary transition-colors" href="#"><i
+                                class="material-icons">work</i></a>
+                        <a class="text-gray-500 hover:text-primary transition-colors" href="#"><i
+                                class="material-icons">smart_display</i></a>
+                        <a class="text-gray-500 hover:text-primary transition-colors font-bold text-sm flex items-center justify-center w-6"
+                            href="#">X</a>
+                        <a class="text-gray-500 hover:text-primary transition-colors" href="#"><i
+                                class="material-icons">photo_camera</i></a>
+                    </div>
+                </div>
+                <div>
+                    <h4 class="font-display font-bold text-gray-900 dark:text-white mb-4">Quick Links</h4>
+                    <ul class="space-y-2 text-sm text-gray-600 dark:text-gray-400">
+                        <li><a class="hover:text-primary dark:hover:text-blue-400" href="#">About Us</a></li>
+                        <li><a class="hover:text-primary dark:hover:text-blue-400" href="#">Our Programs</a></li>
+                        <li><a class="hover:text-primary dark:hover:text-blue-400" href="#">Impact Stories</a></li>
+                        <li><a class="hover:text-primary dark:hover:text-blue-400" href="#">Resource Hub</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-display font-bold text-gray-900 dark:text-white mb-4">Support</h4>
+                    <ul class="space-y-2 text-sm text-gray-600 dark:text-gray-400">
+                        <li><a class="hover:text-primary dark:hover:text-blue-400" href="#">Safeguarding Policy</a></li>
+                        <li><a class="hover:text-primary dark:hover:text-blue-400" href="#">Contact Us</a></li>
+                        <li><a class="hover:text-primary dark:hover:text-blue-400" href="#">Privacy Policy</a></li>
+                        <li><a class="hover:text-primary dark:hover:text-blue-400" href="#">Secure Support</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-display font-bold text-gray-900 dark:text-white mb-4">Stay Connected</h4>
+                    <form class="flex flex-col gap-2">
+                        <input
+                            class="px-4 py-2 rounded bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 focus:outline-none focus:border-primary text-sm"
+                            placeholder="Enter your email" type="email" />
+                        <button
+                            class="px-4 py-2 bg-primary text-white rounded font-bold text-sm hover:bg-blue-800 transition-colors"
+                            type="submit">Subscribe</button>
+                    </form>
+                </div>
+            </div>
+            <div
+                class="border-t border-gray-200 dark:border-gray-700 pt-8 flex flex-col md:flex-row justify-between items-center text-xs text-gray-500 dark:text-gray-400">
+                <p>AKWOS © Copyright 2026.</p>
+                <p class="mt-2 md:mt-0">Design by <span class="underline hover:text-primary cursor-pointer">Safiya Ibn
+                        Garba DTRF</span></p>
+            </div>
+        </div>
+    </footer>
+
+</body>
+
+</html>
