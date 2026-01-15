@@ -9,7 +9,7 @@ import { ArrowRight } from "lucide-react";
 import { motion, useScroll } from "framer-motion";
 import { useRef } from "react";
 import ImigongoPattern from "@/components/ImigongoPattern";
-import DigitalAlchemyBackground from "@/components/DigitalAlchemyBackground";
+import ImigongoWireframeBackground from "@/components/ImigongoWireframeBackground";
 
 export default function Services() {
     return (
@@ -18,7 +18,7 @@ export default function Services() {
             <main className="flex-grow pt-32">
                 {/* Hero */}
                 <section className="px-6 lg:px-8 mb-32 relative">
-                    <DigitalAlchemyBackground />
+                    <ImigongoWireframeBackground />
                     <div className="max-w-7xl mx-auto relative z-10 pt-20">
                         <h1 className="text-6xl md:text-8xl font-syne font-black tracking-tighter text-gray-900 dark:text-white mb-8">
                             <KineticText>OUR</KineticText> <br />

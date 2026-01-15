@@ -8,7 +8,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowUpRight } from "lucide-react";
 import Image from "next/image";
-import DigitalAlchemyBackground from "@/components/DigitalAlchemyBackground";
+import ImigongoWireframeBackground from "@/components/ImigongoWireframeBackground";
 
 const projects = [
     {
@@ -83,7 +83,7 @@ export default function Portfolio() {
             <Navbar />
             <main className="flex-grow pt-32">
                 <div className="max-w-7xl mx-auto px-6 lg:px-8 mb-20 relative">
-                    <DigitalAlchemyBackground />
+                    <ImigongoWireframeBackground />
                     <div className="relative z-10 pt-10">
                         <h1 className="text-6xl md:text-8xl font-syne font-black tracking-tighter text-gray-900 dark:text-white mb-12">
                             <KineticText>SELECTED</KineticText> <br />

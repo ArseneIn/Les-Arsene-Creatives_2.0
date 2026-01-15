@@ -8,7 +8,7 @@ import { motion } from "framer-motion";
 import { ArrowRight, Check, Zap, Shield, BarChart } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import DigitalAlchemyBackground from "@/components/DigitalAlchemyBackground";
+import ImigongoWireframeBackground from "@/components/ImigongoWireframeBackground";
 
 const products = [
     {
@@ -48,7 +48,7 @@ export default function Products() {
             <main className="flex-grow pt-32">
                 {/* Hero Section */}
                 <section className="px-6 lg:px-8 mb-24 relative">
-                    <DigitalAlchemyBackground />
+                    <ImigongoWireframeBackground />
                     <div className="max-w-7xl mx-auto relative z-10 pt-20">
                         <motion.div
                             initial={{ opacity: 0, y: 20 }}
