@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Soledicom – Hair Growth & Skin Repair Solutions</title>
+
+    <!-- Favicon Links -->
+    <link rel="icon" type="image/x-icon" href="assets/favicons/favicon.ico">
+    <link rel="icon" type="image/png" sizes="16x16" href="assets/favicons/favicon-16x16.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="assets/favicons/favicon-32x32.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="assets/favicons/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="assets/favicons/android-chrome-192x192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="assets/favicons/android-chrome-512x512.png">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Outfit:wght@400;500;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link rel="stylesheet" href="assets/css/style.css">
+</head>
+
+<body>
+
+    <!-- Top Bar -->
+    <div class="top-bar">
+        <div class="top-bar-left">
+            <a href="mailto:marie.sol012@gmail.com"><i class="fa-solid fa-envelope"></i> marie.sol012@gmail.com</a>
+            <a href="tel:+250787399773"><i class="fa-solid fa-mobile-screen-button"></i>+250 787 399 773</a>
+        </div>
+        <div class="social-media">
+            <a href="#" aria-label="WhatsApp"><i class="fa-brands fa-whatsapp"></i></a>
+            <a href="#" aria-label="Facebook"><i class="fa-brands fa-facebook-f"></i></a>
+            <a href="#" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <header class="main-header">
+        <div class="brand-identity">
+            <div class="logo">
+                <img src="assets/images/logo.png" alt="Soledicom Logo">
+            </div>
+            <span class="logo-text">Soledicom</span>
+        </div>
+
+        <button class="menu-toggle" aria-label="Toggle navigation">
+            <i class="fas fa-bars"></i>
+        </button>
+
+        <nav>
+            <ul>
+                <li><a href="#home" class="active">Home</a></li>
+                <li><a href="#about">About Us</a></li>
+                <li><a href="#products">Products</a></li>
+                <li><a href="#contact">Contact</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <!-- Slideshow (Home Section) -->
+    <section id="home" class="slideshow-container">
+
+        <!-- Slide 1 -->
+        <div class="slide active"
+            style="background-image: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('assets/images/slide1.jpg');">
+            <div class="slide-overlay">
+                <div class="slide-content">
+                    <h1>Healthy Hair Starts with Care</h1>
+                    <p>Effective solutions for hair growth and scalp nourishment</p>
+                    <a href="#products" class="cta-button primary">Explore Products</a>
+                    <a href="#contact" class="cta-button secondary">Get Advice</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 2 -->
+        <div class="slide"
+            style="background-image: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('assets/images/slide2.jpg');">
+            <div class="slide-overlay">
+                <div class="slide-content">
+                    <h1>Repair & Restore Your Skin</h1>
+                    <p>Gentle formulas designed to heal and rejuvenate</p>
+                    <a href="#about" class="cta-button primary">Learn About Us</a>
+                    <a href="#products" class="cta-button secondary">Shop Now</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 3 -->
+        <div class="slide"
+            style="background-image: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('assets/images/slide3.jpg');">
+            <div class="slide-overlay">
+                <div class="slide-content">
+                    <h1>Confidence Begins with Healthy Care</h1>
+                    <p>Trusted hair and skin repair solutions</p>
+                    <a href="#contact" class="cta-button primary">Contact Us</a>
+                    <a href="#about" class="cta-button secondary">Our Story</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation Arrows -->
+        <button class="slide-arrow prev" onclick="changeSlide(-1)">
+            <i class="fas fa-chevron-left"></i>
+        </button>
+        <button class="slide-arrow next" onclick="changeSlide(1)">
+            <i class="fas fa-chevron-right"></i>
+        </button>
+
+        <!-- Dots -->
+        <div class="slide-controls">
+            <span class="slide-dot active" onclick="currentSlide(0)"></span>
+            <span class="slide-dot" onclick="currentSlide(1)"></span>
+            <span class="slide-dot" onclick="currentSlide(2)"></span>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="section-padding">
+        <div class="container">
+            <div class="section-header text-center">
+                <h2>About Soledicom</h2>
+                <p>Dedicated to natural beauty and wellness</p>
+            </div>
+            <div class="about-content">
+                <div class="about-image">
+                    <img src="assets/images/solange.jpg" alt="About Soledicom">
+                </div>
+                <div class="about-text">
+                    <h3>Who We Are</h3>
+                    <p>Soledicom Company Ltd is a Rwandan company dedicated to developing plant-based cosmetic products
+                        under the trademark <strong>SANESOL</strong>. Founded in March 2022, we operate from the Masaka
+                        Business Incubation Center.</p>
+                    <p>Our Founder and Managing Director, <strong>Dr. Marie-Solange Uwineza</strong>, holds a PhD in
+                        Applied Chemistry and Environment. With a passion for aromatic and medicinal plants explored
+                        during her doctoral research, she returned to Rwanda to create effective, natural solutions for
+                        hair and skin care.</p>
+                    <a href="#contact" class="cta-button primary" style="margin-left: 0;">Contact Us</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Products Section -->
+    <section id="products" class="section-padding bg-light">
+        <div class="container">
+            <div class="section-header text-center">
+                <h2>Our Products</h2>
+                <p>Discover our range of premium solutions</p>
+            </div>
+            <div class="product-grid">
+                <!-- Product 1 -->
+                <div class="product-card">
+                    <div class="product-image">
+                        <img src="assets/images/Sansol one.jpg" alt="Sanesol Hair Vitamins">
+                    </div>
+                    <div class="product-info">
+                        <h3>Sanesol Hair Vitamins</h3>
+                        <p>A powerful blend of ginger, carrot, onion, parsley, and rosemary extracts to facilitate hair
+                            regrowth and treat alopecia.</p>
+                        <a href="#contact" class="cta-button primary small">Order Now</a>
+                    </div>
+                </div>
+                <!-- Product 2 -->
+                <div class="product-card">
+                    <div class="product-image">
+                        <img src="assets/images/3N7A0592.jpg" alt="Sanesol Hair Oil">
+                    </div>
+                    <div class="product-info">
+                        <h3>Sanesol Hair Oil</h3>
+                        <p>Aloe vera oil formulation that prevents hair breakage and fights scalp ringworm and dandruff.
+                        </p>
+                        <a href="#contact" class="cta-button primary small">Order Now</a>
+                    </div>
+                </div>
+                <!-- Product 3 -->
+                <div class="product-card">
+                    <div class="product-image">
+                        <img src="assets/images/3N7A0568.jpg" alt="Sanesol Skin Care">
+                    </div>
+                    <div class="product-info">
+                        <h3>Sanesol Skin Care</h3>
+                        <p>Aloe vera oil designed to treat skin conditions such as eczema, pimples, acne, and
+                            stretchmarks.</p>
+                        <a href="#contact" class="cta-button primary small">Order Now</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="section-padding">
+        <div class="container">
+            <div class="section-header text-center">
+                <h2>Get in Touch</h2>
+                <p>We'd love to hear from you</p>
+            </div>
+            <div class="contact-wrapper">
+                <div class="contact-info">
+                    <div class="info-item">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <div>
+                            <h4>Visit Us</h4>
+                            <p>Masaka Business Incubation Center<br>Kimironko (Direct Shop)</p>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <i class="fas fa-envelope"></i>
+                        <div>
+                            <h4>Email Us</h4>
+                            <p>marie.sol012@gmail.com</p>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <i class="fas fa-phone"></i>
+                        <div>
+                            <h4>Call Us</h4>
+                            <p>+250 787 399 773</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="contact-form">
+                    <form>
+                        <div class="form-group">
+                            <input type="text" placeholder="Your Name" required>
+                        </div>
+                        <div class="form-group">
+                            <input type="email" placeholder="Your Email" required>
+                        </div>
+                        <div class="form-group">
+                            <textarea placeholder="Your Message" rows="5" required></textarea>
+                        </div>
+                        <button type="submit" class="cta-button primary">Send Message</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-copyright">
+            &copy; 2025 Soledicom. All rights reserved.
+        </div>
+        <ul class="footer-links">
+            <li><a href="#about">About</a></li>
+            <li><a href="#products">Products</a></li>
+            <li><a href="mailto:marie.sol012@gmail.com">Email Us</a></li>
+        </ul>
+    </footer>
+
+    <!-- Floating WhatsApp Button -->
+    <a href="https://wa.me/250787399773" class="whatsapp-float" target="_blank" aria-label="Chat on WhatsApp">
+        <i class="fab fa-whatsapp"></i>
+        <span class="tooltip-text">Talk to us</span>
+    </a>
+
+    <script src="assets/js/script.js"></script>
+</body>
+
+</html>
