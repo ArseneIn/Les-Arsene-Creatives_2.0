@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Timetable Builder Admin</title>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#1111d4",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#101022",
+                    },
+                    fontFamily: {
+                        "display": ["Inter"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: 80px repeat(5, 1fr);
+        }
+        .time-row {
+            height: 80px;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 min-h-screen">
+<!-- Top Navigation Bar -->
+<header class="sticky top-0 z-50 flex items-center justify-between border-b border-solid border-slate-200 dark:border-slate-800 bg-primary px-8 py-3 text-white">
+<div class="flex items-center gap-8">
+<div class="flex items-center gap-3">
+<div class="size-8 bg-white/20 rounded-lg flex items-center justify-center">
+<span class="material-symbols-outlined text-white">calendar_month</span>
+</div>
+<h2 class="text-lg font-bold leading-tight tracking-tight">Timetable Builder Admin</h2>
+</div>
+<div class="hidden md:flex flex-col min-w-64">
+<div class="flex w-full items-stretch rounded-lg h-9 bg-white/10 border border-white/20">
+<div class="text-white/70 flex items-center justify-center pl-3">
+<span class="material-symbols-outlined text-sm">search</span>
+</div>
+<input class="w-full border-none bg-transparent focus:outline-0 focus:ring-0 text-white placeholder:text-white/50 px-2 text-sm" placeholder="Search classes or teachers..." value=""/>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<nav class="hidden lg:flex items-center gap-6 text-sm font-medium">
+<a class="hover:text-white/80" href="#">Dashboard</a>
+<a class="hover:text-white/80" href="#">Staff</a>
+<a class="hover:text-white/80" href="#">Students</a>
+<a class="text-white border-b-2 border-white pb-0.5" href="#">Timetable</a>
+</nav>
+<div class="h-6 w-px bg-white/20 mx-2"></div>
+<button class="flex min-w-[100px] cursor-pointer items-center justify-center rounded-lg h-9 px-4 bg-white text-primary text-sm font-bold shadow-sm hover:bg-slate-100 transition-colors">
+                Save Changes
+            </button>
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-9 border border-white/20" data-alt="Admin user profile picture avatar" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuAknKwnzE6dE5AXCpbDKctdfB5LPL97LINGCDK9oeX1YMobQbTkALEVieiuEeE7ipJOX72RY8fPYeJNnhVxiDPBWaJeIzEfNZR9VozvfbGTNPl2WzmYZuNIcuyo_X-8BjSC87LgjsTukwPvtKe0rJxo4iNJ4Skuhw0jyGU-GEJrhKdfze1jzUUCBhhYbMcKHsVdNov0L_QMt0dLB9_9DsTY4YlhLGfjhjMGbq308hSGwpgGXisf3ceOH7yUF6l56hy-l1JqOHb7kJ6_");'></div>
+</div>
+</header>
+<div class="flex h-[calc(100vh-60px)] overflow-hidden">
+<!-- Side Navigation Bar (Draggable Assets) -->
+<aside class="w-80 flex flex-col border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-y-auto">
+<div class="p-5 flex flex-col gap-6">
+<div>
+<h1 class="text-slate-900 dark:text-white text-lg font-semibold">Academic Assets</h1>
+<p class="text-slate-500 text-xs mt-1">Drag and drop to the calendar grid</p>
+</div>
+<!-- Chips/Filters -->
+<div class="flex gap-2 flex-wrap">
+<div class="flex h-7 items-center justify-center rounded-full bg-primary/10 text-primary px-3 text-xs font-semibold cursor-pointer border border-primary/20">
+                        Grade S4-S6
+                    </div>
+<div class="flex h-7 items-center justify-center rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 px-3 text-xs font-semibold cursor-pointer">
+                        Science
+                    </div>
+<div class="flex h-7 items-center justify-center rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 px-3 text-xs font-semibold cursor-pointer">
+                        Math Dept
+                    </div>
+</div>
+<!-- Draggable Cards List -->
+<div class="flex flex-col gap-3">
+<h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider">Unassigned Classes</h3>
+<!-- Draggable Card 1 -->
+<div class="group relative flex flex-col gap-2 p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 hover:border-primary/50 hover:shadow-md transition-all cursor-grab active:cursor-grabbing">
+<div class="flex justify-between items-start">
+<span class="text-xs font-bold text-primary bg-primary/10 px-2 py-0.5 rounded">S4-A</span>
+<span class="material-symbols-outlined text-slate-300 text-sm">drag_indicator</span>
+</div>
+<div>
+<p class="text-sm font-bold text-slate-800 dark:text-slate-200">Advanced Mathematics</p>
+<p class="text-xs text-slate-500">Mr. Kagame • 2 hrs</p>
+</div>
+</div>
+<!-- Draggable Card 2 -->
+<div class="group relative flex flex-col gap-2 p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 hover:border-primary/50 hover:shadow-md transition-all cursor-grab">
+<div class="flex justify-between items-start">
+<span class="text-xs font-bold text-emerald-600 bg-emerald-100 px-2 py-0.5 rounded">S5-B</span>
+<span class="material-symbols-outlined text-slate-300 text-sm">drag_indicator</span>
+</div>
+<div>
+<p class="text-sm font-bold text-slate-800 dark:text-slate-200">Applied Physics</p>
+<p class="text-xs text-slate-500">Ms. Uwase • 1.5 hrs</p>
+</div>
+</div>
+<!-- Draggable Card 3 -->
+<div class="group relative flex flex-col gap-2 p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 hover:border-primary/50 hover:shadow-md transition-all cursor-grab">
+<div class="flex justify-between items-start">
+<span class="text-xs font-bold text-amber-600 bg-amber-100 px-2 py-0.5 rounded">S6-C</span>
+<span class="material-symbols-outlined text-slate-300 text-sm">drag_indicator</span>
+</div>
+<div>
+<p class="text-sm font-bold text-slate-800 dark:text-slate-200">Modern History</p>
+<p class="text-xs text-slate-500">Mr. Murenzi • 1 hr</p>
+</div>
+</div>
+<!-- Draggable Card 4 -->
+<div class="group relative flex flex-col gap-2 p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 hover:border-primary/50 hover:shadow-md transition-all cursor-grab">
+<div class="flex justify-between items-start">
+<span class="text-xs font-bold text-indigo-600 bg-indigo-100 px-2 py-0.5 rounded">S4-A</span>
+<span class="material-symbols-outlined text-slate-300 text-sm">drag_indicator</span>
+</div>
+<div>
+<p class="text-sm font-bold text-slate-800 dark:text-slate-200">Organic Chemistry</p>
+<p class="text-xs text-slate-500">Dr. Habimana • 2 hrs</p>
+</div>
+</div>
+</div>
+<div class="mt-auto pt-4 border-t border-slate-200 dark:border-slate-800">
+<button class="w-full flex items-center justify-center gap-2 py-2 text-sm font-semibold text-slate-600 dark:text-slate-400 hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-lg">add_circle</span>
+                        Add New Class
+                    </button>
+</div>
+</div>
+</aside>
+<!-- Main Content (Calendar Grid) -->
+<main class="flex-1 flex flex-col overflow-hidden">
+<!-- Calendar Toolbar -->
+<div class="flex items-center justify-between px-6 py-4 border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/50">
+<div class="flex items-center gap-4">
+<div class="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-lg">
+<button class="px-3 py-1.5 text-xs font-bold bg-white dark:bg-slate-700 shadow-sm rounded-md text-slate-900 dark:text-white">Weekly View</button>
+<button class="px-3 py-1.5 text-xs font-medium text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 transition-colors">Daily View</button>
+</div>
+<div class="flex items-center gap-2 text-slate-400">
+<button class="p-1 hover:bg-slate-100 dark:hover:bg-slate-800 rounded transition-colors">
+<span class="material-symbols-outlined">chevron_left</span>
+</button>
+<span class="text-sm font-bold text-slate-700 dark:text-slate-200">Term 2: Jan 15 - Jan 19</span>
+<button class="p-1 hover:bg-slate-100 dark:hover:bg-slate-800 rounded transition-colors">
+<span class="material-symbols-outlined">chevron_right</span>
+</button>
+</div>
+</div>
+<div class="flex items-center gap-3">
+<button class="flex items-center gap-2 px-3 py-1.5 text-xs font-semibold text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700 rounded-lg hover:bg-slate-50 transition-colors">
+<span class="material-symbols-outlined text-sm">auto_fix_high</span>
+                        Auto-Generate
+                    </button>
+<button class="flex items-center gap-2 px-3 py-1.5 text-xs font-semibold text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700 rounded-lg hover:bg-slate-50 transition-colors">
+<span class="material-symbols-outlined text-sm">file_download</span>
+                        Export PDF
+                    </button>
+<button class="flex items-center gap-2 px-3 py-1.5 text-xs font-semibold text-white bg-primary rounded-lg hover:bg-primary/90 transition-colors">
+<span class="material-symbols-outlined text-sm">check_circle</span>
+                        Validate
+                    </button>
+</div>
+</div>
+<!-- Grid Container -->
+<div class="flex-1 overflow-auto bg-slate-50 dark:bg-background-dark p-6">
+<div class="min-w-[1000px] border border-slate-200 dark:border-slate-800 rounded-xl bg-white dark:bg-slate-900 shadow-sm overflow-hidden">
+<!-- Calendar Header (Days) -->
+<div class="calendar-grid border-b border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/30">
+<div class="p-4"></div>
+<div class="p-4 text-center border-l border-slate-200 dark:border-slate-800">
+<p class="text-xs font-bold text-slate-400 uppercase tracking-widest">Monday</p>
+</div>
+<div class="p-4 text-center border-l border-slate-200 dark:border-slate-800">
+<p class="text-xs font-bold text-slate-400 uppercase tracking-widest">Tuesday</p>
+</div>
+<div class="p-4 text-center border-l border-slate-200 dark:border-slate-800">
+<p class="text-xs font-bold text-slate-400 uppercase tracking-widest">Wednesday</p>
+</div>
+<div class="p-4 text-center border-l border-slate-200 dark:border-slate-800">
+<p class="text-xs font-bold text-slate-400 uppercase tracking-widest">Thursday</p>
+</div>
+<div class="p-4 text-center border-l border-slate-200 dark:border-slate-800">
+<p class="text-xs font-bold text-slate-400 uppercase tracking-widest">Friday</p>
+</div>
+</div>
+<!-- Calendar Body -->
+<div class="relative">
+<!-- Time Rows -->
+<div class="calendar-grid time-row border-b border-slate-100 dark:border-slate-800">
+<div class="flex items-center justify-center text-xs font-medium text-slate-400">08:00</div>
+<div class="border-l border-slate-100 dark:border-slate-800 p-2">
+<div class="h-full w-full bg-blue-50 dark:bg-blue-900/20 border-l-4 border-blue-500 rounded-r p-2">
+<p class="text-[10px] font-bold text-blue-700 dark:text-blue-300">S4 MATH</p>
+<p class="text-[9px] text-blue-600/80 dark:text-blue-400/80">Kagame • R102</p>
+</div>
+</div>
+<div class="border-l border-slate-100 dark:border-slate-800 p-2"></div>
+<div class="border-l border-slate-100 dark:border-slate-800 p-2">
+<div class="h-full w-full bg-purple-50 dark:bg-purple-900/20 border-l-4 border-purple-500 rounded-r p-2">
+<p class="text-[10px] font-bold text-purple-700 dark:text-purple-300">S6 ENG</p>
+<p class="text-[9px] text-purple-600/80 dark:text-purple-400/80">Butera • R205</p>
+</div>
+</div>
+<div class="border-l border-slate-100 dark:border-slate-800 p-2"></div>
+<div class="border-l border-slate-100 dark:border-slate-800 p-2"></div>
+</div>
+<div class="calendar-grid time-row border-b border-slate-100 dark:border-slate-800">
+<div class="flex items-center justify-center text-xs font-medium text-slate-400">09:00</div>
+<div class="border-l border-slate-100 dark:border-slate-800 p-2"></div>
+<div class="border-l border-slate-100 dark:border-slate-800 p-2">
+<!-- CONFLICT HIGHLIGHT -->
+<div class="h-full w-full bg-red-50 dark:bg-red-900/20 border-2 border-red-500 rounded p-2 relative">
+<p class="text-[10px] font-bold text-red-700 dark:text-red-300">S4 MATH (Conflict)</p>
+<p class="text-[9px] text-red-600/80 dark:text-red-400/80">Kagame • R102</p>
+<div class="absolute -top-1 -right-1 bg-red-500 text-white p-0.5 rounded-full shadow-lg">
+<span class="material-symbols-outlined text-[12px] leading-none">error</span>
+</div>
+<div class="absolute top-full left-0 z-20 mt-2 w-48 p-2 bg-red-600 text-white text-[10px] rounded shadow-xl animate-in fade-in zoom-in duration-200">
+<strong>Conflict:</strong> Mr. Kagame is already assigned to S3 History in Room 104 at this time.
+                                    </div>
+</div>
+</div>
+<div class="border-l border-slate-100 dark:border-slate-800 p-2"></div>
+<div class="border-l border-slate-100 dark:border-slate-800 p-2">
+<div class="h-full w-full bg-emerald-50 dark:bg-emerald-900/20 border-l-4 border-emerald-500 rounded-r p-2">
+<p class="text-[10px] font-bold text-emerald-700 dark:text-emerald-300">S5 PHYS</p>
+<p class="text-[9px] text-emerald-600/80 dark:text-emerald-400/80">Uwase • LAB-1</p>
+</div>
+</div>
+<div class="border-l border-slate-100 dark:border-slate-800 p-2"></div>
+</div>
+<div class="calendar-grid time-row border-b border-slate-100 dark:border-slate-800">
+<div class="flex items-center justify-center text-xs font-medium text-slate-400">10:00</div>
+<div class="border-l border-slate-100 dark:border-slate-800 p-2"></div>
+<div class="border-l border-slate-100 dark:border-slate-800 p-2"></div>
+<div class="border-l border-slate-100 dark:border-slate-800 p-2 bg-primary/5 border-dashed border-2 border-primary/20 flex items-center justify-center">
+<span class="text-[10px] font-medium text-primary/40 uppercase tracking-tighter italic">Drop zone</span>
+</div>
+<div class="border-l border-slate-100 dark:border-slate-800 p-2"></div>
+<div class="border-l border-slate-100 dark:border-slate-800 p-2"></div>
+</div>
+<div class="calendar-grid time-row border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/20">
+<div class="flex items-center justify-center text-xs font-bold text-slate-400 uppercase">Break</div>
+<div class="border-l border-slate-100 dark:border-slate-800 col-span-5 flex items-center justify-center text-[10px] text-slate-300 tracking-[0.2em] font-medium uppercase">Morning Recess</div>
+</div>
+<div class="calendar-grid time-row border-b border-slate-100 dark:border-slate-800">
+<div class="flex items-center justify-center text-xs font-medium text-slate-400">11:00</div>
+<div class="border-l border-slate-100 dark:border-slate-800 p-2"></div>
+<div class="border-l border-slate-100 dark:border-slate-800 p-2">
+<div class="h-full w-full bg-amber-50 dark:bg-amber-900/20 border-l-4 border-amber-500 rounded-r p-2">
+<p class="text-[10px] font-bold text-amber-700 dark:text-amber-300">S6 HIST</p>
+<p class="text-[9px] text-amber-600/80 dark:text-amber-400/80">Murenzi • R301</p>
+</div>
+</div>
+<div class="border-l border-slate-100 dark:border-slate-800 p-2"></div>
+<div class="border-l border-slate-100 dark:border-slate-800 p-2"></div>
+<div class="border-l border-slate-100 dark:border-slate-800 p-2"></div>
+</div>
+<div class="calendar-grid time-row border-b border-slate-100 dark:border-slate-800">
+<div class="flex items-center justify-center text-xs font-medium text-slate-400">12:00</div>
+<div class="border-l border-slate-100 dark:border-slate-800 p-2"></div>
+<div class="border-l border-slate-100 dark:border-slate-800 p-2"></div>
+<div class="border-l border-slate-100 dark:border-slate-800 p-2"></div>
+<div class="border-l border-slate-100 dark:border-slate-800 p-2"></div>
+<div class="border-l border-slate-100 dark:border-slate-800 p-2"></div>
+</div>
+</div>
+</div>
+<!-- Legend/Stats Footer -->
+<div class="mt-6 flex flex-wrap gap-8 items-center justify-between text-xs text-slate-500 font-medium bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800">
+<div class="flex items-center gap-6">
+<div class="flex items-center gap-2">
+<div class="w-2 h-2 rounded-full bg-emerald-500"></div>
+<span>Science</span>
+</div>
+<div class="flex items-center gap-2">
+<div class="w-2 h-2 rounded-full bg-blue-500"></div>
+<span>Mathematics</span>
+</div>
+<div class="flex items-center gap-2">
+<div class="w-2 h-2 rounded-full bg-purple-500"></div>
+<span>Languages</span>
+</div>
+<div class="flex items-center gap-2">
+<div class="w-2 h-2 rounded-full bg-amber-500"></div>
+<span>Humanities</span>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<div class="flex items-center gap-1.5 px-3 py-1 bg-red-50 text-red-600 dark:bg-red-900/30 dark:text-red-400 rounded-full font-bold">
+<span class="material-symbols-outlined text-sm">warning</span>
+                            1 Conflict Found
+                        </div>
+<div class="text-slate-400">
+                            Allocated: <span class="text-slate-700 dark:text-slate-200 font-bold">42/60 Hours</span>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+</body></html>

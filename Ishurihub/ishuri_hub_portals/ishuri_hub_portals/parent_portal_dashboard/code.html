@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>IshuriHub - Parent Portal</title>
+<!-- Google Fonts: Inter -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Theme Config -->
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#1349ec",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#101522",
+                        "golden-amber": "#d97706", // Custom amber for wallet
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Custom scrollbar for sidebar if needed */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-[#0d111b] dark:text-white">
+<div class="flex h-screen w-full overflow-hidden">
+<!-- Sidebar Navigation -->
+<aside class="flex w-64 md:w-72 flex-col justify-between border-r border-[#cfd5e7] dark:border-gray-800 bg-white dark:bg-[#151a2d] overflow-y-auto no-scrollbar hidden md:flex shrink-0">
+<div class="flex flex-col gap-4 p-6">
+<!-- Branding -->
+<div class="flex items-center gap-3 mb-6">
+<div class="bg-primary aspect-square rounded-lg size-10 flex items-center justify-center text-white">
+<span class="material-symbols-outlined text-2xl">school</span>
+</div>
+<div class="flex flex-col">
+<h1 class="text-[#0d111b] dark:text-white text-lg font-bold leading-normal tracking-tight">IshuriHub</h1>
+<p class="text-[#4c5f9a] dark:text-gray-400 text-xs font-medium leading-normal">Parent Portal</p>
+</div>
+</div>
+<!-- Navigation Links -->
+<nav class="flex flex-col gap-2">
+<a class="flex items-center gap-3 px-3 py-3 rounded-lg bg-primary/10 text-primary transition-colors" href="#">
+<span class="material-symbols-outlined filled">dashboard</span>
+<span class="text-sm font-bold leading-normal">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-3 rounded-lg text-[#4c5f9a] dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-[#0d111b] dark:hover:text-white transition-colors" href="#">
+<span class="material-symbols-outlined">school</span>
+<span class="text-sm font-medium leading-normal">Academics</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-3 rounded-lg text-[#4c5f9a] dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-[#0d111b] dark:hover:text-white transition-colors" href="#">
+<span class="material-symbols-outlined">account_balance_wallet</span>
+<span class="text-sm font-medium leading-normal">Finance</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-3 rounded-lg text-[#4c5f9a] dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-[#0d111b] dark:hover:text-white transition-colors" href="#">
+<div class="relative">
+<span class="material-symbols-outlined">chat</span>
+<span class="absolute -top-1 -right-1 flex h-2.5 w-2.5 items-center justify-center rounded-full bg-red-500 ring-2 ring-white dark:ring-[#151a2d]"></span>
+</div>
+<span class="text-sm font-medium leading-normal">Messages</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-3 rounded-lg text-[#4c5f9a] dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-[#0d111b] dark:hover:text-white transition-colors" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="text-sm font-medium leading-normal">Settings</span>
+</a>
+</nav>
+</div>
+<!-- User Profile Snippet Sidebar -->
+<div class="p-4 border-t border-[#cfd5e7] dark:border-gray-800">
+<div class="flex items-center gap-3 px-2 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer transition-colors">
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10" data-alt="Portrait of Mr Gakwaya" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCMgkaD6Sx3Dq1l8OsQN_9rK9_fHEj6eP2oe9sAl0raKpCI0qsSuEEzBVeZrgn7ocfxLzEEzU8UGnvZRuU4REPPB5frzUaTm5gP5DF3YJGoYMvn0atyel_ANCDtE0MxnvSmxe7VGqeyZjgPaFnqpPirSq-q-D0LDrJ7o7VIhtXeQJToKVwPelFmNXyrmBLQuwP_8yffcRF2gi8GqBpNPc3D2lzWCP30iNrw7tu8d8QrJmtYaA2WS1apesTJGuARxrBt9qyOdXIf7YHY");'></div>
+<div class="flex flex-col overflow-hidden">
+<p class="text-[#0d111b] dark:text-white text-sm font-bold truncate">Mr. Gakwaya</p>
+<p class="text-[#4c5f9a] dark:text-gray-400 text-xs truncate">View Profile</p>
+</div>
+</div>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="flex-1 flex flex-col h-full overflow-y-auto bg-background-light dark:bg-background-dark relative">
+<!-- Mobile Header -->
+<div class="md:hidden flex items-center justify-between p-4 bg-white dark:bg-[#151a2d] border-b border-[#cfd5e7] dark:border-gray-800 sticky top-0 z-20">
+<div class="flex items-center gap-2">
+<div class="bg-primary aspect-square rounded-lg size-8 flex items-center justify-center text-white">
+<span class="material-symbols-outlined text-lg">school</span>
+</div>
+<span class="font-bold text-lg dark:text-white">IshuriHub</span>
+</div>
+<button class="text-[#0d111b] dark:text-white p-2">
+<span class="material-symbols-outlined">menu</span>
+</button>
+</div>
+<div class="container mx-auto max-w-6xl p-4 md:p-8 flex flex-col gap-8">
+<!-- Page Heading & Stats Row -->
+<div class="flex flex-col gap-6">
+<div class="flex flex-wrap justify-between items-end gap-4">
+<div class="flex flex-col gap-1">
+<h1 class="text-[#0d111b] dark:text-white text-3xl md:text-4xl font-black leading-tight tracking-[-0.033em]">Dashboard</h1>
+<p class="text-[#4c5f9a] dark:text-gray-400 text-base font-normal">Welcome back, Mr. Gakwaya</p>
+</div>
+<div class="flex gap-2">
+<button class="flex items-center justify-center h-10 w-10 rounded-full bg-white dark:bg-[#151a2d] border border-[#cfd5e7] dark:border-gray-700 text-[#4c5f9a] dark:text-gray-300 hover:text-primary transition-colors">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="flex items-center justify-center h-10 w-10 rounded-full bg-white dark:bg-[#151a2d] border border-[#cfd5e7] dark:border-gray-700 text-[#4c5f9a] dark:text-gray-300 hover:text-primary transition-colors">
+<span class="material-symbols-outlined">help</span>
+</button>
+</div>
+</div>
+<!-- Quick Stats Widgets -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+<!-- Fees Widget -->
+<div class="flex flex-col gap-2 rounded-xl p-5 bg-white dark:bg-[#1e2336] shadow-sm border border-[#cfd5e7]/50 dark:border-gray-700">
+<div class="flex items-center justify-between">
+<p class="text-[#4c5f9a] dark:text-gray-400 text-sm font-medium uppercase tracking-wider">Total Fees Due</p>
+<div class="bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 p-1.5 rounded-full">
+<span class="material-symbols-outlined text-lg">payments</span>
+</div>
+</div>
+<p class="text-[#0d111b] dark:text-white tracking-tight text-2xl font-bold leading-tight mt-1">17,500 RWF</p>
+<div class="mt-2 text-xs text-[#4c5f9a] dark:text-gray-500">
+                                Due date: Oct 30, 2023
+                            </div>
+</div>
+<!-- Announcements Widget -->
+<div class="flex flex-col gap-2 rounded-xl p-5 bg-white dark:bg-[#1e2336] shadow-sm border border-[#cfd5e7]/50 dark:border-gray-700">
+<div class="flex items-center justify-between">
+<p class="text-[#4c5f9a] dark:text-gray-400 text-sm font-medium uppercase tracking-wider">Announcements</p>
+<div class="bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 p-1.5 rounded-full">
+<span class="material-symbols-outlined text-lg">campaign</span>
+</div>
+</div>
+<p class="text-[#0d111b] dark:text-white tracking-tight text-2xl font-bold leading-tight mt-1">2 New</p>
+<div class="mt-2 text-xs text-[#4c5f9a] dark:text-gray-500 hover:underline cursor-pointer">
+                                View school notices
+                            </div>
+</div>
+<!-- Quick Links/Help Widget -->
+<div class="flex flex-col gap-2 rounded-xl p-5 bg-primary/5 dark:bg-primary/10 shadow-sm border border-primary/20 dark:border-primary/20">
+<div class="flex items-center justify-between">
+<p class="text-[#4c5f9a] dark:text-gray-400 text-sm font-medium uppercase tracking-wider">Need Help?</p>
+<div class="bg-primary/10 dark:bg-primary/20 text-primary p-1.5 rounded-full">
+<span class="material-symbols-outlined text-lg">support_agent</span>
+</div>
+</div>
+<p class="text-[#0d111b] dark:text-white text-base font-semibold leading-tight mt-1">Contact Administration</p>
+<div class="mt-auto">
+<a class="text-xs font-bold text-primary hover:text-primary/80 flex items-center gap-1" href="#">
+                                    Start Chat <span class="material-symbols-outlined text-sm">arrow_forward</span>
+</a>
+</div>
+</div>
+</div>
+</div>
+<!-- Children Section -->
+<div class="flex flex-col gap-4">
+<div class="flex items-center justify-between">
+<h2 class="text-[#0d111b] dark:text-white tracking-tight text-[22px] font-bold leading-tight">My Children</h2>
+<a class="text-sm font-semibold text-primary hover:text-primary/80 hidden sm:block" href="#">Manage Students</a>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-2 gap-6">
+<!-- Student Card 1: Akaliza -->
+<div class="bg-white dark:bg-[#1e2336] rounded-xl border border-[#cfd5e7] dark:border-gray-700 shadow-sm hover:shadow-md transition-shadow duration-200 overflow-hidden flex flex-col">
+<div class="p-6 flex flex-col gap-6 flex-1">
+<!-- Header -->
+<div class="flex items-start justify-between gap-4">
+<div class="flex gap-4 items-center">
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full h-16 w-16 border-2 border-white dark:border-gray-600 shadow-sm" data-alt="Portrait of Akaliza Keza" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuAtUtkwoK-qHhnEwPBE2twSEcEFyreWDZPJOKiCNsCqZ0gNaxeupRHUunKWgJgjXlEPOJLnkoGvTuxwwiotb_dtIHE_dUw3Dh5H9WtUqW9IWPdcn0Pcc4Qca-evjvFK9mt4FeM6PrTvyJ7GZmE99BZe6EP6ERmqIBQM0tFBXWQ7C5ou44x17XbZ2KdbpqY7tO3WK23lYP_usqm0TItYsSttF0oJBYAbQ9wl7dKp0dCXy5OtV8xB8JMUoJ1Pls7t9l0SVI9B5wAoB06w");'></div>
+<div>
+<h3 class="text-[#0d111b] dark:text-white text-xl font-bold leading-tight">Akaliza Keza</h3>
+<p class="text-[#4c5f9a] dark:text-gray-400 text-sm font-normal mt-1">Grade 4 • Class B</p>
+</div>
+</div>
+<!-- Attendance Badge -->
+<div class="flex items-center gap-1.5 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 px-3 py-1 rounded-full text-xs font-bold border border-green-200 dark:border-green-800">
+<div class="h-2 w-2 rounded-full bg-green-500 animate-pulse"></div>
+                                        Present
+                                    </div>
+</div>
+<!-- Info Block -->
+<div class="bg-[#f8f9fc] dark:bg-[#151a2d] rounded-lg p-4 flex justify-between items-center border border-[#e7eaf3] dark:border-gray-700/50">
+<div class="flex flex-col gap-1">
+<span class="text-xs text-[#4c5f9a] dark:text-gray-400 font-semibold uppercase tracking-wider">Wallet Balance</span>
+<span class="text-2xl font-bold text-golden-amber flex items-center gap-1">
+                                            15,000 <span class="text-xs font-normal text-[#4c5f9a] dark:text-gray-400 mt-1">RWF</span>
+</span>
+</div>
+<div class="h-10 w-10 bg-golden-amber/10 rounded-full flex items-center justify-center text-golden-amber">
+<span class="material-symbols-outlined">account_balance_wallet</span>
+</div>
+</div>
+<!-- Additional detail snippet -->
+<div class="flex items-center gap-2 text-sm text-[#4c5f9a] dark:text-gray-400">
+<span class="material-symbols-outlined text-lg">schedule</span>
+<span>Arrived at 07:45 AM today</span>
+</div>
+</div>
+<!-- Actions Footer -->
+<div class="p-4 bg-[#f8f9fc] dark:bg-[#151a2d] border-t border-[#cfd5e7] dark:border-gray-700 flex gap-3">
+<button class="flex-1 cursor-pointer items-center justify-center rounded-lg h-10 px-4 bg-primary hover:bg-primary/90 text-white text-sm font-bold tracking-wide transition-colors shadow-sm">
+                                    Top Up
+                                </button>
+<button class="flex-1 cursor-pointer items-center justify-center rounded-lg h-10 px-4 bg-white dark:bg-gray-700 border border-[#cfd5e7] dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-600 text-[#0d111b] dark:text-white text-sm font-medium tracking-wide transition-colors">
+                                    View Details
+                                </button>
+</div>
+</div>
+<!-- Student Card 2: Mugisha -->
+<div class="bg-white dark:bg-[#1e2336] rounded-xl border border-[#cfd5e7] dark:border-gray-700 shadow-sm hover:shadow-md transition-shadow duration-200 overflow-hidden flex flex-col">
+<div class="p-6 flex flex-col gap-6 flex-1">
+<!-- Header -->
+<div class="flex items-start justify-between gap-4">
+<div class="flex gap-4 items-center">
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full h-16 w-16 border-2 border-white dark:border-gray-600 shadow-sm" data-alt="Portrait of Mugisha David" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuBfLySgdv_AQd8rEVuo7eXGMd23092Us2Nb7YY25RtmkgmGwaqr984c7i5yrunElNkJlTWqS0toXxxcoL7usm-_3cdnzjCrREt6wLIc98BCZ7cxp_ZE9HsEFZCoFrjiR2j_gIAZYB8DsqVeWnmPaP1IqZI151rZK8FuJ3xesnJk-CPoCkOXpPcMAxySOIeBJKsZjjTolGKuqPwTVqp_qJ9pEhmK-Nt9Wf2EHHVpjJQ4eZcbhtCo6_I_V0U9KqLMm5VTfPfaZKybepHL");'></div>
+<div>
+<h3 class="text-[#0d111b] dark:text-white text-xl font-bold leading-tight">Mugisha David</h3>
+<p class="text-[#4c5f9a] dark:text-gray-400 text-sm font-normal mt-1">Grade 2 • Class A</p>
+</div>
+</div>
+<!-- Attendance Badge -->
+<div class="flex items-center gap-1.5 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 px-3 py-1 rounded-full text-xs font-bold border border-red-200 dark:border-red-800">
+<span class="material-symbols-outlined text-sm">block</span>
+                                        Absent
+                                    </div>
+</div>
+<!-- Info Block -->
+<div class="bg-[#f8f9fc] dark:bg-[#151a2d] rounded-lg p-4 flex justify-between items-center border border-[#e7eaf3] dark:border-gray-700/50 relative overflow-hidden">
+<!-- Low Balance Indicator -->
+<div class="absolute top-0 right-0 p-1">
+<div class="bg-red-500 h-2 w-2 rounded-full"></div>
+</div>
+<div class="flex flex-col gap-1">
+<span class="text-xs text-[#4c5f9a] dark:text-gray-400 font-semibold uppercase tracking-wider">Wallet Balance</span>
+<span class="text-2xl font-bold text-golden-amber flex items-center gap-1">
+                                            2,500 <span class="text-xs font-normal text-[#4c5f9a] dark:text-gray-400 mt-1">RWF</span>
+</span>
+<span class="text-[10px] font-bold text-red-500 uppercase">Low Balance</span>
+</div>
+<div class="h-10 w-10 bg-golden-amber/10 rounded-full flex items-center justify-center text-golden-amber">
+<span class="material-symbols-outlined">account_balance_wallet</span>
+</div>
+</div>
+<!-- Additional detail snippet -->
+<div class="flex items-center gap-2 text-sm text-[#4c5f9a] dark:text-gray-400">
+<span class="material-symbols-outlined text-lg">info</span>
+<span>Not checked in today</span>
+</div>
+</div>
+<!-- Actions Footer -->
+<div class="p-4 bg-[#f8f9fc] dark:bg-[#151a2d] border-t border-[#cfd5e7] dark:border-gray-700 flex gap-3">
+<button class="flex-1 cursor-pointer items-center justify-center rounded-lg h-10 px-4 bg-primary hover:bg-primary/90 text-white text-sm font-bold tracking-wide transition-colors shadow-sm">
+                                    Top Up
+                                </button>
+<button class="flex-1 cursor-pointer items-center justify-center rounded-lg h-10 px-4 bg-white dark:bg-gray-700 border border-[#cfd5e7] dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-600 text-[#0d111b] dark:text-white text-sm font-medium tracking-wide transition-colors">
+                                    View Details
+                                </button>
+</div>
+</div>
+<!-- Empty State / Add Student Card -->
+<div class="rounded-xl border-2 border-dashed border-[#cfd5e7] dark:border-gray-700 flex flex-col items-center justify-center p-8 gap-4 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors cursor-pointer group min-h-[300px]">
+<div class="h-14 w-14 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-gray-400 group-hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-3xl">add</span>
+</div>
+<div class="text-center">
+<h3 class="text-[#0d111b] dark:text-white text-lg font-bold">Add Another Student</h3>
+<p class="text-[#4c5f9a] dark:text-gray-400 text-sm mt-1">Link a new student ID to your account</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Footer / Legal -->
+<div class="mt-8 border-t border-[#cfd5e7] dark:border-gray-800 pt-6 flex flex-col md:flex-row justify-between items-center text-xs text-[#4c5f9a] dark:text-gray-500">
+<p>© 2023 IshuriHub. All rights reserved.</p>
+<div class="flex gap-4 mt-2 md:mt-0">
+<a class="hover:underline" href="#">Privacy Policy</a>
+<a class="hover:underline" href="#">Terms of Service</a>
+<a class="hover:underline" href="#">Support</a>
+</div>
+</div>
+</div>
+</main>
+</div>
+</body></html>

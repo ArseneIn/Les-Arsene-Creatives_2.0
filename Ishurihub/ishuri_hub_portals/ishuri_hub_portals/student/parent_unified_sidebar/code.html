@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>IshuriHub - Student/Parent Portal</title>
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Theme Configuration -->
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#1349ec",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#101522",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .material-symbols-outlined.fill {
+            font-variation-settings: 'FILL' 1;
+        }
+        /* Hide scrollbar for cleaner sidebar */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-[#0d111b] dark:text-white font-display antialiased h-screen overflow-hidden flex">
+<!-- Unified Sidebar -->
+<aside class="w-[280px] h-full bg-white dark:bg-[#1a202e] border-r border-[#e5e7eb] dark:border-[#2d3748] flex flex-col flex-shrink-0 z-20">
+<!-- Brand Header -->
+<div class="px-6 py-6 flex items-center gap-3">
+<div class="size-8 rounded-lg bg-primary flex items-center justify-center shadow-lg shadow-blue-500/20">
+<span class="text-white font-bold text-lg leading-none">I</span>
+</div>
+<span class="text-lg font-bold tracking-tight text-[#0d111b] dark:text-white">IshuriHub</span>
+</div>
+<!-- Role/Child Switcher -->
+<div class="px-4 pb-4">
+<button class="w-full relative flex items-center gap-3 p-3 rounded-xl bg-background-light dark:bg-[#252b3b] border border-transparent hover:border-[#cfd5e7] dark:hover:border-[#4a5568] transition-all group cursor-pointer text-left">
+<div class="bg-center bg-no-repeat bg-cover rounded-full size-10 flex-shrink-0 ring-2 ring-white dark:ring-[#2d3748]" data-alt="Portrait of student Sarah M" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDAwt2237WAKwTK3cAl6jcnjssc4AGec1dV3TZgqVQfGmiSgT1T0UwDlQO4RIFTUfKSrHhzk_iaonmofcr0YuHKD0XWH9lcmbE0Ugnb_6VyPwsVJRtbci7NX79aOTKLuWotnUg_y0K026UAZp7aXbHTlPCl3j2tTaGvTCT5_1urVdl467Pifebwd8XA4fvCadxW0_ViaIxkp-W1OwDy1aIUlah1yRM5WhCanFVBLxaeJki87_CY9X2Otqd0WhdFFP0twiyleUy3evI4");'>
+</div>
+<div class="flex flex-col min-w-0 flex-1">
+<span class="text-sm font-bold text-[#0d111b] dark:text-white truncate">Sarah M.</span>
+<span class="text-xs text-[#4c5f9a] dark:text-[#94a3b8] truncate">Grade 5 - St. Mary's</span>
+</div>
+<span class="material-symbols-outlined text-[#4c5f9a] dark:text-[#64748b] group-hover:text-primary transition-colors text-[20px]">expand_more</span>
+<!-- Dropdown Hint (Visual only for design) -->
+<div class="absolute inset-0 rounded-xl ring-1 ring-black/5 dark:ring-white/10 pointer-events-none"></div>
+</button>
+<div class="mt-2 text-center">
+<span class="text-[10px] uppercase tracking-wider font-semibold text-[#64748b] dark:text-[#64748b]">Switch Child</span>
+</div>
+</div>
+<!-- Navigation Menu -->
+<nav class="flex-1 overflow-y-auto no-scrollbar px-4 space-y-1">
+<div class="text-xs font-semibold text-[#94a3b8] px-3 py-2 uppercase tracking-wider">Menu</div>
+<a class="flex items-center gap-3 px-3 py-3 rounded-lg bg-primary text-white shadow-md shadow-blue-500/20 group transition-all" href="#">
+<span class="material-symbols-outlined fill text-[22px]">space_dashboard</span>
+<span class="text-sm font-medium">My Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-3 rounded-lg text-[#4c5f9a] dark:text-[#94a3b8] hover:bg-slate-50 dark:hover:bg-[#252b3b] hover:text-[#0d111b] dark:hover:text-white transition-all group" href="#">
+<span class="material-symbols-outlined text-[22px]">badge</span>
+<span class="text-sm font-medium">Digital ID</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-3 rounded-lg text-[#4c5f9a] dark:text-[#94a3b8] hover:bg-slate-50 dark:hover:bg-[#252b3b] hover:text-[#0d111b] dark:hover:text-white transition-all group" href="#">
+<span class="material-symbols-outlined text-[22px]">menu_book</span>
+<span class="text-sm font-medium">Library Loans</span>
+<span class="ml-auto bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 text-[10px] font-bold px-1.5 py-0.5 rounded-full">1 Due</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-3 rounded-lg text-[#4c5f9a] dark:text-[#94a3b8] hover:bg-slate-50 dark:hover:bg-[#252b3b] hover:text-[#0d111b] dark:hover:text-white transition-all group" href="#">
+<span class="material-symbols-outlined text-[22px]">lunch_dining</span>
+<span class="text-sm font-medium">Canteen History</span>
+</a>
+</nav>
+<!-- Secondary/Utility Links -->
+<div class="p-4 border-t border-[#e5e7eb] dark:border-[#2d3748] space-y-1">
+<a class="flex items-center gap-3 px-3 py-3 rounded-lg text-[#4c5f9a] dark:text-[#94a3b8] hover:bg-slate-50 dark:hover:bg-[#252b3b] hover:text-[#0d111b] dark:hover:text-white transition-all" href="#">
+<span class="material-symbols-outlined text-[22px]">manage_accounts</span>
+<span class="text-sm font-medium">Account Settings</span>
+</a>
+<button class="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-[#4c5f9a] dark:text-[#94a3b8] hover:bg-red-50 dark:hover:bg-red-900/10 hover:text-red-600 dark:hover:text-red-400 transition-all text-left">
+<span class="material-symbols-outlined text-[22px]">logout</span>
+<span class="text-sm font-medium">Sign Out</span>
+</button>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="flex-1 h-full overflow-y-auto bg-background-light dark:bg-background-dark scroll-smooth">
+<div class="max-w-[1100px] mx-auto p-6 md:p-10 space-y-8">
+<!-- Header Image / Welcome Section -->
+<header class="relative rounded-2xl overflow-hidden min-h-[240px] flex items-end p-8 bg-[#1349ec] shadow-lg" data-alt="Abstract blue and purple gradient geometric pattern" style='background-image: linear-gradient(0deg, rgba(0, 0, 0, 0.5) 0%, rgba(0, 0, 0, 0) 60%), url("https://lh3.googleusercontent.com/aida-public/AB6AXuDx46spAulcY7Vs7475Lgc5To_ERNMaRFvqkT91r-Xfup3cvMkk2CPC19P-Y07A5TnGyFQFljZFerFaR_g9Qx70vvFzaY9zA1idtXXTsNmj04uRqgzMBYhU5gT45fGhz4HQcJO4go5dBuU7Gfmktvlg9UR_fFZzcVTBxJ4_YCON_x5Tvn_AYTuAFICufDfHu1NquUI6TKwRXJWFtQ1OpugHhBeFBPJg5OjLElG1IbK3-zQqt-cxYSVDQheYj18V1tEY5bziBGVCvsDO"); background-size: cover; background-position: center;'>
+<div class="relative z-10 w-full flex justify-between items-end">
+<div>
+<p class="text-white/80 font-medium mb-1">Thursday, October 24</p>
+<h2 class="text-white text-3xl font-bold leading-tight">Good Morning, Sarah!</h2>
+</div>
+<button class="hidden sm:flex items-center gap-2 bg-white/20 hover:bg-white/30 backdrop-blur-md border border-white/30 text-white px-4 py-2 rounded-lg text-sm font-bold transition-all">
+<span class="material-symbols-outlined text-[18px]">add</span>
+                        Top Up Wallet
+                    </button>
+</div>
+</header>
+<!-- Stats Section -->
+<section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
+<!-- Wallet Balance Card -->
+<div class="bg-white dark:bg-[#1a202e] rounded-xl p-6 border border-[#e5e7eb] dark:border-[#2d3748] shadow-sm hover:shadow-md transition-shadow">
+<div class="flex justify-between items-start mb-4">
+<div class="p-3 rounded-lg bg-blue-50 dark:bg-blue-900/20 text-primary">
+<span class="material-symbols-outlined">account_balance_wallet</span>
+</div>
+<span class="bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-xs font-bold px-2 py-1 rounded-md flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">arrow_upward</span>
+                            $10.00
+                        </span>
+</div>
+<div>
+<p class="text-[#4c5f9a] dark:text-[#94a3b8] text-sm font-medium mb-1">Wallet Balance</p>
+<h3 class="text-[#0d111b] dark:text-white text-3xl font-bold tracking-tight">$45.50</h3>
+<p class="text-xs text-[#94a3b8] mt-2">Last top-up: Yesterday via Parent App</p>
+</div>
+</div>
+<!-- Attendance Rate Card -->
+<div class="bg-white dark:bg-[#1a202e] rounded-xl p-6 border border-[#e5e7eb] dark:border-[#2d3748] shadow-sm hover:shadow-md transition-shadow">
+<div class="flex justify-between items-start mb-4">
+<div class="p-3 rounded-lg bg-purple-50 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400">
+<span class="material-symbols-outlined">calendar_month</span>
+</div>
+<span class="bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 text-xs font-bold px-2 py-1 rounded-md flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">arrow_downward</span>
+                            2%
+                        </span>
+</div>
+<div>
+<p class="text-[#4c5f9a] dark:text-[#94a3b8] text-sm font-medium mb-1">Attendance Rate</p>
+<h3 class="text-[#0d111b] dark:text-white text-3xl font-bold tracking-tight">98%</h3>
+<p class="text-xs text-[#94a3b8] mt-2">On track for "Perfect Attendance" award</p>
+</div>
+</div>
+</section>
+<!-- Chart Section -->
+<section class="bg-white dark:bg-[#1a202e] rounded-xl border border-[#e5e7eb] dark:border-[#2d3748] shadow-sm p-6 md:p-8">
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+<div>
+<h3 class="text-[#0d111b] dark:text-white text-lg font-bold">Attendance History</h3>
+<div class="flex items-center gap-2 mt-1">
+<p class="text-[#4c5f9a] dark:text-[#94a3b8] text-sm">Last 30 Days Overview</p>
+</div>
+</div>
+<div class="flex gap-2">
+<button class="px-3 py-1.5 text-sm font-medium bg-primary text-white rounded-md shadow-sm">Weekly</button>
+<button class="px-3 py-1.5 text-sm font-medium bg-background-light dark:bg-[#2d3748] text-[#4c5f9a] dark:text-[#94a3b8] rounded-md hover:bg-[#e5e7eb] dark:hover:bg-[#4a5568] transition-colors">Monthly</button>
+</div>
+</div>
+<div class="relative w-full h-[200px] sm:h-[240px]">
+<!-- Chart SVG -->
+<svg class="w-full h-full overflow-visible" preserveaspectratio="none" viewbox="0 0 800 240">
+<defs>
+<lineargradient id="chartGradient" x1="0" x2="0" y1="0" y2="1">
+<stop offset="0%" stop-color="#1349ec" stop-opacity="0.15"></stop>
+<stop offset="100%" stop-color="#1349ec" stop-opacity="0"></stop>
+</lineargradient>
+</defs>
+<!-- Grid Lines -->
+<line class="dark:stroke-[#2d3748]" stroke="#e5e7eb" stroke-width="1" x1="0" x2="800" y1="200" y2="200"></line>
+<line class="dark:stroke-[#2d3748]" stroke="#e5e7eb" stroke-dasharray="4 4" stroke-width="1" x1="0" x2="800" y1="133" y2="133"></line>
+<line class="dark:stroke-[#2d3748]" stroke="#e5e7eb" stroke-dasharray="4 4" stroke-width="1" x1="0" x2="800" y1="66" y2="66"></line>
+<!-- Data Area -->
+<path d="M0,200 L0,120 C80,120 80,60 160,60 C240,60 240,160 320,160 C400,160 400,40 480,40 C560,40 560,90 640,90 C720,90 720,50 800,50 V200 H0 Z" fill="url(#chartGradient)"></path>
+<!-- Data Line -->
+<path d="M0,120 C80,120 80,60 160,60 C240,60 240,160 320,160 C400,160 400,40 480,40 C560,40 560,90 640,90 C720,90 720,50 800,50" fill="none" stroke="#1349ec" stroke-linecap="round" stroke-linejoin="round" stroke-width="3"></path>
+<!-- Data Points -->
+<circle class="fill-white stroke-primary stroke-2 dark:fill-[#1a202e]" cx="160" cy="60" r="4"></circle>
+<circle class="fill-white stroke-primary stroke-2 dark:fill-[#1a202e]" cx="320" cy="160" r="4"></circle>
+<circle class="fill-white stroke-primary stroke-2 dark:fill-[#1a202e]" cx="480" cy="40" r="4"></circle>
+<circle class="fill-white stroke-primary stroke-2 dark:fill-[#1a202e]" cx="640" cy="90" r="4"></circle>
+</svg>
+<!-- X Axis Labels -->
+<div class="flex justify-between mt-4 px-4 text-xs font-semibold text-[#4c5f9a] dark:text-[#94a3b8] uppercase tracking-wide">
+<span>Sep 24</span>
+<span>Oct 01</span>
+<span>Oct 08</span>
+<span>Oct 15</span>
+<span>Oct 22</span>
+</div>
+</div>
+</section>
+</div>
+</main>
+</body></html>

@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Teacher Assignment Manager</title>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Google Fonts: Inter -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#1111d4",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#101022",
+                    },
+                    fontFamily: {
+                        "display": ["Inter"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 font-display">
+<!-- Layout Wrapper -->
+<div class="flex h-screen overflow-hidden">
+<!-- Side Navigation Bar -->
+<aside class="w-64 flex flex-col bg-white dark:bg-[#16162d] border-r border-slate-200 dark:border-slate-800">
+<div class="p-6">
+<div class="flex items-center gap-3">
+<div class="bg-primary p-1.5 rounded-lg text-white">
+<span class="material-symbols-outlined">school</span>
+</div>
+<div>
+<h1 class="text-slate-900 dark:text-white text-base font-bold leading-none">EduAdmin</h1>
+<p class="text-slate-500 dark:text-slate-400 text-[11px] uppercase tracking-wider font-semibold mt-1">Portal v2.4</p>
+</div>
+</div>
+</div>
+<nav class="flex-1 px-4 space-y-1">
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg bg-primary/10 text-primary" href="#">
+<span class="material-symbols-outlined">group</span>
+<span class="text-sm font-semibold tracking-tight">Teachers</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors" href="#">
+<span class="material-symbols-outlined">book_4</span>
+<span class="text-sm font-medium tracking-tight">Classes</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors" href="#">
+<span class="material-symbols-outlined">calendar_month</span>
+<span class="text-sm font-medium tracking-tight">Schedules</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors" href="#">
+<span class="material-symbols-outlined">bar_chart_4_bars</span>
+<span class="text-sm font-medium tracking-tight">Reports</span>
+</a>
+<div class="pt-4 pb-2">
+<p class="px-3 text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">Settings</p>
+</div>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="text-sm font-medium tracking-tight">Config</span>
+</a>
+</nav>
+<div class="p-4 border-t border-slate-200 dark:border-slate-800">
+<div class="flex items-center gap-3 px-2 py-2">
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-8" data-alt="administrator profile avatar" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDk8NcbvqWm6HucBu_KBwmFGBqmIRNyWmCv98lKi11agUfDrzvEaRas79uaAaFViVf-dQg6Ny7eTCENpH2MQ3EtsUGxK1zGNy04U2d5RbOu77O-UJ6YcTZu6_RAvBK3HoKSnicTwKlMYOwtD2KCWvw1OsSyBZEN9KC84GW67eHjLyQEpU2QtfOrdIO1VoFxoW2f7DHK5hT5CiPAtAx9JWbp6oEqzykydv_V9lp9crBJRRzKQcdk9x1OiUk-U9WtEPKc8jhJ-mJ03Puc");'></div>
+<div class="flex-1 overflow-hidden">
+<p class="text-sm font-bold truncate">Admin User</p>
+<p class="text-xs text-slate-500 truncate">Super Admin</p>
+</div>
+</div>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="flex-1 flex flex-col relative overflow-hidden">
+<!-- Top Navigation Bar -->
+<header class="h-16 flex items-center justify-between px-8 bg-white dark:bg-[#16162d] border-b border-slate-200 dark:border-slate-800">
+<div class="flex items-center flex-1">
+<div class="relative w-full max-w-md">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-lg">search</span>
+<input class="w-full bg-slate-100 dark:bg-slate-800 border-none rounded-lg pl-10 pr-4 py-2 text-sm focus:ring-2 focus:ring-primary/50 text-slate-900 dark:text-white placeholder:text-slate-500" placeholder="Search teachers, subjects, or IDs..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<button class="relative p-2 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-2 right-2 w-2 h-2 bg-red-500 border-2 border-white dark:border-[#16162d] rounded-full"></span>
+</button>
+<button class="flex items-center gap-2 px-3 py-1.5 text-sm font-semibold bg-primary text-white rounded-lg hover:bg-primary/90 transition-all">
+<span class="material-symbols-outlined text-sm">add</span>
+<span>Add Teacher</span>
+</button>
+</div>
+</header>
+<!-- Page Content -->
+<div class="flex-1 overflow-y-auto p-8">
+<!-- Page Heading -->
+<div class="flex flex-col mb-8">
+<h2 class="text-3xl font-black text-slate-900 dark:text-white tracking-tight">Teacher Management</h2>
+<p class="text-slate-500 dark:text-slate-400 mt-1">Review faculty certifications and adjust class load distributions.</p>
+</div>
+<!-- Filters/Chips -->
+<div class="flex gap-2 mb-6 overflow-x-auto pb-2">
+<button class="flex h-9 shrink-0 items-center justify-center gap-x-2 rounded-lg bg-primary text-white px-4 text-sm font-semibold shadow-sm">
+<span>All Faculty</span>
+</button>
+<button class="flex h-9 shrink-0 items-center justify-center gap-x-2 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-4 text-sm font-medium hover:border-primary transition-colors">
+<span>Science</span>
+<span class="material-symbols-outlined text-sm">expand_more</span>
+</button>
+<button class="flex h-9 shrink-0 items-center justify-center gap-x-2 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-4 text-sm font-medium hover:border-primary transition-colors">
+<span>Mathematics</span>
+<span class="material-symbols-outlined text-sm">expand_more</span>
+</button>
+<button class="flex h-9 shrink-0 items-center justify-center gap-x-2 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-4 text-sm font-medium hover:border-primary transition-colors">
+<span>Humanities</span>
+<span class="material-symbols-outlined text-sm">expand_more</span>
+</button>
+</div>
+<!-- Data Table -->
+<div class="bg-white dark:bg-[#16162d] rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-slate-50 dark:bg-slate-800/50 text-slate-500 dark:text-slate-400 uppercase text-[11px] font-bold tracking-wider">
+<th class="px-6 py-4">Faculty Member</th>
+<th class="px-6 py-4">Authorized Subjects</th>
+<th class="px-6 py-4">Current Load</th>
+<th class="px-6 py-4">Status</th>
+<th class="px-6 py-4 text-right">Actions</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+<!-- Row 1 -->
+<tr class="hover:bg-slate-50/80 dark:hover:bg-slate-800/30 transition-colors">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="size-10 rounded-full bg-slate-200 flex-shrink-0" data-alt="Portrait of Sarah Jenkins" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuBQk3bEwhbjAV-Y-SxKymOBlmuqSyTY1MtDzm0CL1PCwwPZaOkrEvxjOy9RZPQ-KyJb_348YK3Hoj9wetuQhNdflUsfmi1XhOS-2JiQ7idwo0lI71Nn-JlL5QllxcVHkpLxB-qkTfcMi2YM1KdhlkBuAY4Qw6Fs2zj5c600swGEsFXXUBEXxk2R5oCC6TKvh3pcst3SwsfJrl2FPO3f5aZgJjzZnG6pH9IGcfVoSqMDK9Qt6XN5O93Q1of_MCbRs1ww5UwhYev4bNpM"); background-size: cover;'></div>
+<div>
+<p class="font-bold text-sm text-slate-900 dark:text-white">Dr. Sarah Jenkins</p>
+<p class="text-xs text-slate-500">ID: FAC-8821</p>
+</div>
+</div>
+</td>
+<td class="px-6 py-4">
+<div class="flex flex-wrap gap-1.5">
+<span class="px-2 py-0.5 rounded text-[11px] font-bold bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300">Physics</span>
+<span class="px-2 py-0.5 rounded text-[11px] font-bold bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300">Math</span>
+</div>
+</td>
+<td class="px-6 py-4">
+<div class="flex flex-col gap-1 w-24">
+<div class="flex justify-between text-[10px] font-bold">
+<span>4/5 Classes</span>
+<span>80%</span>
+</div>
+<div class="h-1.5 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+<div class="h-full bg-primary" style="width: 80%"></div>
+</div>
+</div>
+</td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400">
+<span class="size-1.5 rounded-full bg-emerald-500"></span>
+                                        Active
+                                    </span>
+</td>
+<td class="px-6 py-4 text-right">
+<button class="text-primary font-bold text-sm hover:underline">Edit</button>
+</td>
+</tr>
+<!-- Row 2 -->
+<tr class="hover:bg-slate-50/80 dark:hover:bg-slate-800/30 transition-colors">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="size-10 rounded-full bg-slate-200 flex-shrink-0" data-alt="Portrait of Michael Chen" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuBzzoyAWfglqMwqKs7mrTbd6vkSubsF6szCpE737PzBRbYA0254CxlXCtKWAAdDVAtLPc8SvqsaERTGHAWVbziltS1cv2l3AHUgRsQPa18GRfXvcDkFBZx5g6UDXJdIWoTQyO4-3xusFcovXRBIR2AbvRTPsBni7Pdw0DDtMAMaTuf_vZ3P7RGzoBbBnWnJXvor-zyW1DFqmaUqrWmTu9Hngwo4QjUWyNBZW61A3GY_HNYGrajjzmC8B9npenzR7nWcPSFVW2fI1hFz"); background-size: cover;'></div>
+<div>
+<p class="font-bold text-sm text-slate-900 dark:text-white">Prof. Michael Chen</p>
+<p class="text-xs text-slate-500">ID: FAC-7432</p>
+</div>
+</div>
+</td>
+<td class="px-6 py-4">
+<div class="flex flex-wrap gap-1.5">
+<span class="px-2 py-0.5 rounded text-[11px] font-bold bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300">History</span>
+<span class="px-2 py-0.5 rounded text-[11px] font-bold bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300">English</span>
+</div>
+</td>
+<td class="px-6 py-4">
+<div class="flex flex-col gap-1 w-24">
+<div class="flex justify-between text-[10px] font-bold">
+<span>3/5 Classes</span>
+<span>60%</span>
+</div>
+<div class="h-1.5 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+<div class="h-full bg-primary" style="width: 60%"></div>
+</div>
+</div>
+</td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400">
+<span class="size-1.5 rounded-full bg-emerald-500"></span>
+                                        Active
+                                    </span>
+</td>
+<td class="px-6 py-4 text-right">
+<button class="text-primary font-bold text-sm hover:underline">Edit</button>
+</td>
+</tr>
+<!-- Row 3 -->
+<tr class="hover:bg-slate-50/80 dark:hover:bg-slate-800/30 transition-colors">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="size-10 rounded-full bg-slate-200 flex-shrink-0" data-alt="Portrait of Elena Rodriguez" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuBqWVOVGPmc1GtsZ6WISKEZ6iqhxuhrLmCgHcIeBOFl_4vvSIOfGqyDW4G1LYcUhsGvhcDnde1x6ll2Uq5z6xrvhorHb5hpzhFF9zojKq466Y5uw4PYb3SWciJenb6tcWAwZyQxWk9cvjDBUOPjPPdIqNkivzhTk0f9DtQ0dark78ZO6Ld0OpcPFul2lexAhBHClSNpUuVqt6DqxMl5DVVryCATGc7BcVJry_fzBFkakCKzhcdCt8OHYe3nO5ipnDH2tObVCLfvoeyp"); background-size: cover;'></div>
+<div>
+<p class="font-bold text-sm text-slate-900 dark:text-white">Ms. Elena Rodriguez</p>
+<p class="text-xs text-slate-500">ID: FAC-9104</p>
+</div>
+</div>
+</td>
+<td class="px-6 py-4">
+<div class="flex flex-wrap gap-1.5">
+<span class="px-2 py-0.5 rounded text-[11px] font-bold bg-teal-100 text-teal-700 dark:bg-teal-900/30 dark:text-teal-300">Biology</span>
+<span class="px-2 py-0.5 rounded text-[11px] font-bold bg-teal-100 text-teal-700 dark:bg-teal-900/30 dark:text-teal-300">Chemistry</span>
+</div>
+</td>
+<td class="px-6 py-4">
+<div class="flex flex-col gap-1 w-24">
+<div class="flex justify-between text-[10px] font-bold">
+<span>5/5 Classes</span>
+<span>100%</span>
+</div>
+<div class="h-1.5 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+<div class="h-full bg-amber-500" style="width: 100%"></div>
+</div>
+</div>
+</td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400">
+<span class="size-1.5 rounded-full bg-slate-400"></span>
+                                        On Leave
+                                    </span>
+</td>
+<td class="px-6 py-4 text-right">
+<button class="text-primary font-bold text-sm hover:underline">Edit</button>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="px-6 py-4 bg-slate-50 dark:bg-slate-800/50 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">
+<p class="text-xs text-slate-500 font-medium tracking-tight">Showing 3 of 42 Faculty Members</p>
+<div class="flex gap-2">
+<button class="px-3 py-1 text-xs font-bold bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-600 dark:text-slate-400 hover:border-primary transition-colors">Previous</button>
+<button class="px-3 py-1 text-xs font-bold bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-600 dark:text-slate-400 hover:border-primary transition-colors">Next</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Modal Overlay -->
+<div class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
+<!-- Profile Modal -->
+<div class="bg-white dark:bg-[#16162d] w-full max-w-xl rounded-xl shadow-2xl overflow-hidden border border-slate-200 dark:border-slate-700">
+<!-- Modal Header -->
+<div class="p-6 border-b border-slate-100 dark:border-slate-800 flex justify-between items-start">
+<div class="flex items-center gap-4">
+<div class="size-16 rounded-xl bg-slate-200" data-alt="Close up of Sarah Jenkins profile" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuC9qZlG_gyY5Ns80k5oEj--Stqqj8DsJkr3Cb3Tza4zbl3N-JNYZCDWw5fwdr17MYcuGqn-NSZvEQme1XOOmXwQQm9E557pRn0MDDPfPlmDYatyYbYP0UUQLsWCLk1HaIsqhjWk53cO6moRsecFoj3eYbPZyyNiKMu-LcsI02iaEgGbuZPk61WQJcp1rYqXsuakwMq-zqlwKL34MKvXwzb12JIozN38qBOIe2EjKzYS9nQ5DRnFAA9nG64C_rmVFsKAQUzULPmnv65x"); background-size: cover;'></div>
+<div>
+<h3 class="text-xl font-black text-slate-900 dark:text-white leading-tight">Dr. Sarah Jenkins</h3>
+<p class="text-sm text-slate-500 font-medium">Senior Faculty • Mathematics &amp; Sciences</p>
+<div class="flex gap-4 mt-1">
+<span class="flex items-center gap-1 text-[11px] font-bold text-slate-400"><span class="material-symbols-outlined text-sm">mail</span> sarah.j@edu.com</span>
+<span class="flex items-center gap-1 text-[11px] font-bold text-slate-400"><span class="material-symbols-outlined text-sm">badge</span> #FAC-8821</span>
+</div>
+</div>
+</div>
+<button class="p-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors">
+<span class="material-symbols-outlined">close</span>
+</button>
+</div>
+<!-- Modal Body -->
+<div class="p-6 overflow-y-auto max-h-[60vh]">
+<div class="space-y-6">
+<!-- Subject Authorization -->
+<div>
+<h4 class="text-sm font-black text-slate-900 dark:text-white uppercase tracking-widest mb-4">Subject Authorization</h4>
+<div class="grid grid-cols-2 gap-x-4 gap-y-3">
+<label class="flex items-center gap-3 p-3 rounded-lg border border-primary bg-primary/5 cursor-pointer">
+<input checked="" class="w-4 h-4 rounded text-primary border-slate-300 focus:ring-primary" type="checkbox"/>
+<span class="text-sm font-semibold text-slate-700 dark:text-slate-200">Mathematics</span>
+</label>
+<label class="flex items-center gap-3 p-3 rounded-lg border border-primary bg-primary/5 cursor-pointer">
+<input checked="" class="w-4 h-4 rounded text-primary border-slate-300 focus:ring-primary" type="checkbox"/>
+<span class="text-sm font-semibold text-slate-700 dark:text-slate-200">Physics</span>
+</label>
+<label class="flex items-center gap-3 p-3 rounded-lg border border-slate-200 dark:border-slate-700 hover:border-primary/50 cursor-pointer">
+<input class="w-4 h-4 rounded text-primary border-slate-300 focus:ring-primary" type="checkbox"/>
+<span class="text-sm font-medium text-slate-700 dark:text-slate-200">Biology</span>
+</label>
+<label class="flex items-center gap-3 p-3 rounded-lg border border-slate-200 dark:border-slate-700 hover:border-primary/50 cursor-pointer">
+<input class="w-4 h-4 rounded text-primary border-slate-300 focus:ring-primary" type="checkbox"/>
+<span class="text-sm font-medium text-slate-700 dark:text-slate-200">Chemistry</span>
+</label>
+<label class="flex items-center gap-3 p-3 rounded-lg border border-slate-200 dark:border-slate-700 hover:border-primary/50 cursor-pointer">
+<input class="w-4 h-4 rounded text-primary border-slate-300 focus:ring-primary" type="checkbox"/>
+<span class="text-sm font-medium text-slate-700 dark:text-slate-200">History</span>
+</label>
+<label class="flex items-center gap-3 p-3 rounded-lg border border-slate-200 dark:border-slate-700 hover:border-primary/50 cursor-pointer">
+<input class="w-4 h-4 rounded text-primary border-slate-300 focus:ring-primary" type="checkbox"/>
+<span class="text-sm font-medium text-slate-700 dark:text-slate-200">English Lit</span>
+</label>
+</div>
+</div>
+<!-- Class Assignment -->
+<div>
+<h4 class="text-sm font-black text-slate-900 dark:text-white uppercase tracking-widest mb-4">Class Assignments</h4>
+<div class="space-y-3">
+<div class="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-800 rounded-lg">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-slate-400">layers</span>
+<div>
+<p class="text-xs font-bold text-slate-900 dark:text-white">Grade 11 Honors Physics</p>
+<p class="text-[10px] text-slate-500">Mon, Wed, Fri • Room 402</p>
+</div>
+</div>
+<button class="text-red-500 hover:text-red-600">
+<span class="material-symbols-outlined text-lg">do_not_disturb_on</span>
+</button>
+</div>
+<div class="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-800 rounded-lg">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-slate-400">layers</span>
+<div>
+<p class="text-xs font-bold text-slate-900 dark:text-white">Grade 12 Advanced Calculus</p>
+<p class="text-[10px] text-slate-500">Tue, Thu • Room 108</p>
+</div>
+</div>
+<button class="text-red-500 hover:text-red-600">
+<span class="material-symbols-outlined text-lg">do_not_disturb_on</span>
+</button>
+</div>
+<button class="w-full flex items-center justify-center gap-2 py-3 border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-lg text-slate-500 hover:border-primary hover:text-primary transition-all group">
+<span class="material-symbols-outlined text-sm">add_circle</span>
+<span class="text-xs font-bold uppercase tracking-wider">Assign New Class</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Modal Footer -->
+<div class="p-6 border-t border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/30 flex justify-end gap-3">
+<button class="px-6 py-2.5 rounded-lg text-sm font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+                            Cancel
+                        </button>
+<button class="px-8 py-2.5 rounded-lg bg-primary text-white text-sm font-bold shadow-lg shadow-primary/30 hover:bg-primary/90 transition-all">
+                            Save Changes
+                        </button>
+</div>
+</div>
+</div>
+</main>
+</div>
+</body></html>

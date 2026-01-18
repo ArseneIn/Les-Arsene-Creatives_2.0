@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Teacher Attendance Live Scan V2</title>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#1349ec",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#101522",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.375rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap');
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display h-screen flex flex-col overflow-hidden text-[#0d111b] dark:text-white transition-colors duration-200">
+<!-- Top Navigation Bar -->
+<header class="flex-none flex items-center justify-between border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-[#151a2d] px-8 py-4 z-20 shadow-sm">
+<div class="flex items-center gap-4">
+<div class="size-10 bg-primary/10 rounded-lg flex items-center justify-center text-primary">
+<span class="material-symbols-outlined !text-3xl">school</span>
+</div>
+<div>
+<h2 class="text-lg font-bold leading-tight tracking-tight dark:text-white">Kigali International School</h2>
+<p class="text-sm text-gray-500 dark:text-gray-400 font-medium">Morning Attendance Portal</p>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<div class="hidden md:flex items-center gap-2 px-4 py-2 bg-gray-100 dark:bg-gray-800 rounded-lg">
+<span class="material-symbols-outlined text-gray-500 dark:text-gray-400">schedule</span>
+<span class="text-sm font-semibold text-gray-700 dark:text-gray-300">07:48 AM</span>
+<span class="text-xs text-gray-400 font-medium ml-1">| Oct 24, 2023</span>
+</div>
+<div class="h-8 w-px bg-gray-200 dark:bg-gray-700 mx-2"></div>
+<button class="flex items-center gap-2 px-4 py-2 bg-red-50 hover:bg-red-100 text-red-600 dark:bg-red-900/20 dark:text-red-400 rounded-lg transition-colors text-sm font-bold">
+<span class="material-symbols-outlined !text-xl">logout</span>
+<span class="truncate">End Session</span>
+</button>
+<div class="size-10 rounded-full bg-cover bg-center border-2 border-white dark:border-gray-700 shadow-sm" data-alt="Teacher profile picture" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCheTQTRBiKDh_R17Hi84JJGnwQ0jaxBAcM46A_wtrh7oNR_Afs2d3zwqV-RTuOdCG2JGq1EubjauMW9JB3WzkOu9t77dX7FwNBi0WZZkEywkyut3SE992cjLIDbjUM_W4UOyM4PFceIQmNdPFr6d_sYK8Vw2dy5WWao4eDD200rSs2Irf5U8bHK6KHRrNYt34_FZz1WeaVUTcnQhLXCI1Ibc5iYO4SX5EIIuR2U4xTSj0pJ6FeFmjCoB5f3u3K2PCAcbT8QvRTi5oE");'>
+</div>
+</div>
+</header>
+<!-- Main Content Area -->
+<main class="flex-1 flex overflow-hidden relative">
+<!-- Left Column: Scanner Visualization & Action -->
+<div class="flex-1 flex flex-col items-center justify-center p-8 relative z-10">
+<!-- Dynamic Background decoration -->
+<div class="absolute inset-0 z-0 overflow-hidden pointer-events-none">
+<div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-primary/5 rounded-full blur-3xl dark:bg-primary/10"></div>
+</div>
+<!-- Scanner Status Hub -->
+<div class="relative z-10 w-full max-w-2xl mx-auto text-center flex flex-col items-center gap-8">
+<!-- Active Scan Card (Simulated "Just Scanned" State) -->
+<div class="w-full bg-white dark:bg-[#1e2538] rounded-2xl shadow-xl border border-gray-100 dark:border-gray-700 overflow-hidden transform transition-all hover:scale-[1.01] duration-300">
+<div class="flex flex-col md:flex-row">
+<!-- Student Photo -->
+<div class="md:w-2/5 aspect-[4/5] md:aspect-auto relative bg-gray-100 dark:bg-gray-800">
+<div class="absolute inset-0 bg-cover bg-center" data-alt="Portrait of student Mutesi Keza smiling" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuBxpPtyCuxfYZfvebF825_Dg0fVcGkQ6l52kMwp0bwUN5uYnyj2SgwmQoFY4u7q-5BSDyVftn8eyIRSumgTGE-L-H-2IHCoYDiiiwUBp_vMLYVTxx_36WNW0Kh2sX_qsU3SewRDKSHXmogE_sNB3My2loRpMfsgK5x2OueZVY43HBiJ0_LySOeiXJ6_hfF1wp73NJKjAlHJsxKwRlCW1rPU6RkXvkUdbflbiG-ZzXRbMUlv6n6tbQYkp-lKgybEB3vavTq_puknh66J");'>
+</div>
+<div class="absolute bottom-0 left-0 right-0 h-1/2 bg-gradient-to-t from-black/60 to-transparent"></div>
+<div class="absolute bottom-4 left-4 right-4 text-white">
+<span class="inline-block px-2 py-1 rounded bg-white/20 backdrop-blur-md text-xs font-bold border border-white/30">
+                                    Grade 11-B
+                                </span>
+</div>
+</div>
+<!-- Scan Details -->
+<div class="md:w-3/5 p-8 flex flex-col justify-center items-start text-left">
+<div class="flex items-center gap-2 mb-2">
+<span class="flex size-8 items-center justify-center rounded-full bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400">
+<span class="material-symbols-outlined !text-xl">check</span>
+</span>
+<span class="text-green-600 dark:text-green-400 font-bold text-sm tracking-wider uppercase">Verified Present</span>
+</div>
+<h1 class="text-4xl font-black text-[#0d111b] dark:text-white tracking-tight mb-2">Mutesi Keza</h1>
+<p class="text-gray-500 dark:text-gray-400 text-lg font-medium mb-6">ID: STU-2024-89</p>
+<div class="w-full h-px bg-gray-100 dark:bg-gray-700 mb-6"></div>
+<div class="grid grid-cols-2 gap-4 w-full">
+<div>
+<p class="text-xs text-gray-400 uppercase font-bold tracking-wider mb-1">Time In</p>
+<p class="text-xl font-bold text-[#0d111b] dark:text-white">07:48 AM</p>
+</div>
+<div>
+<p class="text-xs text-gray-400 uppercase font-bold tracking-wider mb-1">Status</p>
+<p class="text-base font-bold text-green-600 dark:text-green-400">On Time</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Bottom success bar -->
+<div class="h-2 w-full bg-green-500"></div>
+</div>
+<!-- Ready State Indicator (Visual Cue below the active card) -->
+<div class="flex flex-col items-center animate-pulse">
+<p class="text-primary font-bold tracking-widest uppercase text-sm mb-2">Scanner Ready</p>
+<div class="h-1.5 w-64 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+<div class="h-full bg-primary w-1/3 animate-[shimmer_2s_infinite]"></div>
+</div>
+</div>
+</div>
+<!-- Manual Toggle Footer -->
+<div class="absolute bottom-8 left-1/2 -translate-x-1/2">
+<button class="group flex items-center gap-3 bg-white dark:bg-[#1e2538] hover:bg-gray-50 dark:hover:bg-[#252d42] border border-gray-200 dark:border-gray-700 text-[#0d111b] dark:text-white px-6 py-3 rounded-full shadow-lg transition-all hover:shadow-xl">
+<span class="size-8 rounded-full bg-primary/10 text-primary flex items-center justify-center group-hover:bg-primary group-hover:text-white transition-colors">
+<span class="material-symbols-outlined !text-lg">keyboard</span>
+</span>
+<span class="font-bold text-sm">Switch to Manual Entry</span>
+</button>
+</div>
+</div>
+<!-- Right Column: Recent Scans History Sidebar -->
+<aside class="w-80 bg-white dark:bg-[#151a2d] border-l border-gray-200 dark:border-gray-800 flex flex-col z-20 shadow-xl lg:flex hidden">
+<div class="p-6 border-b border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-[#1a2035]/50">
+<h3 class="text-base font-bold text-[#0d111b] dark:text-white flex items-center gap-2">
+<span class="material-symbols-outlined text-gray-400">history</span>
+                    Recent Scans
+                </h3>
+</div>
+<div class="flex-1 overflow-y-auto p-4 space-y-3">
+<!-- Recent Item 1 -->
+<div class="flex items-center gap-3 p-3 rounded-xl bg-gray-50 dark:bg-gray-800/50 border border-transparent hover:border-gray-200 dark:hover:border-gray-700 transition-colors cursor-pointer group">
+<div class="size-12 rounded-full bg-cover bg-center shrink-0 border border-gray-200 dark:border-gray-700" data-alt="Thumbnail of student David N." style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuAJeHOvCi8oZso1q4QqKAEEBJalC5jODKq4t4SJGHIbhoZNPPA4idcks5fwQ6Ufnlh1MUKg0ymB0pw25oEVZG1g5LtIHTvQUtQoAl8vMYAXfA6WSTS8pd9ieJUI0g3km1PLZvMBIG3R8UCWtIrlbtQOKRmzp1P3CugSioYu0aMjiNuXujBw9JCcxjW-gqkqsKyCZCO-UFwK2-8IUjmDdtjwGWG0QxPbcU3zH80jl80-Tid8qNyVBrPT5gYztOsKq3DRwhFwxgTyAxQl");'>
+</div>
+<div class="flex-1 min-w-0">
+<p class="text-sm font-bold text-[#0d111b] dark:text-white truncate group-hover:text-primary transition-colors">David Ndayisenga</p>
+<p class="text-xs text-gray-500 dark:text-gray-400">07:47 AM</p>
+</div>
+<div class="size-6 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-green-600 dark:text-green-400 !text-sm">check</span>
+</div>
+</div>
+<!-- Recent Item 2 -->
+<div class="flex items-center gap-3 p-3 rounded-xl bg-gray-50 dark:bg-gray-800/50 border border-transparent hover:border-gray-200 dark:hover:border-gray-700 transition-colors cursor-pointer group">
+<div class="size-12 rounded-full bg-cover bg-center shrink-0 border border-gray-200 dark:border-gray-700" data-alt="Thumbnail of student Sarah U." style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuBpKYeWKwqK3uyAQW5jLYYXJrrGU_ec9lDyRcLFRwp-TxB7oHjjBNPEq3ADSdFKpjL_B6Atm65S3xVJksCYqz69P5pMEMOert0plTG5iNKfyx6xpAdu0uwZcupagqB_ez0mug00hn5d6sjIRlrrMl1PJDGD5YQmwTWT0ZLj_e9DhJDf6cw2EaagcGPM40eA8acjCFxV7h-ggsKWusnz7nWIh4td_NHW1X5WVSk9fe3l4Xf_-yi8oYAw98slZTSMflM2l96th4EdlWza");'>
+</div>
+<div class="flex-1 min-w-0">
+<p class="text-sm font-bold text-[#0d111b] dark:text-white truncate group-hover:text-primary transition-colors">Sarah Uwase</p>
+<p class="text-xs text-gray-500 dark:text-gray-400">07:46 AM</p>
+</div>
+<div class="size-6 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-green-600 dark:text-green-400 !text-sm">check</span>
+</div>
+</div>
+<!-- Recent Item 3 -->
+<div class="flex items-center gap-3 p-3 rounded-xl bg-gray-50 dark:bg-gray-800/50 border border-transparent hover:border-gray-200 dark:hover:border-gray-700 transition-colors cursor-pointer group">
+<div class="size-12 rounded-full bg-cover bg-center shrink-0 border border-gray-200 dark:border-gray-700" data-alt="Thumbnail of student Jean P." style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuB9K-MYijlWYpzCiRfeHYpU4rar0WExuP5VwqnDd0IMufD27orGCvwtHjH9fVasdGCmiO4_B-HFtSFnAKYtfpxnEmX_eLhcb_2zWMF9g27oq9EV3Sbylmgm7Kk-Enaw1S-4pjF4WVkj2aBfsxsapeZ7GaUboK1ZCfMMLkES6_w_SRIt8hFjK1NCX_EtqCZP0JoTPizzd8E7ke4CZgtyE-q2WARVdGRaTdUlLgHK0lQIFS33Qk0PCmZBkvYG5Bcd6q58Bc8JcAXhPI63");'>
+</div>
+<div class="flex-1 min-w-0">
+<p class="text-sm font-bold text-[#0d111b] dark:text-white truncate group-hover:text-primary transition-colors">Jean Paul</p>
+<p class="text-xs text-gray-500 dark:text-gray-400">07:45 AM</p>
+</div>
+<div class="size-6 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-green-600 dark:text-green-400 !text-sm">check</span>
+</div>
+</div>
+<!-- Recent Item 4 -->
+<div class="flex items-center gap-3 p-3 rounded-xl bg-gray-50 dark:bg-gray-800/50 border border-transparent hover:border-gray-200 dark:hover:border-gray-700 transition-colors cursor-pointer group">
+<div class="size-12 rounded-full bg-cover bg-center shrink-0 border border-gray-200 dark:border-gray-700" data-alt="Thumbnail of student Grace I." style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuACxv0IFWzZ4nMpcKJJY1-SZxkXAM9Dm1pluv17doMofxMSJOvwwBqs16sMiLC8tfe-Wncilc2c7sei638araDM-QTXAGI4XLklMLicV_WDUUb5fmdaayUyjFovNElIzkN6CFl_OeSP73GQpfys5y7b2YfRoYMh5SG7ssJXsWAU1U6vwTOGaqvEqe84YJcEMz7_h18YcE56gsHF1v44GKTU8FKNlfLBXoi0LG9SGEmIJprnxojzWD2b0gkKynZj1bRko2luIXgaBKMY");'>
+</div>
+<div class="flex-1 min-w-0">
+<p class="text-sm font-bold text-[#0d111b] dark:text-white truncate group-hover:text-primary transition-colors">Grace Iribagiza</p>
+<p class="text-xs text-gray-500 dark:text-gray-400">07:42 AM</p>
+</div>
+<div class="size-6 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-green-600 dark:text-green-400 !text-sm">check</span>
+</div>
+</div>
+<!-- Recent Item 5 -->
+<div class="flex items-center gap-3 p-3 rounded-xl bg-gray-50 dark:bg-gray-800/50 border border-transparent hover:border-gray-200 dark:hover:border-gray-700 transition-colors cursor-pointer group">
+<div class="size-12 rounded-full bg-cover bg-center shrink-0 border border-gray-200 dark:border-gray-700" data-alt="Thumbnail of student Kevin M." style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuBJTLyX6MAeZIGWrIUgKIRLeLk7tqjmrAHc1sihS8WCZpZM_F4AdMWC0E5TJsQkM9Bf9oLoDOT2lB-o5lq30gdVaOJQnFKOinOPgIP_YKi5d0-MV-npDConhw3FUCZRShnPxh_c441ayB0jA-qKrBPZPQDn5Xng4EXPrfqRMOTJQzh5WEAS5vJ3a006xtapgklMBAXm_nGvEKbt2M7XJWy_4EY3ugERzpGBsODOVdETpny7RQbu_SmXkQpMGaJ6Qe7g9nxkFd_0dPuj");'>
+</div>
+<div class="flex-1 min-w-0">
+<p class="text-sm font-bold text-[#0d111b] dark:text-white truncate group-hover:text-primary transition-colors">Kevin Mugisha</p>
+<p class="text-xs text-gray-500 dark:text-gray-400">07:40 AM</p>
+</div>
+<div class="size-6 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-green-600 dark:text-green-400 !text-sm">check</span>
+</div>
+</div>
+</div>
+<div class="p-4 border-t border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-[#1a2035]/50">
+<button class="w-full py-2.5 px-4 bg-white dark:bg-[#1e2538] hover:bg-gray-50 dark:hover:bg-[#252d42] text-primary text-sm font-bold rounded-lg border border-gray-200 dark:border-gray-700 transition-colors flex items-center justify-center gap-2">
+<span>View All History</span>
+<span class="material-symbols-outlined !text-base">arrow_forward</span>
+</button>
+</div>
+</aside>
+</main>
+</body></html>

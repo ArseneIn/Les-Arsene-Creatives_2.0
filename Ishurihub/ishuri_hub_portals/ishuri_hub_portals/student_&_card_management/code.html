@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Student &amp; Card Management</title>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Google Fonts: Inter -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "primary": "#1111d4",
+              "background-light": "#f6f6f8",
+              "background-dark": "#101022",
+            },
+            fontFamily: {
+              "display": ["Inter", "sans-serif"]
+            },
+            borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display transition-colors duration-200">
+<div class="relative flex h-auto min-h-screen w-full flex-col group/design-root overflow-x-hidden">
+<div class="layout-container flex h-full grow flex-col">
+<!-- TopNavBar -->
+<header class="flex items-center justify-between whitespace-nowrap border-b border-solid border-[#cfcfe7] dark:border-white/10 bg-white dark:bg-background-dark px-10 py-3 sticky top-0 z-50">
+<div class="flex items-center gap-8">
+<div class="flex items-center gap-4 text-primary dark:text-white">
+<div class="size-6 bg-primary rounded-lg flex items-center justify-center text-white">
+<span class="material-symbols-outlined text-[20px]">badge</span>
+</div>
+<h2 class="text-black dark:text-white text-lg font-bold leading-tight tracking-[-0.015em]">Admin Portal</h2>
+</div>
+<label class="flex flex-col min-w-40 h-10 max-w-64">
+<div class="flex w-full flex-1 items-stretch rounded-lg h-full overflow-hidden">
+<div class="text-[#4c4c9a] dark:text-gray-400 flex border-none bg-[#e7e7f3] dark:bg-white/5 items-center justify-center pl-4">
+<span class="material-symbols-outlined text-[20px]">search</span>
+</div>
+<input class="form-input flex w-full min-w-0 flex-1 border-none bg-[#e7e7f3] dark:bg-white/5 text-black dark:text-white focus:ring-0 h-full placeholder:text-[#4c4c9a] dark:placeholder:text-gray-500 pl-2 text-base font-normal" placeholder="Search students..." value=""/>
+</div>
+</label>
+</div>
+<div class="flex flex-1 justify-end gap-8">
+<nav class="flex items-center gap-9">
+<a class="text-black dark:text-white text-sm font-medium leading-normal hover:text-primary transition-colors" href="#">Dashboard</a>
+<a class="text-primary dark:text-primary text-sm font-bold leading-normal border-b-2 border-primary pb-1" href="#">Students</a>
+<a class="text-black dark:text-white text-sm font-medium leading-normal hover:text-primary transition-colors" href="#">Cards</a>
+<a class="text-black dark:text-white text-sm font-medium leading-normal hover:text-primary transition-colors" href="#">Reports</a>
+</nav>
+<div class="flex gap-2">
+<button class="flex items-center justify-center rounded-lg size-10 bg-[#e7e7f3] dark:bg-white/5 text-black dark:text-white hover:bg-primary hover:text-white transition-all">
+<span class="material-symbols-outlined text-[20px]">notifications</span>
+</button>
+<button class="flex items-center justify-center rounded-lg size-10 bg-[#e7e7f3] dark:bg-white/5 text-black dark:text-white hover:bg-primary hover:text-white transition-all">
+<span class="material-symbols-outlined text-[20px]">settings</span>
+</button>
+</div>
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10 border border-primary/20" data-alt="Administrator user profile avatar" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuADsIukspaD9H-r8CHSLaqa4jibtJaNMSRtyTZRYchoXZN_pt1Zk_1dFtU1isqpQnwxTRinmFLHYgSMVy_R9N5Yg438Be2M9WVkkr0MxpBMTVmIfMel9E3mNJe1N1kI5GgbyLujai8B47tVBLz4r3g2yclf2BkO8i3uWGVmE0W6iymHGN2eo5faATyBI8zhnpY-hWHsWlWityTiP0s6gkv9FIeB8uezliUSxosGqbGSvt0sWq4APBzMOd6-SZ8gyTP_P3BjRVGtzZct");'></div>
+</div>
+</header>
+<main class="flex flex-1 justify-center py-8">
+<div class="layout-content-container flex flex-col w-full max-w-[1200px] px-6">
+<!-- Breadcrumbs -->
+<div class="flex flex-wrap gap-2 pb-4">
+<a class="text-[#4c4c9a] dark:text-gray-400 text-sm font-medium hover:text-primary" href="#">Home</a>
+<span class="text-[#4c4c9a] dark:text-gray-600 text-sm font-medium">/</span>
+<span class="text-black dark:text-white text-sm font-bold">Student Management</span>
+</div>
+<!-- PageHeading -->
+<div class="flex flex-wrap justify-between items-end gap-3 pb-6">
+<div class="flex min-w-72 flex-col gap-1">
+<p class="text-black dark:text-white text-3xl font-black leading-tight tracking-[-0.033em]">Student &amp; Card Registry</p>
+<p class="text-[#4c4c9a] dark:text-gray-400 text-base font-normal">Manage student records and monitor physical card issuance status.</p>
+</div>
+<div class="flex gap-3">
+<button class="flex min-w-[120px] items-center justify-center rounded-lg h-11 px-5 bg-white border border-[#cfcfe7] dark:bg-white/5 dark:border-white/10 text-black dark:text-white text-sm font-bold shadow-sm hover:bg-gray-50 transition-all">
+<span class="material-symbols-outlined text-[18px] mr-2">file_download</span>
+                                Export CSV
+                            </button>
+<button class="flex min-w-[140px] items-center justify-center rounded-lg h-11 px-5 bg-primary text-white text-sm font-bold shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-100 transition-all">
+<span class="material-symbols-outlined text-[18px] mr-2">person_add</span>
+                                Add Student
+                            </button>
+</div>
+</div>
+<!-- Filter Chips & Actions Bar -->
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-4 p-4 mb-6 bg-white dark:bg-white/5 rounded-xl border border-[#cfcfe7] dark:border-white/10">
+<div class="flex gap-3 flex-wrap">
+<button class="flex h-10 items-center justify-center gap-x-2 rounded-lg bg-[#e7e7f3] dark:bg-white/10 px-4 hover:bg-primary/10 transition-colors">
+<span class="text-black dark:text-white text-sm font-semibold">Grade: All</span>
+<span class="material-symbols-outlined text-primary text-[18px]">expand_more</span>
+</button>
+<button class="flex h-10 items-center justify-center gap-x-2 rounded-lg bg-[#e7e7f3] dark:bg-white/10 px-4 hover:bg-primary/10 transition-colors">
+<span class="text-black dark:text-white text-sm font-semibold">Section: All</span>
+<span class="material-symbols-outlined text-primary text-[18px]">expand_more</span>
+</button>
+<button class="flex h-10 items-center justify-center gap-x-2 rounded-lg bg-[#e7e7f3] dark:bg-white/10 px-4 hover:bg-primary/10 transition-colors">
+<span class="text-black dark:text-white text-sm font-semibold">Status: Active Cards</span>
+<span class="material-symbols-outlined text-primary text-[18px]">expand_more</span>
+</button>
+<button class="text-primary text-sm font-bold px-2 hover:underline">Reset Filters</button>
+</div>
+<div class="text-[#4c4c9a] dark:text-gray-400 text-sm font-medium">
+                            Showing <span class="text-black dark:text-white font-bold">452</span> students
+                        </div>
+</div>
+<!-- Table Container -->
+<div class="@container">
+<div class="overflow-hidden rounded-xl border border-[#cfcfe7] dark:border-white/10 bg-white dark:bg-white/5 shadow-sm">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-primary dark:bg-primary">
+<th class="px-6 py-4 text-white text-sm font-bold uppercase tracking-wider w-[350px]">Student Name</th>
+<th class="px-6 py-4 text-white text-sm font-bold uppercase tracking-wider">Class &amp; Section</th>
+<th class="px-6 py-4 text-white text-sm font-bold uppercase tracking-wider">Card UID</th>
+<th class="px-6 py-4 text-white text-sm font-bold uppercase tracking-wider">Status</th>
+<th class="px-6 py-4 text-white text-sm font-bold uppercase tracking-wider text-right">Actions</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-[#cfcfe7] dark:divide-white/10">
+<!-- Row 1 -->
+<tr class="hover:bg-primary/5 dark:hover:bg-white/5 transition-colors group">
+<td class="px-6 py-4 whitespace-nowrap">
+<div class="flex items-center gap-3">
+<div class="size-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold overflow-hidden border border-primary/20" data-alt="Student profile placeholder image" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBOJBIlSTua6MKiZzuZi6PJn142Ol3olhcg2ZZqbFGc4pFrKvxxD7vNBNpze4OEpnBb7sMlfH-xSsKyIOJzobP-AnjzeQnrwD_aWxw3nlUXFnQf2CnG_C6zKQXXDQTagRS4i_mZQctp38B8Gcdsej5uSzGpdor25P_y8DZIqTh_EFlCCOPyc_RKYSxjstm2wLA1deqWl0YPgpuBCSjELv_MFV65iyKHaLDZoFWr5noIZMH8q6852-ZuNSMV15QC1xE90tC0oRYuBnbs');">
+</div>
+<div>
+<p class="text-black dark:text-white text-sm font-bold">Johnathan Doe</p>
+<p class="text-[#4c4c9a] dark:text-gray-500 text-xs">ID: 2023-0041</p>
+</div>
+</div>
+</td>
+<td class="px-6 py-4 whitespace-nowrap">
+<div class="flex items-center gap-2">
+<span class="px-2.5 py-1 rounded bg-[#e7e7f3] dark:bg-white/10 text-primary dark:text-primary text-xs font-bold">Grade 10</span>
+<span class="text-black dark:text-white text-sm font-medium">Section B</span>
+</div>
+</td>
+<td class="px-6 py-4 whitespace-nowrap">
+<code class="text-xs font-mono bg-gray-100 dark:bg-white/10 px-2 py-1 rounded text-[#4c4c9a] dark:text-gray-300">8A2C91B4</code>
+</td>
+<td class="px-6 py-4 whitespace-nowrap">
+<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-400 text-xs font-bold">
+<span class="size-1.5 rounded-full bg-green-500"></span>
+                                                Active
+                                            </span>
+</td>
+<td class="px-6 py-4 whitespace-nowrap text-right">
+<button class="text-primary hover:text-primary/70 text-sm font-bold transition-colors">
+                                                Issue New Card
+                                            </button>
+</td>
+</tr>
+<!-- Row 2 -->
+<tr class="hover:bg-primary/5 dark:hover:bg-white/5 transition-colors group">
+<td class="px-6 py-4 whitespace-nowrap">
+<div class="flex items-center gap-3">
+<div class="size-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold overflow-hidden border border-primary/20" data-alt="Student profile placeholder image" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBkmP--6RJYGgZEayuaL8MQ8FdOlhKBjxzDOa7FtT-JnXi31svCnnEOE6meaClU5avCuP54kv5pPNGtfO_USDAub0Zvuc9TQTnflSRj1lqOz_ScdfSWhpntAFZ8LGIBRztUF7Mc_LSTn-x0hIGLrWcuWpczBJPL49ISQiD-QMFGR8ifZDLvLABWTiXDXqHaNlIQ7F_12YItuJ0XKzd7o3DGVuNgY1cD0LD3t57818WkV-j4wXruY0YXdFFyjN0qMXHY-3YmeixWPA5R');">
+</div>
+<div>
+<p class="text-black dark:text-white text-sm font-bold">Emily Jane Smith</p>
+<p class="text-[#4c4c9a] dark:text-gray-500 text-xs">ID: 2023-0112</p>
+</div>
+</div>
+</td>
+<td class="px-6 py-4 whitespace-nowrap">
+<div class="flex items-center gap-2">
+<span class="px-2.5 py-1 rounded bg-[#e7e7f3] dark:bg-white/10 text-primary dark:text-primary text-xs font-bold">Grade 10</span>
+<span class="text-black dark:text-white text-sm font-medium">Section A</span>
+</div>
+</td>
+<td class="px-6 py-4 whitespace-nowrap">
+<span class="text-gray-400 italic text-xs italic">Not Assigned</span>
+</td>
+<td class="px-6 py-4 whitespace-nowrap">
+<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-400 text-xs font-bold">
+<span class="size-1.5 rounded-full bg-amber-500"></span>
+                                                Pending
+                                            </span>
+</td>
+<td class="px-6 py-4 whitespace-nowrap text-right">
+<button class="px-4 py-2 bg-primary text-white rounded text-xs font-bold hover:bg-primary/90 transition-all shadow-sm">
+                                                Issue New Card
+                                            </button>
+</td>
+</tr>
+<!-- Row 3 -->
+<tr class="hover:bg-primary/5 dark:hover:bg-white/5 transition-colors group">
+<td class="px-6 py-4 whitespace-nowrap">
+<div class="flex items-center gap-3">
+<div class="size-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold overflow-hidden border border-primary/20" data-alt="Student profile placeholder image" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCz6mlEq3H8R9KnSrqKjS61Ok1Qgq-_DpLGrJcd5tUr34uh6U97R1usX27tV7cqxFJJ3rsj_BffVuH_L3UrbSqSe2Ef_RDnOkNe00OaLAq2BrWKqNDwzydhCPuPh3USSGZj9zqNl0UKg51o4slXyQa9rZEaxJgvOINHO8jmJb6DpEkhcpxkjQHzaZ8o0lak8TptRoCJdU2Q7XsbHGX_a-3eI3he6CWUGSf6zqv2rHJz-W1u8XYRevTR48H7hcOzr0lNnsJfcQo-RVk9');">
+</div>
+<div>
+<p class="text-black dark:text-white text-sm font-bold">Robert Brown</p>
+<p class="text-[#4c4c9a] dark:text-gray-500 text-xs">ID: 2022-0492</p>
+</div>
+</div>
+</td>
+<td class="px-6 py-4 whitespace-nowrap">
+<div class="flex items-center gap-2">
+<span class="px-2.5 py-1 rounded bg-[#e7e7f3] dark:bg-white/10 text-primary dark:text-primary text-xs font-bold">Grade 11</span>
+<span class="text-black dark:text-white text-sm font-medium">Section C</span>
+</div>
+</td>
+<td class="px-6 py-4 whitespace-nowrap">
+<code class="text-xs font-mono bg-gray-100 dark:bg-white/10 px-2 py-1 rounded text-[#4c4c9a] dark:text-gray-300">5E3F10A2</code>
+</td>
+<td class="px-6 py-4 whitespace-nowrap">
+<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-red-100 text-red-700 dark:bg-red-500/20 dark:text-red-400 text-xs font-bold">
+<span class="size-1.5 rounded-full bg-red-500"></span>
+                                                Inactive
+                                            </span>
+</td>
+<td class="px-6 py-4 whitespace-nowrap text-right">
+<button class="text-primary hover:text-primary/70 text-sm font-bold transition-colors">
+                                                Issue New Card
+                                            </button>
+</td>
+</tr>
+<!-- Row 4 -->
+<tr class="hover:bg-primary/5 dark:hover:bg-white/5 transition-colors group">
+<td class="px-6 py-4 whitespace-nowrap">
+<div class="flex items-center gap-3">
+<div class="size-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold overflow-hidden border border-primary/20" data-alt="Student profile placeholder image" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAVmiVVitmqJFNI7oAKaTNBuiZ7rsR0ouLgm1dHopQmWqnAwKCJrQjtC3PVdnPfVi_jvoZckHskLRpq-pdif62V7v9y0VVtXxAcs-KJqfGeX83_k-7Aeogxz_ElEVfvhlp8BjeNquTX8-pxHN4QZqFolrb2zGneAjx3_V-VK0ZWVaYQMeImv0Q4XmWAeL0BEk7Ce5mJJrqBDsOK9uQjKKSzicGcQ66HfD3sVjsx8I7a20-OqCmwGZMEDFuo9eVlpNpDSWgsQiZVfDUr');">
+</div>
+<div>
+<p class="text-black dark:text-white text-sm font-bold">Sarah Williams</p>
+<p class="text-[#4c4c9a] dark:text-gray-500 text-xs">ID: 2023-0099</p>
+</div>
+</div>
+</td>
+<td class="px-6 py-4 whitespace-nowrap">
+<div class="flex items-center gap-2">
+<span class="px-2.5 py-1 rounded bg-[#e7e7f3] dark:bg-white/10 text-primary dark:text-primary text-xs font-bold">Grade 10</span>
+<span class="text-black dark:text-white text-sm font-medium">Section B</span>
+</div>
+</td>
+<td class="px-6 py-4 whitespace-nowrap">
+<code class="text-xs font-mono bg-gray-100 dark:bg-white/10 px-2 py-1 rounded text-[#4c4c9a] dark:text-gray-300">F9D2E118</code>
+</td>
+<td class="px-6 py-4 whitespace-nowrap">
+<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-400 text-xs font-bold">
+<span class="size-1.5 rounded-full bg-green-500"></span>
+                                                Active
+                                            </span>
+</td>
+<td class="px-6 py-4 whitespace-nowrap text-right">
+<button class="text-primary hover:text-primary/70 text-sm font-bold transition-colors">
+                                                Issue New Card
+                                            </button>
+</td>
+</tr>
+</tbody>
+</table>
+<!-- Pagination -->
+<div class="px-6 py-4 flex items-center justify-between bg-[#f8f8fc] dark:bg-white/5 border-t border-[#cfcfe7] dark:border-white/10">
+<p class="text-sm text-[#4c4c9a] dark:text-gray-400 font-medium">Showing <span class="text-black dark:text-white font-bold">1 to 4</span> of 452 results</p>
+<div class="flex gap-1">
+<button class="size-9 flex items-center justify-center rounded-lg border border-[#cfcfe7] dark:border-white/10 bg-white dark:bg-transparent text-black dark:text-white hover:bg-gray-50 transition-colors">
+<span class="material-symbols-outlined text-[18px]">chevron_left</span>
+</button>
+<button class="size-9 flex items-center justify-center rounded-lg bg-primary text-white font-bold text-sm">1</button>
+<button class="size-9 flex items-center justify-center rounded-lg border border-[#cfcfe7] dark:border-white/10 bg-white dark:bg-transparent text-black dark:text-white hover:bg-gray-50 transition-colors font-medium text-sm">2</button>
+<button class="size-9 flex items-center justify-center rounded-lg border border-[#cfcfe7] dark:border-white/10 bg-white dark:bg-transparent text-black dark:text-white hover:bg-gray-50 transition-colors font-medium text-sm">3</button>
+<button class="size-9 flex items-center justify-center rounded-lg border border-[#cfcfe7] dark:border-white/10 bg-white dark:bg-transparent text-black dark:text-white hover:bg-gray-50 transition-colors">
+<span class="material-symbols-outlined text-[18px]">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Additional Footer Info -->
+<div class="mt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-[#4c4c9a] dark:text-gray-500">
+<div class="flex items-center gap-4">
+<span class="flex items-center gap-1"><span class="size-2 rounded-full bg-green-500"></span> 380 Active Cards</span>
+<span class="flex items-center gap-1"><span class="size-2 rounded-full bg-amber-500"></span> 12 Pending Requests</span>
+<span class="flex items-center gap-1"><span class="size-2 rounded-full bg-red-500"></span> 60 Inactive/Lost</span>
+</div>
+<div>Last synchronized: Oct 24, 2023 - 09:12 AM</div>
+</div>
+</div>
+</main>
+</div>
+</div>
+</body></html>

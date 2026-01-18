@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Security &amp; Compliance Panel</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#1111d4",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#101022",
+                        "coral-red": "#ff4d4d",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"],
+                        "mono": ["ui-monospace", "SFMono-Regular", "Menlo", "Monaco", "Consolas", "Liberation Mono", "Courier New", "monospace"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .terminal-scroll::-webkit-scrollbar {
+            width: 8px;
+        }
+        .terminal-scroll::-webkit-scrollbar-track {
+            background: #1e1e2f;
+        }
+        .terminal-scroll::-webkit-scrollbar-thumb {
+            background: #3f3f5a;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark min-h-screen text-[#0d0d1b] dark:text-white transition-colors duration-200">
+<div class="layout-container flex h-full grow flex-col">
+<!-- TopNavBar -->
+<header class="flex items-center justify-between whitespace-nowrap border-b border-solid border-b-[#e7e7f3] dark:border-b-[#2a2a40] bg-white dark:bg-background-dark px-10 py-3 sticky top-0 z-50">
+<div class="flex items-center gap-8">
+<div class="flex items-center gap-4 text-primary dark:text-white">
+<div class="size-8 flex items-center justify-center bg-primary rounded-lg text-white">
+<span class="material-symbols-outlined">shield_lock</span>
+</div>
+<h2 class="text-[#0d0d1b] dark:text-white text-lg font-bold leading-tight tracking-[-0.015em]">AdminPortal</h2>
+</div>
+</div>
+<div class="flex flex-1 justify-end gap-8">
+<div class="flex items-center gap-9">
+<a class="text-[#4c4c9a] dark:text-gray-400 text-sm font-medium hover:text-primary dark:hover:text-white transition-colors" href="#">Dashboard</a>
+<a class="text-[#4c4c9a] dark:text-gray-400 text-sm font-medium hover:text-primary dark:hover:text-white transition-colors" href="#">Users</a>
+<a class="text-primary dark:text-white text-sm font-bold leading-normal border-b-2 border-primary" href="#">Security</a>
+<a class="text-[#4c4c9a] dark:text-gray-400 text-sm font-medium hover:text-primary dark:hover:text-white transition-colors" href="#">Logs</a>
+<a class="text-[#4c4c9a] dark:text-gray-400 text-sm font-medium hover:text-primary dark:hover:text-white transition-colors" href="#">Settings</a>
+</div>
+<div class="flex gap-2 border-l border-gray-200 dark:border-gray-700 pl-8">
+<button class="flex items-center justify-center rounded-lg h-10 w-10 bg-[#e7e7f3] dark:bg-[#2a2a40] text-[#0d0d1b] dark:text-white hover:bg-primary/20 transition-colors">
+<span class="material-symbols-outlined text-[20px]">notifications</span>
+</button>
+<button class="flex items-center justify-center rounded-lg h-10 w-10 bg-[#e7e7f3] dark:bg-[#2a2a40] text-[#0d0d1b] dark:text-white hover:bg-primary/20 transition-colors">
+<span class="material-symbols-outlined text-[20px]">help_outline</span>
+</button>
+</div>
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10 border-2 border-primary/20" data-alt="User profile avatar showing a professional administrator" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuD4IwNAgZueq96iAgfDwBGKiJ3v3pYA8kv5A-QtvFKe_arZpYYpopiO_04I6pxpyJAGIwS0X5UYFzM8B7cl-_7RGfQdpYvnRcpwy0WFVsvzfmjOJqbsVw6qiXvklL4dCyq1eJV-ZmuFQVoOXnoqA4WniIgcQ1cwUwRyWenofxXHCVo4HElrJJjAcO76d-KPXRZhcG9iVKiRS4ylD3R5fhAXDdt-rV6TFVHY5oTJPwMvcAWAHag8CFjpzr21K62nPomDiTNIR7Mru1jb");'></div>
+</div>
+</header>
+<main class="flex-1 flex flex-col items-center">
+<div class="layout-content-container flex flex-col max-w-[1200px] w-full px-6 md:px-10 py-8 gap-6">
+<!-- Breadcrumbs -->
+<nav class="flex items-center gap-2 text-sm">
+<a class="text-[#4c4c9a] dark:text-gray-400 font-medium hover:text-primary transition-colors" href="#">Security</a>
+<span class="text-[#4c4c9a] dark:text-gray-600 material-symbols-outlined text-sm">chevron_right</span>
+<span class="text-[#0d0d1b] dark:text-white font-semibold">Compliance</span>
+</nav>
+<!-- PageHeading -->
+<div class="flex flex-col md:flex-row justify-between items-end gap-4">
+<div class="flex flex-col gap-1">
+<h1 class="text-[#0d0d1b] dark:text-white text-4xl font-black leading-tight tracking-[-0.033em]">GDPR / Privacy Panel</h1>
+<p class="text-[#4c4c9a] dark:text-gray-400 text-lg font-normal leading-normal">Monitor data retention, manage user privacy rights, and review security logs.</p>
+</div>
+<div class="flex gap-2">
+<div class="flex items-center gap-2 px-3 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 rounded-full text-xs font-bold uppercase tracking-wider">
+<span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+                            System Compliant
+                        </div>
+</div>
+</div>
+<!-- User Search Bar -->
+<div class="w-full">
+<label class="flex flex-col w-full h-14 group">
+<div class="flex w-full flex-1 items-stretch rounded-xl h-full shadow-sm ring-1 ring-gray-200 dark:ring-gray-800 focus-within:ring-2 focus-within:ring-primary transition-all">
+<div class="text-[#4c4c9a] dark:text-gray-500 flex border-none bg-white dark:bg-[#1a1a30] items-center justify-center pl-5 rounded-l-xl border-r-0">
+<span class="material-symbols-outlined text-[24px]">search</span>
+</div>
+<input class="form-input flex w-full min-w-0 flex-1 border-none bg-white dark:bg-[#1a1a30] text-[#0d0d1b] dark:text-white placeholder:text-[#4c4c9a] dark:placeholder:text-gray-500 px-4 rounded-r-xl focus:ring-0 text-base font-normal" placeholder="Search by User ID, Email, or Hash for GDPR lookup..." type="text"/>
+<div class="flex items-center pr-4 bg-white dark:bg-[#1a1a30] rounded-r-xl">
+<button class="bg-primary hover:bg-blue-700 text-white px-6 py-2 rounded-lg text-sm font-bold transition-all">Execute Search</button>
+</div>
+</div>
+</label>
+</div>
+<!-- Audit Log Section -->
+<div class="flex flex-col gap-4">
+<div class="flex items-center justify-between">
+<h2 class="text-[#0d0d1b] dark:text-white text-xl font-bold flex items-center gap-2">
+<span class="material-symbols-outlined">terminal</span>
+                            System Audit Log
+                        </h2>
+<div class="flex gap-2">
+<button class="flex items-center gap-1 text-sm font-medium text-[#4c4c9a] dark:text-gray-400 hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-sm">download</span> Export JSON
+                            </button>
+<button class="flex items-center gap-1 text-sm font-medium text-[#4c4c9a] dark:text-gray-400 hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-sm">refresh</span> Refresh
+                            </button>
+</div>
+</div>
+<!-- Terminal Style Log -->
+<div class="bg-[#0d0d1b] dark:bg-[#050510] rounded-xl overflow-hidden shadow-2xl border border-gray-800">
+<div class="flex items-center gap-2 px-4 py-2 bg-[#1a1a2e] border-b border-gray-800">
+<div class="flex gap-1.5">
+<div class="w-3 h-3 rounded-full bg-red-500/50"></div>
+<div class="w-3 h-3 rounded-full bg-yellow-500/50"></div>
+<div class="w-3 h-3 rounded-full bg-green-500/50"></div>
+</div>
+<span class="text-gray-500 text-xs font-mono ml-4 uppercase tracking-widest">Read Only • compliance_logs_v4.stdout</span>
+</div>
+<div class="terminal-scroll p-6 font-mono text-sm leading-relaxed overflow-y-auto max-h-[400px]">
+<div class="text-green-400 mb-1">[2023-11-20 14:22:10] <span class="text-blue-400">INFO:</span> System authentication successful for admin_uid: 8829</div>
+<div class="text-gray-400 mb-1">[2023-11-20 14:23:05] <span class="text-yellow-400">WARN:</span> GDPR Access Request initiated for UserID: 441022</div>
+<div class="text-gray-400 mb-1">[2023-11-20 14:23:44] <span class="text-purple-400">AUDIT:</span> Data extraction log created [HASH: d8e8f...]</div>
+<div class="text-gray-400 mb-1">[2023-11-20 14:25:12] <span class="text-blue-400">INFO:</span> Retention policy check completed: 0 items flagged.</div>
+<div class="text-gray-400 mb-1">[2023-11-20 14:28:59] <span class="text-blue-400">INFO:</span> TLS 1.3 Handshake verified from IP 192.168.1.104</div>
+<div class="text-red-400 mb-1">[2023-11-20 14:30:01] <span class="font-bold">SECURITY:</span> Multiple failed login attempts detected for IP 203.0.113.1</div>
+<div class="text-gray-400 mb-1">[2023-11-20 14:32:44] <span class="text-blue-400">INFO:</span> Automated scrubbing of expired user sessions (Count: 12).</div>
+<div class="text-gray-400 mb-1">[2023-11-20 14:35:10] <span class="text-purple-400">AUDIT:</span> Data Privacy Officer (DPO) session started.</div>
+<div class="text-gray-400 mb-1">[2023-11-20 14:36:22] <span class="text-green-400">INFO:</span> API key rotation executed successfully.</div>
+<div class="text-gray-400 mb-1">[2023-11-20 14:38:05] <span class="text-yellow-400">WARN:</span> User [UID: 991] requested data portability. Exporting...</div>
+<div class="text-gray-500 italic mt-4">_ Waiting for incoming activity...</div>
+</div>
+</div>
+</div>
+<!-- Danger Zone Section -->
+<div class="mt-8">
+<div class="bg-red-50 dark:bg-red-900/10 border border-coral-red/30 rounded-xl p-6 flex flex-col md:flex-row items-center justify-between gap-6 transition-all hover:shadow-lg">
+<div class="flex items-start gap-4">
+<div class="flex items-center justify-center size-12 rounded-full bg-coral-red/10 text-coral-red shrink-0">
+<span class="material-symbols-outlined text-3xl">dangerous</span>
+</div>
+<div class="flex flex-col">
+<h3 class="text-coral-red font-bold text-lg">Danger Zone: Data Anonymization</h3>
+<p class="text-red-700 dark:text-red-300 text-sm max-w-xl">
+                                    Proceeding with anonymization will permanently remove all PII (Personally Identifiable Information) from the system. This action is **irreversible** and compliant with GDPR Article 17 (Right to Erasure).
+                                </p>
+</div>
+</div>
+<button class="bg-coral-red hover:bg-red-700 text-white font-bold py-3 px-8 rounded-lg shadow-md flex items-center gap-2 transition-all active:scale-95 whitespace-nowrap">
+<span class="material-symbols-outlined text-[20px]">person_off</span>
+                            Anonymize User Data
+                        </button>
+</div>
+</div>
+<!-- Footer Quick Stats -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-4">
+<div class="bg-white dark:bg-[#1a1a30] p-4 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm flex items-center gap-4">
+<div class="size-10 rounded-lg bg-primary/10 text-primary flex items-center justify-center">
+<span class="material-symbols-outlined">description</span>
+</div>
+<div>
+<p class="text-xs text-[#4c4c9a] dark:text-gray-400 font-bold uppercase">Open Privacy Requests</p>
+<p class="text-xl font-black text-[#0d0d1b] dark:text-white">12 Pending</p>
+</div>
+</div>
+<div class="bg-white dark:bg-[#1a1a30] p-4 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm flex items-center gap-4">
+<div class="size-10 rounded-lg bg-green-100 text-green-600 flex items-center justify-center">
+<span class="material-symbols-outlined">verified</span>
+</div>
+<div>
+<p class="text-xs text-[#4c4c9a] dark:text-gray-400 font-bold uppercase">Last Audit Date</p>
+<p class="text-xl font-black text-[#0d0d1b] dark:text-white">Oct 24, 2023</p>
+</div>
+</div>
+<div class="bg-white dark:bg-[#1a1a30] p-4 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm flex items-center gap-4">
+<div class="size-10 rounded-lg bg-yellow-100 text-yellow-600 flex items-center justify-center">
+<span class="material-symbols-outlined">timer</span>
+</div>
+<div>
+<p class="text-xs text-[#4c4c9a] dark:text-gray-400 font-bold uppercase">Mean Response Time</p>
+<p class="text-xl font-black text-[#0d0d1b] dark:text-white">4.2 Days</p>
+</div>
+</div>
+</div>
+</div>
+</main>
+<footer class="py-10 border-t border-gray-200 dark:border-gray-800 mt-10">
+<div class="max-w-[1200px] mx-auto px-10 flex flex-col md:flex-row justify-between items-center gap-4 opacity-60">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-sm">copyright</span>
+<span class="text-xs font-medium">2023 AdminPortal Security Systems. All Rights Reserved.</span>
+</div>
+<div class="flex gap-6 text-xs font-bold uppercase tracking-widest">
+<a class="hover:text-primary transition-colors" href="#">Documentation</a>
+<a class="hover:text-primary transition-colors" href="#">API Keys</a>
+<a class="hover:text-primary transition-colors" href="#">Privacy Policy</a>
+</div>
+</div>
+</footer>
+</div>
+</body></html>

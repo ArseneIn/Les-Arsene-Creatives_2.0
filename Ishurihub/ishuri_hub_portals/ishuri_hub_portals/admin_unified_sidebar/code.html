@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>IshuriHub Admin Sidebar</title>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#1349ec",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#101522",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-[#0d111b] dark:text-white font-display">
+<div class="relative flex h-screen w-full overflow-hidden">
+<!-- Sidebar -->
+<aside class="flex w-72 flex-col bg-primary h-full shadow-xl z-20 transition-all flex-shrink-0">
+<!-- Header / Logo -->
+<div class="flex items-center gap-3 px-6 py-8">
+<div class="flex items-center justify-center bg-white/10 rounded-xl size-10 shadow-inner ring-1 ring-white/20">
+<!-- Simple Abstract Logo Icon -->
+<span class="material-symbols-outlined text-white" style="font-size: 24px;">school</span>
+</div>
+<div class="flex flex-col">
+<h1 class="text-white text-lg font-bold leading-tight tracking-tight">IshuriHub</h1>
+<p class="text-blue-200 text-xs font-medium uppercase tracking-wider">Admin Portal</p>
+</div>
+</div>
+<!-- Scrollable Navigation -->
+<div class="flex-1 overflow-y-auto px-4 py-2 custom-scrollbar">
+<nav class="flex flex-col gap-1.5">
+<!-- Dashboard (Active State) -->
+<a class="group flex items-center gap-3 px-3 py-3 rounded-lg bg-white/20 text-white shadow-sm ring-1 ring-white/10 transition-all" href="#">
+<span class="material-symbols-outlined" style="font-size: 24px;">dashboard</span>
+<span class="text-sm font-medium leading-normal">Dashboard</span>
+</a>
+<!-- Academic Admin (Accordion) -->
+<details class="group/accordion rounded-lg open:bg-white/5 transition-colors">
+<summary class="flex cursor-pointer items-center justify-between gap-2 px-3 py-3 rounded-lg text-blue-100 hover:bg-white/10 hover:text-white transition-all list-none outline-none">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined" style="font-size: 24px;">school</span>
+<span class="text-sm font-medium leading-normal">Academic Admin</span>
+</div>
+<span class="material-symbols-outlined transition-transform duration-200 group-open/accordion:rotate-180" style="font-size: 20px;">expand_more</span>
+</summary>
+<div class="flex flex-col gap-1 pl-11 pr-2 pb-2 mt-1">
+<a class="flex items-center gap-2 px-3 py-2 rounded-md text-blue-200 hover:text-white hover:bg-white/10 text-sm font-medium transition-colors" href="#">
+<span class="material-symbols-outlined" style="font-size: 18px;">calendar_month</span>
+                            Timetable
+                        </a>
+<a class="flex items-center gap-2 px-3 py-2 rounded-md text-blue-200 hover:text-white hover:bg-white/10 text-sm font-medium transition-colors" href="#">
+<span class="material-symbols-outlined" style="font-size: 18px;">person_apron</span>
+                            Teachers
+                        </a>
+<a class="flex items-center gap-2 px-3 py-2 rounded-md text-blue-200 hover:text-white hover:bg-white/10 text-sm font-medium transition-colors" href="#">
+<span class="material-symbols-outlined" style="font-size: 18px;">groups</span>
+                            Students
+                        </a>
+</div>
+</details>
+<!-- Finance -->
+<a class="flex items-center gap-3 px-3 py-3 rounded-lg text-blue-100 hover:bg-white/10 hover:text-white transition-all" href="#">
+<span class="material-symbols-outlined" style="font-size: 24px;">payments</span>
+<span class="text-sm font-medium leading-normal">Finance</span>
+</a>
+<!-- Library -->
+<a class="flex items-center gap-3 px-3 py-3 rounded-lg text-blue-100 hover:bg-white/10 hover:text-white transition-all" href="#">
+<span class="material-symbols-outlined" style="font-size: 24px;">local_library</span>
+<span class="text-sm font-medium leading-normal">Library</span>
+</a>
+<!-- System & Compliance -->
+<a class="flex items-center gap-3 px-3 py-3 rounded-lg text-blue-100 hover:bg-white/10 hover:text-white transition-all" href="#">
+<span class="material-symbols-outlined" style="font-size: 24px;">verified_user</span>
+<span class="text-sm font-medium leading-normal">System &amp; Compliance</span>
+</a>
+</nav>
+</div>
+<!-- Footer Actions -->
+<div class="p-4 border-t border-white/10 bg-primary shadow-[0_-10px_20px_-5px_rgba(0,0,0,0.1)]">
+<!-- Role Switcher -->
+<div class="mb-4">
+<label class="block text-blue-200 text-xs font-medium mb-1.5 ml-1">View as</label>
+<div class="relative group/select">
+<select class="appearance-none w-full bg-white/10 border border-white/20 text-white rounded-lg py-2.5 pl-10 pr-8 text-sm focus:outline-none focus:ring-2 focus:ring-white/30 cursor-pointer hover:bg-white/20 transition-colors">
+<option class="bg-white text-gray-900" value="admin">Administrator</option>
+<option class="bg-white text-gray-900" value="teacher">Teacher</option>
+</select>
+<div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-blue-200">
+<span class="material-symbols-outlined" style="font-size: 20px;">swap_horiz</span>
+</div>
+<div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3 text-blue-200">
+<span class="material-symbols-outlined" style="font-size: 20px;">expand_more</span>
+</div>
+</div>
+</div>
+<!-- Profile Card -->
+<div class="flex items-center gap-3 p-2 rounded-lg hover:bg-white/10 transition-colors cursor-pointer group/profile">
+<div class="relative">
+<div class="bg-center bg-no-repeat bg-cover rounded-full size-10 ring-2 ring-white/20" data-alt="Portrait of a professional administrator" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuAQTrshfoao6N8RNmZVE7lHNteQnY7pRT4LRBqaKjQnWdKkF5SuE06QA_fnSmZLh3fK6FuGAOnKgtULyFTNRGoa0ZQpLxq5v8IaVnSWRq7tmVv4ubEf91lilIfXLzJ6iqA92_zd3PoJtxiIvfTFuZd8wj8tk9xsK9SS9fXreqNRpOrNkfD95_F8R-q7dZb7Ra5dup40BMvJB7ON6hZd0hX6sLuaSK0w2QSxhGbZJVDF2243nkNMhqlUldRAcY24_FRCbdDtptzLanI5");'>
+</div>
+<div class="absolute bottom-0 right-0 size-3 bg-green-400 rounded-full border-2 border-primary"></div>
+</div>
+<div class="flex flex-col min-w-0 flex-1">
+<p class="text-white text-sm font-semibold truncate group-hover/profile:text-white transition-colors">Jane Doe</p>
+<p class="text-blue-200 text-xs truncate">Super Admin</p>
+</div>
+<button class="text-blue-300 hover:text-white p-1 rounded-md hover:bg-white/10 transition-colors">
+<span class="material-symbols-outlined" style="font-size: 20px;">logout</span>
+</button>
+</div>
+</div>
+</aside>
+<!-- Main Content Area (Placeholder for Context) -->
+<main class="flex-1 flex flex-col min-w-0 bg-background-light dark:bg-background-dark overflow-y-auto">
+<!-- Top Bar -->
+<header class="h-16 border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-[#151b2b] flex items-center justify-between px-8 sticky top-0 z-10">
+<h2 class="text-lg font-semibold text-gray-800 dark:text-white">Dashboard Overview</h2>
+<div class="flex items-center gap-4">
+<button class="p-2 text-gray-500 hover:text-primary transition-colors">
+<span class="material-symbols-outlined">search</span>
+</button>
+<button class="p-2 text-gray-500 hover:text-primary transition-colors relative">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-2 right-2 size-2 bg-red-500 rounded-full"></span>
+</button>
+</div>
+</header>
+<!-- Content Body -->
+<div class="p-8">
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+<!-- Stat Card 1 -->
+<div class="bg-white dark:bg-[#1e2536] p-6 rounded-xl border border-gray-100 dark:border-gray-800 shadow-sm flex flex-col gap-4">
+<div class="flex justify-between items-start">
+<div class="p-3 bg-blue-50 dark:bg-blue-900/20 text-primary rounded-lg">
+<span class="material-symbols-outlined">groups</span>
+</div>
+<span class="text-xs font-medium text-green-600 bg-green-50 px-2 py-1 rounded-full">+12%</span>
+</div>
+<div>
+<p class="text-gray-500 dark:text-gray-400 text-sm">Total Students</p>
+<h3 class="text-2xl font-bold text-gray-900 dark:text-white mt-1">2,543</h3>
+</div>
+</div>
+<!-- Stat Card 2 -->
+<div class="bg-white dark:bg-[#1e2536] p-6 rounded-xl border border-gray-100 dark:border-gray-800 shadow-sm flex flex-col gap-4">
+<div class="flex justify-between items-start">
+<div class="p-3 bg-purple-50 dark:bg-purple-900/20 text-purple-600 rounded-lg">
+<span class="material-symbols-outlined">person_apron</span>
+</div>
+<span class="text-xs font-medium text-green-600 bg-green-50 px-2 py-1 rounded-full">+4%</span>
+</div>
+<div>
+<p class="text-gray-500 dark:text-gray-400 text-sm">Active Teachers</p>
+<h3 class="text-2xl font-bold text-gray-900 dark:text-white mt-1">128</h3>
+</div>
+</div>
+<!-- Stat Card 3 -->
+<div class="bg-white dark:bg-[#1e2536] p-6 rounded-xl border border-gray-100 dark:border-gray-800 shadow-sm flex flex-col gap-4">
+<div class="flex justify-between items-start">
+<div class="p-3 bg-orange-50 dark:bg-orange-900/20 text-orange-600 rounded-lg">
+<span class="material-symbols-outlined">warning</span>
+</div>
+<span class="text-xs font-medium text-red-600 bg-red-50 px-2 py-1 rounded-full">Action Needed</span>
+</div>
+<div>
+<p class="text-gray-500 dark:text-gray-400 text-sm">Compliance Alerts</p>
+<h3 class="text-2xl font-bold text-gray-900 dark:text-white mt-1">3</h3>
+</div>
+</div>
+</div>
+<!-- Recent Activity Section -->
+<div class="bg-white dark:bg-[#1e2536] rounded-xl border border-gray-100 dark:border-gray-800 shadow-sm p-6">
+<div class="flex items-center justify-between mb-6">
+<h3 class="text-lg font-bold text-gray-900 dark:text-white">Recent Activity</h3>
+<button class="text-sm text-primary font-medium hover:underline">View All</button>
+</div>
+<div class="space-y-4">
+<div class="flex items-center gap-4 p-3 hover:bg-gray-50 dark:hover:bg-gray-800/50 rounded-lg transition-colors">
+<div class="bg-gray-100 dark:bg-gray-700 h-10 w-10 rounded-full flex items-center justify-center text-gray-500 dark:text-gray-300">
+<span class="material-symbols-outlined text-sm">edit</span>
+</div>
+<div class="flex-1">
+<p class="text-sm font-medium text-gray-900 dark:text-white">Timetable Updated</p>
+<p class="text-xs text-gray-500 dark:text-gray-400">Grade 10 Physics Schedule modified by J. Doe</p>
+</div>
+<span class="text-xs text-gray-400">2h ago</span>
+</div>
+<div class="flex items-center gap-4 p-3 hover:bg-gray-50 dark:hover:bg-gray-800/50 rounded-lg transition-colors">
+<div class="bg-gray-100 dark:bg-gray-700 h-10 w-10 rounded-full flex items-center justify-center text-gray-500 dark:text-gray-300">
+<span class="material-symbols-outlined text-sm">add</span>
+</div>
+<div class="flex-1">
+<p class="text-sm font-medium text-gray-900 dark:text-white">New Student Enrolled</p>
+<p class="text-xs text-gray-500 dark:text-gray-400">Alice Smith added to Class 4B</p>
+</div>
+<span class="text-xs text-gray-400">5h ago</span>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+</body></html>

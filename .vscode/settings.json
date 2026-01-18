@@ -8,5 +8,17 @@
     },
     "dart.analysisExcludedFolders": [
         "Smart_Curuza/mobile_flutter_backup"
+    ],
+    "sqltools.connections": [
+        {
+            "ssh": "Disabled",
+            "previewLimit": 50,
+            "server": "localhost",
+            "port": 5432,
+            "driver": "PostgreSQL",
+            "name": "test",
+            "database": "postgres",
+            "username": "postgres"
+        }
     ]
 }

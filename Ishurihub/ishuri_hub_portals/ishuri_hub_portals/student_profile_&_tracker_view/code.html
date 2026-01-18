@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Student Profile &amp; Tracker - IshuriHub</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700;800&amp;family=Noto+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#1349ec",
+                        "background-light": "#f8f9fc",
+                        "background-dark": "#101522",
+                        "surface-light": "#ffffff",
+                        "surface-dark": "#1a202c",
+                    },
+                    fontFamily: {
+                        "display": ["Lexend", "sans-serif"],
+                        "body": ["Noto Sans", "sans-serif"],
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        body { font-family: 'Lexend', sans-serif; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-[#0d111b] dark:text-white transition-colors duration-200">
+<div class="relative flex min-h-screen w-full flex-col overflow-x-hidden">
+<!-- Top Navigation -->
+<header class="sticky top-0 z-50 flex items-center justify-between whitespace-nowrap border-b border-solid border-gray-200 dark:border-gray-800 bg-surface-light dark:bg-surface-dark px-6 py-3 shadow-sm lg:px-10">
+<div class="flex items-center gap-8">
+<div class="flex items-center gap-4 text-[#0d111b] dark:text-white">
+<div class="size-8 text-primary">
+<svg class="h-full w-full" fill="none" viewbox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+<path clip-rule="evenodd" d="M39.475 21.6262C40.358 21.4363 40.6863 21.5589 40.7581 21.5934C40.7876 21.655 40.8547 21.857 40.8082 22.3336C40.7408 23.0255 40.4502 24.0046 39.8572 25.2301C38.6799 27.6631 36.5085 30.6631 33.5858 33.5858C30.6631 36.5085 27.6632 38.6799 25.2301 39.8572C24.0046 40.4502 23.0255 40.7407 22.3336 40.8082C21.8571 40.8547 21.6551 40.7875 21.5934 40.7581C21.5589 40.6863 21.4363 40.358 21.6262 39.475C21.8562 38.4054 22.4689 36.9657 23.5038 35.2817C24.7575 33.2417 26.5497 30.9744 28.7621 28.762C30.9744 26.5497 33.2417 24.7574 35.2817 23.5037C36.9657 22.4689 38.4054 21.8562 39.475 21.6262ZM4.41189 29.2403L18.7597 43.5881C19.8813 44.7097 21.4027 44.9179 22.7217 44.7893C24.0585 44.659 25.5148 44.1631 26.9723 43.4579C29.9052 42.0387 33.2618 39.5667 36.4142 36.4142C39.5667 33.2618 42.0387 29.9052 43.4579 26.9723C44.1631 25.5148 44.659 24.0585 44.7893 22.7217C44.9179 21.4027 44.7097 19.8813 43.5881 18.7597L29.2403 4.41187C27.8527 3.02428 25.8765 3.02573 24.2861 3.36776C22.6081 3.72863 20.7334 4.58419 18.8396 5.74801C16.4978 7.18716 13.9881 9.18353 11.5858 11.5858C9.18354 13.988 7.18717 16.4978 5.74802 18.8396C4.58421 20.7334 3.72865 22.6081 3.36778 24.2861C3.02574 25.8765 3.02429 27.8527 4.41189 29.2403Z" fill="currentColor" fill-rule="evenodd"></path>
+</svg>
+</div>
+<h2 class="text-xl font-bold leading-tight tracking-[-0.015em]">IshuriHub</h2>
+</div>
+<div class="hidden lg:flex items-center gap-6">
+<a class="text-[#0d111b] dark:text-gray-200 text-sm font-medium hover:text-primary transition-colors" href="#">Dashboard</a>
+<a class="text-primary text-sm font-bold" href="#">Students</a>
+<a class="text-[#0d111b] dark:text-gray-200 text-sm font-medium hover:text-primary transition-colors" href="#">Payments</a>
+<a class="text-[#0d111b] dark:text-gray-200 text-sm font-medium hover:text-primary transition-colors" href="#">Messages</a>
+</div>
+</div>
+<div class="flex flex-1 justify-end items-center gap-6">
+<label class="hidden md:flex flex-col min-w-40 !h-10 max-w-64">
+<div class="flex w-full flex-1 items-stretch rounded-lg h-full ring-1 ring-gray-200 dark:ring-gray-700">
+<div class="text-[#4c5f9a] flex bg-transparent items-center justify-center pl-3 rounded-l-lg">
+<span class="material-symbols-outlined text-[20px]">search</span>
+</div>
+<input class="flex w-full min-w-0 flex-1 bg-transparent border-none focus:ring-0 text-[#0d111b] dark:text-white placeholder:text-[#4c5f9a] px-3 text-sm" placeholder="Search"/>
+</div>
+</label>
+<div class="flex items-center gap-4">
+<button class="flex items-center justify-center rounded-full size-10 text-[#4c5f9a] hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<div class="bg-center bg-no-repeat bg-cover rounded-full size-10 border-2 border-white dark:border-gray-800 shadow-sm" data-alt="User profile picture showing a smiling parent" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuAXgb3U5hET8ug15IRIsV4RgeqkTtVpF2T5lqcw6Wo2LrqDY6IED82tqry2otw7C9SmX3A-hQvMGhhLQITSFNOztOsUcb59Sv1CaHGaTIn_5IpAFctmv3WeK1VLaS0TDDm_87nn950-b1VmnUEB4Tq34n5n5JQpGDTQWDNyjCqkcmKJtqgsgDT3_46E_hdQABZ4lrMGp1-jHW_pnetJDyg7-R8uMIa5NkwWJXT6ilpslXGaKFQNRN1y57zXUllctCdhCktSp9399xFV");'></div>
+</div>
+</div>
+</header>
+<!-- Main Content -->
+<main class="flex-1 px-4 lg:px-10 py-8 w-full max-w-[1440px] mx-auto">
+<!-- Page Heading & Controls -->
+<div class="flex flex-wrap items-end justify-between gap-4 mb-8">
+<div class="flex flex-col gap-2">
+<div class="flex items-center gap-2 text-sm text-[#4c5f9a] font-medium">
+<span>Students</span>
+<span class="material-symbols-outlined text-[14px]">chevron_right</span>
+<span class="text-primary">Daniel Makuza</span>
+</div>
+<h1 class="text-[#0d111b] dark:text-white text-3xl font-black tracking-[-0.02em]">Student Profile</h1>
+</div>
+<div class="flex items-center gap-3">
+<button class="flex items-center gap-2 px-4 h-10 bg-white dark:bg-surface-dark border border-gray-200 dark:border-gray-700 rounded-lg text-[#0d111b] dark:text-white text-sm font-semibold hover:bg-gray-50 dark:hover:bg-gray-800 transition-all shadow-sm">
+<span class="material-symbols-outlined text-[20px]">swap_horiz</span>
+<span>Switch Child</span>
+</button>
+<button class="flex items-center gap-2 px-4 h-10 bg-primary text-white rounded-lg text-sm font-semibold hover:bg-primary/90 transition-all shadow-md shadow-primary/20">
+<span class="material-symbols-outlined text-[20px]">download</span>
+<span>Download Report</span>
+</button>
+</div>
+</div>
+<!-- Profile Overview Card -->
+<div class="bg-surface-light dark:bg-surface-dark rounded-xl p-6 mb-6 shadow-[0_2px_8px_rgba(0,0,0,0.04)] dark:shadow-none border border-gray-100 dark:border-gray-800">
+<div class="flex flex-col md:flex-row gap-6 items-center md:items-start">
+<div class="relative group">
+<div class="bg-center bg-no-repeat bg-cover rounded-full size-32 shadow-md border-4 border-white dark:border-gray-700" data-alt="Portrait of student Daniel Makuza smiling" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuBARp-fiS-0ExoWLGjMe813BW73fiON2hNSZC0lJMsq1CwpidQ_wD4A_qjJgymuT5TwkJ7apkHvJdwQWHRgZ7HO1KDLVxUzPT329YD3zBq3MpMe16C7V-t7uW4EUgbmMyhyEh7KvQfDE-nNjmSRXJ8SPbwHDFdlzyGrY0VHzfNM-prdp-NKvpLiyRaC9uhXQuIzudYefSAX4KMr7i9VCs1Xb7xanjXX_9uwjUHrMX8_bQJiqe4D2Nl-QUqZmrVcB9e7JIvdbMq0UVdn");'></div>
+<div class="absolute bottom-1 right-1 bg-green-500 border-2 border-white dark:border-surface-dark size-5 rounded-full" title="In School"></div>
+</div>
+<div class="flex-1 flex flex-col items-center md:items-start text-center md:text-left pt-2">
+<div class="flex flex-wrap items-center gap-3 mb-1 justify-center md:justify-start">
+<h2 class="text-2xl font-bold text-[#0d111b] dark:text-white">Daniel Makuza</h2>
+<span class="px-2 py-0.5 rounded-full bg-blue-100 dark:bg-blue-900/30 text-primary dark:text-blue-300 text-xs font-bold uppercase tracking-wider">Active</span>
+</div>
+<p class="text-[#4c5f9a] text-lg mb-4">Grade 5 - Section B</p>
+<div class="flex flex-wrap gap-4 md:gap-8 justify-center md:justify-start w-full">
+<div class="flex items-center gap-2 bg-background-light dark:bg-gray-800/50 px-3 py-2 rounded-lg">
+<span class="material-symbols-outlined text-[#4c5f9a]">badge</span>
+<div>
+<p class="text-xs text-[#4c5f9a] font-medium">Student ID</p>
+<p class="text-sm font-bold text-[#0d111b] dark:text-white">2023-GX-552</p>
+</div>
+</div>
+<div class="flex items-center gap-2 bg-background-light dark:bg-gray-800/50 px-3 py-2 rounded-lg">
+<span class="material-symbols-outlined text-[#4c5f9a]">cake</span>
+<div>
+<p class="text-xs text-[#4c5f9a] font-medium">Date of Birth</p>
+<p class="text-sm font-bold text-[#0d111b] dark:text-white">Oct 12, 2012</p>
+</div>
+</div>
+<div class="flex items-center gap-2 bg-background-light dark:bg-gray-800/50 px-3 py-2 rounded-lg">
+<span class="material-symbols-outlined text-[#4c5f9a]">school</span>
+<div>
+<p class="text-xs text-[#4c5f9a] font-medium">Homeroom Teacher</p>
+<p class="text-sm font-bold text-[#0d111b] dark:text-white">Mr. John Kagame</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Dashboard Grid -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+<!-- Left Column: ID Card & Quick Stats (Span 3) -->
+<div class="lg:col-span-3 flex flex-col gap-6">
+<!-- Digital ID Widget -->
+<div class="group relative overflow-hidden rounded-xl bg-gradient-to-br from-primary to-[#0a2ba1] p-6 text-white shadow-lg transition-transform hover:-translate-y-1">
+<!-- Watermark/Pattern -->
+<div class="absolute -right-10 -top-10 opacity-10">
+<svg fill="none" height="200" viewbox="0 0 200 200" width="200" xmlns="http://www.w3.org/2000/svg">
+<circle cx="100" cy="100" r="80" stroke="white" stroke-width="20"></circle>
+</svg>
+</div>
+<div class="relative z-10 flex flex-col items-center gap-4">
+<div class="w-full flex justify-between items-start">
+<div class="size-8 rounded bg-white/20 backdrop-blur-sm p-1.5 flex items-center justify-center">
+<svg class="w-full h-full text-white" fill="currentColor" viewbox="0 0 48 48">
+<path d="M4.41189 29.2403L18.7597 43.5881C19.8813 44.7097 21.4027 44.9179 22.7217 44.7893C24.0585 44.659 25.5148 44.1631 26.9723 43.4579L4.41189 29.2403Z" fill-rule="evenodd"></path>
+</svg>
+</div>
+<span class="text-xs font-medium opacity-80 uppercase tracking-widest">Digital ID</span>
+</div>
+<div class="bg-white p-2 rounded-lg shadow-sm">
+<!-- QR Code Placeholder -->
+<img alt="QR Code for student identification" class="size-32 object-contain mix-blend-multiply opacity-90" data-alt="Black and white QR code for scanning" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCsZuLRMBP7G2mwFoc_lHZC_plCXFanay40StaYotL8SNxCTit3PWaayqEeuxMrY9_rrZPuQUuP952v77j-UacdsqP49S50sG-BKfO5g4eWovOAs5n7I6U90A5K2QksPVshAFkqVd5f9TiKLo8MpBKuN3yNzPkRsPbHipVSTyrTLDHjiGFfl8EyOlOIjggkujdBim07klNDoyBdKztKsz1CtQWRdgAK6icC4g2SpNSYRSE5HvATUWY5H2MrGIuuPsPO4UkGhxvZ2qKY"/>
+</div>
+<div class="text-center">
+<p class="font-display font-bold text-lg tracking-wide">Daniel Makuza</p>
+<p class="text-sm opacity-80 font-light">Valid thru: Dec 2024</p>
+</div>
+<div class="w-full pt-2 border-t border-white/20 flex justify-between items-center text-xs opacity-90">
+<span>Library Access</span>
+<span class="material-symbols-outlined text-[16px]">check_circle</span>
+</div>
+</div>
+</div>
+<!-- Wallet Card -->
+<div class="bg-surface-light dark:bg-surface-dark rounded-xl p-5 shadow-[0_2px_8px_rgba(0,0,0,0.04)] border border-gray-100 dark:border-gray-800 flex flex-col gap-4">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2 text-[#0d111b] dark:text-white font-bold">
+<span class="material-symbols-outlined text-primary">account_balance_wallet</span>
+<span>Wallet</span>
+</div>
+<span class="text-xs font-medium text-emerald-600 bg-emerald-50 dark:bg-emerald-900/20 px-2 py-0.5 rounded">Active</span>
+</div>
+<div class="flex flex-col gap-1">
+<span class="text-sm text-[#4c5f9a]">Available Balance</span>
+<span class="text-3xl font-black text-[#0d111b] dark:text-white tracking-tight">$45.00</span>
+</div>
+<button class="w-full py-2.5 bg-primary hover:bg-primary/90 text-white font-medium rounded-lg transition-colors flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-[20px]">add</span>
+                            Top Up Wallet
+                        </button>
+</div>
+</div>
+<!-- Center Column: Attendance (Span 5) -->
+<div class="lg:col-span-5 flex flex-col h-full">
+<div class="bg-surface-light dark:bg-surface-dark rounded-xl p-6 shadow-[0_2px_8px_rgba(0,0,0,0.04)] border border-gray-100 dark:border-gray-800 flex-1">
+<div class="flex items-center justify-between mb-6">
+<div class="flex flex-col">
+<h3 class="text-lg font-bold text-[#0d111b] dark:text-white">Attendance</h3>
+<p class="text-sm text-[#4c5f9a]">October 2023</p>
+</div>
+<div class="flex gap-1">
+<button class="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors text-[#4c5f9a]">
+<span class="material-symbols-outlined">chevron_left</span>
+</button>
+<button class="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors text-[#4c5f9a]">
+<span class="material-symbols-outlined">chevron_right</span>
+</button>
+</div>
+</div>
+<!-- Calendar Grid -->
+<div class="w-full">
+<!-- Weekday Headers -->
+<div class="grid grid-cols-7 mb-2 text-center">
+<div class="text-xs font-medium text-[#4c5f9a]">Mon</div>
+<div class="text-xs font-medium text-[#4c5f9a]">Tue</div>
+<div class="text-xs font-medium text-[#4c5f9a]">Wed</div>
+<div class="text-xs font-medium text-[#4c5f9a]">Thu</div>
+<div class="text-xs font-medium text-[#4c5f9a]">Fri</div>
+<div class="text-xs font-medium text-[#4c5f9a] text-red-400">Sat</div>
+<div class="text-xs font-medium text-[#4c5f9a] text-red-400">Sun</div>
+</div>
+<!-- Days -->
+<div class="grid grid-cols-7 gap-y-4 gap-x-2">
+<!-- Previous Month Placeholder -->
+<div class="h-14"></div> <div class="h-14"></div> <div class="h-14"></div>
+<!-- Active Days -->
+<!-- Day 1 -->
+<div class="flex flex-col items-center gap-1 group cursor-pointer">
+<span class="text-sm text-[#0d111b] dark:text-gray-300">1</span>
+<div class="size-2 rounded-full bg-emerald-500"></div>
+</div>
+<!-- Day 2 -->
+<div class="flex flex-col items-center gap-1 group cursor-pointer">
+<span class="text-sm text-[#0d111b] dark:text-gray-300">2</span>
+<div class="size-2 rounded-full bg-emerald-500"></div>
+</div>
+<!-- Day 3 -->
+<div class="flex flex-col items-center gap-1 group cursor-pointer">
+<span class="text-sm text-[#0d111b] dark:text-gray-300">3</span>
+<div class="size-2 rounded-full bg-red-500" title="Absent"></div>
+</div>
+<!-- Day 4 Weekend -->
+<div class="flex flex-col items-center gap-1 opacity-40">
+<span class="text-sm">4</span>
+</div>
+<!-- Day 5 Weekend -->
+<div class="flex flex-col items-center gap-1 opacity-40">
+<span class="text-sm">5</span>
+</div>
+<!-- Week 2 -->
+<div class="flex flex-col items-center gap-1 group cursor-pointer">
+<span class="text-sm text-[#0d111b] dark:text-gray-300">6</span>
+<div class="size-2 rounded-full bg-emerald-500"></div>
+</div>
+<div class="flex flex-col items-center gap-1 group cursor-pointer">
+<span class="text-sm text-[#0d111b] dark:text-gray-300">7</span>
+<div class="size-2 rounded-full bg-emerald-500"></div>
+</div>
+<div class="flex flex-col items-center gap-1 group cursor-pointer">
+<span class="text-sm text-[#0d111b] dark:text-gray-300">8</span>
+<div class="size-2 rounded-full bg-emerald-500"></div>
+</div>
+<div class="flex flex-col items-center gap-1 group cursor-pointer">
+<span class="text-sm text-[#0d111b] dark:text-gray-300">9</span>
+<div class="size-2 rounded-full bg-yellow-400" title="Late"></div>
+</div>
+<div class="flex flex-col items-center gap-1 group cursor-pointer">
+<span class="text-sm text-[#0d111b] dark:text-gray-300">10</span>
+<div class="size-2 rounded-full bg-emerald-500"></div>
+</div>
+<div class="flex flex-col items-center gap-1 opacity-40"><span class="text-sm">11</span></div>
+<div class="flex flex-col items-center gap-1 opacity-40"><span class="text-sm">12</span></div>
+<!-- Week 3 -->
+<div class="flex flex-col items-center gap-1 group cursor-pointer">
+<span class="text-sm text-[#0d111b] dark:text-gray-300">13</span>
+<div class="size-2 rounded-full bg-emerald-500"></div>
+</div>
+<div class="flex flex-col items-center gap-1 group cursor-pointer">
+<span class="text-sm text-[#0d111b] dark:text-gray-300">14</span>
+<div class="size-2 rounded-full bg-emerald-500"></div>
+</div>
+<div class="flex flex-col items-center gap-1 group cursor-pointer">
+<div class="size-7 flex items-center justify-center rounded-full bg-primary text-white text-sm font-bold shadow-md">15</div>
+<div class="size-2 rounded-full bg-gray-200 dark:bg-gray-600"></div>
+</div>
+<div class="flex flex-col items-center gap-1 group cursor-pointer">
+<span class="text-sm text-[#0d111b] dark:text-gray-300">16</span>
+<div class="size-2 rounded-full bg-gray-200 dark:bg-gray-600"></div>
+</div>
+<div class="flex flex-col items-center gap-1 group cursor-pointer">
+<span class="text-sm text-[#0d111b] dark:text-gray-300">17</span>
+<div class="size-2 rounded-full bg-gray-200 dark:bg-gray-600"></div>
+</div>
+<div class="flex flex-col items-center gap-1 opacity-40"><span class="text-sm">18</span></div>
+<div class="flex flex-col items-center gap-1 opacity-40"><span class="text-sm">19</span></div>
+</div>
+</div>
+<!-- Legend -->
+<div class="flex flex-wrap items-center justify-center gap-4 mt-8 pt-6 border-t border-gray-100 dark:border-gray-800">
+<div class="flex items-center gap-2">
+<div class="size-2.5 rounded-full bg-emerald-500"></div>
+<span class="text-xs text-[#4c5f9a]">Present</span>
+</div>
+<div class="flex items-center gap-2">
+<div class="size-2.5 rounded-full bg-red-500"></div>
+<span class="text-xs text-[#4c5f9a]">Absent</span>
+</div>
+<div class="flex items-center gap-2">
+<div class="size-2.5 rounded-full bg-yellow-400"></div>
+<span class="text-xs text-[#4c5f9a]">Late</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Right Column: Library & Subjects (Span 4) -->
+<div class="lg:col-span-4 flex flex-col gap-6">
+<!-- Library Section -->
+<div class="bg-surface-light dark:bg-surface-dark rounded-xl p-6 shadow-[0_2px_8px_rgba(0,0,0,0.04)] border border-gray-100 dark:border-gray-800">
+<div class="flex items-center justify-between mb-4">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">local_library</span>
+<h3 class="text-lg font-bold text-[#0d111b] dark:text-white">Borrowed Books</h3>
+</div>
+<a class="text-xs font-semibold text-primary hover:underline" href="#">View All</a>
+</div>
+<div class="flex flex-col gap-4">
+<!-- Book Item 1 -->
+<div class="flex gap-4 p-3 rounded-lg bg-background-light dark:bg-gray-800/30 hover:bg-white dark:hover:bg-gray-800 border border-transparent hover:border-gray-200 dark:hover:border-gray-700 transition-all">
+<div class="w-12 h-16 shrink-0 rounded bg-gray-200 bg-cover bg-center shadow-sm" data-alt="Cover of the book Introduction to Biology" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuBlZs35lNPKCT5A1R3Z3DX7ni7WmtN6xaRqUyzkV_Zsi6ugVeolM1Dosy_JrygUXtTPXzV0XPufOiIz9FG60-TOruqDp1t9MsC_EKtYNySc9Dego1WcPnPDKumc5d70B6QcmKfqTVLf2W_xkKBSLGql6GfLHrAMPqR5D4ukePtg0XSjZ8ahdZGaR7KS4sBMVr6NzTV__INMJE8jV5itVo4FIsE5Fot_IothkSTdYwv9OdnE64p6hpmsiDVes6Ks0qQH44i18H75Fbyb");'></div>
+<div class="flex flex-col justify-between flex-1 py-0.5">
+<div>
+<p class="text-sm font-bold text-[#0d111b] dark:text-white leading-tight line-clamp-1">Introduction to Biology</p>
+<p class="text-xs text-[#4c5f9a] mt-1">Science Dept.</p>
+</div>
+<div class="flex items-center gap-1.5 mt-2">
+<span class="material-symbols-outlined text-[14px] text-red-500">warning</span>
+<span class="text-xs font-bold text-red-500">Due in 2 days</span>
+</div>
+</div>
+</div>
+<!-- Book Item 2 -->
+<div class="flex gap-4 p-3 rounded-lg bg-background-light dark:bg-gray-800/30 hover:bg-white dark:hover:bg-gray-800 border border-transparent hover:border-gray-200 dark:hover:border-gray-700 transition-all">
+<div class="w-12 h-16 shrink-0 rounded bg-gray-200 bg-cover bg-center shadow-sm" data-alt="Cover of the book Harry Potter" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDQ-9UMoVnmW_EM79ezxwT3yOHxbbbpHqQ-Dpo0c-Nfg5jtLUN8aoau2_J1PKYikfeqebZXo_z0nS6XuoMzZR0P1EZB-dIYk-kJOKeTwrfOc1PkJX6Br-wWN7YW4PznZ2LPsO9X3B0b4-Y-C-xzZoe8XQH7fgci8T69qsQlOzaXk4mAkuM12bfLKdbbofJGcGknJHVeB8RWvEFWTIH1WDmKP5dFmIKc1ygJoaPmNy7xrEeYRBGHjqXYLucP8PRpdkAKxEd3zERvRg9p");'></div>
+<div class="flex flex-col justify-between flex-1 py-0.5">
+<div>
+<p class="text-sm font-bold text-[#0d111b] dark:text-white leading-tight line-clamp-1">Harry Potter &amp; Goblet of Fire</p>
+<p class="text-xs text-[#4c5f9a] mt-1">Fiction</p>
+</div>
+<div class="flex items-center gap-1.5 mt-2">
+<span class="size-1.5 rounded-full bg-emerald-500"></span>
+<span class="text-xs font-medium text-emerald-600">5 days remaining</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Subject Summary (Optional/Additional Context) -->
+<div class="bg-surface-light dark:bg-surface-dark rounded-xl p-6 shadow-[0_2px_8px_rgba(0,0,0,0.04)] border border-gray-100 dark:border-gray-800 flex-1">
+<div class="flex items-center justify-between mb-4">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">bar_chart</span>
+<h3 class="text-lg font-bold text-[#0d111b] dark:text-white">Performance</h3>
+</div>
+</div>
+<div class="flex flex-col gap-4">
+<div>
+<div class="flex justify-between text-xs mb-1">
+<span class="font-medium text-[#0d111b] dark:text-gray-300">Mathematics</span>
+<span class="font-bold text-primary">85%</span>
+</div>
+<div class="h-2 w-full bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
+<div class="h-full bg-primary rounded-full" style="width: 85%"></div>
+</div>
+</div>
+<div>
+<div class="flex justify-between text-xs mb-1">
+<span class="font-medium text-[#0d111b] dark:text-gray-300">Science</span>
+<span class="font-bold text-emerald-500">92%</span>
+</div>
+<div class="h-2 w-full bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
+<div class="h-full bg-emerald-500 rounded-full" style="width: 92%"></div>
+</div>
+</div>
+<div>
+<div class="flex justify-between text-xs mb-1">
+<span class="font-medium text-[#0d111b] dark:text-gray-300">History</span>
+<span class="font-bold text-yellow-500">78%</span>
+</div>
+<div class="h-2 w-full bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
+<div class="h-full bg-yellow-500 rounded-full" style="width: 78%"></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+</body></html>

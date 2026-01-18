@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Library Circulation Desk | Rwandan School Library Portal</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#1111d4",
+                        "success": "#10b981", // Emerald Green
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#101022",
+                    },
+                    fontFamily: {
+                        "display": ["Inter"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 min-h-screen">
+<!-- Top Navigation Bar -->
+<header class="sticky top-0 z-50 bg-white dark:bg-background-dark border-b border-slate-200 dark:border-slate-800">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+<div class="flex items-center justify-between h-16">
+<div class="flex items-center gap-3">
+<div class="bg-primary text-white p-2 rounded-lg">
+<span class="material-symbols-outlined block">library_books</span>
+</div>
+<h1 class="text-lg font-bold tracking-tight text-primary dark:text-white">Rwandan School Library Portal</h1>
+</div>
+<nav class="hidden md:flex items-center gap-6">
+<a class="text-sm font-semibold text-slate-600 dark:text-slate-400 hover:text-primary dark:hover:text-primary transition-colors" href="#">Dashboard</a>
+<a class="text-sm font-semibold text-primary border-b-2 border-primary pb-1" href="#">Circulation</a>
+<a class="text-sm font-semibold text-slate-600 dark:text-slate-400 hover:text-primary transition-colors" href="#">Catalog</a>
+<a class="text-sm font-semibold text-slate-600 dark:text-slate-400 hover:text-primary transition-colors" href="#">Students</a>
+<a class="text-sm font-semibold text-slate-600 dark:text-slate-400 hover:text-primary transition-colors" href="#">Reports</a>
+</nav>
+<div class="flex items-center gap-4">
+<button class="p-2 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="p-2 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors">
+<span class="material-symbols-outlined">settings</span>
+</button>
+<div class="h-8 w-8 rounded-full bg-cover bg-center border border-slate-200 dark:border-slate-700" data-alt="Portrait of a female school librarian" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBdnIIG93tODqq5eWpemnCYgLbYHetIomiHuRHGTR277eu2XmG4QlqwqnHMzjCNfqcUfcrwvkXoh2bT6oKJMru-B_CCPqWZ0xvKOCXXGsZghoSTR51j5782KH_B7MHKQ8EiIANWcaO9-i2sLc7hTuSvWLqtoRauK3zMCIC9dQ5eFMUjCsbzFOb4h4OfhGVRTC3ptoP7IKMbrwV0USs35J_e4Vc2oUkotAxY4qz5fxCp_cc8l4zVOUtKzD8eo8tGF6vhEHz1-WApBG3i')"></div>
+</div>
+</div>
+</div>
+</header>
+<main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+<!-- Page Heading -->
+<div class="mb-8">
+<h2 class="text-3xl font-black text-slate-900 dark:text-white tracking-tight">Circulation Desk</h2>
+<p class="text-slate-500 dark:text-slate-400 mt-1">Efficiently manage book check-outs and returns for students.</p>
+</div>
+<!-- Scanning Dashboard (Split Screen) -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+<!-- Left: Student Identification -->
+<div class="flex flex-col gap-4">
+<div class="bg-white dark:bg-slate-900 p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
+<div class="flex items-center gap-3 mb-6">
+<div class="p-2 bg-primary/10 text-primary rounded-lg">
+<span class="material-symbols-outlined">badge</span>
+</div>
+<h3 class="text-lg font-bold text-slate-900 dark:text-white">Identify Student</h3>
+</div>
+<div class="space-y-4">
+<label class="block">
+<span class="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2 block">Scan Student Card or Enter ID</span>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">contactless</span>
+<input class="w-full pl-10 pr-4 py-3 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all" placeholder="e.g. STU-2024-0089" type="text"/>
+</div>
+</label>
+<!-- Student Profile Preview (Active State) -->
+<div class="flex gap-4 p-4 rounded-lg bg-slate-50 dark:bg-slate-800/50 border border-dashed border-slate-300 dark:border-slate-700 items-center">
+<div class="w-16 h-16 rounded-lg bg-cover bg-center shrink-0 bg-slate-200" data-alt="Student identification photo thumbnail" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDncXF-sAo5CEcFVLiqUXp1qZH0ea_jmImxq6iNzA_55gp_Ysv5yPTvg7sreOvfj76W62eShZIzVwoCZ8fGeBpdOSKAH_6sGwrAFc9u3w03bUZuylTCU1NKxxTr5DWoKbY7JmXE-zWT1ola-pnNUrwZGkViBnOlhKbIKsIySid3_n3v57w185iQBMnka2JpUnF8ecVJNaTLxv_hEK5PK1l7b6GkYmqAQImRBFd0ynwZk9ZTjzvV27gq1FzjzujyE_ubkkVfjitbschn')"></div>
+<div class="flex-1">
+<h4 class="font-bold text-slate-900 dark:text-white">Kwizera Aimé</h4>
+<p class="text-xs text-slate-500 uppercase font-medium">Senior 5 - Math/Physics</p>
+<div class="mt-2 flex items-center gap-2">
+<span class="px-2 py-0.5 text-[10px] font-bold bg-success/20 text-success rounded uppercase">No Overdues</span>
+<span class="text-xs text-slate-400">2 books borrowed</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Right: Book Identification -->
+<div class="flex flex-col gap-4">
+<div class="bg-white dark:bg-slate-900 p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
+<div class="flex items-center gap-3 mb-6">
+<div class="p-2 bg-primary/10 text-primary rounded-lg">
+<span class="material-symbols-outlined">barcode_scanner</span>
+</div>
+<h3 class="text-lg font-bold text-slate-900 dark:text-white">Scan Book</h3>
+</div>
+<div class="space-y-4">
+<label class="block">
+<span class="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2 block">Scan Book Barcode or ISBN</span>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">qr_code_scanner</span>
+<input class="w-full pl-10 pr-4 py-3 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all" placeholder="e.g. 978-3-16-148410-0" type="text"/>
+</div>
+</label>
+<!-- Book Details Preview (Active State) -->
+<div class="flex gap-4 p-4 rounded-lg bg-slate-50 dark:bg-slate-800/50 border border-dashed border-slate-300 dark:border-slate-700 items-center">
+<div class="w-16 h-20 rounded shadow-sm bg-cover bg-center shrink-0" data-alt="Book cover showing abstract design" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCDWZ2SFTAj2uA7yupAnWS_PxBzUF4eoX18nwasUPBgw_kXBasaARkT7VCNraO0tztFCXneR9S59XCsLUNAF_efQAPcnytyVOVYyHNWNV6VH_GMeqrRd76xoWmq5I9b3PeaZJAYJeX78N1XJ4F1lgCbbiAEyHuPmMBycWTHO8MuX1xWCNUOEFhsZQJuqczeNv8aKtmyM0mqgkuFVmw9yhFd6ZPxgzClH11CB2EFgAnx6e9sZQgFQ6F9kaiFnzmsRHq-D16ot10YJq1j')"></div>
+<div class="flex-1">
+<h4 class="font-bold text-slate-900 dark:text-white">Advanced Mechanics</h4>
+<p class="text-xs text-slate-500 uppercase font-medium">Science &amp; Engineering</p>
+<div class="mt-2 flex items-center gap-2">
+<span class="px-2 py-0.5 text-[10px] font-bold bg-primary/20 text-primary rounded uppercase">Available</span>
+<span class="text-xs text-slate-400">Shelf A-12</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Transaction Controls -->
+<div class="flex flex-col sm:flex-row justify-center gap-4 mb-12">
+<button class="flex items-center justify-center gap-2 px-8 py-4 bg-primary text-white rounded-lg font-bold text-lg hover:bg-blue-800 transition-all shadow-lg shadow-primary/20 min-w-[240px]">
+<span class="material-symbols-outlined">output</span>
+                Confirm Checkout
+            </button>
+<button class="flex items-center justify-center gap-2 px-8 py-4 bg-success text-white rounded-lg font-bold text-lg hover:bg-emerald-700 transition-all shadow-lg shadow-success/20 min-w-[240px]">
+<span class="material-symbols-outlined">input</span>
+                Confirm Return
+            </button>
+<button class="flex items-center justify-center gap-2 px-8 py-4 bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-lg font-bold text-lg hover:bg-slate-300 dark:hover:bg-slate-700 transition-all min-w-[120px]">
+                Cancel
+            </button>
+</div>
+<!-- Recent Transactions -->
+<div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm">
+<div class="px-6 py-4 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center">
+<h3 class="text-lg font-bold text-slate-900 dark:text-white">Recent Transactions</h3>
+<button class="text-sm font-semibold text-primary hover:underline">View All History</button>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left">
+<thead class="bg-slate-50 dark:bg-slate-950">
+<tr>
+<th class="px-6 py-3 text-xs font-bold text-slate-500 uppercase">Student</th>
+<th class="px-6 py-3 text-xs font-bold text-slate-500 uppercase">Book Title</th>
+<th class="px-6 py-3 text-xs font-bold text-slate-500 uppercase">Date &amp; Time</th>
+<th class="px-6 py-3 text-xs font-bold text-slate-500 uppercase text-center">Status</th>
+<th class="px-6 py-3 text-xs font-bold text-slate-500 uppercase text-right">Librarian</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+<!-- Row 1 -->
+<tr class="hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="h-8 w-8 rounded bg-primary/10 text-primary flex items-center justify-center text-xs font-bold">UM</div>
+<span class="text-sm font-semibold">Umuhoza Marie</span>
+</div>
+</td>
+<td class="px-6 py-4 text-sm text-slate-600 dark:text-slate-400 italic">"Introduction to Agriculture"</td>
+<td class="px-6 py-4 text-sm text-slate-500">Oct 24, 10:45 AM</td>
+<td class="px-6 py-4 text-center">
+<span class="px-3 py-1 text-xs font-bold rounded-full bg-success/20 text-success uppercase">Returned</span>
+</td>
+<td class="px-6 py-4 text-sm text-slate-500 text-right">Admin_S01</td>
+</tr>
+<!-- Row 2 -->
+<tr class="hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="h-8 w-8 rounded bg-primary/10 text-primary flex items-center justify-center text-xs font-bold">JK</div>
+<span class="text-sm font-semibold">Jean-Paul Kagabo</span>
+</div>
+</td>
+<td class="px-6 py-4 text-sm text-slate-600 dark:text-slate-400 italic">"Modern African Literature"</td>
+<td class="px-6 py-4 text-sm text-slate-500">Oct 24, 09:12 AM</td>
+<td class="px-6 py-4 text-center">
+<span class="px-3 py-1 text-xs font-bold rounded-full bg-primary/20 text-primary uppercase">Checked Out</span>
+</td>
+<td class="px-6 py-4 text-sm text-slate-500 text-right">Admin_S01</td>
+</tr>
+<!-- Row 3 -->
+<tr class="hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="h-8 w-8 rounded bg-primary/10 text-primary flex items-center justify-center text-xs font-bold">BN</div>
+<span class="text-sm font-semibold">Butera Noella</span>
+</div>
+</td>
+<td class="px-6 py-4 text-sm text-slate-600 dark:text-slate-400 italic">"Advanced Chemistry Vol. 2"</td>
+<td class="px-6 py-4 text-sm text-slate-500">Oct 23, 15:30 PM</td>
+<td class="px-6 py-4 text-center">
+<span class="px-3 py-1 text-xs font-bold rounded-full bg-primary/20 text-primary uppercase">Checked Out</span>
+</td>
+<td class="px-6 py-4 text-sm text-slate-500 text-right">Admin_S02</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</main>
+<!-- Footer Stats / Summary -->
+<footer class="mt-auto border-t border-slate-200 dark:border-slate-800 py-6 bg-white dark:bg-background-dark">
+<div class="max-w-7xl mx-auto px-4 flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-slate-500">
+<div class="flex gap-8">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-primary"></span>
+<span>Daily Checkouts: <strong>42</strong></span>
+</div>
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-success"></span>
+<span>Daily Returns: <strong>38</strong></span>
+</div>
+<div class="flex items-center gap-2 text-red-500">
+<span class="w-2 h-2 rounded-full bg-red-500"></span>
+<span>Overdue Alerts: <strong>5</strong></span>
+</div>
+</div>
+<div>
+                System Status: <span class="text-success font-medium">Online</span> | Last Sync: 2 mins ago
+            </div>
+</div>
+</footer>
+</body></html>

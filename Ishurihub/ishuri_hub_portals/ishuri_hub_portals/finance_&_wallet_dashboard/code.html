@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Finance &amp; Wallet Dashboard - Rwanda School Portal</title>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Material Symbols Outlined -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Inter Font -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#1111d4", // Deep Royal Blue
+                        "accent": "#f59e0b",  // Golden Amber
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#101022",
+                    },
+                    fontFamily: {
+                        "display": ["Inter"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-[#0d0d1b] dark:text-white">
+<div class="flex min-h-screen">
+<!-- Side Navigation -->
+<aside class="w-64 flex flex-col justify-between bg-white dark:bg-[#1a1a3a] border-r border-[#e7e7f3] dark:border-[#2d2d5a] p-4 sticky top-0 h-screen">
+<div class="flex flex-col gap-8">
+<div class="flex gap-3 items-center">
+<div class="bg-primary rounded-full size-10 flex items-center justify-center text-white">
+<span class="material-symbols-outlined">school</span>
+</div>
+<div class="flex flex-col">
+<h1 class="text-[#0d0d1b] dark:text-white text-sm font-bold leading-tight">Rwanda School Portal</h1>
+<p class="text-[#4c4c9a] dark:text-[#a0a0d0] text-xs font-normal">Finance Admin</p>
+</div>
+</div>
+<nav class="flex flex-col gap-2">
+<div class="flex items-center gap-3 px-3 py-2 rounded-lg bg-primary/10 text-primary border border-primary/20">
+<span class="material-symbols-outlined">dashboard</span>
+<p class="text-sm font-medium">Dashboard</p>
+</div>
+<div class="flex items-center gap-3 px-3 py-2 text-[#4c4c9a] dark:text-[#a0a0d0] hover:bg-[#f8f8fc] dark:hover:bg-white/5 rounded-lg cursor-pointer transition-colors">
+<span class="material-symbols-outlined text-lg">group</span>
+<p class="text-sm font-medium">Students</p>
+</div>
+<div class="flex items-center gap-3 px-3 py-2 text-[#4c4c9a] dark:text-[#a0a0d0] hover:bg-[#f8f8fc] dark:hover:bg-white/5 rounded-lg cursor-pointer transition-colors">
+<span class="material-symbols-outlined text-lg">receipt_long</span>
+<p class="text-sm font-medium">Transactions</p>
+</div>
+<div class="flex items-center gap-3 px-3 py-2 text-[#4c4c9a] dark:text-[#a0a0d0] hover:bg-[#f8f8fc] dark:hover:bg-white/5 rounded-lg cursor-pointer transition-colors">
+<span class="material-symbols-outlined text-lg">account_balance_wallet</span>
+<p class="text-sm font-medium">Collections</p>
+</div>
+<div class="flex items-center gap-3 px-3 py-2 text-[#4c4c9a] dark:text-[#a0a0d0] hover:bg-[#f8f8fc] dark:hover:bg-white/5 rounded-lg cursor-pointer transition-colors">
+<span class="material-symbols-outlined text-lg">settings</span>
+<p class="text-sm font-medium">Settings</p>
+</div>
+</nav>
+</div>
+<div class="flex flex-col gap-4">
+<button class="flex items-center justify-center gap-2 rounded-lg h-10 px-4 bg-primary text-white text-sm font-bold transition-opacity hover:opacity-90">
+<span class="material-symbols-outlined text-sm">help</span>
+<span class="truncate">Support Center</span>
+</button>
+</div>
+</aside>
+<!-- Main Content -->
+<main class="flex-1 flex flex-col min-w-0">
+<!-- Top Navigation Bar -->
+<header class="flex items-center justify-between bg-white dark:bg-[#1a1a3a] border-b border-[#e7e7f3] dark:border-[#2d2d5a] px-8 py-4 sticky top-0 z-10">
+<div class="flex items-center gap-6 flex-1">
+<h2 class="text-[#0d0d1b] dark:text-white text-xl font-bold tracking-tight">Financial Overview</h2>
+<div class="relative w-full max-w-md">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[#4c4c9a] text-lg">search</span>
+<input class="w-full bg-[#f6f6f8] dark:bg-[#101022] border-none rounded-lg pl-10 pr-4 py-2 text-sm placeholder-[#4c4c9a] focus:ring-2 focus:ring-primary/20" placeholder="Search students or transaction IDs..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<button class="bg-primary text-white px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-2">
+<span class="material-symbols-outlined text-lg">download</span>
+                        Export Report
+                    </button>
+<button class="size-10 rounded-lg bg-[#f6f6f8] dark:bg-[#101022] flex items-center justify-center text-[#4c4c9a] dark:text-white hover:bg-[#e7e7f3] transition-colors">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<div class="h-8 w-px bg-[#e7e7f3] dark:bg-[#2d2d5a]"></div>
+<div class="flex items-center gap-3">
+<div class="text-right hidden sm:block">
+<p class="text-sm font-bold text-[#0d0d1b] dark:text-white leading-tight">Jean Kabera</p>
+<p class="text-xs text-[#4c4c9a] dark:text-[#a0a0d0]">Super Admin</p>
+</div>
+<div class="size-10 rounded-full bg-center bg-cover border-2 border-primary/20" data-alt="Administrator profile photo" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDPXZt4psYU6agW73xgrVYabPMPSeLXazwggqvrUZb_ChezZoCQ0TdbuRa_NexOZeT_sI3EpNToyzWNbuEp5NXsERQAIwkCvGmvtUaRtw37HfexS65pvn5-bXTILIlXcvNsh9dTCVFAPPhc99xcO3daKEUDp2LcgvRgQE8Le3FJkmmo2eZF-KcVu-CXg4NfKGBJL_flVWZZc788tAXuMaeBwHWEqCOVBANKXkXbWE7OtOwjs6WYQ5eBv3LOGN_mJHbqbkucnUEBTz5v");'></div>
+</div>
+</div>
+</header>
+<!-- Dashboard Body -->
+<div class="p-8 flex flex-col gap-8">
+<!-- Stats Section -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+<div class="bg-white dark:bg-[#1a1a3a] p-6 rounded-xl border border-[#cfcfe7] dark:border-[#2d2d5a] shadow-sm">
+<div class="flex justify-between items-start mb-2">
+<p class="text-[#4c4c9a] dark:text-[#a0a0d0] text-sm font-medium">Total Wallet Volume</p>
+<span class="bg-primary/10 text-primary p-1 rounded">
+<span class="material-symbols-outlined text-lg">account_balance_wallet</span>
+</span>
+</div>
+<p class="text-[#0d0d1b] dark:text-white text-2xl font-bold">12,450,000 RWF</p>
+<p class="text-[#078841] text-xs font-semibold flex items-center gap-1 mt-2">
+<span class="material-symbols-outlined text-xs">trending_up</span> +12.5% <span class="text-[#4c4c9a] dark:text-[#a0a0d0] font-normal">vs last month</span>
+</p>
+</div>
+<div class="bg-white dark:bg-[#1a1a3a] p-6 rounded-xl border border-[#cfcfe7] dark:border-[#2d2d5a] shadow-sm border-l-4 border-l-accent">
+<div class="flex justify-between items-start mb-2">
+<p class="text-[#4c4c9a] dark:text-[#a0a0d0] text-sm font-medium">Total Collections</p>
+<span class="bg-accent/10 text-accent p-1 rounded">
+<span class="material-symbols-outlined text-lg">payments</span>
+</span>
+</div>
+<p class="text-accent text-2xl font-bold">8,200,500 RWF</p>
+<p class="text-[#078841] text-xs font-semibold flex items-center gap-1 mt-2">
+<span class="material-symbols-outlined text-xs">trending_up</span> +5.2% <span class="text-[#4c4c9a] dark:text-[#a0a0d0] font-normal">from canteen</span>
+</p>
+</div>
+<div class="bg-white dark:bg-[#1a1a3a] p-6 rounded-xl border border-[#cfcfe7] dark:border-[#2d2d5a] shadow-sm">
+<div class="flex justify-between items-start mb-2">
+<p class="text-[#4c4c9a] dark:text-[#a0a0d0] text-sm font-medium">Active Wallets</p>
+<span class="bg-primary/10 text-primary p-1 rounded">
+<span class="material-symbols-outlined text-lg">group</span>
+</span>
+</div>
+<p class="text-[#0d0d1b] dark:text-white text-2xl font-bold">1,240</p>
+<p class="text-[#078841] text-xs font-semibold flex items-center gap-1 mt-2">
+<span class="material-symbols-outlined text-xs">add</span> 45 <span class="text-[#4c4c9a] dark:text-[#a0a0d0] font-normal">new this week</span>
+</p>
+</div>
+<div class="bg-white dark:bg-[#1a1a3a] p-6 rounded-xl border border-[#cfcfe7] dark:border-[#2d2d5a] shadow-sm">
+<div class="flex justify-between items-start mb-2">
+<p class="text-[#4c4c9a] dark:text-[#a0a0d0] text-sm font-medium">Pending Approvals</p>
+<span class="bg-red-100 text-red-600 p-1 rounded">
+<span class="material-symbols-outlined text-lg">pending_actions</span>
+</span>
+</div>
+<p class="text-[#0d0d1b] dark:text-white text-2xl font-bold">14</p>
+<p class="text-red-600 text-xs font-semibold flex items-center gap-1 mt-2">
+<span class="material-symbols-outlined text-xs">error</span> Requires Attention
+                        </p>
+</div>
+</div>
+<!-- Charts Section -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+<!-- Daily Spending Volume (Line Chart) -->
+<div class="lg:col-span-2 bg-white dark:bg-[#1a1a3a] p-6 rounded-xl border border-[#cfcfe7] dark:border-[#2d2d5a] shadow-sm">
+<div class="flex justify-between items-center mb-6">
+<div>
+<h3 class="text-lg font-bold text-[#0d0d1b] dark:text-white">Daily Spending Volume</h3>
+<p class="text-xs text-[#4c4c9a] dark:text-[#a0a0d0]">Transaction frequency across campus outlets</p>
+</div>
+<div class="flex gap-2">
+<select class="bg-[#f6f6f8] dark:bg-[#101022] border-none text-xs font-semibold rounded-lg px-3 py-1.5 focus:ring-0">
+<option>Last 7 Days</option>
+<option>Last 30 Days</option>
+</select>
+</div>
+</div>
+<div class="h-64 relative">
+<!-- SVG Chart Simulation -->
+<svg class="w-full h-full" preserveaspectratio="none" viewbox="0 0 800 240">
+<defs>
+<lineargradient id="chartGradient" x1="0" x2="0" y1="0" y2="1">
+<stop offset="0%" stop-color="#1111d4" stop-opacity="0.2"></stop>
+<stop offset="100%" stop-color="#1111d4" stop-opacity="0"></stop>
+</lineargradient>
+</defs>
+<path d="M0,180 Q100,160 150,140 T300,190 T450,120 T600,150 T800,80 L800,240 L0,240 Z" fill="url(#chartGradient)"></path>
+<path d="M0,180 Q100,160 150,140 T300,190 T450,120 T600,150 T800,80" fill="none" stroke="#1111d4" stroke-linecap="round" stroke-width="3"></path>
+<!-- Data points -->
+<circle cx="150" cy="140" fill="#1111d4" r="4" stroke="white" stroke-width="2"></circle>
+<circle cx="450" cy="120" fill="#1111d4" r="4" stroke="white" stroke-width="2"></circle>
+<circle cx="800" cy="80" fill="#1111d4" r="4" stroke="white" stroke-width="2"></circle>
+</svg>
+<div class="flex justify-between mt-4 text-[#4c4c9a] dark:text-[#a0a0d0] text-xs font-medium">
+<span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span>
+</div>
+</div>
+</div>
+<!-- Category Breakdown (Pie Chart/Visual) -->
+<div class="bg-white dark:bg-[#1a1a3a] p-6 rounded-xl border border-[#cfcfe7] dark:border-[#2d2d5a] shadow-sm">
+<h3 class="text-lg font-bold text-[#0d0d1b] dark:text-white mb-1">Category Breakdown</h3>
+<p class="text-xs text-[#4c4c9a] dark:text-[#a0a0d0] mb-8">Canteen vs School Fines</p>
+<div class="flex flex-col items-center justify-center py-4">
+<!-- CSS Pie Chart -->
+<div class="size-44 rounded-full border-[12px] border-primary flex items-center justify-center relative" style="background: conic-gradient(#1111d4 0% 65%, #f59e0b 65% 100%);">
+<div class="size-28 rounded-full bg-white dark:bg-[#1a1a3a] flex flex-col items-center justify-center shadow-inner">
+<span class="text-2xl font-bold text-[#0d0d1b] dark:text-white">100%</span>
+<span class="text-[10px] uppercase tracking-wider text-[#4c4c9a] dark:text-[#a0a0d0]">Total Share</span>
+</div>
+</div>
+<div class="mt-8 grid grid-cols-2 gap-4 w-full">
+<div class="flex items-center gap-2">
+<div class="size-3 rounded-full bg-primary"></div>
+<div class="flex-1">
+<p class="text-[10px] text-[#4c4c9a] dark:text-[#a0a0d0] uppercase font-bold">Canteen</p>
+<p class="text-sm font-bold">65%</p>
+</div>
+</div>
+<div class="flex items-center gap-2">
+<div class="size-3 rounded-full bg-accent"></div>
+<div class="flex-1">
+<p class="text-[10px] text-[#4c4c9a] dark:text-[#a0a0d0] uppercase font-bold">Fines</p>
+<p class="text-sm font-bold">35%</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Data Grid (High Density Table) -->
+<div class="bg-white dark:bg-[#1a1a3a] rounded-xl border border-[#cfcfe7] dark:border-[#2d2d5a] shadow-sm overflow-hidden">
+<div class="px-6 py-4 border-b border-[#e7e7f3] dark:border-[#2d2d5a] flex items-center justify-between bg-gray-50/50 dark:bg-white/5">
+<h3 class="font-bold text-[#0d0d1b] dark:text-white">Recent Transactions</h3>
+<div class="flex gap-2">
+<button class="text-xs font-bold px-3 py-1.5 rounded bg-white dark:bg-[#101022] border border-[#cfcfe7] dark:border-[#2d2d5a] flex items-center gap-1">
+<span class="material-symbols-outlined text-sm">filter_list</span> Filter
+                            </button>
+<button class="text-xs font-bold px-3 py-1.5 rounded bg-white dark:bg-[#101022] border border-[#cfcfe7] dark:border-[#2d2d5a] flex items-center gap-1">
+<span class="material-symbols-outlined text-sm">sort</span> Sort
+                            </button>
+</div>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-[#f8f8fc] dark:bg-white/5 text-[#4c4c9a] dark:text-[#a0a0d0] text-[11px] uppercase tracking-wider font-bold">
+<th class="px-6 py-3 border-b border-[#e7e7f3] dark:border-[#2d2d5a]">Date &amp; Time</th>
+<th class="px-6 py-3 border-b border-[#e7e7f3] dark:border-[#2d2d5a]">Student Name</th>
+<th class="px-6 py-3 border-b border-[#e7e7f3] dark:border-[#2d2d5a]">ID</th>
+<th class="px-6 py-3 border-b border-[#e7e7f3] dark:border-[#2d2d5a]">Category</th>
+<th class="px-6 py-3 border-b border-[#e7e7f3] dark:border-[#2d2d5a]">Amount</th>
+<th class="px-6 py-3 border-b border-[#e7e7f3] dark:border-[#2d2d5a]">Status</th>
+<th class="px-6 py-3 border-b border-[#e7e7f3] dark:border-[#2d2d5a]">Action</th>
+</tr>
+</thead>
+<tbody class="text-sm">
+<tr class="border-b border-[#f1f1f9] dark:border-[#2d2d5a] hover:bg-[#fcfcff] dark:hover:bg-white/5 transition-colors">
+<td class="px-6 py-3 text-[#4c4c9a] dark:text-[#a0a0d0]">Oct 24, 09:12 AM</td>
+<td class="px-6 py-3 font-medium">Uwimana Alice</td>
+<td class="px-6 py-3 text-[#4c4c9a] dark:text-[#a0a0d0] font-mono text-xs">TRX-94821</td>
+<td class="px-6 py-3">
+<span class="bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-200 px-2 py-0.5 rounded-full text-[10px] font-bold">CANTEEN</span>
+</td>
+<td class="px-6 py-3 font-bold">1,500 RWF</td>
+<td class="px-6 py-3">
+<div class="flex items-center gap-1.5 text-[#078841] font-medium text-xs">
+<span class="size-1.5 rounded-full bg-[#078841]"></span> Success
+                                        </div>
+</td>
+<td class="px-6 py-3">
+<button class="text-primary hover:underline font-bold text-xs">Details</button>
+</td>
+</tr>
+<tr class="border-b border-[#f1f1f9] dark:border-[#2d2d5a] hover:bg-[#fcfcff] dark:hover:bg-white/5 transition-colors">
+<td class="px-6 py-3 text-[#4c4c9a] dark:text-[#a0a0d0]">Oct 24, 08:45 AM</td>
+<td class="px-6 py-3 font-medium">Niyomugabo Jean</td>
+<td class="px-6 py-3 text-[#4c4c9a] dark:text-[#a0a0d0] font-mono text-xs">TRX-94820</td>
+<td class="px-6 py-3">
+<span class="bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-200 px-2 py-0.5 rounded-full text-[10px] font-bold">FINE</span>
+</td>
+<td class="px-6 py-3 font-bold text-accent">5,000 RWF</td>
+<td class="px-6 py-3">
+<div class="flex items-center gap-1.5 text-orange-500 font-medium text-xs">
+<span class="size-1.5 rounded-full bg-orange-500"></span> Pending
+                                        </div>
+</td>
+<td class="px-6 py-3">
+<button class="text-primary hover:underline font-bold text-xs">Review</button>
+</td>
+</tr>
+<tr class="border-b border-[#f1f1f9] dark:border-[#2d2d5a] hover:bg-[#fcfcff] dark:hover:bg-white/5 transition-colors">
+<td class="px-6 py-3 text-[#4c4c9a] dark:text-[#a0a0d0]">Oct 23, 04:30 PM</td>
+<td class="px-6 py-3 font-medium">Mugisha Eric</td>
+<td class="px-6 py-3 text-[#4c4c9a] dark:text-[#a0a0d0] font-mono text-xs">TRX-94799</td>
+<td class="px-6 py-3">
+<span class="bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-200 px-2 py-0.5 rounded-full text-[10px] font-bold">CANTEEN</span>
+</td>
+<td class="px-6 py-3 font-bold">2,200 RWF</td>
+<td class="px-6 py-3">
+<div class="flex items-center gap-1.5 text-[#078841] font-medium text-xs">
+<span class="size-1.5 rounded-full bg-[#078841]"></span> Success
+                                        </div>
+</td>
+<td class="px-6 py-3">
+<button class="text-primary hover:underline font-bold text-xs">Details</button>
+</td>
+</tr>
+<tr class="border-b border-[#f1f1f9] dark:border-[#2d2d5a] hover:bg-[#fcfcff] dark:hover:bg-white/5 transition-colors">
+<td class="px-6 py-3 text-[#4c4c9a] dark:text-[#a0a0d0]">Oct 23, 01:15 PM</td>
+<td class="px-6 py-3 font-medium">Kezia Mutoni</td>
+<td class="px-6 py-3 text-[#4c4c9a] dark:text-[#a0a0d0] font-mono text-xs">TRX-94755</td>
+<td class="px-6 py-3">
+<span class="bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-200 px-2 py-0.5 rounded-full text-[10px] font-bold">CANTEEN</span>
+</td>
+<td class="px-6 py-3 font-bold">800 RWF</td>
+<td class="px-6 py-3">
+<div class="flex items-center gap-1.5 text-red-500 font-medium text-xs">
+<span class="size-1.5 rounded-full bg-red-500"></span> Failed
+                                        </div>
+</td>
+<td class="px-6 py-3">
+<button class="text-primary hover:underline font-bold text-xs">Details</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="px-6 py-4 flex items-center justify-between text-xs text-[#4c4c9a] dark:text-[#a0a0d0] font-medium">
+<span>Showing 1-10 of 2,450 transactions</span>
+<div class="flex gap-2">
+<button class="p-1 rounded hover:bg-gray-100 dark:hover:bg-white/5 disabled:opacity-30" disabled="">
+<span class="material-symbols-outlined text-lg">chevron_left</span>
+</button>
+<button class="px-3 rounded bg-primary text-white font-bold">1</button>
+<button class="px-3 rounded hover:bg-gray-100 dark:hover:bg-white/5">2</button>
+<button class="px-3 rounded hover:bg-gray-100 dark:hover:bg-white/5">3</button>
+<button class="p-1 rounded hover:bg-gray-100 dark:hover:bg-white/5">
+<span class="material-symbols-outlined text-lg">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+</body></html>

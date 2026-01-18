@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Library Inventory Manager</title>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#1349ec",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#101522",
+                    },
+                    fontFamily: {
+                        "display": ["Inter"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark min-h-screen">
+<div class="layout-container flex h-full grow flex-col">
+<!-- TopNavBar Component -->
+<header class="flex items-center justify-between whitespace-nowrap border-b border-solid border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 px-10 py-3 sticky top-0 z-50">
+<div class="flex items-center gap-8">
+<div class="flex items-center gap-4 text-primary">
+<div class="size-6">
+<svg fill="none" viewbox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+<path d="M4 42.4379C4 42.4379 14.0962 36.0744 24 41.1692C35.0664 46.8624 44 42.2078 44 42.2078L44 7.01134C44 7.01134 35.068 11.6577 24.0031 5.96913C14.0971 0.876274 4 7.27094 4 7.27094L4 42.4379Z" fill="currentColor"></path>
+</svg>
+</div>
+<h2 class="text-gray-900 dark:text-white text-lg font-bold leading-tight tracking-[-0.015em]">Library Portal</h2>
+</div>
+<div class="hidden md:flex items-center gap-6">
+<a class="text-gray-600 dark:text-gray-300 text-sm font-medium hover:text-primary transition-colors" href="#">Dashboard</a>
+<a class="text-primary text-sm font-bold border-b-2 border-primary pb-1" href="#">Inventory</a>
+<a class="text-gray-600 dark:text-gray-300 text-sm font-medium hover:text-primary transition-colors" href="#">Borrowers</a>
+<a class="text-gray-600 dark:text-gray-300 text-sm font-medium hover:text-primary transition-colors" href="#">Reports</a>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<div class="hidden sm:flex bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10 border border-gray-200 dark:border-gray-700" data-alt="User profile avatar of the school librarian" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDJOdax7O94cXe1GLqSiqTo74T_Lev8UOsjuGi9-9-yqFBhCxcYuVXR62O3oqE5a-JDa47l3MH2kWAZHpznQs-vXP_EWqhXPHpzeDcer6VNKkECUx0qLdirhTEemNJFBcqZGI2DXCPU5svvzuE55L9bGZTOMSnUZ72p-wEfBiFsC4ntcvzckqw8j3MeSlv5owHWoeJ4hBOmEx3aWvVru3AG0dUBgS-_jmAaUjacKmxh1lyjvGztFf-ukkXCXmnt3c00lXJjPGjJdv-9");'>
+</div>
+</div>
+</header>
+<main class="flex flex-1 justify-center py-8">
+<div class="layout-content-container flex flex-col w-full max-w-[1200px] px-4 md:px-10 gap-6">
+<!-- PageHeading Component -->
+<div class="flex flex-wrap items-end justify-between gap-4">
+<div class="flex flex-col gap-1">
+<p class="text-gray-900 dark:text-white text-4xl font-black leading-tight tracking-[-0.033em]">Library Inventory</p>
+<p class="text-gray-500 dark:text-gray-400 text-base font-normal">Manage and track your school's collection of academic resources.</p>
+</div>
+<button class="flex min-w-[140px] cursor-pointer items-center justify-center gap-2 overflow-hidden rounded-lg h-12 px-5 bg-primary text-white text-sm font-bold leading-normal tracking-[0.015em] hover:bg-blue-700 transition-all shadow-md">
+<span class="material-symbols-outlined text-[20px]">add</span>
+<span class="truncate">Add New Book</span>
+</button>
+</div>
+<!-- Filters and Search Section -->
+<div class="flex flex-col gap-4 bg-white dark:bg-gray-900 p-4 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800">
+<!-- SearchBar Component -->
+<div class="w-full">
+<label class="flex flex-col w-full h-12">
+<div class="flex w-full flex-1 items-stretch rounded-lg h-full overflow-hidden border border-gray-200 dark:border-gray-700 focus-within:ring-2 focus-within:ring-primary/20 transition-all">
+<div class="text-gray-400 flex items-center justify-center px-4 bg-gray-50 dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700">
+<span class="material-symbols-outlined">search</span>
+</div>
+<input class="form-input flex w-full flex-1 border-none bg-white dark:bg-gray-900 text-gray-900 dark:text-white placeholder:text-gray-400 px-4 text-base font-normal focus:ring-0" placeholder="Search by Title, Author, or ISBN..." value=""/>
+</div>
+</label>
+</div>
+<!-- Chips Component -->
+<div class="flex gap-2 flex-wrap items-center">
+<span class="text-sm font-semibold text-gray-500 dark:text-gray-400 mr-2 uppercase tracking-wider text-[11px]">Filters:</span>
+<button class="flex h-9 shrink-0 items-center justify-center gap-x-2 rounded-full bg-primary text-white px-4">
+<p class="text-sm font-medium">All Books</p>
+<span class="material-symbols-outlined text-[18px]">expand_more</span>
+</button>
+<button class="flex h-9 shrink-0 items-center justify-center gap-x-2 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 px-4 border border-gray-200 dark:border-gray-700 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">
+<p class="text-sm font-medium text-gray-700 dark:text-gray-300">Science</p>
+<span class="material-symbols-outlined text-[18px]">expand_more</span>
+</button>
+<button class="flex h-9 shrink-0 items-center justify-center gap-x-2 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 px-4 border border-gray-200 dark:border-gray-700 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">
+<p class="text-sm font-medium text-gray-700 dark:text-gray-300">Literature</p>
+<span class="material-symbols-outlined text-[18px]">expand_more</span>
+</button>
+<button class="flex h-9 shrink-0 items-center justify-center gap-x-2 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 px-4 border border-gray-200 dark:border-gray-700 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">
+<p class="text-sm font-medium text-gray-700 dark:text-gray-300">History</p>
+<span class="material-symbols-outlined text-[18px]">expand_more</span>
+</button>
+<button class="flex h-9 shrink-0 items-center justify-center gap-x-2 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 px-4 border border-gray-200 dark:border-gray-700 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">
+<p class="text-sm font-medium text-gray-700 dark:text-gray-300">Kinyarwanda</p>
+<span class="material-symbols-outlined text-[18px]">expand_more</span>
+</button>
+</div>
+</div>
+<!-- Table Component - High Density -->
+<div class="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-200 dark:border-gray-800 overflow-hidden">
+<div class="@container overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-gray-50 dark:bg-gray-800/50 border-b border-gray-200 dark:border-gray-800">
+<th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">Title &amp; Author</th>
+<th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 hidden sm:table-cell">ISBN</th>
+<th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">Status</th>
+<th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 text-right">Actions</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-gray-100 dark:divide-gray-800">
+<!-- Row 1 -->
+<tr class="hover:bg-gray-50/50 dark:hover:bg-gray-800/30 transition-colors">
+<td class="px-6 py-4">
+<div class="flex flex-col">
+<span class="text-sm font-bold text-gray-900 dark:text-white">Igabo rya Kanyarwanda</span>
+<span class="text-xs text-gray-500 dark:text-gray-400">Gasimba F.</span>
+</div>
+</td>
+<td class="px-6 py-4 hidden sm:table-cell">
+<span class="text-sm font-mono text-gray-600 dark:text-gray-400 tracking-tight">978-9997701234</span>
+</td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400">
+<span class="w-1.5 h-1.5 rounded-full bg-emerald-500 mr-2"></span>
+                                            Available
+                                        </span>
+</td>
+<td class="px-6 py-4 text-right">
+<button class="text-gray-400 hover:text-primary transition-colors">
+<span class="material-symbols-outlined">edit</span>
+</button>
+</td>
+</tr>
+<!-- Row 2 -->
+<tr class="hover:bg-gray-50/50 dark:hover:bg-gray-800/30 transition-colors">
+<td class="px-6 py-4">
+<div class="flex flex-col">
+<span class="text-sm font-bold text-gray-900 dark:text-white">Advanced Physics</span>
+<span class="text-xs text-gray-500 dark:text-gray-400">Dr. James Mwangi</span>
+</div>
+</td>
+<td class="px-6 py-4 hidden sm:table-cell">
+<span class="text-sm font-mono text-gray-600 dark:text-gray-400 tracking-tight">978-0198392132</span>
+</td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-primary text-white dark:bg-primary/20 dark:text-primary">
+<span class="w-1.5 h-1.5 rounded-full bg-white dark:bg-primary mr-2"></span>
+                                            Borrowed
+                                        </span>
+</td>
+<td class="px-6 py-4 text-right">
+<button class="text-gray-400 hover:text-primary transition-colors">
+<span class="material-symbols-outlined">edit</span>
+</button>
+</td>
+</tr>
+<!-- Row 3 -->
+<tr class="hover:bg-gray-50/50 dark:hover:bg-gray-800/30 transition-colors">
+<td class="px-6 py-4">
+<div class="flex flex-col">
+<span class="text-sm font-bold text-gray-900 dark:text-white">History of Rwanda</span>
+<span class="text-xs text-gray-500 dark:text-gray-400">Mukasine J.</span>
+</div>
+</td>
+<td class="px-6 py-4 hidden sm:table-cell">
+<span class="text-sm font-mono text-gray-600 dark:text-gray-400 tracking-tight">978-6020134219</span>
+</td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400">
+<span class="w-1.5 h-1.5 rounded-full bg-emerald-500 mr-2"></span>
+                                            Available
+                                        </span>
+</td>
+<td class="px-6 py-4 text-right">
+<button class="text-gray-400 hover:text-primary transition-colors">
+<span class="material-symbols-outlined">edit</span>
+</button>
+</td>
+</tr>
+<!-- Row 4 -->
+<tr class="hover:bg-gray-50/50 dark:hover:bg-gray-800/30 transition-colors">
+<td class="px-6 py-4">
+<div class="flex flex-col">
+<span class="text-sm font-bold text-gray-900 dark:text-white">The River Between</span>
+<span class="text-xs text-gray-500 dark:text-gray-400">Ngugi wa Thiong'o</span>
+</div>
+</td>
+<td class="px-6 py-4 hidden sm:table-cell">
+<span class="text-sm font-mono text-gray-600 dark:text-gray-400 tracking-tight">978-0435905484</span>
+</td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400">
+<span class="w-1.5 h-1.5 rounded-full bg-emerald-500 mr-2"></span>
+                                            Available
+                                        </span>
+</td>
+<td class="px-6 py-4 text-right">
+<button class="text-gray-400 hover:text-primary transition-colors">
+<span class="material-symbols-outlined">edit</span>
+</button>
+</td>
+</tr>
+<!-- Row 5 -->
+<tr class="hover:bg-gray-50/50 dark:hover:bg-gray-800/30 transition-colors">
+<td class="px-6 py-4">
+<div class="flex flex-col">
+<span class="text-sm font-bold text-gray-900 dark:text-white">Organic Chemistry</span>
+<span class="text-xs text-gray-500 dark:text-gray-400">S. Mubiru</span>
+</div>
+</td>
+<td class="px-6 py-4 hidden sm:table-cell">
+<span class="text-sm font-mono text-gray-600 dark:text-gray-400 tracking-tight">978-1107698543</span>
+</td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-primary text-white dark:bg-primary/20 dark:text-primary">
+<span class="w-1.5 h-1.5 rounded-full bg-white dark:bg-primary mr-2"></span>
+                                            Borrowed
+                                        </span>
+</td>
+<td class="px-6 py-4 text-right">
+<button class="text-gray-400 hover:text-primary transition-colors">
+<span class="material-symbols-outlined">edit</span>
+</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Pagination Area -->
+<div class="px-6 py-4 bg-gray-50 dark:bg-gray-800/50 border-t border-gray-200 dark:border-gray-800 flex items-center justify-between">
+<span class="text-sm text-gray-500 dark:text-gray-400">Showing 1 to 5 of 438 books</span>
+<div class="flex gap-2">
+<button class="px-3 py-1 text-sm font-medium border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-white dark:hover:bg-gray-700 disabled:opacity-50">Prev</button>
+<button class="px-3 py-1 text-sm font-medium border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-white dark:hover:bg-gray-700">Next</button>
+</div>
+</div>
+</div>
+<!-- Simple Statistics Row -->
+<div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+<div class="bg-white dark:bg-gray-900 p-5 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm flex items-center gap-4">
+<div class="p-3 bg-primary/10 rounded-lg text-primary">
+<span class="material-symbols-outlined">menu_book</span>
+</div>
+<div>
+<p class="text-2xl font-black text-gray-900 dark:text-white">1,240</p>
+<p class="text-sm text-gray-500 dark:text-gray-400">Total Volumes</p>
+</div>
+</div>
+<div class="bg-white dark:bg-gray-900 p-5 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm flex items-center gap-4">
+<div class="p-3 bg-emerald-100 rounded-lg text-emerald-600">
+<span class="material-symbols-outlined">check_circle</span>
+</div>
+<div>
+<p class="text-2xl font-black text-gray-900 dark:text-white">856</p>
+<p class="text-sm text-gray-500 dark:text-gray-400">In Library</p>
+</div>
+</div>
+<div class="bg-white dark:bg-gray-900 p-5 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm flex items-center gap-4">
+<div class="p-3 bg-blue-100 rounded-lg text-primary">
+<span class="material-symbols-outlined">outbound</span>
+</div>
+<div>
+<p class="text-2xl font-black text-gray-900 dark:text-white">384</p>
+<p class="text-sm text-gray-500 dark:text-gray-400">On Loan</p>
+</div>
+</div>
+</div>
+</div>
+</main>
+<footer class="py-6 border-t border-gray-200 dark:border-gray-800 text-center">
+<p class="text-sm text-gray-400">© 2024 Rwanda School Library System. All Rights Reserved.</p>
+</footer>
+</div>
+</body></html>
