@@ -1,17 +1,33 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { UserRole } from '../types/auth';
+import { institutionService } from '../services/institution';
+import type { Institution } from '../types/institution';
 
 const Login: React.FC = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [institution, setInstitution] = useState('');
+    const [institutions, setInstitutions] = useState<Institution[]>([]);
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
 
     const { login } = useAuth();
     const navigate = useNavigate();
+
+    useEffect(() => {
+        const fetchInstitutions = async () => {
+            try {
+                const data = await institutionService.getAll();
+                setInstitutions(data);
+            } catch (err) {
+                console.error('Failed to fetch institutions:', err);
+            }
+        };
+
+        fetchInstitutions();
+    }, []);
 
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -19,7 +35,7 @@ const Login: React.FC = () => {
         setLoading(true);
 
         try {
-            const user = await login(email, password);
+            const user = await login(email, password, institution);
 
             switch (user.role) {
                 case UserRole.PLATFORM_ADMIN:
@@ -134,9 +150,11 @@ const Login: React.FC = () => {
                                     className="w-full pl-9 pr-4 py-2.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition-all appearance-none cursor-pointer text-sm"
                                 >
                                     <option value="" disabled>Select your institution</option>
-                                    <option value="kepler">Kepler College</option>
-                                    <option value="mit">MIT</option>
-                                    <option value="stanford">Stanford University</option>
+                                    {institutions.map((inst) => (
+                                        <option key={inst.id} value={inst.slug}>
+                                            {inst.name}
+                                        </option>
+                                    ))}
                                 </select>
                                 <span className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 material-symbols-outlined text-[18px] pointer-events-none">expand_more</span>
                             </div>

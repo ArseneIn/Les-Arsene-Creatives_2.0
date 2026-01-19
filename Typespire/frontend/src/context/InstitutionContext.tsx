@@ -45,41 +45,62 @@ export const InstitutionProvider: React.FC<{ children: ReactNode }> = ({ childre
 
     const fetchIntakes = async (institutionId: string) => {
         try {
-            const response = await api.get<Intake[]>('/intake', {
+            const response = await api.get<any[]>('/intake', {
                 params: { institutionId }
             });
-            // Transform backend data to match frontend interface if needed
-            // Backend Intake might not have 'facilitators' or 'sections' populated as expected
-            // For now, we assume it matches or we map it.
-            // The backend returns { institution: ... }, but we need sections.
-            // We might need to fetch sections separately or include them in the backend query.
-            // I updated IntakeService to include sections in findOne, but not findAll.
-            // Let's update findAll in backend to include sections too?
-            // Or just use what we have.
-            setIntakes(response.data);
+
+            const mappedIntakes: Intake[] = response.data.map(item => ({
+                id: item.id,
+                name: item.name,
+                startDate: new Date(item.startDate).toISOString().split('T')[0],
+                endDate: item.endDate ? new Date(item.endDate).toISOString().split('T')[0] : '',
+                status: item.status === 'ACTIVE' ? 'Active' : item.status === 'ARCHIVED' ? 'Archived' : 'Upcoming',
+                facilitators: [], // Backend doesn't support this yet
+                sections: item.sections ? item.sections.map((s: any) => ({
+                    id: s.id,
+                    name: s.name,
+                    students: s.students || []
+                })) : []
+            }));
+
+            setIntakes(mappedIntakes);
         } catch (error) {
             console.error('Failed to fetch intakes', error);
         }
     };
 
-    const addIntake = (intake: Intake) => {
-        setIntakes([...intakes, intake]);
+    const addIntake = async (intake: Intake) => {
+        try {
+            if (!user?.institutionId) return;
+
+            const response = await api.post('/intake', {
+                name: intake.name,
+                startDate: new Date(intake.startDate).toISOString(),
+                endDate: new Date(intake.endDate).toISOString(),
+                institutionId: user.institutionId
+            });
+
+            // Refresh intakes
+            fetchIntakes(user.institutionId);
+        } catch (error) {
+            console.error('Failed to create intake', error);
+        }
     };
 
-    const addSection = (intakeId: string, sectionName: string) => {
-        setIntakes(prevIntakes => prevIntakes.map(intake => {
-            if (intake.id === intakeId) {
-                return {
-                    ...intake,
-                    sections: [...intake.sections, {
-                        id: Date.now().toString(),
-                        name: sectionName,
-                        students: []
-                    }]
-                };
+    const addSection = async (intakeId: string, sectionName: string) => {
+        try {
+            await api.post('/section', {
+                name: sectionName,
+                intakeId: intakeId
+            });
+
+            // Refresh intakes
+            if (user?.institutionId) {
+                fetchIntakes(user.institutionId);
             }
-            return intake;
-        }));
+        } catch (error) {
+            console.error('Failed to create section', error);
+        }
     };
 
     return (

@@ -102,7 +102,7 @@ const InstitutionAdminDashboard: React.FC = () => {
                 id: f.id,
                 name: `${f.firstName || ''} ${f.lastName || ''}`.trim() || f.email,
                 email: f.email,
-                role: 'Facilitator', // Default role name for display
+                role: f.role, // Use actual role
                 intakes: [], // Placeholder as backend doesn't link yet
                 status: 'Active', // Default status
                 students: 0 // Placeholder

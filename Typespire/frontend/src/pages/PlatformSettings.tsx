@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import api from '../api/axios';
 
 const PlatformSettings: React.FC = () => {
     const [activeTab, setActiveTab] = useState<'general' | 'security' | 'notifications' | 'billing'>('general');
@@ -14,9 +15,29 @@ const PlatformSettings: React.FC = () => {
         emailReplyTo: 'no-reply@typespire.com'
     });
 
-    const handleSave = () => {
-        // Mock save functionality
-        alert('Settings saved successfully!');
+    useEffect(() => {
+        const fetchSettings = async () => {
+            try {
+                const response = await api.get('/settings');
+                if (response.data) {
+                    setSettings(response.data);
+                }
+            } catch (error) {
+                console.error('Failed to fetch settings', error);
+            }
+        };
+
+        fetchSettings();
+    }, []);
+
+    const handleSave = async () => {
+        try {
+            await api.patch('/settings', settings);
+            alert('Settings saved successfully!');
+        } catch (error) {
+            console.error('Failed to save settings', error);
+            alert('Failed to save settings');
+        }
     };
 
     return (

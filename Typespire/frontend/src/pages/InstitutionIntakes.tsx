@@ -9,6 +9,8 @@ const InstitutionIntakes: React.FC = () => {
 
     // Form States
     const [newIntakeName, setNewIntakeName] = useState('');
+    const [startDate, setStartDate] = useState('');
+    const [endDate, setEndDate] = useState('');
     const [newSectionName, setNewSectionName] = useState('');
     const [selectedIntakeForSection, setSelectedIntakeForSection] = useState<string | null>(null);
 
@@ -21,14 +23,16 @@ const InstitutionIntakes: React.FC = () => {
         const newIntake: Intake = {
             id: Date.now().toString(),
             name: newIntakeName,
-            startDate: '2025-09-01', // Default for mock
-            endDate: '2025-12-15',
+            startDate: startDate,
+            endDate: endDate,
             status: 'Upcoming',
             facilitators: [],
             sections: []
         };
         addIntake(newIntake);
         setNewIntakeName('');
+        setStartDate('');
+        setEndDate('');
         setShowNewIntakeModal(false);
     };
 
@@ -214,11 +218,23 @@ const InstitutionIntakes: React.FC = () => {
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
                                     <label className="block text-sm font-bold text-gray-700 mb-1">Start Date</label>
-                                    <input type="date" className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#0d1b17]/20 outline-none text-gray-600" />
+                                    <input
+                                        type="date"
+                                        className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#0d1b17]/20 outline-none text-gray-600"
+                                        value={startDate}
+                                        onChange={(e) => setStartDate(e.target.value)}
+                                        required
+                                    />
                                 </div>
                                 <div>
                                     <label className="block text-sm font-bold text-gray-700 mb-1">End Date</label>
-                                    <input type="date" className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#0d1b17]/20 outline-none text-gray-600" />
+                                    <input
+                                        type="date"
+                                        className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#0d1b17]/20 outline-none text-gray-600"
+                                        value={endDate}
+                                        onChange={(e) => setEndDate(e.target.value)}
+                                        required
+                                    />
                                 </div>
                             </div>
                             <div className="mt-4 flex justify-end gap-3">

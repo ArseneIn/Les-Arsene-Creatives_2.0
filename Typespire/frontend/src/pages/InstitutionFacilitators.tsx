@@ -1,4 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useAuth } from '../context/AuthContext';
+import api from '../api/axios';
 
 // --- Types ---
 interface Facilitator {
@@ -10,33 +12,71 @@ interface Facilitator {
     assignedIntakes: string[];
 }
 
-// --- Mock Data ---
-const MOCK_FACILITATORS: Facilitator[] = [
-    { id: '1', name: 'Jane Doe', email: 'jane.doe@kepler.edu', role: 'Senior Facilitator', status: 'Active', assignedIntakes: ['Fall 2024'] },
-    { id: '2', name: 'John Smith', email: 'john.smith@kepler.edu', role: 'Facilitator', status: 'Active', assignedIntakes: ['Spring 2025'] },
-    { id: '3', name: 'Alice Johnson', email: 'alice.j@kepler.edu', role: 'Assistant', status: 'Pending', assignedIntakes: [] },
-];
-
 const InstitutionFacilitators: React.FC = () => {
-    const [facilitators, setFacilitators] = useState<Facilitator[]>(MOCK_FACILITATORS);
+    const { user } = useAuth();
+    const [facilitators, setFacilitators] = useState<Facilitator[]>([]);
+    const [loading, setLoading] = useState(true);
     const [showInviteModal, setShowInviteModal] = useState(false);
     const [inviteEmail, setInviteEmail] = useState('');
+    const [inviteFirstName, setInviteFirstName] = useState('');
+    const [inviteLastName, setInviteLastName] = useState('');
     const [inviteRole, setInviteRole] = useState('Facilitator');
 
-    const handleInvite = (e: React.FormEvent) => {
-        e.preventDefault();
-        const newFacilitator: Facilitator = {
-            id: Date.now().toString(),
-            name: 'Pending User',
-            email: inviteEmail,
-            role: inviteRole,
-            status: 'Pending',
-            assignedIntakes: []
-        };
-        setFacilitators([...facilitators, newFacilitator]);
-        setInviteEmail('');
-        setShowInviteModal(false);
+    useEffect(() => {
+        if (user?.institutionId) {
+            fetchFacilitators(user.institutionId);
+        }
+    }, [user?.institutionId]);
+
+    const fetchFacilitators = async (institutionId: string) => {
+        try {
+            const response = await api.get(`/institution/${institutionId}/facilitators`);
+            const mappedFacilitators: Facilitator[] = response.data.map((f: any) => ({
+                id: f.id,
+                name: `${f.firstName || ''} ${f.lastName || ''}`.trim() || f.email,
+                email: f.email,
+                role: f.role,
+                status: 'Active', // Default status for now
+                assignedIntakes: [] // Placeholder
+            }));
+            setFacilitators(mappedFacilitators);
+        } catch (error) {
+            console.error('Failed to fetch facilitators', error);
+        } finally {
+            setLoading(false);
+        }
     };
+
+    const handleInvite = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!user?.institutionId) return;
+
+        try {
+            await api.post(`/institution/${user.institutionId}/facilitators`, {
+                email: inviteEmail,
+                firstName: inviteFirstName,
+                lastName: inviteLastName,
+                role: inviteRole
+            });
+
+            // Refresh list
+            fetchFacilitators(user.institutionId);
+
+            // Reset form
+            setInviteEmail('');
+            setInviteFirstName('');
+            setInviteLastName('');
+            setShowInviteModal(false);
+            alert('Facilitator invited successfully!');
+        } catch (error) {
+            console.error('Failed to invite facilitator', error);
+            alert('Failed to invite facilitator. Please try again.');
+        }
+    };
+
+    if (loading) {
+        return <div className="p-8 text-center">Loading facilitators...</div>;
+    }
 
     return (
         <>
@@ -67,48 +107,54 @@ const InstitutionFacilitators: React.FC = () => {
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-100 text-sm">
-                            {facilitators.map((facilitator) => (
-                                <tr key={facilitator.id} className="hover:bg-gray-50 transition-colors">
-                                    <td className="px-6 py-4">
-                                        <div className="flex items-center gap-3">
-                                            <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-[#0d1b17] font-bold border border-gray-200">
-                                                {facilitator.name.charAt(0)}
+                            {facilitators.length === 0 ? (
+                                <tr>
+                                    <td colSpan={5} className="px-6 py-4 text-center text-gray-500">No facilitators found.</td>
+                                </tr>
+                            ) : (
+                                facilitators.map((facilitator) => (
+                                    <tr key={facilitator.id} className="hover:bg-gray-50 transition-colors">
+                                        <td className="px-6 py-4">
+                                            <div className="flex items-center gap-3">
+                                                <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-[#0d1b17] font-bold border border-gray-200">
+                                                    {facilitator.name.charAt(0)}
+                                                </div>
+                                                <div>
+                                                    <p className="font-bold text-[#0d1b17]">{facilitator.name}</p>
+                                                    <p className="text-xs text-gray-500">{facilitator.email}</p>
+                                                </div>
                                             </div>
-                                            <div>
-                                                <p className="font-bold text-[#0d1b17]">{facilitator.name}</p>
-                                                <p className="text-xs text-gray-500">{facilitator.email}</p>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td className="px-6 py-4 text-gray-600 font-medium">{facilitator.role}</td>
-                                    <td className="px-6 py-4">
-                                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold ${facilitator.status === 'Active' ? 'bg-green-100 text-green-700' :
+                                        </td>
+                                        <td className="px-6 py-4 text-gray-600 font-medium">{facilitator.role}</td>
+                                        <td className="px-6 py-4">
+                                            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold ${facilitator.status === 'Active' ? 'bg-green-100 text-green-700' :
                                                 facilitator.status === 'Pending' ? 'bg-yellow-100 text-yellow-700' :
                                                     'bg-gray-100 text-gray-600'
-                                            }`}>
-                                            {facilitator.status}
-                                        </span>
-                                    </td>
-                                    <td className="px-6 py-4">
-                                        <div className="flex flex-wrap gap-1">
-                                            {facilitator.assignedIntakes.length > 0 ? (
-                                                facilitator.assignedIntakes.map((intake, i) => (
-                                                    <span key={i} className="px-2 py-0.5 bg-gray-100 text-gray-600 text-[10px] font-bold rounded border border-gray-200">
-                                                        {intake}
-                                                    </span>
-                                                ))
-                                            ) : (
-                                                <span className="text-gray-400 text-xs italic">No assignments</span>
-                                            )}
-                                        </div>
-                                    </td>
-                                    <td className="px-6 py-4 text-right">
-                                        <button className="p-2 text-gray-400 hover:text-[#0d1b17] transition-colors">
-                                            <span className="material-symbols-outlined text-[20px]">more_vert</span>
-                                        </button>
-                                    </td>
-                                </tr>
-                            ))}
+                                                }`}>
+                                                {facilitator.status}
+                                            </span>
+                                        </td>
+                                        <td className="px-6 py-4">
+                                            <div className="flex flex-wrap gap-1">
+                                                {facilitator.assignedIntakes.length > 0 ? (
+                                                    facilitator.assignedIntakes.map((intake, i) => (
+                                                        <span key={i} className="px-2 py-0.5 bg-gray-100 text-gray-600 text-[10px] font-bold rounded border border-gray-200">
+                                                            {intake}
+                                                        </span>
+                                                    ))
+                                                ) : (
+                                                    <span className="text-gray-400 text-xs italic">No assignments</span>
+                                                )}
+                                            </div>
+                                        </td>
+                                        <td className="px-6 py-4 text-right">
+                                            <button className="p-2 text-gray-400 hover:text-[#0d1b17] transition-colors">
+                                                <span className="material-symbols-outlined text-[20px]">more_vert</span>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                ))
+                            )}
                         </tbody>
                     </table>
                 </div>
@@ -125,6 +171,30 @@ const InstitutionFacilitators: React.FC = () => {
                             </button>
                         </div>
                         <form onSubmit={handleInvite} className="p-6 flex flex-col gap-4">
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label className="block text-sm font-bold text-gray-700 mb-1">First Name</label>
+                                    <input
+                                        type="text"
+                                        className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#0d1b17]/20 outline-none"
+                                        placeholder="John"
+                                        value={inviteFirstName}
+                                        onChange={(e) => setInviteFirstName(e.target.value)}
+                                        required
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-bold text-gray-700 mb-1">Last Name</label>
+                                    <input
+                                        type="text"
+                                        className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#0d1b17]/20 outline-none"
+                                        placeholder="Doe"
+                                        value={inviteLastName}
+                                        onChange={(e) => setInviteLastName(e.target.value)}
+                                        required
+                                    />
+                                </div>
+                            </div>
                             <div>
                                 <label className="block text-sm font-bold text-gray-700 mb-1">Email Address</label>
                                 <input
@@ -143,9 +213,9 @@ const InstitutionFacilitators: React.FC = () => {
                                     value={inviteRole}
                                     onChange={(e) => setInviteRole(e.target.value)}
                                 >
-                                    <option value="Facilitator">Facilitator</option>
-                                    <option value="Senior Facilitator">Senior Facilitator</option>
-                                    <option value="Assistant">Assistant</option>
+                                    <option value="FACILITATOR">Facilitator</option>
+                                    <option value="SENIOR_FACILITATOR">Senior Facilitator</option>
+                                    <option value="ASSISTANT">Assistant</option>
                                 </select>
                             </div>
                             <div className="mt-4 flex justify-end gap-3">

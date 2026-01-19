@@ -1,6 +1,56 @@
-import React from 'react';
+import React, { useState } from 'react';
+import api from '../api/axios';
+import { useAuth } from '../context/AuthContext';
 
 const InstitutionReports: React.FC = () => {
+    const { user } = useAuth();
+    const [loading, setLoading] = useState(false);
+    const [reportType, setReportType] = useState('Intake Performance Summary');
+
+    const handleGenerateReport = async () => {
+        if (!user?.institutionId) return;
+
+        setLoading(true);
+        try {
+            let endpoint = '';
+            if (reportType === 'Intake Performance Summary') {
+                endpoint = `/institution/${user.institutionId}/reports/intake-performance`;
+            } else {
+                alert('This report type is not yet implemented.');
+                setLoading(false);
+                return;
+            }
+
+            const response = await api.get(endpoint);
+
+            // Convert JSON to CSV
+            const data = response.data;
+            if (!data || data.length === 0) {
+                alert('No data available for this report.');
+                setLoading(false);
+                return;
+            }
+
+            const headers = Object.keys(data[0]).join(',');
+            const rows = data.map((row: any) => Object.values(row).join(',')).join('\n');
+            const csvContent = `${headers}\n${rows}`;
+
+            // Create download link
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.setAttribute('href', url);
+            link.setAttribute('download', `${reportType.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        } catch (error) {
+            console.error('Failed to generate report', error);
+            alert('Failed to generate report. Please try again.');
+        } finally {
+            setLoading(false);
+        }
+    };
     return (
         <div className="flex-1 w-full max-w-7xl mx-auto px-6 py-8 lg:px-10">
             <div className="mb-10">
@@ -23,7 +73,11 @@ const InstitutionReports: React.FC = () => {
                     <div className="space-y-4">
                         <div>
                             <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Report Type</label>
-                            <select className="w-full rounded-lg border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-admin-primary focus:border-admin-primary">
+                            <select
+                                value={reportType}
+                                onChange={(e) => setReportType(e.target.value)}
+                                className="w-full rounded-lg border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-admin-primary focus:border-admin-primary"
+                            >
                                 <option>Intake Performance Summary</option>
                                 <option>Student Progress Detail</option>
                                 <option>Facilitator Activity Log</option>
@@ -41,9 +95,17 @@ const InstitutionReports: React.FC = () => {
                         </div>
 
                         <div className="pt-4">
-                            <button className="w-full py-2.5 rounded-lg bg-admin-primary text-slate-900 font-bold hover:bg-admin-primary/90 transition-colors flex items-center justify-center gap-2">
-                                <span className="material-symbols-outlined">download</span>
-                                Generate Report
+                            <button
+                                onClick={handleGenerateReport}
+                                disabled={loading}
+                                className="w-full py-2.5 rounded-lg bg-admin-primary text-slate-900 font-bold hover:bg-admin-primary/90 transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                                {loading ? (
+                                    <span className="material-symbols-outlined animate-spin">progress_activity</span>
+                                ) : (
+                                    <span className="material-symbols-outlined">download</span>
+                                )}
+                                {loading ? 'Generating...' : 'Generate Report'}
                             </button>
                         </div>
                     </div>

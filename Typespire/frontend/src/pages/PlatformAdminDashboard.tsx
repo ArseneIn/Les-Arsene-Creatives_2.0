@@ -7,6 +7,13 @@ const PlatformAdminDashboard: React.FC = () => {
     const [showOnboardModal, setShowOnboardModal] = useState(false);
     const [institutions, setInstitutions] = useState<Institution[]>([]);
     const [loading, setLoading] = useState(true);
+    const [stats, setStats] = useState({
+        totalInstitutions: 0,
+        activeStudents: 0,
+        avgWpm: 0,
+        avgAccuracy: 0,
+        totalTestsTaken: 0
+    });
     const [editingId, setEditingId] = useState<string | null>(null);
     const [newInstitution, setNewInstitution] = useState<CreateInstitutionDto>({
         name: '',
@@ -21,7 +28,17 @@ const PlatformAdminDashboard: React.FC = () => {
 
     useEffect(() => {
         fetchInstitutions();
+        fetchStats();
     }, []);
+
+    const fetchStats = async () => {
+        try {
+            const response = await api.get('/analytics/global');
+            setStats(response.data);
+        } catch (error) {
+            console.error('Failed to fetch global stats', error);
+        }
+    };
 
     const fetchInstitutions = async () => {
         try {
@@ -148,7 +165,7 @@ const PlatformAdminDashboard: React.FC = () => {
                             <span className="text-emerald-500 text-sm font-bold flex items-center gap-1">+4.2% <span className="material-symbols-outlined text-xs">trending_up</span></span>
                         </div>
                         <p className="text-slate-500 dark:text-slate-400 text-sm font-medium">Total Institutions</p>
-                        <h3 className="text-3xl font-bold mt-1">{institutions.length}</h3>
+                        <h3 className="text-3xl font-bold mt-1">{stats.totalInstitutions}</h3>
                     </div>
                     <div className="bg-white dark:bg-slate-800/50 p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
                         <div className="flex items-center justify-between mb-4">
@@ -158,7 +175,7 @@ const PlatformAdminDashboard: React.FC = () => {
                             <span className="text-emerald-500 text-sm font-bold flex items-center gap-1">+12.5% <span className="material-symbols-outlined text-xs">trending_up</span></span>
                         </div>
                         <p className="text-slate-500 dark:text-slate-400 text-sm font-medium">Active Students</p>
-                        <h3 className="text-3xl font-bold mt-1">48,202</h3>
+                        <h3 className="text-3xl font-bold mt-1">{stats.activeStudents}</h3>
                     </div>
                     <div className="bg-white dark:bg-slate-800/50 p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
                         <div className="flex items-center justify-between mb-4">
@@ -168,7 +185,7 @@ const PlatformAdminDashboard: React.FC = () => {
                             <span className="text-emerald-500 text-sm font-bold flex items-center gap-1">+8.1% <span className="material-symbols-outlined text-xs">trending_up</span></span>
                         </div>
                         <p className="text-slate-500 dark:text-slate-400 text-sm font-medium">Avg. Typing Speed</p>
-                        <h3 className="text-3xl font-bold mt-1">54 <span className="text-sm font-normal text-slate-400 uppercase">WPM</span></h3>
+                        <h3 className="text-3xl font-bold mt-1">{stats.avgWpm} <span className="text-sm font-normal text-slate-400 uppercase">WPM</span></h3>
                     </div>
                     <div className="bg-white dark:bg-slate-800/50 p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
                         <div className="flex items-center justify-between mb-4">
