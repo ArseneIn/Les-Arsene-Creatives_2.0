@@ -15,6 +15,14 @@ import { Partnerships } from './pages/Partnerships';
 
 import { ScrollToTop } from './components/ScrollToTop';
 
+// Admin Imports
+import { AdminLogin } from './pages/admin/Login';
+import { AdminLayout } from './pages/admin/AdminLayout';
+import { Dashboard } from './pages/admin/Dashboard';
+import { ResourceManager } from './pages/admin/ResourceManager';
+import { NewsManager } from './pages/admin/NewsManager';
+import { PartnerManager } from './pages/admin/PartnerManager';
+
 function App() {
     return (
         <BrowserRouter>
@@ -33,6 +41,17 @@ function App() {
                     <Route path="news" element={<News />} />
                     <Route path="resources" element={<Resources />} />
                     <Route path="partnerships" element={<Partnerships />} />
+                </Route>
+
+                {/* Admin Routes */}
+                <Route path="/admin" element={<AdminLogin />} />
+                <Route path="/admin" element={<AdminLayout />}>
+                    <Route path="dashboard" element={<Dashboard />} />
+                    <Route path="resources" element={<ResourceManager />} />
+                    <Route path="news" element={<NewsManager />} />
+                    <Route path="partners" element={<PartnerManager />} />
+                    {/* Placeholder for future modules */}
+                    <Route path="settings" element={<div className="p-8 text-center text-gray-500">Settings Coming Soon</div>} />
                 </Route>
             </Routes>
         </BrowserRouter>

@@ -1,6 +1,30 @@
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { initialNews, NewsItem } from '../data/news';
 
 export const News = () => {
+    const [newsItems, setNewsItems] = useState<NewsItem[]>(initialNews);
+    const [filter, setFilter] = useState("All");
+
+    useEffect(() => {
+        const stored = localStorage.getItem('akwos_news');
+        if (stored) {
+            try {
+                setNewsItems(JSON.parse(stored));
+            } catch (e) {
+                console.error("Failed to load local news", e);
+            }
+        }
+    }, []);
+
+    const filteredNews = newsItems.filter(item => {
+        if (filter === "All") return true;
+        if (filter === "Press Releases" && item.category === "Press Release") return true;
+        // Simple mapping for 'Coverage' to non-press release items for now
+        if (filter === "Coverage" && item.category !== "Press Release") return true;
+        return false;
+    });
+
     return (
         <div className="flex min-h-screen flex-col bg-background-light dark:bg-background-dark text-[#0d121b] dark:text-white font-display">
 
@@ -71,9 +95,13 @@ export const News = () => {
                             <div className="flex items-center justify-between border-b border-slate-200 pb-4 dark:border-slate-700">
                                 <h2 className="text-2xl font-bold text-[#0d121b] dark:text-white">Latest News</h2>
                                 <div className="flex gap-2">
-                                    {['All', 'Press Releases', 'Coverage'].map((filter) => (
-                                        <button key={filter} className="rounded px-3 py-1 text-sm font-medium text-slate-500 hover:bg-slate-100 hover:text-primary dark:text-slate-400 dark:hover:bg-slate-800 transition-colors">
-                                            {filter}
+                                    {['All', 'Press Releases', 'Coverage'].map((f) => (
+                                        <button
+                                            key={f}
+                                            onClick={() => setFilter(f)}
+                                            className={`rounded px-3 py-1 text-sm font-medium transition-colors ${filter === f ? 'bg-primary text-white shadow-md' : 'text-slate-500 hover:bg-slate-100 hover:text-primary dark:text-slate-400 dark:hover:bg-slate-800'}`}
+                                        >
+                                            {f}
                                         </button>
                                     ))}
                                 </div>
@@ -81,40 +109,7 @@ export const News = () => {
 
                             {/* News Grid */}
                             <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-                                {[
-                                    {
-                                        title: "AKWOS Launches New District Program to Reach 5,000 Girls",
-                                        date: "Oct 24, 2023",
-                                        category: "Press Release",
-                                        image: "https://lh3.googleusercontent.com/aida-public/AB6AXuAheSBC1DkDZOLtWx_ry2QarWRiVLnhQCAI9Vpfo_TlGEty1zwj-FTkITEzwhQsvlnb6_niOJsbe8briYaJGZrh_eBsOzH_eEpKHs2mCRAxQccx-kJU0W-DW0TnAJePjCXt-KpteOM4xIkS38zAZGUsTIMzO8iOlTK881MeXWUB7RhANKAENKdqHQYjf_808cakX4hrYKq5s3-NedSEQF0Wz1kqkoR7-tjNJaJ4pWlMfVbzJzCF998i4dQ-wXI8XjZxOCGt7ynofKs",
-                                        tag: "Impact",
-                                        desc: "The new initiative targets rural districts in the Northern Province, providing equipment, coaching, and life skills workshops."
-                                    },
-                                    {
-                                        title: "Q3 Impact Report Released: Sustainable Growth in Sports",
-                                        date: "Oct 10, 2023",
-                                        category: "Publications",
-                                        image: "https://lh3.googleusercontent.com/aida-public/AB6AXuC3RbUoltwebUEKBZVrYA4o9p-vc4QF1KWCd1B3Hd6oRq7rYHyiJUCrrqEyL29rtdfF8OEycRMmqGAWLc4bPDak2Dppm7_puYsSfWih-J1M7MHdqVVX3zhVfZzB9SYCaGTGNnNhM3CiSiUijALJMPOt_6YM5zGhqkUDv2RyLdjiBWBqwa5zwhWEn2STBoR3K-JN75mwlhoiIGIlKsu3WWlvEd2xf7g8cChCiV25gMKRNZtxIq7870suVA9V83i88oZCKq0DzqrZVlI",
-                                        tag: "Report",
-                                        desc: "Our latest quarterly analysis shows a 20% increase in program retention and community engagement across all active regions."
-                                    },
-                                    {
-                                        title: "Changing Narratives: How AKWOS is Redefining Women's Roles",
-                                        date: "Sep 28, 2023",
-                                        category: "The New Times",
-                                        image: "https://lh3.googleusercontent.com/aida-public/AB6AXuAoDHXY7HNRnlmX3iQVS94nYeao03wlVf75Sq8IqaINs5Q73WBDsug_gsnpoJmh22ZAuVcc7hzZFdC5MDLDj8H9Utcdwm5d2FFVdXB4SGHXH42BLUEZnF6gShbYud2ddpHOHBIAwniZQ70zuLpWRgnnI0LWjJUVvkOgqGzKirq3vtSOYaGIyaEHOS2PQKVBTKYqj5gTMKCxElquOVjEPM-0YjtFwTxXjQXLxYCpBkRVIOsMjiNjl8Nf2pqZ9qqbwTtfHkXpngxlfso",
-                                        tag: "Feature",
-                                        desc: "An in-depth look at the cultural shifts occurring in communities where women's sports programs have taken root."
-                                    },
-                                    {
-                                        title: "AKWOS Receives Grant for 'Health Through Sport' Initiative",
-                                        date: "Sep 15, 2023",
-                                        category: "Press Release",
-                                        image: "https://lh3.googleusercontent.com/aida-public/AB6AXuDVFXX0bRdOlsIJtdja9dregUAkwmwPeQ9TwQtmXGvQJem7OZnrrpXhk2Qo18-faMaLg8PcdR2JnDweRRNntomULUycKGGE_cnYBXLus8KHpjl-7BENYk7ybsWWwTLGrphjnANsdtwcWjBXfr-w5c9bfHM04H_WOyjE5OIEajVmnmr1MaerAvAvXrhvR9bnKlrcCAHZiU5Ml8pxKrnA_VN046HbIq3-j8ymmB1MClgnPw3sfEAqZ2oZnkFYMG6kZ2T3TQ4I3AFadpo",
-                                        tag: "Announcement",
-                                        desc: "Major funding secured to integrate reproductive health education into daily sports activities for teenage girls."
-                                    }
-                                ].map((news, idx) => (
+                                {filteredNews.map((news, idx) => (
                                     <article key={idx} className="group flex flex-col overflow-hidden rounded-xl bg-white shadow-sm transition-all hover:-translate-y-1 hover:shadow-md dark:bg-[#1a2332] dark:shadow-none dark:border dark:border-slate-800">
                                         <div className="relative aspect-video w-full overflow-hidden bg-slate-200">
                                             <div

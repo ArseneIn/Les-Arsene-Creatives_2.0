@@ -1,5 +1,20 @@
+import { useState, useEffect } from 'react';
+import { initialPartners, PartnerItem } from '../data/partners';
 
 export const Partnerships = () => {
+    const [partners, setPartners] = useState<PartnerItem[]>(initialPartners);
+
+    useEffect(() => {
+        const stored = localStorage.getItem('akwos_partners');
+        if (stored) {
+            try {
+                setPartners(JSON.parse(stored));
+            } catch (e) {
+                console.error("Failed to load local partners", e);
+            }
+        }
+    }, []);
+
     return (
         <div className="bg-background-light dark:bg-background-dark text-[#0d121b] dark:text-white font-display overflow-x-hidden">
 
@@ -45,34 +60,11 @@ export const Partnerships = () => {
                         <div className="w-12 h-0.5 bg-yellow-500 mx-auto"></div>
                     </div>
                     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-12 items-center justify-items-center opacity-90">
-                        {/* Ministry of Sports */}
-                        <div className="flex items-center justify-center grayscale opacity-80 hover:grayscale-0 hover:opacity-100 transition-all duration-300">
-                            <img src="/images/partners/minisports.png" alt="Ministry of Sports" className="h-24 w-auto object-contain" />
-                        </div>
-                        {/* MIGEPROF */}
-                        <div className="flex items-center justify-center grayscale opacity-80 hover:grayscale-0 hover:opacity-100 transition-all duration-300">
-                            <img src="/images/partners/migeprof-new.png" alt="MIGEPROF" className="h-24 w-auto object-contain" />
-                        </div>
-                        {/* CECI */}
-                        <div className="flex items-center justify-center grayscale opacity-80 hover:grayscale-0 hover:opacity-100 transition-all duration-300">
-                            <img src="/images/partners/ceci.png" alt="CECI" className="h-24 w-auto object-contain" />
-                        </div>
-                        {/* Kvinna till Kvinna */}
-                        <div className="flex items-center justify-center grayscale opacity-80 hover:grayscale-0 hover:opacity-100 transition-all duration-300">
-                            <img src="/images/partners/kvinna.png" alt="Kvinna till Kvinna" className="h-24 w-auto object-contain" />
-                        </div>
-                        {/* PLAY International */}
-                        <div className="flex items-center justify-center grayscale opacity-80 hover:grayscale-0 hover:opacity-100 transition-all duration-300">
-                            <img src="/images/partners/play.png" alt="PLAY International" className="h-24 w-auto object-contain" />
-                        </div>
-                        {/* SOL Foundation */}
-                        <div className="flex items-center justify-center grayscale opacity-80 hover:grayscale-0 hover:opacity-100 transition-all duration-300">
-                            <img src="/images/partners/sol.png" alt="SOL Foundation" className="h-24 w-auto object-contain" />
-                        </div>
-                        {/* WIHOGORA */}
-                        <div className="flex items-center justify-center grayscale opacity-80 hover:grayscale-0 hover:opacity-100 transition-all duration-300">
-                            <img src="/images/partners/wihogora.png" alt="WIHOGORA" className="h-24 w-auto object-contain" />
-                        </div>
+                        {partners.map((partner) => (
+                            <div key={partner.id} className="flex items-center justify-center grayscale opacity-80 hover:grayscale-0 hover:opacity-100 transition-all duration-300" title={partner.name}>
+                                <img src={partner.logo} alt={partner.name} className="h-24 w-auto object-contain" />
+                            </div>
+                        ))}
                     </div>
                 </div>
             </section>

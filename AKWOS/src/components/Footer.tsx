@@ -67,7 +67,7 @@ export const Footer = () => {
                 {/* Copyright */}
                 <div className="border-t border-gray-200 dark:border-gray-700 pt-8 flex flex-col md:flex-row justify-between items-center text-xs text-gray-500 dark:text-gray-400">
                     <p>AKWOS © Copyright 2026.</p>
-                    <p className="mt-2 md:mt-0">Design by <span className="underline hover:text-primary cursor-pointer">Safiya Ibn Garba DTRF</span></p>
+                    <p className="mt-2 md:mt-0">Design by <span className="underline hover:text-primary cursor-pointer">Les Arsene Creatives</span></p>
                 </div>
             </div>
         </footer>
