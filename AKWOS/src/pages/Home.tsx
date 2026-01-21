@@ -1,13 +1,35 @@
 import { Link } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { getApiUrl, getAssetUrl } from '../utils/apiConfig';
 
 export const Home = () => {
+    const [partners, setPartners] = useState<any[]>([]);
+
+    useEffect(() => {
+        const fetchPartners = async () => {
+            try {
+                const response = await fetch(getApiUrl('partners.php'));
+                const data = await response.json();
+                if (Array.isArray(data)) {
+                    setPartners(data);
+                }
+            } catch (error) {
+                console.error("Failed to fetch partners", error);
+            }
+        };
+        fetchPartners();
+    }, []);
+
+    // Duplicate partners for marquee effect
+    const marqueePartners = partners.length > 0 ? [...partners, ...partners] : [];
+
     return (
         <div className="flex flex-col">
             {/* Hero Section */}
             <header className="relative w-full h-[600px] overflow-hidden">
                 <div className="absolute inset-0 bg-black/40 z-10"></div>
                 <img
-                    src="/images/home/hero-women.jpg"
+                    src={`${import.meta.env.BASE_URL}images/home/hero-women.jpg`}
                     alt="Group of diverse female athletes smiling together outdoors"
                     className="w-full h-full object-cover object-center"
                 />
@@ -36,36 +58,22 @@ export const Home = () => {
             </header>
 
             {/* Partners Marquee */}
-            <div className="bg-surface-light dark:bg-surface-dark border-b border-gray-200 dark:border-gray-700 py-10 overflow-hidden relative">
-                <div className="container mx-auto px-6 mb-6">
-                    <p className="text-center text-xs font-bold tracking-widest text-gray-500 dark:text-gray-400 uppercase">Our Global & Local Partners</p>
-                </div>
-                <div className="relative flex overflow-x-hidden group">
-                    <div className="flex animate-scroll whitespace-nowrap items-center gap-16 md:gap-24 px-8">
-                        {[
-                            { name: "Ministry of Sports", src: "/images/partners/minisports.png", height: "h-16 md:h-24" },
-                            { name: "MIGEPROF", src: "/images/partners/migeprof-new.png", height: "h-16 md:h-24" },
-                            { name: "CECI", src: "/images/partners/ceci.png", height: "h-16 md:h-24" },
-                            { name: "Kvinna till Kvinna", src: "/images/partners/kvinna.png", height: "h-16 md:h-24" },
-                            { name: "PLAY International", src: "/images/partners/play.png", height: "h-16 md:h-24" },
-                            { name: "SOL Foundation", src: "/images/partners/sol.png", height: "h-16 md:h-24" },
-                            { name: "WIHOGORA", src: "/images/partners/wihogora.png", height: "h-16 md:h-24" },
-                            // Duplicating for marquee effect
-                            { name: "Ministry of Sports", src: "/images/partners/minisports.png", height: "h-16 md:h-24" },
-                            { name: "MIGEPROF", src: "/images/partners/migeprof-new.png", height: "h-16 md:h-24" },
-                            { name: "CECI", src: "/images/partners/ceci.png", height: "h-16 md:h-24" },
-                            { name: "Kvinna till Kvinna", src: "/images/partners/kvinna.png", height: "h-16 md:h-24" },
-                            { name: "PLAY International", src: "/images/partners/play.png", height: "h-16 md:h-24" },
-                            { name: "SOL Foundation", src: "/images/partners/sol.png", height: "h-16 md:h-24" },
-                            { name: "WIHOGORA", src: "/images/partners/wihogora.png", height: "h-16 md:h-24" },
-                        ].map((partner, index) => (
-                            <div key={index} className="flex items-center justify-center px-6 min-w-[200px] grayscale opacity-70 hover:grayscale-0 hover:opacity-100 transition-all duration-300">
-                                <img src={partner.src} alt={partner.name} className={`${partner.height} w-auto object-contain`} />
-                            </div>
-                        ))}
+            {partners.length > 0 && (
+                <div className="bg-surface-light dark:bg-surface-dark border-b border-gray-200 dark:border-gray-700 py-10 overflow-hidden relative">
+                    <div className="container mx-auto px-6 mb-6">
+                        <p className="text-center text-xs font-bold tracking-widest text-gray-500 dark:text-gray-400 uppercase">Our Global & Local Partners</p>
+                    </div>
+                    <div className="relative flex overflow-x-hidden group">
+                        <div className="flex animate-scroll whitespace-nowrap items-center gap-16 md:gap-24 px-8">
+                            {marqueePartners.map((partner, index) => (
+                                <div key={`${partner.id}-${index}`} className="flex items-center justify-center px-6 min-w-[200px] grayscale opacity-70 hover:grayscale-0 hover:opacity-100 transition-all duration-300">
+                                    <img src={getAssetUrl(partner.logo_url)} alt={partner.name} className="h-16 md:h-24 w-auto object-contain" />
+                                </div>
+                            ))}
+                        </div>
                     </div>
                 </div>
-            </div>
+            )}
 
             {/* Stats Section */}
             <section className="py-16 bg-white dark:bg-background-dark relative">

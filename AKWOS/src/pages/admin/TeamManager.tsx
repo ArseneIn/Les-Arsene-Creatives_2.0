@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { getApiUrl } from '../../utils/apiConfig';
-import { Upload, Plus, Loader2, CheckCircle, User } from 'lucide-react';
+import { Upload, Plus, Loader2, CheckCircle, User, ChevronUp, ChevronDown } from 'lucide-react';
 import { Toast } from '../../components/admin/Toast';
 import { ConfirmModal } from '../../components/admin/ConfirmModal';
 
@@ -33,13 +33,51 @@ const TeamManager = () => {
         if (!confirmModal.id) return;
 
         try {
-            await fetch(`${getApiUrl('team.php')}?id=${confirmModal.id}`, { method: 'DELETE' });
-            fetchTeam();
-            setToast({ message: "Member deleted successfully", type: 'success' });
+            const response = await fetch(`${getApiUrl('team.php')}?id=${confirmModal.id}`, { method: 'DELETE' });
+            const result = await response.json();
+
+            if (response.ok && result.success) {
+                fetchTeam();
+                setToast({ message: 'Member deleted successfully', type: 'success' });
+            } else {
+                setToast({ message: result.error || 'Failed to delete member', type: 'error' });
+            }
         } catch (err) {
-            setToast({ message: "Failed to delete member", type: 'error' });
+            setToast({ message: 'Network error or server failed to respond', type: 'error' });
+            console.error(err);
         }
         setConfirmModal({ isOpen: false, id: null });
+    };
+
+    const moveItem = async (index: number, direction: 'up' | 'down') => {
+        if (direction === 'up' && index === 0) return;
+        if (direction === 'down' && index === items.length - 1) return;
+
+        const newItems = [...items];
+        const targetIndex = direction === 'up' ? index - 1 : index + 1;
+
+        // Swap
+        [newItems[index], newItems[targetIndex]] = [newItems[targetIndex], newItems[index]];
+
+        setItems(newItems); // Optimistic update
+
+        try {
+            const orderedIds = newItems.map((item: any) => item.id);
+            const formData = new FormData();
+            formData.append('action', 'reorder');
+            orderedIds.forEach((id, idx) => {
+                formData.append(`orderedIds[${idx}]`, id.toString());
+            });
+
+            await fetch(getApiUrl('team.php'), {
+                method: 'POST',
+                body: formData
+            });
+        } catch (err) {
+            console.error('Failed to reorder', err);
+            setToast({ message: 'Failed to save order', type: 'error' });
+            fetchTeam(); // Revert
+        }
     };
 
     const [name, setName] = useState('');
@@ -101,6 +139,17 @@ const TeamManager = () => {
             setLoading(false);
         }
     };
+
+    // Helper to group by category for display reordering if needed, but for now simple list?
+    // User probably wants to reorder within categories if grouped?
+    // Actually the current UI groups everything. 
+    // The current UI iterates `items.map`. 
+    // If we want reordering to make sense visually, we should probably just show one flat list or grouped lists.
+    // The current logic displays items flat in a grid.
+    // Wait, `items` is the full list.
+    // If I map `items`, I can reorder any item. 
+    // BUT! Since we might display them grouped on the public page, reordering *globally* works.
+    // Let's stick to global list rendering for management as currently implemented.
 
     return (
         <div className="max-w-4xl mx-auto space-y-8">
@@ -258,10 +307,26 @@ const TeamManager = () => {
                 {/* Existing Team Members */}
                 <div className="border-t border-gray-100 p-6 bg-gray-50">
                     <h2 className="font-bold text-gray-800 mb-4">Existing Team Members</h2>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {items.map((item: any) => (
+                    <div className="space-y-3">
+                        {items.map((item: any, index) => (
                             <div key={item.id} className="bg-white p-4 rounded border flex justify-between items-center shadow-sm">
                                 <div className="flex items-center gap-3">
+                                    <div className="flex flex-col gap-1 mr-2">
+                                        <button
+                                            onClick={() => moveItem(index, 'up')}
+                                            disabled={index === 0}
+                                            className="p-1 hover:bg-gray-100 rounded text-gray-500 disabled:opacity-30"
+                                        >
+                                            <ChevronUp className="w-4 h-4" />
+                                        </button>
+                                        <button
+                                            onClick={() => moveItem(index, 'down')}
+                                            disabled={index === items.length - 1}
+                                            className="p-1 hover:bg-gray-100 rounded text-gray-500 disabled:opacity-30"
+                                        >
+                                            <ChevronDown className="w-4 h-4" />
+                                        </button>
+                                    </div>
                                     {item.image_url ?
                                         <img src={getApiUrl(item.image_url)} alt={item.name} className="h-10 w-10 object-cover rounded-full" /> :
                                         <div className="h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center text-gray-400"><User size={20} /></div>
@@ -280,7 +345,7 @@ const TeamManager = () => {
                                 </button>
                             </div>
                         ))}
-                        {items.length === 0 && <p className="text-gray-500 text-sm italic col-span-2">No team members found.</p>}
+                        {items.length === 0 && <p className="text-gray-500 text-sm italic">No team members found.</p>}
                     </div>
                 </div>
             </div>
