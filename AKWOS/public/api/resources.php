@@ -51,5 +51,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     $stmt->execute([$title, $year, $type, $size, $fileUrl]);
 
     echo json_encode(['success' => true, 'id' => $pdo->lastInsertId()]);
+
+} elseif ($_SERVER['REQUEST_METHOD'] === 'DELETE') {
+    // 3. Delete resource
+    $id = $_GET['id'] ?? null;
+
+    if (!$id) {
+        http_response_code(400);
+        echo json_encode(['error' => 'ID is required']);
+        exit;
+    }
+
+    try {
+        $stmt = $pdo->prepare("DELETE FROM resources WHERE id = ?");
+        $stmt->execute([$id]);
+        echo json_encode(['success' => true]);
+    } catch (PDOException $e) {
+        http_response_code(500);
+        echo json_encode(['error' => 'Database error: ' . $e->getMessage()]);
+    }
 }
 ?>

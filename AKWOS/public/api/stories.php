@@ -46,5 +46,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         http_response_code(500);
         echo json_encode(['success' => false, 'error' => 'Database error: ' . $e->getMessage()]);
     }
+} elseif ($_SERVER['REQUEST_METHOD'] === 'DELETE') {
+    // 3. Delete story
+    $id = $_GET['id'] ?? null;
+
+    if (!$id) {
+        http_response_code(400);
+        echo json_encode(['error' => 'ID is required']);
+        exit;
+    }
+
+    try {
+        $stmt = $pdo->prepare("DELETE FROM impact_stories WHERE id = ?");
+        $stmt->execute([$id]);
+        echo json_encode(['success' => true]);
+    } catch (PDOException $e) {
+        http_response_code(500);
+        echo json_encode(['error' => 'Database error: ' . $e->getMessage()]);
+    }
 }
 ?>

@@ -13,12 +13,12 @@
  */
 
 export const API_BASE_URL = import.meta.env.DEV
-    ? "http://localhost/akwos/api"        // Reverted: Point to XAMPP root/api
-    : "/api";
+    ? "http://localhost/akwos/api"
+    : "/website_e4da3417/api";
 
 export const ASSET_BASE_URL = import.meta.env.DEV
-    ? "http://localhost/akwos"          // Point to XAMPP root (for /uploads)
-    : "";
+    ? "http://localhost/akwos"
+    : "/website_e4da3417";
 
 // Helper function to get full API URL
 export const getApiUrl = (endpoint: string) => {

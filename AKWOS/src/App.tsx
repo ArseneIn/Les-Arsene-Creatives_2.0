@@ -28,7 +28,7 @@ import StoriesManager from './pages/admin/StoriesManager';
 
 function App() {
     return (
-        <BrowserRouter>
+        <BrowserRouter basename="/website_e4da3417">
             <ScrollToTop />
             <Routes>
                 <Route path="/" element={<Layout />}>

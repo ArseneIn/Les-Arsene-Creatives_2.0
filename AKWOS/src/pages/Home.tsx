@@ -253,7 +253,7 @@ export const Home = () => {
             {/* Next Generation Section */}
             <section className="w-full h-[500px] overflow-hidden relative">
                 <img
-                    src="/images/home/nextgen-youth.jpg"
+                    src={`${import.meta.env.BASE_URL}images/home/nextgen-youth.jpg`}
                     alt="Team of young athletes"
                     className="w-full h-full object-cover"
                 />

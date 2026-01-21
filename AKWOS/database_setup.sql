@@ -65,6 +65,6 @@ CREATE TABLE IF NOT EXISTS impact_stories (
 
 -- 2. Create a default Admin user
 -- Username: admin
--- Password: password123 (You should change this later!)
--- The hash below corresponds to 'password123' generated with PHP's password_hash()
+-- Password: password (You should change this later!)
+-- The hash below corresponds to 'password' generated with PHP's password_hash()
 INSERT INTO users (username, password_hash) VALUES ('admin', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi');

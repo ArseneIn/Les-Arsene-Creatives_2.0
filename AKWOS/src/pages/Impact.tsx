@@ -201,7 +201,7 @@ export const Impact = () => {
                             <div className="relative rounded-2xl overflow-hidden shadow-2xl aspect-[4/5] md:aspect-square lg:aspect-[4/5] group">
                                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-60 z-10"></div>
                                 <img
-                                    src="/images/impact-hero.jpg"
+                                    src={`${import.meta.env.BASE_URL}images/impact-hero.jpg`}
                                     alt="Coach Grace"
                                     className="w-full h-full object-cover transform transition-transform duration-700 group-hover:scale-105"
                                 />

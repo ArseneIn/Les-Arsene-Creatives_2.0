@@ -48,7 +48,7 @@ export const AdminLayout = () => {
             `}>
                 <div className="p-6 border-b border-gray-100 dark:border-gray-700 flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                        <img src="/images/logo-transparent.png" className="h-8 w-auto" alt="Logo" />
+                        <img src={`${import.meta.env.BASE_URL}images/logo-transparent.png`} className="h-8 w-auto" alt="Logo" />
                         <span className="font-bold text-gray-800 dark:text-white">CMS Portal</span>
                     </div>
                     <button onClick={() => setSidebarOpen(false)} className="md:hidden text-gray-500">

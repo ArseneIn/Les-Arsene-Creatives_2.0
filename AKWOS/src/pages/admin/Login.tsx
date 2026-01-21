@@ -46,7 +46,7 @@ export const AdminLogin = () => {
         >
             <div className="w-full max-w-md bg-white p-8 rounded-xl shadow-lg border border-gray-200 relative z-[10000]">
                 <div className="flex flex-col items-center mb-8">
-                    <img src="/images/logo-transparent.png" className="h-16 mb-4" alt="AKWOS Logo" />
+                    <img src={`${import.meta.env.BASE_URL}images/logo-transparent.png`} className="h-16 mb-4" alt="AKWOS Logo" />
                     <h1 className="text-2xl font-bold text-gray-900">Admin Portal</h1>
                     <p className="text-sm text-gray-500">Sign in to manage content</p>
                 </div>

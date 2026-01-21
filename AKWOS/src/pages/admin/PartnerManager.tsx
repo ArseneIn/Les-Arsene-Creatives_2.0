@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { getApiUrl } from '../../utils/apiConfig';
 import { ArrowLeft, Upload, Loader2, Save } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -8,6 +8,34 @@ const PartnerManager = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
+
+    const [items, setItems] = useState([]);
+
+    useEffect(() => {
+        fetchPartners();
+    }, []);
+
+    const fetchPartners = async () => {
+        try {
+            const res = await fetch(getApiUrl('partners.php'));
+            const data = await res.json();
+            setItems(data);
+        } catch (err) {
+            console.error(err);
+        }
+    };
+
+    const handleDelete = async (id: number) => {
+        if (!window.confirm('Are you sure you want to delete this partner?')) return;
+
+        try {
+            await fetch(`${getApiUrl('partners.php')}?id=${id}`, { method: 'DELETE' });
+            fetchPartners();
+            setSuccess('Partner deleted successfully');
+        } catch (err) {
+            setError('Failed to delete partner');
+        }
+    };
 
     const [formData, setFormData] = useState({
         name: '',
@@ -56,6 +84,7 @@ const PartnerManager = () => {
                     website_url: ''
                 });
                 setImage(null);
+                fetchPartners();
             } else {
                 setError(result.error || 'Failed to add partner.');
             }
@@ -138,6 +167,29 @@ const PartnerManager = () => {
                             </button>
                         </div>
                     </form>
+                </div>
+
+                {/* Existing Partners */}
+                <div className="border-t border-gray-100 p-6 bg-gray-50">
+                    <h2 className="font-bold text-gray-800 mb-4">Existing Partners</h2>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {items.map((item: any) => (
+                            <div key={item.id} className="bg-white p-4 rounded border flex justify-between items-center shadow-sm">
+                                <div className="flex items-center gap-3">
+                                    {item.logo_url && <img src={getApiUrl(item.logo_url)} alt={item.name} className="h-8 w-8 object-contain" />}
+                                    <h3 className="font-semibold text-gray-800">{item.name}</h3>
+                                </div>
+                                <button
+                                    onClick={() => handleDelete(item.id)}
+                                    className="text-red-500 hover:text-red-700 p-2 hover:bg-red-50 rounded transition-colors"
+                                    title="Delete Partner"
+                                >
+                                    <i className="material-icons">delete</i>
+                                </button>
+                            </div>
+                        ))}
+                        {items.length === 0 && <p className="text-gray-500 text-sm italic col-span-2">No partners found.</p>}
+                    </div>
                 </div>
             </div>
         </div>

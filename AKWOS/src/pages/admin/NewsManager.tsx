@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { getApiUrl } from '../../utils/apiConfig';
 import { ArrowLeft, Upload, Loader2, Save } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -8,6 +8,35 @@ const NewsManager = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
+
+    const [items, setItems] = useState([]);
+
+    // Fetch items on mount
+    useEffect(() => {
+        fetchNews();
+    }, []);
+
+    const fetchNews = async () => {
+        try {
+            const res = await fetch(getApiUrl('news.php'));
+            const data = await res.json();
+            setItems(data);
+        } catch (err) {
+            console.error(err);
+        }
+    };
+
+    const handleDelete = async (id: number) => {
+        if (!window.confirm('Are you sure you want to delete this article?')) return;
+
+        try {
+            await fetch(`${getApiUrl('news.php')}?id=${id}`, { method: 'DELETE' });
+            fetchNews(); // Refresh list
+            setSuccess('Article deleted successfully');
+        } catch (err) {
+            setError('Failed to delete article');
+        }
+    };
 
     const [formData, setFormData] = useState({
         title: '',
@@ -65,6 +94,7 @@ const NewsManager = () => {
                     description: ''
                 });
                 setImage(null);
+                fetchNews();
             } else {
                 setError(result.error || 'Failed to add news.');
             }
@@ -177,6 +207,29 @@ const NewsManager = () => {
                             </button>
                         </div>
                     </form>
+                </div>
+
+                {/* List of Existing Items */}
+                <div className="border-t border-gray-100 p-6 bg-gray-50">
+                    <h2 className="font-bold text-gray-800 mb-4">Existing News Articles</h2>
+                    <div className="space-y-3">
+                        {items.map((item: any) => (
+                            <div key={item.id} className="bg-white p-4 rounded border flex justify-between items-center shadow-sm">
+                                <div>
+                                    <h3 className="font-semibold text-gray-800">{item.title}</h3>
+                                    <p className="text-sm text-gray-500">{item.date} • {item.category}</p>
+                                </div>
+                                <button
+                                    onClick={() => handleDelete(item.id)}
+                                    className="text-red-500 hover:text-red-700 p-2 hover:bg-red-50 rounded transition-colors"
+                                    title="Delete Article"
+                                >
+                                    <i className="material-icons">delete</i>
+                                </button>
+                            </div>
+                        ))}
+                        {items.length === 0 && <p className="text-gray-500 text-sm italic">No news articles found.</p>}
+                    </div>
                 </div>
             </div>
         </div>

@@ -25,7 +25,7 @@ export const WPSProgram = () => {
                             <img
                                 alt="Rwandan women in leadership circle"
                                 className="w-full h-full object-cover"
-                                src="/images/programs/wps-program.jpg"
+                                src={`${import.meta.env.BASE_URL}images/programs/wps-program.jpg`}
                             />
                             {/* Gradient Overlay */}
                             <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/40 to-transparent opacity-90"></div>

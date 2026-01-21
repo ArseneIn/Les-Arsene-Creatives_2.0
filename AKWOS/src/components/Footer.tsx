@@ -9,7 +9,7 @@ export const Footer = () => {
                     <div className="md:col-span-1">
                         <Link to="/" className="flex flex-col mb-6">
                             <img
-                                src="/images/logo-transparent.png"
+                                src={`${import.meta.env.BASE_URL}images/logo-transparent.png`}
                                 alt="AKWOS Logo"
                                 className="h-14 w-auto object-contain mb-2"
                             />
@@ -66,7 +66,12 @@ export const Footer = () => {
 
                 {/* Copyright */}
                 <div className="border-t border-gray-200 dark:border-gray-700 pt-8 flex flex-col md:flex-row justify-between items-center text-xs text-gray-500 dark:text-gray-400">
-                    <p>AKWOS © Copyright 2026.</p>
+                    <div className="flex items-center gap-2">
+                        <p>AKWOS © Copyright 2026.</p>
+                        <Link to="/admin/login" className="opacity-10 hover:opacity-100 hover:text-primary transition-all duration-300" title="Staff Portal">
+                            <i className="material-icons text-[10px]">lock</i>
+                        </Link>
+                    </div>
                     <p className="mt-2 md:mt-0">Design by <span className="underline hover:text-primary cursor-pointer">Les Arsene Creatives</span></p>
                 </div>
             </div>

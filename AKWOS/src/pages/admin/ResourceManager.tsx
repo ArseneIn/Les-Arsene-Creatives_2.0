@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { getApiUrl } from '../../utils/apiConfig';
 import { ArrowLeft, Loader2, Save, FileText } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -8,6 +8,34 @@ const ResourceManager = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
+
+    const [items, setItems] = useState([]);
+
+    useEffect(() => {
+        fetchResources();
+    }, []);
+
+    const fetchResources = async () => {
+        try {
+            const res = await fetch(getApiUrl('resources.php'));
+            const data = await res.json();
+            setItems(data);
+        } catch (err) {
+            console.error(err);
+        }
+    };
+
+    const handleDelete = async (id: number) => {
+        if (!window.confirm('Are you sure you want to delete this resource?')) return;
+
+        try {
+            await fetch(`${getApiUrl('resources.php')}?id=${id}`, { method: 'DELETE' });
+            fetchResources();
+            setSuccess('Resource deleted successfully');
+        } catch (err) {
+            setError('Failed to delete resource');
+        }
+    };
 
     const [formData, setFormData] = useState({
         title: '',
@@ -62,6 +90,7 @@ const ResourceManager = () => {
                     type: 'Annual Report',
                 });
                 setFile(null);
+                fetchResources();
             } else {
                 setError(result.error || 'Failed to upload resource.');
             }
@@ -164,6 +193,29 @@ const ResourceManager = () => {
                             </button>
                         </div>
                     </form>
+                </div>
+
+                {/* Existing Resources */}
+                <div className="border-t border-gray-100 p-6 bg-gray-50">
+                    <h2 className="font-bold text-gray-800 mb-4">Existing Resources</h2>
+                    <div className="space-y-3">
+                        {items.map((item: any) => (
+                            <div key={item.id} className="bg-white p-4 rounded border flex justify-between items-center shadow-sm">
+                                <div>
+                                    <h3 className="font-semibold text-gray-800">{item.title}</h3>
+                                    <p className="text-sm text-gray-500">{item.type} • {item.year}</p>
+                                </div>
+                                <button
+                                    onClick={() => handleDelete(item.id)}
+                                    className="text-red-500 hover:text-red-700 p-2 hover:bg-red-50 rounded transition-colors"
+                                    title="Delete Resource"
+                                >
+                                    <i className="material-icons">delete</i>
+                                </button>
+                            </div>
+                        ))}
+                        {items.length === 0 && <p className="text-gray-500 text-sm italic">No resources found.</p>}
+                    </div>
                 </div>
             </div>
         </div>

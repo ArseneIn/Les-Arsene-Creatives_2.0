@@ -11,7 +11,7 @@ export const Navbar = () => {
                 {/* Logo */}
                 <Link to="/" className="flex items-center gap-2 group">
                     <img
-                        src="/images/logo-transparent.png"
+                        src={`${import.meta.env.BASE_URL}images/logo-transparent.png`}
                         alt="AKWOS Logo"
                         className="h-16 w-auto object-contain transition-transform group-hover:scale-105"
                     />
