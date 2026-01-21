@@ -81,38 +81,46 @@ export const Resources = () => {
                     </div>
                 </div>
 
-                {/* Hero Section: Featured Report */}
-                <div className="mt-4 mb-12 bg-white dark:bg-[#1a202c] rounded-xl shadow-sm border border-[#e7ebf3] dark:border-gray-700 overflow-hidden">
-                    <div className="flex flex-col md:flex-row">
-                        <div
-                            className="w-full md:w-2/5 h-64 md:h-auto bg-cover bg-center bg-no-repeat relative group"
-                            style={{ backgroundImage: 'url("https://lh3.googleusercontent.com/aida-public/AB6AXuBsQ34G5vMgJlOmqyOSU5fEBkeWZiLQqalwrbTSFTFJgCT89-tKaDPn-xgobC-sXoKzOegUVmsXtY1zt5-mn5tIw5Q1lFBkCSVpx6jexRAfzczsVgin7j21xt6FQl0CM8xNuczOCkAaNcqffG6XrCXjY3x9iao6dKNmhypYlO24r1MoQ63DhBOluVn-GmT4q2rVzYYMmf1kIYoRqGCyDF70JlkFcjoJYHfuw2cRHuPG9zq06AUV540CWcyg4rFS3eiE5hAaWqkEzqI")' }}
-                        >
-                            <div className="absolute inset-0 bg-black/10 group-hover:bg-black/0 transition-all duration-300"></div>
-                        </div>
-                        <div className="flex flex-col justify-center p-8 md:p-10 md:w-3/5">
-                            <div className="flex items-center gap-2 mb-4">
-                                <span className="px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-primary dark:text-blue-300 text-xs font-bold rounded uppercase tracking-wider">Latest Publication</span>
-                                <span className="text-gray-500 dark:text-gray-400 text-xs font-medium">October 2024</span>
+                {/* Hero Section: Featured "Latest" Report (First item in the list) */}
+                {resources.length > 0 && (
+                    <div className="mt-4 mb-12 bg-white dark:bg-[#1a202c] rounded-xl shadow-sm border border-[#e7ebf3] dark:border-gray-700 overflow-hidden">
+                        <div className="flex flex-col md:flex-row">
+                            <div
+                                className="w-full md:w-2/5 h-64 md:h-auto bg-cover bg-center bg-no-repeat relative group"
+                                style={{ backgroundImage: `url("${resources[0].image || 'https://lh3.googleusercontent.com/aida-public/AB6AXuBsQ34G5vMgJlOmqyOSU5fEBkeWZiLQqalwrbTSFTFJgCT89-tKaDPn-xgobC-sXoKzOegUVmsXtY1zt5-mn5tIw5Q1lFBkCSVpx6jexRAfzczsVgin7j21xt6FQl0CM8xNuczOCkAaNcqffG6XrCXjY3x9iao6dKNmhypYlO24r1MoQ63DhBOluVn-GmT4q2rVzYYMmf1kIYoRqGCyDF70JlkFcjoJYHfuw2cRHuPG9zq06AUV540CWcyg4rFS3eiE5hAaWqkEzqI'}")` }}
+                            >
+                                <div className="absolute inset-0 bg-black/10 group-hover:bg-black/0 transition-all duration-300"></div>
+                                {!resources[0].image && <div className={`absolute inset-0 ${resources[0].gradient || 'bg-blue-500'} opacity-60 mix-blend-multiply`}></div>}
                             </div>
-                            <h2 className="text-[#0d121b] dark:text-white text-2xl md:text-3xl font-bold leading-tight mb-4">
-                                2024 Annual Impact Report: Advancing Gender Equity
-                            </h2>
-                            <p className="text-gray-600 dark:text-gray-300 text-base mb-8 leading-relaxed">
-                                Our comprehensive analysis of sports development programs in Rwanda, highlighting key milestones in female participation, leadership development, and community outreach initiatives across 15 districts.
-                            </p>
-                            <div className="flex flex-wrap gap-4">
-                                <button className="flex items-center justify-center gap-2 rounded-lg h-12 px-6 bg-primary hover:bg-blue-700 text-white font-bold text-sm transition-all shadow-md">
-                                    <span className="material-symbols-outlined text-[20px]">download</span>
-                                    <span>Download PDF (2.4 MB)</span>
-                                </button>
-                                <button className="flex items-center justify-center gap-2 rounded-lg h-12 px-6 bg-white dark:bg-transparent border border-gray-300 dark:border-gray-600 text-[#0d121b] dark:text-white font-medium text-sm hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
-                                    <span>Read Executive Summary</span>
-                                </button>
+                            <div className="flex flex-col justify-center p-8 md:p-10 md:w-3/5">
+                                <div className="flex items-center gap-2 mb-4">
+                                    <span className="px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-primary dark:text-blue-300 text-xs font-bold rounded uppercase tracking-wider">Latest Publication</span>
+                                    <span className="text-gray-500 dark:text-gray-400 text-xs font-medium">{resources[0].year}</span>
+                                </div>
+                                <h2 className="text-[#0d121b] dark:text-white text-2xl md:text-3xl font-bold leading-tight mb-4">
+                                    {resources[0].title}
+                                </h2>
+                                <p className="text-gray-600 dark:text-gray-300 text-base mb-8 leading-relaxed line-clamp-3">
+                                    { /* We don't have a description field for resources in DB yet, so we use a generic placeholder or title logic */}
+                                    Access the detailed findings and strategic insights from our latest {resources[0].type.toLowerCase()}.
+                                </p>
+                                <div className="flex flex-wrap gap-4">
+                                    <a
+                                        href={resources[0].downloadUrl}
+                                        download
+                                        className="flex items-center justify-center gap-2 rounded-lg h-12 px-6 bg-primary hover:bg-blue-700 text-white font-bold text-sm transition-all shadow-md"
+                                    >
+                                        <span className="material-symbols-outlined text-[20px]">download</span>
+                                        <span>Download {resources[0].ext} ({resources[0].size})</span>
+                                    </a>
+                                    <button className="flex items-center justify-center gap-2 rounded-lg h-12 px-6 bg-white dark:bg-transparent border border-gray-300 dark:border-gray-600 text-[#0d121b] dark:text-white font-medium text-sm hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+                                        <span>View Details</span>
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
+                )}
 
                 {/* Content Area Layout: Sidebar + Grid */}
                 <div className="flex flex-col lg:flex-row gap-8 items-start">

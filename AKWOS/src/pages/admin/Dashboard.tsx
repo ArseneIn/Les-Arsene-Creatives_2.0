@@ -1,15 +1,37 @@
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { initialResources } from "../../data/resources";
+import { getApiUrl } from '../../utils/apiConfig';
 
 export const Dashboard = () => {
     const navigate = useNavigate();
-    // ... existing stats code ...
-    const stats = [
-        { label: "Total Resources", value: initialResources.length, icon: "folder_open", color: "bg-blue-500" },
-        { label: "Active News", value: "12", icon: "newspaper", color: "bg-green-500" },
-        { label: "Pending Reviews", value: "3", icon: "pending", color: "bg-orange-500" },
-        { label: "Total Downloads", value: "1.2k", icon: "download", color: "bg-purple-500" },
-    ];
+    const [stats, setStats] = useState([
+        { label: "Total Resources", value: "0", icon: "folder_open", color: "bg-blue-500" },
+        { label: "Active News", value: "0", icon: "newspaper", color: "bg-green-500" },
+        { label: "Institutional Partners", value: "0", icon: "handshake", color: "bg-orange-500" }, // Changed from Pending Reviews
+        { label: "Total Downloads", value: "...", icon: "download", color: "bg-purple-500" },
+    ]);
+
+    useEffect(() => {
+        const fetchStats = async () => {
+            try {
+                const response = await fetch(getApiUrl('stats.php'));
+                const data = await response.json();
+
+                if (data) {
+                    setStats([
+                        { label: "Total Resources", value: data.resources?.toString() || "0", icon: "folder_open", color: "bg-blue-500" },
+                        { label: "Active News", value: data.news?.toString() || "0", icon: "newspaper", color: "bg-green-500" },
+                        { label: "Institutional Partners", value: data.partners?.toString() || "0", icon: "handshake", color: "bg-orange-500" },
+                        { label: "Total Downloads", value: "2.4k", icon: "download", color: "bg-purple-500" }, // Keep mock for now
+                    ]);
+                }
+            } catch (error) {
+                console.error("Failed to fetch stats:", error);
+            }
+        };
+
+        fetchStats();
+    }, []);
 
     return (
         <div className="space-y-8">
