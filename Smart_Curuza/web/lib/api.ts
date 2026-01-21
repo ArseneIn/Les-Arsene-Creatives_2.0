@@ -1,6 +1,6 @@
 
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://192.168.0.84:3001';
 
 export interface ApiResponse<T> {
     data: T;
