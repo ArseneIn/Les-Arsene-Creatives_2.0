@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { initialPartners, PartnerItem } from '../data/partners';
-import { getApiUrl } from '../utils/apiConfig';
+import { getApiUrl, getAssetUrl } from '../utils/apiConfig';
 
 export const Partnerships = () => {
     const [partners, setPartners] = useState<PartnerItem[]>([]);
@@ -75,7 +75,7 @@ export const Partnerships = () => {
                     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-12 items-center justify-items-center opacity-90">
                         {partners.map((partner) => (
                             <div key={partner.id} className="flex items-center justify-center grayscale opacity-80 hover:grayscale-0 hover:opacity-100 transition-all duration-300" title={partner.name}>
-                                <img src={partner.logo} alt={partner.name} className="h-24 w-auto object-contain" />
+                                <img src={getAssetUrl(partner.logo)} alt={partner.name} className="h-24 w-auto object-contain" />
                             </div>
                         ))}
                     </div>

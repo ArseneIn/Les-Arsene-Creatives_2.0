@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { initialNews, NewsItem } from '../data/news';
-import { getApiUrl } from '../utils/apiConfig';
+import { getApiUrl, getAssetUrl } from '../utils/apiConfig';
 
 export const News = () => {
     const [newsItems, setNewsItems] = useState<NewsItem[]>([]);
@@ -135,7 +135,7 @@ export const News = () => {
                                         <div className="relative aspect-video w-full overflow-hidden bg-slate-200">
                                             <div
                                                 className="h-full w-full bg-cover bg-center transition-transform duration-500 group-hover:scale-105"
-                                                style={{ backgroundImage: `url('${news.image}')` }}
+                                                style={{ backgroundImage: `url('${getAssetUrl(news.image)}')` }}
                                             ></div>
                                             <div className="absolute left-4 top-4 rounded bg-white/90 px-2 py-1 text-xs font-bold uppercase tracking-wider text-black backdrop-blur-sm">
                                                 {news.tag}

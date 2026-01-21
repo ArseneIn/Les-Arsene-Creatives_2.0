@@ -13,12 +13,26 @@
  */
 
 export const API_BASE_URL = import.meta.env.DEV
-    ? "http://localhost/akwos/api"  // Point to XAMPP when working locally
-    : "/api";                       // Point to relative path when online
+    ? "http://localhost/akwos/api"        // Reverted: Point to XAMPP root/api
+    : "/api";
 
-// Helper function to get full URL
+export const ASSET_BASE_URL = import.meta.env.DEV
+    ? "http://localhost/akwos"          // Point to XAMPP root (for /uploads)
+    : "";
+
+// Helper function to get full API URL
 export const getApiUrl = (endpoint: string) => {
     // Remove leading slash if present to avoid double slashes
     const cleanEndpoint = endpoint.startsWith('/') ? endpoint.slice(1) : endpoint;
     return `${API_BASE_URL}/${cleanEndpoint}`;
+};
+
+// Helper function to get full Asset URL
+export const getAssetUrl = (path: string) => {
+    if (!path) return '';
+    if (path.startsWith('http')) return path;
+
+    // Ensure path starts with /
+    const cleanPath = path.startsWith('/') ? path : `/${path}`;
+    return `${ASSET_BASE_URL}${cleanPath}`;
 };

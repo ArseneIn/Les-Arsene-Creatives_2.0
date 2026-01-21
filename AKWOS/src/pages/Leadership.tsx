@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from 'react';
-import { getApiUrl } from '../utils/apiConfig';
+import { getApiUrl, getAssetUrl } from '../utils/apiConfig';
 
 
 // We retain the interface but update it to match potential API response slightly
@@ -33,7 +33,7 @@ const BoardMemberCard = ({ name, role, image, bio }: TeamMember) => {
                 <div className="flex items-center gap-4">
                     <div
                         className={`h-16 w-16 rounded-full bg-gray-200 bg-cover bg-top shrink-0 flex items-center justify-center text-gray-400`}
-                        style={{ backgroundImage: image ? 'url(' + getApiUrl(image) + ')' : 'none' }}
+                        style={{ backgroundImage: image ? 'url(' + getAssetUrl(image) + ')' : 'none' }}
                     >
                         {!image && <span className="material-symbols-outlined text-3xl">person</span>}
                     </div>
@@ -66,7 +66,7 @@ const BoardMemberCard = ({ name, role, image, bio }: TeamMember) => {
                         <div className="w-full md:w-1/3 bg-slate-100 dark:bg-slate-800 relative min-h-[200px] md:min-h-full">
                             <div
                                 className="absolute inset-0 bg-cover bg-center"
-                                style={{ backgroundImage: image ? 'url(' + getApiUrl(image) + ')' : 'none' }}
+                                style={{ backgroundImage: image ? 'url(' + getAssetUrl(image) + ')' : 'none' }}
                             >
                                 {!image && (
                                     <div className="flex items-center justify-center w-full h-full text-slate-300">
@@ -208,7 +208,7 @@ export const Leadership = () => {
                             <div key={idx} className="group flex flex-col bg-[#f8f9fc] dark:bg-[#1a2332] rounded-xl overflow-hidden hover:shadow-lg transition-all duration-300 border border-transparent hover:border-slate-200 dark:hover:border-slate-700">
                                 <div
                                     className="aspect-[4/5] w-full bg-cover bg-center"
-                                    style={{ backgroundImage: `url("${getApiUrl(member.image)}")` }}
+                                    style={{ backgroundImage: `url("${getAssetUrl(member.image)}")` }}
                                 >
                                     {!member.image && (
                                         <div className="w-full h-full flex items-center justify-center bg-gray-100 dark:bg-gray-800 text-gray-300">
