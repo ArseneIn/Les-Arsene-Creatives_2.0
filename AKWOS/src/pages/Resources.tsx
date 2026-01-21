@@ -8,6 +8,18 @@ export const Resources = () => {
     const [searchQuery, setSearchQuery] = useState("");
     const [resources, setResources] = useState<ResourceItem[]>([]);
 
+    const handleDownload = async (id: string) => {
+        try {
+            await fetch(getApiUrl('track_download.php'), {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id })
+            });
+        } catch (error) {
+            console.error("Failed to track download", error);
+        }
+    };
+
     useEffect(() => {
         const fetchResources = async () => {
             try {
@@ -16,7 +28,7 @@ export const Resources = () => {
                 if (Array.isArray(data)) {
                     // Map API fields to Frontend fields
                     const formattedResources = data.map((item: any) => ({
-                        id: item.id,
+                        id: String(item.id),
                         title: item.title,
                         year: item.year,
                         type: item.type,
@@ -108,6 +120,7 @@ export const Resources = () => {
                                     <a
                                         href={resources[0].downloadUrl}
                                         download
+                                        onClick={() => handleDownload(resources[0].id)}
                                         className="flex items-center justify-center gap-2 rounded-lg h-12 px-6 bg-primary hover:bg-blue-700 text-white font-bold text-sm transition-all shadow-md"
                                     >
                                         <span className="material-symbols-outlined text-[20px]">download</span>
