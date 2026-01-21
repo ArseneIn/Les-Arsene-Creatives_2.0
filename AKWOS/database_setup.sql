@@ -31,12 +31,6 @@ CREATE TABLE IF NOT EXISTS resources (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- 2. Create a default Admin user
--- Username: admin
--- Password: password123 (You should change this later!)
--- The hash below corresponds to 'password123' generated with PHP's password_hash()
-INSERT INTO users (username, password_hash) VALUES ('admin', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi');
-
 CREATE TABLE IF NOT EXISTS partners (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
@@ -44,3 +38,21 @@ CREATE TABLE IF NOT EXISTS partners (
     website_url VARCHAR(255),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+CREATE TABLE IF NOT EXISTS team (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    role VARCHAR(255) NOT NULL,
+    category ENUM('Board', 'Operational', 'Executive') NOT NULL DEFAULT 'Operational',
+    tags VARCHAR(255), -- Comma-separated tags for Operational team (e.g. "Strategic Planning,M&E")
+    image_url VARCHAR(255),
+    bio TEXT, -- Full bio for Board members
+    display_order INT DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 2. Create a default Admin user
+-- Username: admin
+-- Password: password123 (You should change this later!)
+-- The hash below corresponds to 'password123' generated with PHP's password_hash()
+INSERT INTO users (username, password_hash) VALUES ('admin', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi');

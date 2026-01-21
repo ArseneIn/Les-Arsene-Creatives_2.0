@@ -48,6 +48,22 @@ export const Dashboard = () => {
                         </div>
                     </div>
                 ))}
+                {/* New cards added based on instruction */}
+                <div onClick={() => navigate('/admin/partners')} className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-all cursor-pointer group">
+                    <div className="h-12 w-12 bg-orange-100 rounded-lg flex items-center justify-center mb-4 group-hover:bg-orange-200 transition-colors">
+                        <span className="material-symbols-outlined text-orange-600 text-2xl">handshake</span>
+                    </div>
+                    <h3 className="font-bold text-gray-800 text-lg mb-1">Partnerships</h3>
+                    <p className="text-sm text-gray-500">Manage institutional partners</p>
+                </div>
+
+                <div onClick={() => navigate('/admin/team')} className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-all cursor-pointer group">
+                    <div className="h-12 w-12 bg-indigo-100 rounded-lg flex items-center justify-center mb-4 group-hover:bg-indigo-200 transition-colors">
+                        <span className="material-symbols-outlined text-indigo-600 text-2xl">groups</span>
+                    </div>
+                    <h3 className="font-bold text-gray-800 text-lg mb-1">Team & Leadership</h3>
+                    <p className="text-sm text-gray-500">Manage board & field officers</p>
+                </div>
             </div>
 
             {/* Quick Actions */}

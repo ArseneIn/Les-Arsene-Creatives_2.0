@@ -23,6 +23,7 @@ import NewsManager from './pages/admin/NewsManager';
 import ResourceManager from './pages/admin/ResourceManager';
 import PartnerManager from './pages/admin/PartnerManager';
 import Settings from './pages/admin/Settings';
+import TeamManager from './pages/admin/TeamManager';
 
 function App() {
     return (
@@ -52,6 +53,7 @@ function App() {
                     <Route path="news" element={<NewsManager />} />
                     <Route path="resources" element={<ResourceManager />} />
                     <Route path="partners" element={<PartnerManager />} />
+                    <Route path="team" element={<TeamManager />} />
                     <Route path="settings" element={<Settings />} />
                 </Route>
             </Routes>
