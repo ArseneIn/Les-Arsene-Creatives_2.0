@@ -1,62 +1,32 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { getApiUrl, getAssetUrl } from '../utils/apiConfig';
 
 export const SuccessStories = () => {
     const [filter, setFilter] = useState('All Stories');
 
     const filters = ['All Stories', 'Peace Makers', 'Economic Empowerment', 'WPS', 'Leadership'];
 
-    const stories = [
-        {
-            title: "From the Pitch to the Boardroom: Odette’s Journey",
-            date: "Nov 12, 2023",
-            category: "Leadership",
-            image: "https://lh3.googleusercontent.com/aida-public/AB6AXuDZxD3upXsVdPvJ2Wn6RpoLX6PFZ6jDIue8ORNyWhOFhMDbytTrbLMSabqHYfi_n3SUnSxqnUd-nE_31CZj40TTtOlMIizyPalVfIeYJw8bjBOp3MweDfOKVPkHeJ9T5apgin-ZgDWPG_WeqRu3hpmZErQ9Pwu5iXQa7mj30CHhLq1UH84hdEjiju2uAna1oT0EJX6XawkQ7f7ENVzxJrYFK3I-vsLUtdNCrzerBOBJQsbDWGMcBNUudHuHqLGehqWGLaJPfqrlAQk",
-            excerpt: "How a football captain utilized leadership training to launch a cooperative that now employs 30 women in her local village.",
-            badge: "Community Leader"
-        },
-        {
-            title: "Breaking Barriers in Agribusiness",
-            date: "Oct 28, 2023",
-            category: "Economic Empowerment",
-            image: "https://lh3.googleusercontent.com/aida-public/AB6AXuBxYn667pYOHoPRuw6mi0Y2yVFQVXXPMkUs4qO4sXOqwHJknx0XzyQK8DQ1ITt_920EWRhYV7mm7C-JiCF5FSWT2ndxRWsBiMo0qH2uzSfnrugOCoqjdlIRUltMjWS9UHJ6aW5YWFmx4XNfx-xWQ8HOF0HfbK-SmDpuKbojne84DiPh_-IMsHUFc32WkVrbcyYcf6kqg2vxbiIYOgkIEKmCNTKuvv1Y496lNE7yNktaLH1TQtxS9kGTgaNezRm2KXpUAmyY9ZF47Wg",
-            excerpt: "Transforming subsistence farming into a thriving export business through financial literacy workshops and sports discipline.",
-            badge: "150% Income Increase",
-            badgeColor: "bg-primary text-white"
-        },
-        {
-            title: "Healing Wounds Through Teamwork",
-            date: "Oct 15, 2023",
-            category: "Peace Makers",
-            image: "https://lh3.googleusercontent.com/aida-public/AB6AXuA0g7ALTIesLmVo1RUooqsfafX6YVzgwRPxWWAWvHNA1Zixu-tKpSmeW9Co21UX3M-VDpEQC4r2zEC76xdlDIq-kC9BCarDjcAOeOTaRN3Eq_2jH9c5iV8bwJfqTTek9yBb4D5oCIhDHPvCQN84NXFLhKHYUYjRKrQVRJrsTNeoJVeN5DMShlZBgR05Asr8dIMnZ5U4VH94mWNFg5zuzOixmwoX3sUnY74cvAqqhPCQI7AuUlRzdSJCQjqtaGPzJJBhS_HYh7g9V50",
-            excerpt: "Rebuilding community trust after conflict through organized sports leagues that bring opposing sides together on the same pitch.",
-            badge: "Peace Ambassador"
-        },
-        {
-            title: "Leading the Charge for Education",
-            date: "Sep 22, 2023",
-            category: "WPS",
-            image: "https://lh3.googleusercontent.com/aida-public/AB6AXuChGM2UGGL6lJ6XBFAsc-u_ksv9kp0xy-EuYA0HkDPpy7rIF50Vuu8xMsprOzeRmOWNgWMRQjq3MvyfLTXjEC8xHv4PymIPfb-Lb46F_2IV7QAWFJ6nUgn0QhqrzcWe2iuggq-BkWCLedF1cM42BoF-T5Ycs50p5tqiHd-oZnyMe8unyTX4AolFNznm4lyZMpGX0wjjqO1jVBJAGUBsT1VFJAUyO8fBuItBc8JhgjG_NesBmmjs0twtopmMVbf9dS6xlhN3mQ_SQBI",
-            excerpt: "A young athlete uses her platform to advocate for girls' schooling in rural areas, securing funding for 2 new classrooms.",
-            badge: "Education Advocate"
-        },
-        {
-            title: "Sports as a Tool for Peace",
-            date: "Aug 10, 2023",
-            category: "Peace Makers",
-            image: "https://lh3.googleusercontent.com/aida-public/AB6AXuBf2k-QE8aOJz8KKF-mKksGetJJzARf6onx5qaHD3ff99Wqbnb1k8HcZLgUokaKE7lgraa9x0LFh3EYOBTHgfgpT_EO-8SUY_mY4KxFCDJIiGB3Mro8aAM9a_IsGTdVhg_PBWuM80S7UfdCbigHGZzgpcGXqLfUwL90xUg8qbrbJuFV2BYsBFmYYK2ovWMcOHGuWWrAILP6Y08lMhfG30M6aIv3s37QcePUZLVCJ1tC2xJnlFY3THEz18K9C0nRqgHmZIbalWhgZq8",
-            excerpt: "Using football to bridge divides and foster dialogue in post-conflict zones, creating safe spaces for difficult conversations.",
-            badge: "Social Cohesion"
-        },
-        {
-            title: "Empowering Mothers, Building Futures",
-            date: "Jul 05, 2023",
-            category: "Economic Empowerment",
-            image: "https://lh3.googleusercontent.com/aida-public/AB6AXuBIrPW8UwNG6UEoJMx1fcg9l7Z-hDd-OUJ-JEnz06yMq7OMkhmjrlkgFclPZUhFBQSVjOHmxcJzh_WWdaXtThCu5Uu4og9OF2QcUqDZcrAsoptb4NPZzT3B4di-cD2PpQoj_oq3w4x8mbqVmDN6Orro28UoxhB7_cluyplx6cDykKvwP39cJHgOqBy8_1GZ6ASmbPM6WBch0Tlfw4E4X3Mq_tPj-uE25irK5v7VwX7pt1gBbBPtvX48O7XZFt8fpNa_nqSG0sj3zjA",
-            excerpt: "Micro-loans and sports training combined to create sustainable family incomes, breaking the cycle of poverty for 50 families.",
-            badge: "Sustainable Income",
-            badgeColor: "bg-primary text-white"
-        }
-    ];
+    const [stories, setStories] = useState<any[]>([]);
+
+    useEffect(() => {
+        const fetchStories = async () => {
+            try {
+                const response = await fetch(getApiUrl('stories.php'));
+                const data = await response.json();
+
+                // If data is empty (first time run), fallback to some mock or empty
+                if (Array.isArray(data) && data.length > 0) {
+                    setStories(data);
+                } else {
+                    // Keep hardcoded as fallback for now if DB is empty, or just blank
+                    // For dynamic request, let's prefer data or empty
+                }
+            } catch (error) {
+                console.error("Failed to fetch stories", error);
+            }
+        };
+        fetchStories();
+    }, []);
 
     const filteredStories = filter === 'All Stories' ? stories : stories.filter(s => s.category === filter);
 
@@ -106,8 +76,8 @@ export const SuccessStories = () => {
                                 key={f}
                                 onClick={() => setFilter(f)}
                                 className={`group flex h-9 items-center gap-2 rounded-full px-5 text-sm font-medium transition-colors ${filter === f
-                                        ? 'bg-[#0d121b] text-white hover:bg-primary'
-                                        : 'bg-[#f8f9fc] border border-gray-200 text-[#4c669a] hover:border-primary/50 hover:bg-white hover:text-primary dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:text-primary'
+                                    ? 'bg-[#0d121b] text-white hover:bg-primary'
+                                    : 'bg-[#f8f9fc] border border-gray-200 text-[#4c669a] hover:border-primary/50 hover:bg-white hover:text-primary dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:text-primary'
                                     }`}
                             >
                                 {filter !== 'All Stories' && f !== filter && <span className="material-symbols-outlined text-[18px]">
@@ -151,7 +121,7 @@ export const SuccessStories = () => {
                                 <div className="relative aspect-[4/3] w-full overflow-hidden">
                                     <div
                                         className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105"
-                                        style={{ backgroundImage: `url("${story.image}")` }}
+                                        style={{ backgroundImage: `url("${getAssetUrl(story.image || story.image_url)}")` }}
                                     ></div>
                                     <div className="absolute bottom-3 left-3 flex gap-2">
                                         <span className={`inline-flex items-center rounded-md px-3 py-1 text-xs font-bold uppercase tracking-wide shadow-sm backdrop-blur-md ${story.badgeColor || 'bg-white/90 text-primary'}`}>

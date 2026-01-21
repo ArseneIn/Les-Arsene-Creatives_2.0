@@ -24,6 +24,7 @@ import ResourceManager from './pages/admin/ResourceManager';
 import PartnerManager from './pages/admin/PartnerManager';
 import Settings from './pages/admin/Settings';
 import TeamManager from './pages/admin/TeamManager';
+import StoriesManager from './pages/admin/StoriesManager';
 
 function App() {
     return (
@@ -54,6 +55,7 @@ function App() {
                     <Route path="resources" element={<ResourceManager />} />
                     <Route path="partners" element={<PartnerManager />} />
                     <Route path="team" element={<TeamManager />} />
+                    <Route path="stories" element={<StoriesManager />} />
                     <Route path="settings" element={<Settings />} />
                 </Route>
             </Routes>

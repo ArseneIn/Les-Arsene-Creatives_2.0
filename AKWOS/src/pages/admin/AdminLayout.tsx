@@ -23,7 +23,8 @@ export const AdminLayout = () => {
         { path: '/admin/resources', icon: 'folder_open', label: 'Resource Manager' },
         { path: '/admin/news', icon: 'newspaper', label: 'News & Updates' },
         { path: '/admin/partners', icon: 'handshake', label: 'Partners' },
-        { path: '/admin/team', icon: 'groups', label: 'Team & Leadership' }, // Added Team link explicitly
+        { path: '/admin/team', icon: 'groups', label: 'Team & Leadership' },
+        { path: '/admin/stories', icon: 'stars', label: 'Impact Stories' }, // Added Stories link
         { path: '/admin/settings', icon: 'settings', label: 'Settings' },
     ];
 

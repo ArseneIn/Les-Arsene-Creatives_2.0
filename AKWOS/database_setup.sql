@@ -52,6 +52,17 @@ CREATE TABLE IF NOT EXISTS team (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+CREATE TABLE IF NOT EXISTS impact_stories (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    title VARCHAR(255) NOT NULL,
+    date DATE NOT NULL,
+    category VARCHAR(50) NOT NULL,
+    image_url VARCHAR(255),
+    excerpt TEXT,
+    badge VARCHAR(50),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
 -- 2. Create a default Admin user
 -- Username: admin
 -- Password: password123 (You should change this later!)
