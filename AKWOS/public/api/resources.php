@@ -1,0 +1,55 @@
+<?php
+require 'db.php';
+
+if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+    // 1. Fetch all resources
+    $stmt = $pdo->query("SELECT * FROM resources ORDER BY created_at DESC");
+    $resources = $stmt->fetchAll();
+    echo json_encode($resources);
+
+} elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // 2. Upload new resource
+    // Note: Add authentication check here in production
+
+    $title = $_POST['title'] ?? '';
+    $year = $_POST['year'] ?? date('Y');
+    $type = $_POST['type'] ?? 'Other';
+    $fileUrl = '';
+    $size = '';
+
+    // Handle File Upload
+    if (isset($_FILES['file']) && $_FILES['file']['error'] === UPLOAD_ERR_OK) {
+        $uploadDir = '../uploads/resources/';
+        if (!is_dir($uploadDir))
+            mkdir($uploadDir, 0777, true);
+
+        $filename = uniqid() . '-' . basename($_FILES['file']['name']);
+        $targetPath = $uploadDir . $filename;
+
+        if (move_uploaded_file($_FILES['file']['tmp_name'], $targetPath)) {
+            $fileUrl = '/uploads/resources/' . $filename;
+
+            // Calculate size (e.g., "2.5 MB")
+            $bytes = filesize($targetPath);
+            if ($bytes >= 1048576) {
+                $size = number_format($bytes / 1048576, 1) . ' MB';
+            } elseif ($bytes >= 1024) {
+                $size = number_format($bytes / 1024, 0) . ' KB';
+            } else {
+                $size = $bytes . ' B';
+            }
+        }
+    }
+
+    if (!$fileUrl) {
+        http_response_code(400);
+        echo json_encode(['error' => 'No file uploaded']);
+        exit;
+    }
+
+    $stmt = $pdo->prepare("INSERT INTO resources (title, year, type, size, file_url) VALUES (?, ?, ?, ?, ?)");
+    $stmt->execute([$title, $year, $type, $size, $fileUrl]);
+
+    echo json_encode(['success' => true, 'id' => $pdo->lastInsertId()]);
+}
+?>
