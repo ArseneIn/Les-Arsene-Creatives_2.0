@@ -8,6 +8,7 @@ const StoriesManager = () => {
     const [loading, setLoading] = useState(false);
     const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
     const [confirmModal, setConfirmModal] = useState<{ isOpen: boolean; id: number | null }>({ isOpen: false, id: null });
+    const [isCustomCategory, setIsCustomCategory] = useState(false);
 
     const [items, setItems] = useState([]);
 
@@ -33,7 +34,7 @@ const StoriesManager = () => {
         if (!confirmModal.id) return;
 
         try {
-            await fetch(`${getApiUrl('stories.php')}?id=${confirmModal.id}`, { method: 'DELETE' });
+            await fetch(`${getApiUrl('stories.php')}?id = ${confirmModal.id} `, { method: 'DELETE' });
             fetchStories();
             setToast({ message: "Story deleted successfully", type: 'success' });
         } catch (err) {
@@ -51,13 +52,28 @@ const StoriesManager = () => {
     });
     const [image, setImage] = useState<File | null>(null);
 
-    const categories = ['Leadership', 'Economic Empowerment', 'Peace Makers', 'WPS', 'General'];
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+        const { name, value, tagName } = e.target;
 
-    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-        setFormData({
-            ...formData,
-            [e.target.name]: e.target.value
-        });
+        if (name === 'category') {
+            if (tagName === 'SELECT') {
+                if (value === 'new') {
+                    setIsCustomCategory(true);
+                    setFormData({ ...formData, category: '' });
+                } else {
+                    setIsCustomCategory(false);
+                    setFormData({ ...formData, category: value });
+                }
+            } else {
+                // Text input for custom category
+                setFormData({ ...formData, category: value });
+            }
+        } else {
+            setFormData({
+                ...formData,
+                [name]: value
+            });
+        }
     };
 
     const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -95,6 +111,7 @@ const StoriesManager = () => {
                     excerpt: '',
                     badge: ''
                 });
+                setIsCustomCategory(false);
                 setImage(null);
                 const fileInput = document.getElementById('story-image') as HTMLInputElement;
                 if (fileInput) fileInput.value = '';
@@ -174,17 +191,32 @@ const StoriesManager = () => {
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Category</label>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
                                 <select
                                     name="category"
-                                    value={formData.category}
+                                    value={isCustomCategory ? 'new' : formData.category}
                                     onChange={handleInputChange}
-                                    className="w-full px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/50"
+                                    className="w-full p-2 border rounded-md"
                                 >
-                                    {categories.map(c => <option key={c} value={c}>{c}</option>)}
+                                    <option value="Leadership">Leadership</option>
+                                    <option value="Education">Education</option>
+                                    <option value="Sports">Sports</option>
+                                    <option value="Health">Health</option>
+                                    <option value="Empowerment">Empowerment</option>
+                                    <option value="new">+ Add New Category</option>
                                 </select>
-                            </div>
-                            <div>
+                                {isCustomCategory && (
+                                    <input
+                                        type="text"
+                                        name="category"
+                                        placeholder="Enter custom category"
+                                        value={formData.category}
+                                        onChange={handleInputChange}
+                                        className="w-full p-2 border rounded-md mt-2"
+                                        autoFocus
+                                    />
+                                )}
+                            </div>        <div>
                                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Impact Badge (Short Tag)</label>
                                 <input
                                     type="text"

@@ -14,6 +14,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     $title = $_POST['title'] ?? '';
     $year = $_POST['year'] ?? date('Y');
     $type = $_POST['type'] ?? 'Other';
+    $description = $_POST['description'] ?? '';
+    // Auto-migrate: Add description column if missing
+    try {
+        $pdo->query("SELECT description FROM resources LIMIT 1");
+    } catch (Exception $e) {
+        $pdo->query("ALTER TABLE resources ADD COLUMN description TEXT");
+    }
+
     $fileUrl = '';
     $size = '';
 
@@ -47,8 +55,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         exit;
     }
 
-    $stmt = $pdo->prepare("INSERT INTO resources (title, year, type, size, file_url) VALUES (?, ?, ?, ?, ?)");
-    $stmt->execute([$title, $year, $type, $size, $fileUrl]);
+    $stmt = $pdo->prepare("INSERT INTO resources (title, year, type, size, file_url, description) VALUES (?, ?, ?, ?, ?, ?)");
+    $stmt->execute([$title, $year, $type, $size, $fileUrl, $description]);
 
     echo json_encode(['success' => true, 'id' => $pdo->lastInsertId()]);
 

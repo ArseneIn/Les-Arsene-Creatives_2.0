@@ -28,6 +28,7 @@ CREATE TABLE IF NOT EXISTS resources (
     size VARCHAR(20),
     file_url VARCHAR(255) NOT NULL,
     image_url VARCHAR(255),
+    description TEXT,
     download_count INT DEFAULT 0,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );

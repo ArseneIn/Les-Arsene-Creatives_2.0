@@ -51,14 +51,33 @@ const ResourceManager = () => {
         title: '',
         year: new Date().getFullYear().toString(),
         type: 'Annual Report',
+        description: ''
     });
     const [file, setFile] = useState<File | null>(null);
+    const [isCustomType, setIsCustomType] = useState(false);
 
-    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-        setFormData({
-            ...formData,
-            [e.target.name]: e.target.value
-        });
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+        const { name, value, tagName } = e.target;
+
+        if (name === 'type') {
+            if (tagName === 'SELECT') {
+                if (value === 'new') {
+                    setIsCustomType(true);
+                    setFormData({ ...formData, type: '' });
+                } else {
+                    setIsCustomType(false);
+                    setFormData({ ...formData, type: value });
+                }
+            } else {
+                // Text input for custom type
+                setFormData({ ...formData, type: value });
+            }
+        } else {
+            setFormData({
+                ...formData,
+                [name]: value
+            });
+        }
     };
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -81,6 +100,7 @@ const ResourceManager = () => {
             data.append('title', formData.title);
             data.append('year', formData.year);
             data.append('type', formData.type);
+            data.append('description', formData.description);
             data.append('file', file);
 
             const response = await fetch(getApiUrl('resources.php'), {
@@ -96,7 +116,9 @@ const ResourceManager = () => {
                     title: '',
                     year: new Date().getFullYear().toString(),
                     type: 'Annual Report',
+                    description: ''
                 });
+                setIsCustomType(false);
                 setFile(null);
                 fetchResources();
             } else {
@@ -168,51 +190,69 @@ const ResourceManager = () => {
                                 <label className="block text-sm font-medium text-gray-700 mb-1">Type</label>
                                 <select
                                     name="type"
-                                    value={formData.type}
+                                    value={isCustomType ? 'new' : formData.type}
                                     onChange={handleInputChange}
-                                    className="w-full px-4 py-2 border rounded-md focus:ring-primary focus:border-primary"
+                                    className="w-full p-2 border rounded-md"
                                 >
-                                    <option>Annual Report</option>
-                                    <option>Strategic Plan</option>
-                                    <option>Policy Brief</option>
-                                    <option>Research</option>
-                                    <option>Conference Report</option>
-                                    <option>Training Report</option>
-                                    <option>Newsletter</option>
-                                    <option>Other</option>
+                                    <option value="Annual Report">Annual Report</option>
+                                    <option value="Strategic Plan">Strategic Plan</option>
+                                    <option value="Policy Brief">Policy Brief</option>
+                                    <option value="Research Paper">Research Paper</option>
+                                    <option value="new">+ Add New Type</option>
                                 </select>
+                                {isCustomType && (
+                                    <input
+                                        type="text"
+                                        name="type"
+                                        placeholder="Enter custom type"
+                                        value={formData.type}
+                                        onChange={handleInputChange}
+                                        className="w-full p-2 border rounded-md mt-2"
+                                        autoFocus
+                                    />
+                                )}
                             </div>
-                        </div>
 
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">PDF Document</label>
-                            <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-primary transition-colors">
-                                <input
-                                    type="file"
-                                    name="file"
-                                    accept=".pdf"
-                                    onChange={handleFileChange}
-                                    className="hidden"
-                                    id="resource-file-upload"
+                            <div className="md:col-span-2">
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Description (Optional)</label>
+                                <textarea
+                                    name="description"
+                                    value={formData.description}
+                                    onChange={handleInputChange}
+                                    className="w-full p-2 border rounded-md"
+                                    rows={3}
+                                    placeholder="Enter a short description of the resource..."
                                 />
-                                <label htmlFor="resource-file-upload" className="cursor-pointer flex flex-col items-center">
-                                    <FileText className="w-8 h-8 text-gray-400 mb-2" />
-                                    <span className="text-sm text-gray-600">
-                                        {file ? file.name : "Click to upload PDF"}
-                                    </span>
-                                </label>
                             </div>
-                        </div>
 
-                        <div className="flex justify-end pt-4">
-                            <button
-                                type="submit"
-                                disabled={loading}
-                                className="bg-primary text-white px-6 py-2 rounded-md hover:bg-primary/90 flex items-center gap-2"
-                            >
-                                {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-                                Upload Document
-                            </button>
+                            <div className="md:col-span-2">
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Upload PDF</label>
+                                <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-primary transition-colors">
+                                    <input
+                                        type="file"
+                                        id="resource-file"
+                                        accept=".pdf"
+                                        onChange={handleFileChange}
+                                        className="hidden"
+                                    />
+                                    <label htmlFor="resource-file" className="cursor-pointer flex flex-col items-center gap-2">
+                                        <FileText className="w-8 h-8 text-gray-400" />
+                                        <span className="text-sm text-gray-600">
+                                            {file ? file.name : "Click to upload PDF"}
+                                        </span>
+                                    </label>
+                                </div>
+                            </div>
+                            <div className="flex justify-end pt-4 md:col-span-2">
+                                <button
+                                    type="submit"
+                                    disabled={loading}
+                                    className="bg-primary text-white px-6 py-2 rounded-md hover:bg-primary/90 flex items-center gap-2"
+                                >
+                                    {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+                                    Upload Document
+                                </button>
+                            </div>
                         </div>
                     </form>
                 </div>
@@ -239,8 +279,8 @@ const ResourceManager = () => {
                         {items.length === 0 && <p className="text-gray-500 text-sm italic">No resources found.</p>}
                     </div>
                 </div>
-            </div>
-        </div>
+            </div >
+        </div >
     );
 };
 

@@ -11,6 +11,7 @@ const NewsManager = () => {
 
     const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
     const [confirmModal, setConfirmModal] = useState<{ isOpen: boolean; id: number | null }>({ isOpen: false, id: null });
+    const [isCustomCategory, setIsCustomCategory] = useState(false);
 
     const [items, setItems] = useState([]);
 
@@ -57,11 +58,28 @@ const NewsManager = () => {
     });
     const [image, setImage] = useState<File | null>(null);
 
-    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-        setFormData({
-            ...formData,
-            [e.target.name]: e.target.value
-        });
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+        const { name, value, tagName } = e.target;
+
+        if (name === 'category') {
+            if (tagName === 'SELECT') {
+                if (value === 'new') {
+                    setIsCustomCategory(true);
+                    setFormData({ ...formData, category: '' });
+                } else {
+                    setIsCustomCategory(false);
+                    setFormData({ ...formData, category: value });
+                }
+            } else {
+                // Text input for custom category
+                setFormData({ ...formData, category: value });
+            }
+        } else {
+            setFormData({
+                ...formData,
+                [name]: value
+            });
+        }
     };
 
     const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -101,6 +119,7 @@ const NewsManager = () => {
                     tag: 'News',
                     description: ''
                 });
+                setIsCustomCategory(false);
                 setImage(null);
                 fetchNews();
             } else {
@@ -172,17 +191,27 @@ const NewsManager = () => {
                                 <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
                                 <select
                                     name="category"
-                                    value={formData.category}
+                                    value={isCustomCategory ? 'new' : formData.category}
                                     onChange={handleInputChange}
                                     className="w-full px-4 py-2 border rounded-md focus:ring-primary focus:border-primary"
                                 >
-                                    <option>General</option>
-                                    <option>Press Release</option>
-                                    <option>Publications</option>
-                                    <option>Feature</option>
-                                    <option>Announcement</option>
-                                    <option>The New Times</option>
+                                    <option value="General">General</option>
+                                    <option value="Events">Events</option>
+                                    <option value="Announcements">Announcements</option>
+                                    <option value="Press">Press Release</option>
+                                    <option value="new">+ Add New Category</option>
                                 </select>
+                                {isCustomCategory && (
+                                    <input
+                                        type="text"
+                                        name="category"
+                                        placeholder="Enter custom category"
+                                        value={formData.category}
+                                        onChange={handleInputChange}
+                                        className="w-full px-4 py-2 border rounded-md mt-2 focus:ring-primary focus:border-primary"
+                                        autoFocus
+                                    />
+                                )}
                             </div>
                         </div>
 
