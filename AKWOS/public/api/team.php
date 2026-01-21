@@ -4,7 +4,7 @@ require 'db.php';
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     try {
         // 1. Fetch all team members
-        $stmt = $pdo->query("SELECT * FROM team ORDER BY display_order ASC, created_at DESC");
+        $stmt = $pdo->query("SELECT * FROM team ORDER BY display_order ASC, id ASC");
         if ($stmt) {
             $team = $stmt->fetchAll();
             echo json_encode($team);
