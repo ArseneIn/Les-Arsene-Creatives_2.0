@@ -1,20 +1,41 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { initialNews, NewsItem } from '../data/news';
+import { getApiUrl } from '../utils/apiConfig';
 
 export const News = () => {
-    const [newsItems, setNewsItems] = useState<NewsItem[]>(initialNews);
+    const [newsItems, setNewsItems] = useState<NewsItem[]>([]);
     const [filter, setFilter] = useState("All");
 
     useEffect(() => {
-        const stored = localStorage.getItem('akwos_news');
-        if (stored) {
+        const fetchNews = async () => {
             try {
-                setNewsItems(JSON.parse(stored));
-            } catch (e) {
-                console.error("Failed to load local news", e);
+                const response = await fetch(getApiUrl('news.php'));
+                const data = await response.json();
+                if (Array.isArray(data)) {
+                    // Transform API data to match frontend NewsItem interface if needed
+                    // The PHP returns: id, title, date, category, image_url, tag, description
+                    // Frontend expects: id, title, date, category, image, tag, desc
+                    const formattedNews = data.map((item: any) => ({
+                        id: item.id,
+                        title: item.title,
+                        date: item.date,
+                        category: item.category,
+                        image: item.image_url,
+                        tag: item.tag,
+                        desc: item.description,
+                        featured: item.is_featured == 1
+                    }));
+                    setNewsItems(formattedNews);
+                }
+            } catch (error) {
+                console.error("Failed to fetch news:", error);
+                // Fallback to static data if API fails (e.g. offline)
+                setNewsItems(initialNews);
             }
-        }
+        };
+
+        fetchNews();
     }, []);
 
     const filteredNews = newsItems.filter(item => {

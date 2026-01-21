@@ -1,22 +1,41 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { initialResources, ResourceItem } from '../data/resources';
+import { getApiUrl } from '../utils/apiConfig';
 
 export const Resources = () => {
     const [activeCategory, setActiveCategory] = useState("All Resources");
     const [searchQuery, setSearchQuery] = useState("");
-    const [resources, setResources] = useState<ResourceItem[]>(initialResources);
+    const [resources, setResources] = useState<ResourceItem[]>([]);
 
-    // Effect to check if there are locally stored resources (simulation of persistence)
     useEffect(() => {
-        const stored = localStorage.getItem('akwos_resources');
-        if (stored) {
+        const fetchResources = async () => {
             try {
-                setResources(JSON.parse(stored));
-            } catch (e) {
-                console.error("Failed to load local resources", e);
+                const response = await fetch(getApiUrl('resources.php'));
+                const data = await response.json();
+                if (Array.isArray(data)) {
+                    // Map API fields to Frontend fields
+                    const formattedResources = data.map((item: any) => ({
+                        id: item.id,
+                        title: item.title,
+                        year: item.year,
+                        type: item.type,
+                        size: item.size,
+                        ext: 'PDF', // Assuming all uploads are PDF for now
+                        downloadUrl: item.file_url,
+                        image: item.image_url || '',
+                        gradient: "bg-gradient-to-tr from-blue-900 to-primary", // Default gradient
+                        color: "text-red-500" // Default icon color
+                    }));
+                    setResources(formattedResources);
+                }
+            } catch (error) {
+                console.error("Failed to fetch resources:", error);
+                setResources(initialResources);
             }
-        }
+        };
+
+        fetchResources();
     }, []);
 
     const filteredResources = resources.filter(res => {

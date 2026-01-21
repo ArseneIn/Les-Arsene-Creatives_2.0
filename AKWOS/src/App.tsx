@@ -16,12 +16,11 @@ import { Partnerships } from './pages/Partnerships';
 import { ScrollToTop } from './components/ScrollToTop';
 
 // Admin Imports
-import { AdminLogin } from './pages/admin/Login';
-import { AdminLayout } from './pages/admin/AdminLayout';
-import { Dashboard } from './pages/admin/Dashboard';
-import { ResourceManager } from './pages/admin/ResourceManager';
-import { NewsManager } from './pages/admin/NewsManager';
-import { PartnerManager } from './pages/admin/PartnerManager';
+import AdminLogin from './pages/admin/AdminLogin';
+import AdminDashboard from './pages/admin/AdminDashboard';
+import NewsManager from './pages/admin/NewsManager';
+import ResourceManager from './pages/admin/ResourceManager';
+import PartnerManager from './pages/admin/PartnerManager';
 
 function App() {
     return (
@@ -44,15 +43,11 @@ function App() {
                 </Route>
 
                 {/* Admin Routes */}
-                <Route path="/admin" element={<AdminLogin />} />
-                <Route path="/admin" element={<AdminLayout />}>
-                    <Route path="dashboard" element={<Dashboard />} />
-                    <Route path="resources" element={<ResourceManager />} />
-                    <Route path="news" element={<NewsManager />} />
-                    <Route path="partners" element={<PartnerManager />} />
-                    {/* Placeholder for future modules */}
-                    <Route path="settings" element={<div className="p-8 text-center text-gray-500">Settings Coming Soon</div>} />
-                </Route>
+                <Route path="/admin/login" element={<AdminLogin />} />
+                <Route path="/admin/dashboard" element={<AdminDashboard />} />
+                <Route path="/admin/news" element={<NewsManager />} />
+                <Route path="/admin/resources" element={<ResourceManager />} />
+                <Route path="/admin/partners" element={<PartnerManager />} />
             </Routes>
         </BrowserRouter>
     );

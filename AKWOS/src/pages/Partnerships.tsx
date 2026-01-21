@@ -1,18 +1,31 @@
 import { useState, useEffect } from 'react';
 import { initialPartners, PartnerItem } from '../data/partners';
+import { getApiUrl } from '../utils/apiConfig';
 
 export const Partnerships = () => {
-    const [partners, setPartners] = useState<PartnerItem[]>(initialPartners);
+    const [partners, setPartners] = useState<PartnerItem[]>([]);
 
     useEffect(() => {
-        const stored = localStorage.getItem('akwos_partners');
-        if (stored) {
+        const fetchPartners = async () => {
             try {
-                setPartners(JSON.parse(stored));
-            } catch (e) {
-                console.error("Failed to load local partners", e);
+                const response = await fetch(getApiUrl('partners.php'));
+                const data = await response.json();
+                if (Array.isArray(data)) {
+                    const formattedPartners = data.map((item: any) => ({
+                        id: item.id,
+                        name: item.name,
+                        logo: item.logo_url,
+                        website: item.website_url
+                    }));
+                    setPartners(formattedPartners);
+                }
+            } catch (error) {
+                console.error("Failed to fetch partners:", error);
+                setPartners(initialPartners);
             }
-        }
+        };
+
+        fetchPartners();
     }, []);
 
     return (
