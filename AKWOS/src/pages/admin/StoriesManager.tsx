@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { getApiUrl } from '../../utils/apiConfig';
-import { Upload, Plus, Loader2, CheckCircle, AlertCircle, Quote } from 'lucide-react';
+import { Upload, Plus, Loader2, CheckCircle, Quote } from 'lucide-react';
+import { Toast } from '../../components/admin/Toast';
+import { ConfirmModal } from '../../components/admin/ConfirmModal';
 
 const StoriesManager = () => {
     const [loading, setLoading] = useState(false);
-    const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
+    const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
+    const [confirmModal, setConfirmModal] = useState<{ isOpen: boolean; id: number | null }>({ isOpen: false, id: null });
 
     const [items, setItems] = useState([]);
 
@@ -22,16 +25,21 @@ const StoriesManager = () => {
         }
     };
 
-    const handleDelete = async (id: number) => {
-        if (!window.confirm('Are you sure you want to delete this story?')) return;
+    const confirmDelete = (id: number) => {
+        setConfirmModal({ isOpen: true, id });
+    };
+
+    const handleDelete = async () => {
+        if (!confirmModal.id) return;
 
         try {
-            await fetch(`${getApiUrl('stories.php')}?id=${id}`, { method: 'DELETE' });
+            await fetch(`${getApiUrl('stories.php')}?id=${confirmModal.id}`, { method: 'DELETE' });
             fetchStories();
-            setMessage({ type: 'success', text: "Story deleted successfully" });
+            setToast({ message: "Story deleted successfully", type: 'success' });
         } catch (err) {
-            setMessage({ type: 'error', text: "Failed to delete story" });
+            setToast({ message: "Failed to delete story", type: 'error' });
         }
+        setConfirmModal({ isOpen: false, id: null });
     };
 
     const [formData, setFormData] = useState({
@@ -61,7 +69,6 @@ const StoriesManager = () => {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
-        setMessage(null);
 
         try {
             const data = new FormData();
@@ -80,7 +87,7 @@ const StoriesManager = () => {
             const result = await response.json();
 
             if (result.success) {
-                setMessage({ type: 'success', text: "Story published successfully!" });
+                setToast({ message: "Story published successfully!", type: 'success' });
                 setFormData({
                     title: '',
                     date: '',
@@ -93,11 +100,11 @@ const StoriesManager = () => {
                 if (fileInput) fileInput.value = '';
                 fetchStories();
             } else {
-                setMessage({ type: 'error', text: result.error || "Failed to publish story" });
+                setToast({ message: result.error || "Failed to publish story", type: 'error' });
             }
         } catch (error) {
             console.error(error);
-            setMessage({ type: 'error', text: "Connection error" });
+            setToast({ message: "Connection error", type: 'error' });
         } finally {
             setLoading(false);
         }
@@ -121,6 +128,23 @@ const StoriesManager = () => {
                 </div>
 
                 <div className="p-6">
+                    {toast && (
+                        <Toast
+                            message={toast.message}
+                            type={toast.type}
+                            onClose={() => setToast(null)}
+                        />
+                    )}
+
+                    <ConfirmModal
+                        isOpen={confirmModal.isOpen}
+                        onClose={() => setConfirmModal({ isOpen: false, id: null })}
+                        onConfirm={handleDelete}
+                        title="Delete Story?"
+                        message="Are you sure you want to delete this story? This cannot be undone."
+                        isDeleting={true}
+                    />
+
                     <form onSubmit={handleSubmit} className="space-y-6">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
@@ -209,13 +233,6 @@ const StoriesManager = () => {
                             )}
                         </div>
 
-                        {message && (
-                            <div className={`p-4 rounded-lg flex items-center gap-2 text-sm ${message.type === 'success' ? 'bg-green-50 text-green-700 dark:bg-green-900/20 dark:text-green-400' : 'bg-red-50 text-red-700 dark:bg-red-900/20 dark:text-red-400'}`}>
-                                {message.type === 'success' ? <CheckCircle size={16} /> : <AlertCircle size={16} />}
-                                {message.text}
-                            </div>
-                        )}
-
                         <div className="pt-2">
                             <button
                                 type="submit"
@@ -243,7 +260,7 @@ const StoriesManager = () => {
                                     </div>
                                 </div>
                                 <button
-                                    onClick={() => handleDelete(item.id)}
+                                    onClick={() => confirmDelete(item.id)}
                                     className="text-red-500 hover:text-red-700 p-2 hover:bg-red-50 rounded transition-colors"
                                     title="Delete Story"
                                 >

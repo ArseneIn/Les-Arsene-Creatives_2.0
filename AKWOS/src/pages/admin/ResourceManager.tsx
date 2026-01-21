@@ -2,14 +2,19 @@ import React, { useState, useEffect } from 'react';
 import { getApiUrl } from '../../utils/apiConfig';
 import { ArrowLeft, Loader2, Save, FileText } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { Toast } from '../../components/admin/Toast';
+import { ConfirmModal } from '../../components/admin/ConfirmModal';
 
 const ResourceManager = () => {
     const navigate = useNavigate();
     const [loading, setLoading] = useState(false);
-    const [error, setError] = useState('');
-    const [success, setSuccess] = useState('');
+
 
     const [items, setItems] = useState([]);
+
+    // UI State
+    const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
+    const [confirmModal, setConfirmModal] = useState<{ isOpen: boolean; id: number | null }>({ isOpen: false, id: null });
 
     useEffect(() => {
         fetchResources();
@@ -25,16 +30,21 @@ const ResourceManager = () => {
         }
     };
 
-    const handleDelete = async (id: number) => {
-        if (!window.confirm('Are you sure you want to delete this resource?')) return;
+    const confirmDelete = (id: number) => {
+        setConfirmModal({ isOpen: true, id });
+    };
+
+    const handleDelete = async () => {
+        if (!confirmModal.id) return;
 
         try {
-            await fetch(`${getApiUrl('resources.php')}?id=${id}`, { method: 'DELETE' });
+            await fetch(`${getApiUrl('resources.php')}?id=${confirmModal.id}`, { method: 'DELETE' });
             fetchResources();
-            setSuccess('Resource deleted successfully');
+            setToast({ message: 'Resource deleted successfully', type: 'success' });
         } catch (err) {
-            setError('Failed to delete resource');
+            setToast({ message: 'Failed to delete resource', type: 'error' });
         }
+        setConfirmModal({ isOpen: false, id: null });
     };
 
     const [formData, setFormData] = useState({
@@ -60,13 +70,11 @@ const ResourceManager = () => {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!file) {
-            setError('Please select a PDF file to upload.');
+            setToast({ message: 'Please select a PDF file to upload.', type: 'error' });
             return;
         }
 
         setLoading(true);
-        setError('');
-        setSuccess('');
 
         try {
             const data = new FormData();
@@ -83,7 +91,7 @@ const ResourceManager = () => {
             const result = await response.json();
 
             if (result.success) {
-                setSuccess('Resource uploaded successfully!');
+                setToast({ message: 'Resource uploaded successfully!', type: 'success' });
                 setFormData({
                     title: '',
                     year: new Date().getFullYear().toString(),
@@ -92,10 +100,10 @@ const ResourceManager = () => {
                 setFile(null);
                 fetchResources();
             } else {
-                setError(result.error || 'Failed to upload resource.');
+                setToast({ message: result.error || 'Failed to upload resource.', type: 'error' });
             }
         } catch (err) {
-            setError('Connection error. Check console.');
+            setToast({ message: 'Connection error. Check console.', type: 'error' });
             console.error(err);
         } finally {
             setLoading(false);
@@ -113,8 +121,22 @@ const ResourceManager = () => {
                 </div>
 
                 <div className="p-6">
-                    {error && <div className="mb-4 p-3 bg-red-50 text-red-600 rounded-md text-sm">{error}</div>}
-                    {success && <div className="mb-4 p-3 bg-green-50 text-green-600 rounded-md text-sm">{success}</div>}
+                    {toast && (
+                        <Toast
+                            message={toast.message}
+                            type={toast.type}
+                            onClose={() => setToast(null)}
+                        />
+                    )}
+
+                    <ConfirmModal
+                        isOpen={confirmModal.isOpen}
+                        onClose={() => setConfirmModal({ isOpen: false, id: null })}
+                        onConfirm={handleDelete}
+                        title="Delete Resource?"
+                        message="Are you sure you want to delete this resource file? This cannot be undone."
+                        isDeleting={true}
+                    />
 
                     <form onSubmit={handleSubmit} className="space-y-6">
                         <div>
@@ -206,7 +228,7 @@ const ResourceManager = () => {
                                     <p className="text-sm text-gray-500">{item.type} • {item.year}</p>
                                 </div>
                                 <button
-                                    onClick={() => handleDelete(item.id)}
+                                    onClick={() => confirmDelete(item.id)}
                                     className="text-red-500 hover:text-red-700 p-2 hover:bg-red-50 rounded transition-colors"
                                     title="Delete Resource"
                                 >

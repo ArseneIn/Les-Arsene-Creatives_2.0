@@ -1,9 +1,15 @@
 import { useState, useEffect } from 'react';
 import { getApiUrl } from '../../utils/apiConfig';
-import { Upload, Plus, Loader2, CheckCircle, AlertCircle, User } from 'lucide-react';
+import { Upload, Plus, Loader2, CheckCircle, User } from 'lucide-react';
+import { Toast } from '../../components/admin/Toast';
+import { ConfirmModal } from '../../components/admin/ConfirmModal';
 
 const TeamManager = () => {
     const [items, setItems] = useState([]);
+
+    // UI State
+    const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
+    const [confirmModal, setConfirmModal] = useState<{ isOpen: boolean; id: number | null }>({ isOpen: false, id: null });
 
     useEffect(() => {
         fetchTeam();
@@ -19,16 +25,21 @@ const TeamManager = () => {
         }
     };
 
-    const handleDelete = async (id: number) => {
-        if (!window.confirm('Are you sure you want to delete this member?')) return;
+    const confirmDelete = (id: number) => {
+        setConfirmModal({ isOpen: true, id });
+    };
+
+    const handleDelete = async () => {
+        if (!confirmModal.id) return;
 
         try {
-            await fetch(`${getApiUrl('team.php')}?id=${id}`, { method: 'DELETE' });
+            await fetch(`${getApiUrl('team.php')}?id=${confirmModal.id}`, { method: 'DELETE' });
             fetchTeam();
-            setMessage({ type: 'success', text: "Member deleted successfully" });
+            setToast({ message: "Member deleted successfully", type: 'success' });
         } catch (err) {
-            setMessage({ type: 'error', text: "Failed to delete member" });
+            setToast({ message: "Failed to delete member", type: 'error' });
         }
+        setConfirmModal({ isOpen: false, id: null });
     };
 
     const [name, setName] = useState('');
@@ -38,7 +49,6 @@ const TeamManager = () => {
     const [bio, setBio] = useState('');
     const [image, setImage] = useState<File | null>(null);
     const [loading, setLoading] = useState(false);
-    const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
 
     const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files[0]) {
@@ -49,7 +59,7 @@ const TeamManager = () => {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
-        setMessage(null);
+
 
         const formData = new FormData();
         formData.append('name', name);
@@ -70,7 +80,7 @@ const TeamManager = () => {
             const data = await response.json();
 
             if (data.success) {
-                setMessage({ type: 'success', text: "Team member added successfully!" });
+                setToast({ message: "Team member added successfully!", type: 'success' });
                 // Reset form
                 setName('');
                 setRole('');
@@ -82,11 +92,11 @@ const TeamManager = () => {
                 if (fileInput) fileInput.value = '';
                 fetchTeam();
             } else {
-                setMessage({ type: 'error', text: data.error || "Failed to add team member" });
+                setToast({ message: data.error || "Failed to add team member", type: 'error' });
             }
         } catch (error) {
             console.error(error);
-            setMessage({ type: 'error', text: "Connection error" });
+            setToast({ message: "Connection error", type: 'error' });
         } finally {
             setLoading(false);
         }
@@ -110,8 +120,24 @@ const TeamManager = () => {
                 </div>
 
                 <div className="p-6">
-                    <form onSubmit={handleSubmit} className="space-y-6">
+                    {toast && (
+                        <Toast
+                            message={toast.message}
+                            type={toast.type}
+                            onClose={() => setToast(null)}
+                        />
+                    )}
 
+                    <ConfirmModal
+                        isOpen={confirmModal.isOpen}
+                        onClose={() => setConfirmModal({ isOpen: false, id: null })}
+                        onConfirm={handleDelete}
+                        title="Delete Member?"
+                        message="Are you sure you want to delete this team member? This cannot be undone."
+                        isDeleting={true}
+                    />
+
+                    <form onSubmit={handleSubmit} className="space-y-6">
                         {/* Category Selection */}
                         <div>
                             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Category</label>
@@ -216,13 +242,6 @@ const TeamManager = () => {
                             )}
                         </div>
 
-                        {message && (
-                            <div className={`p-4 rounded-lg flex items-center gap-2 text-sm ${message.type === 'success' ? 'bg-green-50 text-green-700 dark:bg-green-900/20 dark:text-green-400' : 'bg-red-50 text-red-700 dark:bg-red-900/20 dark:text-red-400'}`}>
-                                {message.type === 'success' ? <CheckCircle size={16} /> : <AlertCircle size={16} />}
-                                {message.text}
-                            </div>
-                        )}
-
                         <div className="pt-2">
                             <button
                                 type="submit"
@@ -253,7 +272,7 @@ const TeamManager = () => {
                                     </div>
                                 </div>
                                 <button
-                                    onClick={() => handleDelete(item.id)}
+                                    onClick={() => confirmDelete(item.id)}
                                     className="text-red-500 hover:text-red-700 p-2 hover:bg-red-50 rounded transition-colors"
                                     title="Delete Member"
                                 >

@@ -2,12 +2,15 @@ import React, { useState, useEffect } from 'react';
 import { getApiUrl } from '../../utils/apiConfig';
 import { ArrowLeft, Upload, Loader2, Save } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { Toast } from '../../components/admin/Toast';
+import { ConfirmModal } from '../../components/admin/ConfirmModal';
 
 const NewsManager = () => {
     const navigate = useNavigate();
     const [loading, setLoading] = useState(false);
-    const [error, setError] = useState('');
-    const [success, setSuccess] = useState('');
+
+    const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
+    const [confirmModal, setConfirmModal] = useState<{ isOpen: boolean; id: number | null }>({ isOpen: false, id: null });
 
     const [items, setItems] = useState([]);
 
@@ -26,16 +29,23 @@ const NewsManager = () => {
         }
     };
 
-    const handleDelete = async (id: number) => {
-        if (!window.confirm('Are you sure you want to delete this article?')) return;
+    const confirmDelete = (id: number) => {
+        setConfirmModal({ isOpen: true, id });
+    };
+
+    const handleDelete = async () => {
+        if (!confirmModal.id) return;
 
         try {
-            await fetch(`${getApiUrl('news.php')}?id=${id}`, { method: 'DELETE' });
-            fetchNews(); // Refresh list
-            setSuccess('Article deleted successfully');
+            await fetch(`${getApiUrl('news.php')}?id=${confirmModal.id}`, { method: 'DELETE' });
+            fetchNews();
+            // setSuccess('Article deleted successfully'); // Removed old state
+            setToast({ message: 'Article deleted successfully', type: 'success' });
         } catch (err) {
-            setError('Failed to delete article');
+            // setError('Failed to delete article'); // Removed old state
+            setToast({ message: 'Failed to delete article', type: 'error' });
         }
+        setConfirmModal({ isOpen: false, id: null });
     };
 
     const [formData, setFormData] = useState({
@@ -63,8 +73,6 @@ const NewsManager = () => {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
-        setError('');
-        setSuccess('');
 
         try {
             const data = new FormData();
@@ -85,7 +93,7 @@ const NewsManager = () => {
             const result = await response.json();
 
             if (result.success) {
-                setSuccess('News article added successfully!');
+                setToast({ message: 'News article added successfully!', type: 'success' });
                 setFormData({
                     title: '',
                     date: new Date().toISOString().split('T')[0],
@@ -96,10 +104,10 @@ const NewsManager = () => {
                 setImage(null);
                 fetchNews();
             } else {
-                setError(result.error || 'Failed to add news.');
+                setToast({ message: result.error || 'Failed to add news.', type: 'error' });
             }
         } catch (err) {
-            setError('Connection error. Check console.');
+            setToast({ message: 'Connection error. Check console.', type: 'error' });
             console.error(err);
         } finally {
             setLoading(false);
@@ -108,6 +116,23 @@ const NewsManager = () => {
 
     return (
         <div className="min-h-screen bg-gray-50 p-8">
+            {toast && (
+                <Toast
+                    message={toast.message}
+                    type={toast.type}
+                    onClose={() => setToast(null)}
+                />
+            )}
+
+            <ConfirmModal
+                isOpen={confirmModal.isOpen}
+                onClose={() => setConfirmModal({ isOpen: false, id: null })}
+                onConfirm={handleDelete}
+                title="Delete Article?"
+                message="Are you sure you want to delete this news article?"
+                isDeleting={true}
+            />
+
             <div className="max-w-3xl mx-auto bg-white rounded-lg shadow-md overflow-hidden">
                 <div className="p-6 border-b flex items-center gap-4">
                     <button onClick={() => navigate('/admin/dashboard')} className="p-2 hover:bg-gray-100 rounded-full">
@@ -117,9 +142,6 @@ const NewsManager = () => {
                 </div>
 
                 <div className="p-6">
-                    {error && <div className="mb-4 p-3 bg-red-50 text-red-600 rounded-md text-sm">{error}</div>}
-                    {success && <div className="mb-4 p-3 bg-green-50 text-green-600 rounded-md text-sm">{success}</div>}
-
                     <form onSubmit={handleSubmit} className="space-y-6">
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">Title</label>
@@ -220,7 +242,7 @@ const NewsManager = () => {
                                     <p className="text-sm text-gray-500">{item.date} • {item.category}</p>
                                 </div>
                                 <button
-                                    onClick={() => handleDelete(item.id)}
+                                    onClick={() => confirmDelete(item.id)}
                                     className="text-red-500 hover:text-red-700 p-2 hover:bg-red-50 rounded transition-colors"
                                     title="Delete Article"
                                 >
