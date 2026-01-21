@@ -5,17 +5,20 @@ export const AdminLayout = () => {
     const navigate = useNavigate();
     const location = useLocation();
     const [sidebarOpen, setSidebarOpen] = useState(false);
+    const token = localStorage.getItem('akwos_admin_token');
 
     useEffect(() => {
-        const token = localStorage.getItem('akwos_admin_token');
         if (!token) {
-            navigate('/admin');
+            navigate('/admin/login');
         }
-    }, [navigate]);
+    }, [navigate, token]);
+
+    // Prevent flashing of protected content
+    if (!token) return null;
 
     const handleLogout = () => {
         localStorage.removeItem('akwos_admin_token');
-        navigate('/admin');
+        navigate('/admin/login');
     };
 
     const navItems = [
