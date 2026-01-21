@@ -1,6 +1,9 @@
+import { useNavigate } from 'react-router-dom';
 import { initialResources } from "../../data/resources";
 
 export const Dashboard = () => {
+    const navigate = useNavigate();
+    // ... existing stats code ...
     const stats = [
         { label: "Total Resources", value: initialResources.length, icon: "folder_open", color: "bg-blue-500" },
         { label: "Active News", value: "12", icon: "newspaper", color: "bg-green-500" },
@@ -30,11 +33,11 @@ export const Dashboard = () => {
                 <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700">
                     <h3 className="font-bold text-lg mb-4 text-gray-800 dark:text-white">Quick Actions</h3>
                     <div className="grid grid-cols-2 gap-4">
-                        <button className="flex flex-col items-center justify-center gap-2 p-4 rounded-lg bg-gray-50 dark:bg-gray-700 hover:bg-blue-50 hover:text-primary transition-colors border border-gray-200 dark:border-gray-600 border-dashed">
+                        <button onClick={() => navigate('/admin/resources')} className="flex flex-col items-center justify-center gap-2 p-4 rounded-lg bg-gray-50 dark:bg-gray-700 hover:bg-blue-50 hover:text-primary transition-colors border border-gray-200 dark:border-gray-600 border-dashed">
                             <span className="material-symbols-outlined text-3xl">add_circle</span>
                             <span className="text-sm font-medium">Add Resource</span>
                         </button>
-                        <button className="flex flex-col items-center justify-center gap-2 p-4 rounded-lg bg-gray-50 dark:bg-gray-700 hover:bg-green-50 hover:text-green-600 transition-colors border border-gray-200 dark:border-gray-600 border-dashed">
+                        <button onClick={() => navigate('/admin/news')} className="flex flex-col items-center justify-center gap-2 p-4 rounded-lg bg-gray-50 dark:bg-gray-700 hover:bg-green-50 hover:text-green-600 transition-colors border border-gray-200 dark:border-gray-600 border-dashed">
                             <span className="material-symbols-outlined text-3xl">post_add</span>
                             <span className="text-sm font-medium">Post News</span>
                         </button>

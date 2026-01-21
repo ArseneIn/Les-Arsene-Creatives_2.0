@@ -16,8 +16,9 @@ import { Partnerships } from './pages/Partnerships';
 import { ScrollToTop } from './components/ScrollToTop';
 
 // Admin Imports
-import AdminLogin from './pages/admin/AdminLogin';
-import AdminDashboard from './pages/admin/AdminDashboard';
+import { AdminLogin } from './pages/admin/Login';
+import { AdminLayout } from './pages/admin/AdminLayout';
+import { Dashboard } from './pages/admin/Dashboard';
 import NewsManager from './pages/admin/NewsManager';
 import ResourceManager from './pages/admin/ResourceManager';
 import PartnerManager from './pages/admin/PartnerManager';
@@ -44,10 +45,13 @@ function App() {
 
                 {/* Admin Routes */}
                 <Route path="/admin/login" element={<AdminLogin />} />
-                <Route path="/admin/dashboard" element={<AdminDashboard />} />
-                <Route path="/admin/news" element={<NewsManager />} />
-                <Route path="/admin/resources" element={<ResourceManager />} />
-                <Route path="/admin/partners" element={<PartnerManager />} />
+                <Route path="/admin" element={<AdminLayout />}>
+                    <Route index element={<Dashboard />} />
+                    <Route path="dashboard" element={<Dashboard />} />
+                    <Route path="news" element={<NewsManager />} />
+                    <Route path="resources" element={<ResourceManager />} />
+                    <Route path="partners" element={<PartnerManager />} />
+                </Route>
             </Routes>
         </BrowserRouter>
     );
