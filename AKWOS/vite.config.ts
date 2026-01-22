@@ -5,6 +5,6 @@ import react from '@vitejs/plugin-react'
 export default defineConfig(({ command, mode }) => {
   return {
     plugins: [react()],
-    base: mode === 'development' ? '/' : '/website_e4da3417/',
+    base: '/akwos/',
   }
 })
