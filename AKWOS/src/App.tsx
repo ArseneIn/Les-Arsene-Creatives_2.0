@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { HashRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Layout } from './components/Layout';
 import { Home } from './pages/Home';
 import { Impact } from './pages/Impact';
@@ -25,10 +25,11 @@ import PartnerManager from './pages/admin/PartnerManager';
 import Settings from './pages/admin/Settings';
 import TeamManager from './pages/admin/TeamManager';
 import StoriesManager from './pages/admin/StoriesManager';
+import MessageManager from './pages/admin/MessageManager';
 
 function App() {
     return (
-        <BrowserRouter basename="/website_e4da3417">
+        <HashRouter>
             <ScrollToTop />
             <Routes>
                 <Route path="/" element={<Layout />}>
@@ -56,10 +57,11 @@ function App() {
                     <Route path="partners" element={<PartnerManager />} />
                     <Route path="team" element={<TeamManager />} />
                     <Route path="stories" element={<StoriesManager />} />
+                    <Route path="messages" element={<MessageManager />} />
                     <Route path="settings" element={<Settings />} />
                 </Route>
             </Routes>
-        </BrowserRouter>
+        </HashRouter>
     );
 }
 

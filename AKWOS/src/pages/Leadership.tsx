@@ -1,10 +1,8 @@
-
 import { useState, useEffect } from 'react';
-import { getApiUrl, getAssetUrl } from '../utils/apiConfig';
+import { Link } from 'react-router-dom';
+import { getAssetPath, getApiUrl, getAssetUrl } from '../utils/assets';
 
-
-// We retain the interface but update it to match potential API response slightly
-interface TeamMember {
+export interface TeamMember {
     id?: number;
     name: string;
     role: string;
@@ -146,7 +144,7 @@ export const Leadership = () => {
                         <div className="@[480px]:p-4">
                             <div
                                 className="flex min-h-[480px] flex-col gap-6 bg-cover bg-center bg-no-repeat @[480px]:gap-8 @[480px]:rounded-lg items-center justify-center p-8 relative overflow-hidden"
-                                style={{ backgroundImage: 'linear-gradient(rgba(16, 22, 34, 0.4) 0%, rgba(16, 22, 34, 0.7) 100%), url("/images/team/leadership-hero.jpg")' }}
+                                style={{ backgroundImage: `linear-gradient(rgba(16, 22, 34, 0.4) 0%, rgba(16, 22, 34, 0.7) 100%), url(${getAssetPath('images/team/leadership-hero.jpg')})` }}
                             >
                                 <div className="flex flex-col gap-4 text-center max-w-[800px] z-10">
                                     <h1 className="text-white text-4xl font-black leading-tight tracking-[-0.033em] @[480px]:text-6xl @[480px]:leading-tight">
@@ -157,9 +155,9 @@ export const Leadership = () => {
                                     </h2>
                                 </div>
                                 <div className="flex gap-4 z-10 pt-4">
-                                    <button className="flex min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-6 bg-primary text-white text-base font-bold leading-normal tracking-[0.015em] hover:bg-blue-600 transition-colors shadow-lg shadow-blue-900/20">
+                                    <Link to="/contact" className="flex min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-6 bg-primary text-white text-base font-bold leading-normal tracking-[0.015em] hover:bg-blue-600 transition-colors shadow-lg shadow-blue-900/20">
                                         <span className="truncate">Join the Movement</span>
-                                    </button>
+                                    </Link>
                                 </div>
                             </div>
                         </div>
@@ -249,12 +247,12 @@ export const Leadership = () => {
                             Join our mission to empower women and build peace in the Great Lakes region. Partner with our experts to create sustainable change.
                         </p>
                         <div className="flex flex-col sm:flex-row gap-4 mt-4 w-full justify-center">
-                            <button className="flex min-w-[160px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-8 bg-primary text-white text-base font-bold leading-normal tracking-[0.015em] hover:bg-blue-600 transition-colors">
+                            <Link to="/partnerships" className="flex min-w-[160px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-8 bg-primary text-white text-base font-bold leading-normal tracking-[0.015em] hover:bg-blue-600 transition-colors">
                                 Partner With Us
-                            </button>
-                            <button className="flex min-w-[160px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-8 bg-transparent border border-slate-600 text-white text-base font-bold leading-normal tracking-[0.015em] hover:bg-slate-800 transition-colors">
+                            </Link>
+                            <Link to="/contact" className="flex min-w-[160px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-8 bg-transparent border border-slate-600 text-white text-base font-bold leading-normal tracking-[0.015em] hover:bg-slate-800 transition-colors">
                                 Contact Team
-                            </button>
+                            </Link>
                         </div>
                     </div>
                 </div>

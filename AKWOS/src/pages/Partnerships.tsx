@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { initialPartners, PartnerItem } from '../data/partners';
-import { getApiUrl, getAssetUrl } from '../utils/apiConfig';
+import { partners as initialPartners, PartnerItem } from '../data/partners';
+import { getApiUrl, getAssetUrl } from '../utils/assets';
 
 export const Partnerships = () => {
     const [partners, setPartners] = useState<PartnerItem[]>([]);
@@ -15,7 +15,8 @@ export const Partnerships = () => {
                         id: item.id,
                         name: item.name,
                         logo: item.logo_url,
-                        website: item.website_url
+                        website: item.website_url,
+                        category: item.category || "Partner"
                     }));
                     setPartners(formattedPartners);
                 }

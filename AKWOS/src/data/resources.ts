@@ -1,3 +1,5 @@
+import { getAssetPath } from '../utils/assets';
+
 export interface ResourceItem {
     id: string;
     title: string;
@@ -22,7 +24,7 @@ export const initialResources: ResourceItem[] = [
         image: "",
         gradient: "bg-gradient-to-tr from-blue-900 to-primary",
         color: "text-red-500",
-        downloadUrl: "/documents/RP-Peace-and-Sport-Final-Report-2023.pdf"
+        downloadUrl: getAssetPath("documents/RP-Peace-and-Sport-Final-Report-2023.pdf")
     },
     {
         id: "2",
@@ -34,7 +36,7 @@ export const initialResources: ResourceItem[] = [
         image: "",
         gradient: "bg-gradient-to-tr from-purple-900 to-purple-600",
         color: "text-red-500",
-        downloadUrl: "/documents/BR-KTK_AKWOS_CECI-IDRW-Data-Analysis-20251017.pdf"
+        downloadUrl: getAssetPath("documents/BR-KTK_AKWOS_CECI-IDRW-Data-Analysis-20251017.pdf")
     },
     {
         id: "3",
@@ -46,7 +48,7 @@ export const initialResources: ResourceItem[] = [
         image: "",
         gradient: "bg-gradient-to-tr from-emerald-900 to-emerald-600",
         color: "text-red-500",
-        downloadUrl: "/documents/AB-AKWOS-UNSCR-1325-Convening-Event-20250904-.pdf"
+        downloadUrl: getAssetPath("documents/AB-AKWOS-UNSCR-1325-Convening-Event-20250904-.pdf")
     },
     {
         id: "4",
@@ -57,7 +59,7 @@ export const initialResources: ResourceItem[] = [
         ext: "PDF",
         image: "https://lh3.googleusercontent.com/aida-public/AB6AXuBCdAkibs4s_207DpEY-c3ajai3rpXuDR5bb7f4QB080YK7SjYth33HzaHWNq0m6U2aKPwDQbdAEiJ-F0zl6OaHjSOABaMhNL7Auqvfq6TZF3C8-_NdLMJLnFGiBNQdyYZnL9oUiJhYTSsmvqYWW0s1auRKIdI4JZN4PgM34u3DXw99QfV0lts0FXwKNZM2UiVs1G0KvHLTCtUwlTGqw0xaU1oEcJu3x61DBm0-aam_7KEXADt4LQ38RKNFTZjjbSX-RNfmsVGz8h4",
         color: "text-red-500",
-        downloadUrl: "/documents/RP-AKWOS-International-Conference-on-Gender-Equity-in-Sports-for-Social-Change.pdf"
+        downloadUrl: getAssetPath("documents/RP-AKWOS-International-Conference-on-Gender-Equity-in-Sports-for-Social-Change.pdf")
     },
     {
         id: "5",
@@ -69,7 +71,7 @@ export const initialResources: ResourceItem[] = [
         image: "",
         gradient: "bg-gradient-to-tr from-orange-900 to-orange-600",
         color: "text-red-500",
-        downloadUrl: "/documents/RP-AKWOS-Dufatanye-Monitoring-Programme-Review-Meetings-August-2025.pdf"
+        downloadUrl: getAssetPath("documents/RP-AKWOS-Dufatanye-Monitoring-Programme-Review-Meetings-August-2025.pdf")
     },
     {
         id: "6",
@@ -81,7 +83,7 @@ export const initialResources: ResourceItem[] = [
         image: "",
         gradient: "bg-gradient-to-bl from-blue-800 to-gray-900",
         color: "text-red-500",
-        downloadUrl: "/documents/SR-AKWOS-Training-Wihogora-Psychosocial-Centre-202512-.pdf"
+        downloadUrl: getAssetPath("documents/SR-AKWOS-Training-Wihogora-Psychosocial-Centre-202512-.pdf")
     },
     {
         id: "7",
@@ -93,7 +95,7 @@ export const initialResources: ResourceItem[] = [
         image: "",
         gradient: "bg-gradient-to-r from-yellow-700 to-yellow-500",
         color: "text-red-500",
-        downloadUrl: "/documents/ANOCA_Magazine-Tribute-Thomas-Bach.pdf"
+        downloadUrl: getAssetPath("documents/ANOCA_Magazine-Tribute-Thomas-Bach.pdf")
     },
     {
         id: "8",
@@ -105,6 +107,6 @@ export const initialResources: ResourceItem[] = [
         image: "",
         gradient: "bg-gradient-to-tr from-purple-800 to-indigo-600",
         color: "text-red-500",
-        downloadUrl: "/documents/RP-Dufatanye-Refresher-TOT-Analysis-202508.pdf"
+        downloadUrl: getAssetPath("documents/RP-Dufatanye-Refresher-TOT-Analysis-202508.pdf")
     }
 ];

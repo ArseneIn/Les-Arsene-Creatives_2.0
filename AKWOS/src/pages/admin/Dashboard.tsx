@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getApiUrl } from '../../utils/apiConfig';
+import { getApiUrl } from '../../utils/assets';
 
 export const Dashboard = () => {
     const navigate = useNavigate();

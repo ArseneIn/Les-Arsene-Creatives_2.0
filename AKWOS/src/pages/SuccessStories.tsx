@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { getApiUrl, getAssetUrl } from '../utils/apiConfig';
+import { Link } from 'react-router-dom';
+import { getApiUrl, getAssetUrl } from '../utils/assets';
 
 export const SuccessStories = () => {
     const [filter, setFilter] = useState('All Stories');
@@ -55,10 +56,10 @@ export const SuccessStories = () => {
                             Witness the real-world impact of sports and empowerment in Rwanda. From local pitches to boardrooms, see how we are building a legacy of leadership.
                         </p>
                         <div className="mt-4 flex flex-wrap gap-4">
-                            <button className="flex h-12 items-center justify-center gap-2 rounded-lg bg-primary px-6 text-base font-bold text-white transition-all hover:bg-primary-dark hover:shadow-lg hover:shadow-primary/40">
+                            <Link to="/resources" className="flex h-12 items-center justify-center gap-2 rounded-lg bg-primary px-6 text-base font-bold text-white transition-all hover:bg-primary-dark hover:shadow-lg hover:shadow-primary/40">
                                 <span>View Impact Reports</span>
                                 <span className="material-symbols-outlined text-sm">arrow_forward</span>
-                            </button>
+                            </Link>
                             <button className="flex h-12 items-center justify-center rounded-lg border border-white/20 bg-white/10 px-6 text-base font-bold text-white backdrop-blur-sm transition-all hover:bg-white/20">
                                 Watch Video
                             </button>
@@ -110,9 +111,9 @@ export const SuccessStories = () => {
                                                 <span className="pl-3 font-bold text-gray-500">$</span>
                                                 <input className="w-full border-none bg-transparent p-2 text-lg font-bold text-gray-900 focus:ring-0 placeholder:text-gray-300" placeholder="50" type="number" />
                                             </div>
-                                            <button className="h-12 w-full rounded-lg bg-[#0d121b] px-8 font-bold text-white shadow-xl transition-transform hover:scale-105 sm:w-auto">
+                                            <Link to="/donate" className="h-12 w-full rounded-lg bg-[#0d121b] px-8 font-bold text-white shadow-xl transition-transform hover:scale-105 sm:w-auto flex items-center justify-center">
                                                 Donate Now
-                                            </button>
+                                            </Link>
                                         </div>
                                     </div>
                                 </div>

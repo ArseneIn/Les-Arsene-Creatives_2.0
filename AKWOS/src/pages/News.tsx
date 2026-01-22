@@ -1,10 +1,22 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { initialNews, NewsItem } from '../data/news';
-import { getApiUrl, getAssetUrl } from '../utils/apiConfig';
+import { getApiUrl, getAssetPath, getAssetUrl } from '../utils/assets';
+
+const initialNews = [
+    {
+        id: 1,
+        title: "AKWOS Launches New Program",
+        date: "October 2023",
+        category: "Press Release",
+        image: "images/news/launch.jpg",
+        tag: "New Program",
+        desc: "Empowering more women through sports.",
+        featured: false
+    }
+];
 
 export const News = () => {
-    const [newsItems, setNewsItems] = useState<NewsItem[]>([]);
+    const [newsItems, setNewsItems] = useState<any[]>(initialNews);
     const [filter, setFilter] = useState("All");
 
     useEffect(() => {
@@ -79,7 +91,7 @@ export const News = () => {
                             <div className="aspect-[4/3] w-full overflow-hidden rounded-2xl bg-slate-100 shadow-xl">
                                 <div
                                     className="h-full w-full bg-cover bg-center transition-transform duration-700 hover:scale-105"
-                                    style={{ backgroundImage: 'url("/images/news/felicite-award.jpg")' }}
+                                    style={{ backgroundImage: `url(${getAssetPath('images/news/felicite-award.jpg')})` }}
                                 ></div>
                                 <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-6 text-white">
                                     <p className="text-xs font-medium opacity-90">Photo: UN General Assembly / 2023</p>
@@ -189,7 +201,7 @@ export const News = () => {
                                         { title: "Leadership Bios", size: "PDF • 1.2 MB", icon: "description" },
                                         { title: "Official Logos", size: "AI / PNG • 5 MB", icon: "image" }
                                     ].map((item, idx) => (
-                                        <a key={idx} className="group flex items-center justify-between rounded-lg bg-slate-50 px-4 py-3 hover:bg-blue-50 dark:bg-slate-800 dark:hover:bg-slate-700 transition-colors" href="#">
+                                        <Link key={idx} className="group flex items-center justify-between rounded-lg bg-slate-50 px-4 py-3 hover:bg-blue-50 dark:bg-slate-800 dark:hover:bg-slate-700 transition-colors" to="/resources">
                                             <div className="flex items-center gap-3">
                                                 <div className="flex h-8 w-8 items-center justify-center rounded bg-white text-primary shadow-sm dark:bg-slate-700 dark:text-white">
                                                     <span className="material-symbols-outlined text-[20px]">{item.icon}</span>
@@ -200,7 +212,7 @@ export const News = () => {
                                                 </div>
                                             </div>
                                             <span className="material-symbols-outlined text-slate-400 group-hover:text-primary transition-colors">download</span>
-                                        </a>
+                                        </Link>
                                     ))}
                                 </div>
                             </div>

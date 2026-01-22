@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { getApiUrl } from '../../utils/apiConfig';
+import { getApiUrl } from '../../utils/assets';
 import { Upload, Plus, Loader2, CheckCircle, User, ChevronUp, ChevronDown } from 'lucide-react';
 import { Toast } from '../../components/admin/Toast';
 import { ConfirmModal } from '../../components/admin/ConfirmModal';

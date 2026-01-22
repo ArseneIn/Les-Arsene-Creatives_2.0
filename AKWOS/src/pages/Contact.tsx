@@ -1,4 +1,59 @@
+import { useState } from 'react';
+import { getApiUrl } from '../utils/assets';
+
 export const Contact = () => {
+    const [formData, setFormData] = useState({
+        name: '',
+        organization: '',
+        email: '',
+        inquiry_type: 'General Inquiry',
+        message: ''
+    });
+    const [loading, setLoading] = useState(false);
+    const [status, setStatus] = useState<{ type: 'success' | 'error' | null, message: string }>({ type: null, message: '' });
+
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+        setFormData({
+            ...formData,
+            [e.target.name]: e.target.value
+        });
+    };
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setLoading(true);
+        setStatus({ type: null, message: '' });
+
+        try {
+            const response = await fetch(getApiUrl('contact.php'), {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(formData),
+            });
+
+            const data = await response.json();
+
+            if (response.ok && data.success) {
+                setStatus({ type: 'success', message: 'Message sent successfully! We will get back to you soon.' });
+                setFormData({
+                    name: '',
+                    organization: '',
+                    email: '',
+                    inquiry_type: 'General Inquiry',
+                    message: ''
+                });
+            } else {
+                setStatus({ type: 'error', message: data.error || 'Failed to send message. Please try again.' });
+            }
+        } catch (error) {
+            setStatus({ type: 'error', message: 'Connection error. Please check your internet.' });
+        } finally {
+            setLoading(false);
+        }
+    };
+
     return (
         <div className="min-h-screen pb-16 bg-background-light dark:bg-background-dark text-gray-900 dark:text-white">
             {/* Hero & Contact Section */}
@@ -67,27 +122,70 @@ export const Contact = () => {
                                     <span className="material-icons text-slate-300 dark:text-slate-600 text-3xl">lock</span>
                                 </div>
 
-                                <form className="space-y-5" onSubmit={(e) => e.preventDefault()}>
+                                {status.message && (
+                                    <div className={`fixed top-24 right-6 z-50 p-4 rounded-lg shadow-2xl border animate-in slide-in-from-right duration-300 max-w-sm ${status.type === 'success' ? 'bg-white border-green-200 text-green-800' : 'bg-white border-red-200 text-red-800'}`}>
+                                        <div className="flex items-start gap-3">
+                                            <span className="material-icons text-xl mt-0.5">{status.type === 'success' ? 'check_circle' : 'error'}</span>
+                                            <div>
+                                                <h4 className="font-bold text-sm mb-1">{status.type === 'success' ? 'Success' : 'Error'}</h4>
+                                                <p className="text-sm leading-relaxed opacity-90">{status.message}</p>
+                                            </div>
+                                            <button onClick={() => setStatus({ type: null, message: '' })} className="text-slate-400 hover:text-slate-600">
+                                                <span className="material-icons text-lg">close</span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                )}
+
+                                <form className="space-y-5" onSubmit={handleSubmit}>
                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                                         <label className="block">
                                             <span className="text-sm font-medium text-gray-900 dark:text-slate-200 mb-1.5 block">Full Name</span>
-                                            <input type="text" placeholder="Jane Doe" className="w-full h-12 rounded-lg border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white px-4 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all placeholder:text-slate-400" />
+                                            <input
+                                                type="text"
+                                                name="name"
+                                                value={formData.name}
+                                                onChange={handleChange}
+                                                required
+                                                placeholder="Jane Doe"
+                                                className="w-full h-12 rounded-lg border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white px-4 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all placeholder:text-slate-400"
+                                            />
                                         </label>
                                         <label className="block">
                                             <span className="text-sm font-medium text-gray-900 dark:text-slate-200 mb-1.5 block">Organization</span>
-                                            <input type="text" placeholder="Org Name" className="w-full h-12 rounded-lg border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white px-4 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all placeholder:text-slate-400" />
+                                            <input
+                                                type="text"
+                                                name="organization"
+                                                value={formData.organization}
+                                                onChange={handleChange}
+                                                placeholder="Org Name"
+                                                className="w-full h-12 rounded-lg border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white px-4 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all placeholder:text-slate-400"
+                                            />
                                         </label>
                                     </div>
 
                                     <label className="block">
                                         <span className="text-sm font-medium text-gray-900 dark:text-slate-200 mb-1.5 block">Email Address</span>
-                                        <input type="email" placeholder="jane@example.com" className="w-full h-12 rounded-lg border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white px-4 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all placeholder:text-slate-400" />
+                                        <input
+                                            type="email"
+                                            name="email"
+                                            value={formData.email}
+                                            onChange={handleChange}
+                                            required
+                                            placeholder="jane@example.com"
+                                            className="w-full h-12 rounded-lg border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white px-4 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all placeholder:text-slate-400"
+                                        />
                                     </label>
 
                                     <label className="block">
                                         <span className="text-sm font-medium text-gray-900 dark:text-slate-200 mb-1.5 block">Reason for Inquiry</span>
                                         <div className="relative">
-                                            <select className="w-full h-12 rounded-lg border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white px-4 pr-10 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all appearance-none cursor-pointer">
+                                            <select
+                                                name="inquiry_type"
+                                                value={formData.inquiry_type}
+                                                onChange={handleChange}
+                                                className="w-full h-12 rounded-lg border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white px-4 pr-10 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all appearance-none cursor-pointer"
+                                            >
                                                 <option>General Inquiry</option>
                                                 <option>Partnership Opportunity</option>
                                                 <option>Program Information</option>
@@ -101,12 +199,30 @@ export const Contact = () => {
 
                                     <label className="block">
                                         <span className="text-sm font-medium text-gray-900 dark:text-slate-200 mb-1.5 block">Subject / Message</span>
-                                        <textarea rows={4} placeholder="How can we help you?" className="w-full rounded-lg border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white p-4 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all resize-none placeholder:text-slate-400"></textarea>
+                                        <textarea
+                                            name="message"
+                                            value={formData.message}
+                                            onChange={handleChange}
+                                            required
+                                            rows={4}
+                                            placeholder="How can we help you?"
+                                            className="w-full rounded-lg border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white p-4 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all resize-none placeholder:text-slate-400"
+                                        ></textarea>
                                     </label>
 
-                                    <button type="submit" className="w-full h-12 bg-primary hover:bg-blue-600 active:bg-blue-700 text-white font-bold rounded-lg transition-colors flex items-center justify-center gap-2 mt-2">
-                                        <span className="material-icons text-[20px]">lock</span>
-                                        Send Secure Message
+                                    <button
+                                        type="submit"
+                                        disabled={loading}
+                                        className={`w-full h-12 bg-primary hover:bg-blue-600 active:bg-blue-700 text-white font-bold rounded-lg transition-colors flex items-center justify-center gap-2 mt-2 ${loading ? 'opacity-70 cursor-not-allowed' : ''}`}
+                                    >
+                                        {loading ? (
+                                            <span>Sending...</span>
+                                        ) : (
+                                            <>
+                                                <span className="material-icons text-[20px]">lock</span>
+                                                Send Secure Message
+                                            </>
+                                        )}
                                     </button>
                                 </form>
                             </div>

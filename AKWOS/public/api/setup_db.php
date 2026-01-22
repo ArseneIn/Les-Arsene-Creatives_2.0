@@ -1,19 +1,23 @@
 <?php
-require 'db.php';
-
-$sqlFile = '../../database_setup.sql';
-
-if (!file_exists($sqlFile)) {
-    die(json_encode(['error' => 'SQL file not found']));
-}
-
-$sql = file_get_contents($sqlFile);
+require_once 'db.php';
 
 try {
+    $sql = "
+    CREATE TABLE IF NOT EXISTS messages (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        name VARCHAR(255) NOT NULL,
+        organization VARCHAR(255),
+        email VARCHAR(255) NOT NULL,
+        inquiry_type VARCHAR(100),
+        message TEXT NOT NULL,
+        is_read BOOLEAN DEFAULT 0,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );
+    ";
+
     $pdo->exec($sql);
-    echo json_encode(['success' => true, 'message' => 'Database tables created/updated successfully']);
+    echo "Table 'messages' created or already exists successfully.";
 } catch (PDOException $e) {
-    http_response_code(500);
-    echo json_encode(['error' => $e->getMessage()]);
+    echo "Error creating table: " . $e->getMessage();
 }
 ?>

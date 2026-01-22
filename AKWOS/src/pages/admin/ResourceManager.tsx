@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { getApiUrl } from '../../utils/apiConfig';
+import { getApiUrl } from '../../utils/assets';
 import { ArrowLeft, Loader2, Save, FileText } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Toast } from '../../components/admin/Toast';

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getApiUrl } from '../../utils/apiConfig';
+import { getApiUrl } from '../../utils/assets';
 import { User, Lock, Loader2 } from 'lucide-react';
 
 const AdminLogin = () => {

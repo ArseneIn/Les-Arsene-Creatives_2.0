@@ -4,6 +4,16 @@ export const Donation = () => {
     const [frequency, setFrequency] = useState<'One-time' | 'Monthly'>('One-time');
     const [amount, setAmount] = useState<string>('50');
 
+    const handleDonate = () => {
+        if (!amount || isNaN(Number(amount)) || Number(amount) <= 0) {
+            alert("Please enter a valid donation amount.");
+            return;
+        }
+        // In a real app, this would redirect to Stripe/PayPal with the amount
+        // e.g., window.location.href = `https://buy.stripe.com/test?amount=${amount}`;
+        alert(`Redirecting to Secure Payment Gateway...\n\nDonation Amount: $${amount}\nFrequency: ${frequency}\n\n(This is a demo. In production, this would connect to Stripe or PayPal.)`);
+    };
+
     return (
         <div className="relative flex h-auto min-h-screen w-full flex-col bg-background-light dark:bg-background-dark overflow-x-hidden font-display">
             <div className="layout-container flex h-full grow flex-col">
@@ -26,7 +36,7 @@ export const Donation = () => {
                                         </h2>
                                     </div>
                                     <div className="flex gap-4 flex-wrap">
-                                        <button className="flex min-w-[120px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-6 bg-secondary hover:bg-secondary/90 text-white text-base font-bold shadow-lg transition-all transform hover:scale-105">
+                                        <button onClick={() => document.getElementById('donation-widget')?.scrollIntoView({ behavior: 'smooth' })} className="flex min-w-[120px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-6 bg-secondary hover:bg-secondary/90 text-white text-base font-bold shadow-lg transition-all transform hover:scale-105">
                                             Support Our Mission
                                         </button>
                                     </div>
@@ -35,7 +45,7 @@ export const Donation = () => {
                         </div>
 
                         {/* Donation Widget Section */}
-                        <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-6 md:p-8 mb-12">
+                        <div id="donation-widget" className="bg-white rounded-xl shadow-sm border border-slate-100 p-6 md:p-8 mb-12">
                             <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
                                 <h2 className="text-[#0d121b] text-2xl font-bold leading-tight tracking-tight">Choose Your Impact</h2>
                                 {/* Segmented Control */}
@@ -104,8 +114,11 @@ export const Donation = () => {
                                         onChange={(e) => setAmount(e.target.value)}
                                     />
                                 </div>
-                                <button className="flex-1 w-full bg-primary hover:bg-blue-800 text-white text-lg font-bold py-3 px-8 rounded-lg shadow-md transition-colors flex items-center justify-center gap-2">
-                                    <span>Donate ${amount} Securely</span>
+                                <button
+                                    onClick={handleDonate}
+                                    className="flex-1 w-full bg-primary hover:bg-blue-800 text-white text-lg font-bold py-3 px-8 rounded-lg shadow-md transition-colors flex items-center justify-center gap-2"
+                                >
+                                    <span>Donate ${amount || '0'} Securely</span>
                                     <span className="material-icons text-[20px]">lock</span>
                                 </button>
                             </div>

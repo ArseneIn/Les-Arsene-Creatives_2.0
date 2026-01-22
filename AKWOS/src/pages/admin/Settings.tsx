@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { getApiUrl } from '../../utils/apiConfig';
+import { getApiUrl } from '../../utils/assets';
 import { Save, Lock, Loader2, CheckCircle, AlertCircle } from 'lucide-react';
 
 const Settings = () => {

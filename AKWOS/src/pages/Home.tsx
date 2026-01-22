@@ -1,6 +1,6 @@
-import { Link } from 'react-router-dom';
 import { useState, useEffect } from 'react';
-import { getApiUrl, getAssetUrl } from '../utils/apiConfig';
+import { Link } from 'react-router-dom';
+import { getAssetPath, getApiUrl, getAssetUrl } from '../utils/assets';
 
 export const Home = () => {
     const [partners, setPartners] = useState<any[]>([]);
@@ -29,7 +29,7 @@ export const Home = () => {
             <header className="relative w-full h-[600px] overflow-hidden">
                 <div className="absolute inset-0 bg-black/40 z-10"></div>
                 <img
-                    src={`${import.meta.env.BASE_URL}images/home/hero-women.jpg`}
+                    src={getAssetPath('images/home/hero-women.jpg')}
                     alt="Group of diverse female athletes smiling together outdoors"
                     className="w-full h-full object-cover object-center"
                 />
@@ -219,7 +219,7 @@ export const Home = () => {
                 <div className="flex flex-col md:flex-row items-center">
                     <div className="w-full md:w-1/2 h-[400px] md:h-[500px]">
                         <img
-                            src="/images/home/empowerment-trophy.jpg"
+                            src={getAssetPath('images/home/empowerment-trophy.jpg')}
                             alt="Women celebrating"
                             className="w-full h-full object-cover"
                         />
@@ -229,7 +229,7 @@ export const Home = () => {
                         <p className="text-lg leading-relaxed mb-6 font-light">
                             We empower women and girls to build confidence, leadership, and equality on and off the field. Our workshops provide safe spaces for self-expression and growth.
                         </p>
-                        <Link to="#" className="inline-flex items-center font-bold hover:text-secondary transition-colors group">
+                        <Link to="/programs/wps" className="inline-flex items-center font-bold hover:text-secondary transition-colors group">
                             View Our Programs <span className="material-icons ml-2 transform group-hover:translate-x-1 transition-transform">arrow_forward</span>
                         </Link>
                     </div>
@@ -241,7 +241,7 @@ export const Home = () => {
                 <div className="flex flex-col md:flex-row-reverse items-center">
                     <div className="w-full md:w-1/2 h-[400px] md:h-[500px]">
                         <img
-                            src="/images/home/leadership-speaking.jpg"
+                            src={getAssetPath('images/home/leadership-speaking.jpg')}
                             alt="Woman speaking"
                             className="w-full h-full object-cover"
                         />
@@ -251,7 +251,7 @@ export const Home = () => {
                         <p className="text-lg leading-relaxed mb-6 text-gray-600 dark:text-gray-300">
                             Through training, mentorship, and community programmes, we create opportunities that strengthen families, promote peace, and inspire the next generation of leaders.
                         </p>
-                        <Link to="#" className="inline-flex items-center font-bold text-primary dark:text-blue-400 hover:text-secondary transition-colors group">
+                        <Link to="/about/leadership" className="inline-flex items-center font-bold text-primary dark:text-blue-400 hover:text-secondary transition-colors group">
                             Meet Our Leaders <span className="material-icons ml-2 transform group-hover:translate-x-1 transition-transform">arrow_forward</span>
                         </Link>
                     </div>
@@ -261,7 +261,7 @@ export const Home = () => {
             {/* Next Generation Section */}
             <section className="w-full h-[500px] overflow-hidden relative">
                 <img
-                    src={`${import.meta.env.BASE_URL}images/home/nextgen-youth.jpg`}
+                    src={getAssetPath('images/home/nextgen-youth.jpg')}
                     alt="Team of young athletes"
                     className="w-full h-full object-cover"
                 />
@@ -306,12 +306,12 @@ export const Home = () => {
                     <h2 className="text-3xl md:text-4xl font-display font-bold mb-4">Make a Difference Today</h2>
                     <p className="text-xl mb-8 opacity-90 max-w-2xl mx-auto">Your support helps us provide equipment, training, and mentorship to thousands of young women across Rwanda.</p>
                     <div className="flex flex-col sm:flex-row justify-center gap-4">
-                        <button className="px-8 py-4 bg-secondary text-primary font-bold text-lg rounded-full shadow-lg hover:bg-yellow-400 hover:scale-105 transition-all">
+                        <Link to="/donate" className="px-8 py-4 bg-secondary text-primary font-bold text-lg rounded-full shadow-lg hover:bg-yellow-400 hover:scale-105 transition-all inline-block">
                             Donate Now
-                        </button>
-                        <button className="px-8 py-4 bg-transparent border-2 border-white text-white font-bold text-lg rounded-full hover:bg-white/10 transition-all">
+                        </Link>
+                        <Link to="/partnerships" className="px-8 py-4 bg-transparent border-2 border-white text-white font-bold text-lg rounded-full hover:bg-white/10 transition-all inline-block">
                             Become a Partner
-                        </button>
+                        </Link>
                     </div>
                 </div>
             </section>

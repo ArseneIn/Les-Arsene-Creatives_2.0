@@ -5,6 +5,7 @@ export const AdminLayout = () => {
     const navigate = useNavigate();
     const location = useLocation();
     const [sidebarOpen, setSidebarOpen] = useState(false);
+    const [unreadCount, setUnreadCount] = useState(0);
     const token = localStorage.getItem('akwos_admin_token');
 
     useEffect(() => {
@@ -12,6 +13,27 @@ export const AdminLayout = () => {
             navigate('/admin/login');
         }
     }, [navigate, token]);
+
+    useEffect(() => {
+        const fetchUnreadCount = async () => {
+            try {
+                const response = await fetch(`${import.meta.env.BASE_URL}api/messages.php?count_unread=1`);
+                const data = await response.json();
+                if (data && typeof data.count === 'number') {
+                    setUnreadCount(data.count);
+                }
+            } catch (error) {
+                console.error("Failed to fetch unread count");
+            }
+        };
+
+        if (token) {
+            fetchUnreadCount();
+            // Poll every 30 seconds
+            const interval = setInterval(fetchUnreadCount, 30000);
+            return () => clearInterval(interval);
+        }
+    }, [token]);
 
     // Prevent flashing of protected content
     if (!token) return null;
@@ -27,7 +49,8 @@ export const AdminLayout = () => {
         { path: '/admin/news', icon: 'newspaper', label: 'News & Updates' },
         { path: '/admin/partners', icon: 'handshake', label: 'Partners' },
         { path: '/admin/team', icon: 'groups', label: 'Team & Leadership' },
-        { path: '/admin/stories', icon: 'stars', label: 'Impact Stories' }, // Added Stories link
+        { path: '/admin/stories', icon: 'stars', label: 'Impact Stories' },
+        { path: '/admin/messages', icon: 'mail', label: 'Messages', badge: unreadCount },
         { path: '/admin/settings', icon: 'settings', label: 'Settings' },
     ];
 
@@ -62,13 +85,20 @@ export const AdminLayout = () => {
                             key={item.path}
                             to={item.path}
                             onClick={() => setSidebarOpen(false)} // Close on mobile navigation
-                            className={`flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors ${location.pathname === item.path
+                            className={`flex items-center justify-between px-4 py-3 rounded-lg text-sm font-medium transition-colors ${location.pathname === item.path
                                 ? 'bg-blue-50 dark:bg-blue-900/20 text-primary'
                                 : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700'
                                 }`}
                         >
-                            <span className="material-symbols-outlined">{item.icon}</span>
-                            {item.label}
+                            <div className="flex items-center gap-3">
+                                <span className="material-symbols-outlined">{item.icon}</span>
+                                {item.label}
+                            </div>
+                            {item.badge ? (
+                                <span className="bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">
+                                    {item.badge}
+                                </span>
+                            ) : null}
                         </Link>
                     ))}
                 </nav>

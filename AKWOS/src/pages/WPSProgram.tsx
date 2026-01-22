@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { getAssetPath } from '../utils/assets';
 
 export const WPSProgram = () => {
     return (
@@ -42,10 +43,10 @@ export const WPSProgram = () => {
                                 </p>
                             </div>
                             <div className="mt-8">
-                                <button className="flex items-center gap-2 h-12 px-6 rounded-lg bg-primary hover:bg-blue-600 transition-colors text-white text-base font-bold shadow-md">
+                                <Link to="/impact" className="flex items-center gap-2 h-12 px-6 rounded-lg bg-primary hover:bg-blue-600 transition-colors text-white text-base font-bold shadow-md inline-flex justify-center">
                                     <span>Explore Program Impact</span>
                                     <span className="material-symbols-outlined text-sm">arrow_forward</span>
-                                </button>
+                                </Link>
                             </div>
                         </div>
                     </div>
@@ -139,10 +140,10 @@ export const WPSProgram = () => {
                                 </p>
                             </div>
                         </div>
-                        <button className="w-full md:w-auto shrink-0 bg-primary hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg transition-all flex items-center justify-center gap-2 group">
+                        <a href={getAssetPath("documents/AB-AKWOS-UNSCR-1325-Convening-Event-20250904-.pdf")} download className="w-full md:w-auto shrink-0 bg-primary hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg transition-all flex items-center justify-center gap-2 group">
                             <span className="material-symbols-outlined group-hover:animate-bounce">download</span>
                             <span>Download PDF</span>
-                        </button>
+                        </a>
                     </div>
                 </div>
             </section>

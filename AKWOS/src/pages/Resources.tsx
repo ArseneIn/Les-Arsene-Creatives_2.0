@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { initialResources, ResourceItem } from '../data/resources';
-import { getApiUrl } from '../utils/apiConfig';
+import { getApiUrl } from '../utils/assets';
 
 export const Resources = () => {
     const [activeCategory, setActiveCategory] = useState("All Resources");

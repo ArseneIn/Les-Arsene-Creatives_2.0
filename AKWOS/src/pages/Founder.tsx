@@ -1,3 +1,5 @@
+import { getAssetPath } from '../utils/assets';
+
 export const Founder = () => {
     return (
         <div className="flex flex-col items-center w-full bg-background-light dark:bg-background-dark text-[#0d121b] dark:text-white overflow-x-hidden font-display">
@@ -10,7 +12,7 @@ export const Founder = () => {
                         <div className="absolute inset-0 bg-gradient-to-t from-primary/20 to-transparent mix-blend-overlay z-10"></div>
                         <div
                             className="w-full h-full bg-top bg-cover bg-no-repeat transform hover:scale-105 transition-transform duration-700 ease-out"
-                            style={{ backgroundImage: 'url("/images/team/felicite.jpg")' }}
+                            style={{ backgroundImage: `url(${getAssetPath('images/team/felicite.jpg')})` }}
                         ></div>
                     </div>
 
@@ -81,27 +83,18 @@ export const Founder = () => {
                         </a>
                     </div>
 
-                    {/* Timeline Component */}
-                    <div className="relative">
-                        <div className="hidden md:block absolute top-[22px] left-0 w-full h-[2px] bg-gray-200 dark:bg-gray-700 z-0"></div>
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-4 relative z-10">
-                            {[
-                                { year: "2012", title: "Ashoka Fellow", desc: "Recognized for pioneering the use of sports as a tool for economic empowerment and healing in post-genocide Rwanda.", icon: "emoji_events", color: "bg-yellow-500", text: "text-yellow-500" },
-                                { year: "2016", title: "IOC Women and Sport Award", desc: "Honored internationally for her outstanding contribution to promoting the development and participation of women and girls in sport.", icon: "trophy", color: "bg-primary", text: "text-primary" },
-                                { year: "2018", title: "AIMF Award", desc: "Acknowledged by the Association Internationale des Maires Francophones for social innovation.", icon: "star", color: "bg-yellow-500", text: "text-yellow-500" },
-                            ].map((item, idx) => (
-                                <div key={idx} className="flex flex-row md:flex-col items-center md:items-start gap-6 md:gap-4 group">
-                                    <div className={`flex-shrink-0 w-12 h-12 rounded-full border-4 border-white dark:border-[#101622] ${item.color} shadow-lg flex items-center justify-center group-hover:scale-110 transition-transform relative z-10`}>
-                                        <span className="material-symbols-outlined text-white text-xl">{item.icon}</span>
-                                    </div>
-                                    <div className="flex flex-col">
-                                        <span className={`${item.text} font-bold text-lg mb-1`}>{item.year}</span>
-                                        <h3 className="font-bold text-xl text-[#0d121b] dark:text-white mb-2">{item.title}</h3>
-                                        <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">{item.desc}</p>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
+                    <div className="flex flex-col gap-8">
+                        {[
+                            { year: "2016", title: "IOC Women in Sport Award", desc: "Awarded for her significant contribution to the development of women's sport in Africa.", text: "text-yellow-600" },
+                            { year: "2018", title: "Ashoka Fellow", desc: "Recognized as a social entrepreneur with innovative solutions to social problems.", text: "text-blue-600" },
+                            { year: "2020", title: "Global Leadership Award", desc: "Honored for exceptional leadership in promoting gender equality through sports.", text: "text-green-600" }
+                        ].map((item, idx) => (
+                            <div key={idx} className="flex flex-col">
+                                <span className={`${item.text} font-bold text-lg mb-1`}>{item.year}</span>
+                                <h3 className="font-bold text-xl text-[#0d121b] dark:text-white mb-2">{item.title}</h3>
+                                <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">{item.desc}</p>
+                            </div>
+                        ))}
                     </div>
                 </div>
             </section>
