@@ -5,6 +5,7 @@ export interface AuthContextType {
     user: User | null;
     token: string | null;
     login: (email: string, password: string, institution?: string) => Promise<User>;
+    setSession: (token: string, user: User) => void;
     logout: () => void;
     isLoading: boolean;
     isAuthenticated: boolean;

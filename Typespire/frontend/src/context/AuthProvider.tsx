@@ -49,8 +49,14 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         }
     };
 
+    const setSession = (accessToken: string, userData: User) => {
+        localStorage.setItem('token', accessToken);
+        setToken(accessToken);
+        setUser(userData);
+    };
+
     return (
-        <AuthContext.Provider value={{ user, token, login, logout, isLoading, isAuthenticated: !!user }}>
+        <AuthContext.Provider value={{ user, token, login, setSession, logout, isLoading, isAuthenticated: !!user }}>
             {children}
         </AuthContext.Provider>
     );

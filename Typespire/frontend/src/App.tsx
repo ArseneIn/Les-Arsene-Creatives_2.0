@@ -36,6 +36,7 @@ import FacilitatorClasses from './pages/FacilitatorClasses';
 import FacilitatorReports from './pages/FacilitatorReports';
 import FacilitatorSettings from './pages/FacilitatorSettings';
 import FacilitatorAnalytics from './pages/FacilitatorAnalytics';
+import SSOCallback from './pages/SSOCallback';
 
 function App() {
   return (
@@ -48,6 +49,7 @@ function App() {
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
                 <Route path="/unauthorized" element={<Unauthorized />} />
+                <Route path="/sso" element={<SSOCallback />} />
 
                 {/* Public or Protected Test Route? Assuming Protected for now or Public? */}
                 {/* TypingTest might be accessible to anyone or just students? Let's assume students for now. */}
