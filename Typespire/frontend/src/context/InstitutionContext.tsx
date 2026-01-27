@@ -73,7 +73,7 @@ export const InstitutionProvider: React.FC<{ children: ReactNode }> = ({ childre
         try {
             if (!user?.institutionId) return;
 
-            const response = await api.post('/intake', {
+            await api.post('/intake', {
                 name: intake.name,
                 startDate: new Date(intake.startDate).toISOString(),
                 endDate: new Date(intake.endDate).toISOString(),

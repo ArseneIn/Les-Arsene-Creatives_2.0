@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Plus, Calendar, ChevronDown, MoreHorizontal, Upload, X, CloudUpload, FileText, PlusCircle } from 'lucide-react';
 import { useInstitution, type Intake } from '../context/InstitutionContext';
 
 const InstitutionIntakes: React.FC = () => {
@@ -55,7 +56,7 @@ const InstitutionIntakes: React.FC = () => {
                     onClick={() => setShowNewIntakeModal(true)}
                     className="flex items-center gap-2 px-4 py-2 bg-[#0d1b17] text-white rounded-lg text-sm font-bold hover:bg-[#1a2e28] transition-colors shadow-lg shadow-gray-200"
                 >
-                    <span className="material-symbols-outlined text-[20px]">add</span>
+                    <Plus className="w-5 h-5" />
                     New Intake
                 </button>
             </header>
@@ -73,7 +74,7 @@ const InstitutionIntakes: React.FC = () => {
                                 <div className={`w-10 h-10 rounded-full flex items-center justify-center text-white font-bold shadow-sm ${intake.status === 'Active' ? 'bg-[#22c55e]' :
                                     intake.status === 'Upcoming' ? 'bg-[#eab308]' : 'bg-gray-400'
                                     }`}>
-                                    <span className="material-symbols-outlined text-[20px]">calendar_month</span>
+                                    <Calendar className="w-5 h-5" />
                                 </div>
                                 <div>
                                     <h3 className="text-[#0d1b17] text-lg font-bold">{intake.name}</h3>
@@ -100,13 +101,11 @@ const InstitutionIntakes: React.FC = () => {
                                             <span className="text-xs text-gray-400 italic">None assigned</span>
                                         )}
                                         <button className="w-6 h-6 rounded-full bg-gray-100 border-2 border-white flex items-center justify-center text-gray-400 hover:bg-gray-200 hover:text-gray-600 transition-colors" title="Assign Facilitator">
-                                            <span className="material-symbols-outlined text-[14px]">add</span>
+                                            <Plus className="w-[14px] h-[14px]" />
                                         </button>
                                     </div>
                                 </div>
-                                <span className={`material-symbols-outlined text-gray-400 transition-transform duration-200 ${expandedIntake === intake.id ? 'rotate-180' : ''}`}>
-                                    expand_more
-                                </span>
+                                <ChevronDown className={`text-gray-400 transition-transform duration-200 ${expandedIntake === intake.id ? 'rotate-180' : ''}`} />
                             </div>
                         </div>
 
@@ -136,7 +135,7 @@ const InstitutionIntakes: React.FC = () => {
                                                 onClick={() => setSelectedIntakeForSection(null)}
                                                 className="p-1.5 text-gray-400 hover:text-red-500"
                                             >
-                                                <span className="material-symbols-outlined text-[18px]">close</span>
+                                                <X className="w-[18px] h-[18px]" />
                                             </button>
                                         </div>
                                     ) : (
@@ -144,7 +143,7 @@ const InstitutionIntakes: React.FC = () => {
                                             onClick={() => setSelectedIntakeForSection(intake.id)}
                                             className="text-xs font-bold text-[#0d1b17] hover:underline flex items-center gap-1"
                                         >
-                                            <span className="material-symbols-outlined text-[16px]">add_circle</span>
+                                            <PlusCircle className="w-4 h-4" />
                                             Add Section
                                         </button>
                                     )}
@@ -157,7 +156,7 @@ const InstitutionIntakes: React.FC = () => {
                                                 <div className="flex justify-between items-start mb-3">
                                                     <h5 className="font-bold text-[#0d1b17]">{section.name}</h5>
                                                     <button className="text-gray-300 hover:text-[#0d1b17]">
-                                                        <span className="material-symbols-outlined text-[18px]">more_horiz</span>
+                                                        <MoreHorizontal className="w-[18px] h-[18px]" />
                                                     </button>
                                                 </div>
                                                 <div className="flex items-end justify-between">
@@ -169,7 +168,7 @@ const InstitutionIntakes: React.FC = () => {
                                                         onClick={() => setShowBulkUploadModal({ sectionId: section.id, intakeName: intake.name, sectionName: section.name })}
                                                         className="px-3 py-1.5 bg-gray-50 text-gray-600 text-xs font-bold rounded border border-gray-200 hover:bg-gray-100 hover:text-[#0d1b17] transition-colors flex items-center gap-1"
                                                     >
-                                                        <span className="material-symbols-outlined text-[16px]">upload_file</span>
+                                                        <Upload className="w-4 h-4" />
                                                         Bulk Add
                                                     </button>
                                                 </div>
@@ -200,7 +199,7 @@ const InstitutionIntakes: React.FC = () => {
                         <div className="p-6 border-b border-gray-100 flex justify-between items-center">
                             <h3 className="text-xl font-bold text-[#0d1b17]">Create New Intake</h3>
                             <button onClick={() => setShowNewIntakeModal(false)} className="text-gray-400 hover:text-gray-600">
-                                <span className="material-symbols-outlined">close</span>
+                                <X className="w-6 h-6" />
                             </button>
                         </div>
                         <form onSubmit={handleCreateIntake} className="p-6 flex flex-col gap-4">
@@ -269,7 +268,7 @@ const InstitutionIntakes: React.FC = () => {
                         </div>
                         <div className="p-8 flex flex-col items-center justify-center gap-4 border-b border-gray-100 bg-gray-50/50">
                             <div className="w-16 h-16 bg-blue-50 text-blue-500 rounded-full flex items-center justify-center mb-2">
-                                <span className="material-symbols-outlined text-3xl">cloud_upload</span>
+                                <CloudUpload className="w-8 h-8" />
                             </div>
                             <div className="text-center">
                                 <p className="font-bold text-gray-700">Click to upload or drag and drop</p>
@@ -283,7 +282,7 @@ const InstitutionIntakes: React.FC = () => {
                             <h4 className="text-sm font-bold text-gray-700 mb-2">Template</h4>
                             <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-200">
                                 <div className="flex items-center gap-3">
-                                    <span className="material-symbols-outlined text-green-600">description</span>
+                                    <FileText className="text-green-600 w-6 h-6" />
                                     <div>
                                         <p className="text-sm font-bold text-gray-700">student_import_template.csv</p>
                                         <p className="text-xs text-gray-400">12KB</p>

@@ -1,4 +1,5 @@
 import React from 'react';
+import { TrendingUp, UserPlus, Clock, BarChart } from 'lucide-react';
 
 const InstitutionAnalytics: React.FC = () => {
     return (
@@ -18,7 +19,7 @@ const InstitutionAnalytics: React.FC = () => {
                         <span className="text-lg font-medium text-slate-500 mb-1">WPM</span>
                     </div>
                     <div className="mt-4 flex items-center text-emerald-500 text-sm font-medium">
-                        <span className="material-symbols-outlined text-lg mr-1">trending_up</span>
+                        <TrendingUp className="text-lg mr-1" />
                         <span>+12% from last month</span>
                     </div>
                 </div>
@@ -29,7 +30,7 @@ const InstitutionAnalytics: React.FC = () => {
                         <span className="text-4xl font-black text-slate-900 dark:text-white">1,240</span>
                     </div>
                     <div className="mt-4 flex items-center text-emerald-500 text-sm font-medium">
-                        <span className="material-symbols-outlined text-lg mr-1">group_add</span>
+                        <UserPlus className="text-lg mr-1" />
                         <span>+56 new this week</span>
                     </div>
                 </div>
@@ -40,7 +41,7 @@ const InstitutionAnalytics: React.FC = () => {
                         <span className="text-4xl font-black text-slate-900 dark:text-white">15.4k</span>
                     </div>
                     <div className="mt-4 flex items-center text-slate-400 text-sm font-medium">
-                        <span className="material-symbols-outlined text-lg mr-1">schedule</span>
+                        <Clock className="text-lg mr-1" />
                         <span>Last 30 days</span>
                     </div>
                 </div>
@@ -48,7 +49,7 @@ const InstitutionAnalytics: React.FC = () => {
 
             <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-8 flex flex-col items-center justify-center min-h-[400px]">
                 <div className="p-4 bg-slate-100 dark:bg-slate-700 rounded-full mb-4">
-                    <span className="material-symbols-outlined text-4xl text-slate-400">bar_chart</span>
+                    <BarChart className="text-4xl text-slate-400 w-10 h-10" />
                 </div>
                 <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">Detailed Charts Coming Soon</h3>
                 <p className="text-slate-500 dark:text-slate-400 text-center max-w-md">

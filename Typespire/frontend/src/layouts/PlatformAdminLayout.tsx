@@ -2,6 +2,8 @@ import React from 'react';
 import { Outlet, Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
+import { Keyboard, Building2, BarChart, Receipt, ScrollText, Settings, LogOut } from 'lucide-react';
+
 const PlatformAdminLayout: React.FC = () => {
     const { user, logout } = useAuth();
     const navigate = useNavigate();
@@ -18,7 +20,7 @@ const PlatformAdminLayout: React.FC = () => {
                 <div className="p-6">
                     <div className="flex items-center gap-3 mb-10">
                         <div className="bg-admin-primary rounded-lg p-2 flex items-center justify-center">
-                            <span className="material-symbols-outlined text-navy-blue text-2xl">keyboard</span>
+                            <Keyboard className="text-navy-blue w-6 h-6" />
                         </div>
                         <div>
                             <h1 className="text-xl font-bold tracking-tight">Typespire</h1>
@@ -27,23 +29,23 @@ const PlatformAdminLayout: React.FC = () => {
                     </div>
                     <nav className="space-y-1">
                         <Link to="/super-admin" className="flex items-center gap-3 px-4 py-3 rounded-lg bg-admin-primary/10 text-admin-primary border-l-4 border-admin-primary">
-                            <span className="material-symbols-outlined">corporate_fare</span>
+                            <Building2 className="w-6 h-6" />
                             <span className="font-medium">Institutions</span>
                         </Link>
                         <Link to="/super-admin/analytics" className="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-400 hover:text-white hover:bg-white/5 transition-colors border-l-4 border-transparent">
-                            <span className="material-symbols-outlined">analytics</span>
+                            <BarChart className="w-6 h-6" />
                             <span className="font-medium">Global Analytics</span>
                         </Link>
                         <Link to="/super-admin/billing" className="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-400 hover:text-white hover:bg-white/5 transition-colors border-l-4 border-transparent">
-                            <span className="material-symbols-outlined">receipt_long</span>
+                            <Receipt className="w-6 h-6" />
                             <span className="font-medium">Billing & Plans</span>
                         </Link>
                         <Link to="/super-admin/logs" className="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-400 hover:text-white hover:bg-white/5 transition-colors border-l-4 border-transparent">
-                            <span className="material-symbols-outlined">history_edu</span>
+                            <ScrollText className="w-6 h-6" />
                             <span className="font-medium">System Logs</span>
                         </Link>
                         <Link to="/super-admin/settings" className="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-400 hover:text-white hover:bg-white/5 transition-colors border-l-4 border-transparent">
-                            <span className="material-symbols-outlined">settings</span>
+                            <Settings className="w-6 h-6" />
                             <span className="font-medium">Platform Settings</span>
                         </Link>
                     </nav>
@@ -57,10 +59,9 @@ const PlatformAdminLayout: React.FC = () => {
                         <p className="text-xs text-slate-300 mt-2">Running optimally</p>
                     </div>
                     <div className="flex items-center gap-3 p-2">
-                        <div
-                            className="size-10 rounded-full bg-center bg-cover border-2 border-admin-primary/50"
-                            style={{ backgroundImage: "url('https://lh3.googleusercontent.com/aida-public/AB6AXuBUZ5TwRRqDZut38NcPVmugcjfvYMhx72OUmBECzCHrO5EzqfVBWtKMj14N1CrfwbJ46TP1_eIxSHKpPtxQepoRtjWgDLm68CGLqWxltYQHXWvloMJtNTcA4oYQLZ8l6ou8yOip4RvWFJOVKgR8hbJAvo5J95hlcCLjuqmkHFMMSE5oiA6lRejvfIXFzMhgBKCKgIFt4vGcip6WqQW1y57RrTYvOWO7yP8al8esAWcjxbIeGR3RHySrdVAhDcL8p2Yo03ZNFPSQOoUU')" }}
-                        ></div>
+                        <div className="size-10 rounded-full bg-admin-primary/20 border-2 border-admin-primary/50 flex items-center justify-center text-admin-primary font-bold">
+                            {user?.firstName?.[0] || 'P'}
+                        </div>
                         <div className="flex-1 overflow-hidden">
                             <p className="text-sm font-bold truncate">
                                 {user ? `${user.firstName || ''} ${user.lastName || ''}` : 'Platform Admin'}
@@ -69,9 +70,9 @@ const PlatformAdminLayout: React.FC = () => {
                         </div>
                         <button
                             onClick={handleLogout}
-                            className="material-symbols-outlined text-slate-400 cursor-pointer hover:text-white"
+                            className="text-slate-400 cursor-pointer hover:text-white"
                         >
-                            logout
+                            <LogOut className="w-6 h-6" />
                         </button>
                     </div>
                 </div>

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Palette, Zap, CloudUpload, Plus, Building2, School, ArrowRight, Info, BadgeCheck, Eye, TrendingUp, Check, Star, Lightbulb } from 'lucide-react';
 
 const InstitutionSettings: React.FC = () => {
     const [activeTab, setActiveTab] = useState<'branding' | 'benchmarks'>('branding');
@@ -18,14 +19,14 @@ const InstitutionSettings: React.FC = () => {
                         onClick={() => setActiveTab('branding')}
                         className={`flex items-center gap-2 border-b-[3px] pb-3 px-2 transition-all ${activeTab === 'branding' ? 'border-admin-primary text-secondary-navy dark:text-white' : 'border-transparent text-secondary-navy/50 dark:text-white/50 hover:text-secondary-navy dark:hover:text-white'}`}
                     >
-                        <span className="material-symbols-outlined text-lg">palette</span>
+                        <Palette className="w-5 h-5" />
                         <span className="text-sm font-bold leading-normal tracking-[0.015em]">Branding & Identity</span>
                     </button>
                     <button
                         onClick={() => setActiveTab('benchmarks')}
                         className={`flex items-center gap-2 border-b-[3px] pb-3 px-2 transition-all ${activeTab === 'benchmarks' ? 'border-admin-primary text-secondary-navy dark:text-white' : 'border-transparent text-secondary-navy/50 dark:text-white/50 hover:text-secondary-navy dark:hover:text-white'}`}
                     >
-                        <span className="material-symbols-outlined text-lg">speed</span>
+                        <Zap className="w-5 h-5" />
                         <span className="text-sm font-bold leading-normal tracking-[0.015em]">Proficiency Benchmarks</span>
                     </button>
                 </div>
@@ -39,7 +40,7 @@ const InstitutionSettings: React.FC = () => {
                         <section className="bg-white dark:bg-white/5 rounded-2xl border border-slate-200 dark:border-white/10 p-6 md:p-8 shadow-sm">
                             <div className="flex items-center gap-3 mb-6">
                                 <div className="p-2 rounded-lg bg-admin-primary/10 text-admin-primary">
-                                    <span className="material-symbols-outlined">palette</span>
+                                    <Palette className="w-6 h-6" />
                                 </div>
                                 <h2 className="text-xl font-bold text-slate-900 dark:text-white">Visual Identity</h2>
                             </div>
@@ -49,7 +50,7 @@ const InstitutionSettings: React.FC = () => {
                                     <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">School Logo</label>
                                     <div className="flex flex-col items-center justify-center border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-xl bg-slate-50 dark:bg-white/5 hover:bg-slate-100 dark:hover:bg-white/10 transition-colors py-10 px-6 text-center group cursor-pointer">
                                         <div className="size-12 rounded-full bg-white dark:bg-slate-700 flex items-center justify-center shadow-sm mb-4 group-hover:scale-110 transition-transform duration-300">
-                                            <span className="material-symbols-outlined text-admin-primary text-3xl">cloud_upload</span>
+                                            <CloudUpload className="text-admin-primary w-8 h-8" />
                                         </div>
                                         <p className="text-slate-900 dark:text-white font-medium">Click to upload or drag and drop</p>
                                         <p className="text-slate-500 dark:text-slate-400 text-xs mt-1">SVG, PNG or JPG (max. 2MB)</p>
@@ -73,7 +74,7 @@ const InstitutionSettings: React.FC = () => {
                                             <button aria-label="Select Green" className="size-8 rounded-full bg-[#047857] hover:scale-110 transition-transform border border-transparent hover:border-slate-300"></button>
                                             <button aria-label="Select Purple" className="size-8 rounded-full bg-[#7e22ce] hover:scale-110 transition-transform border border-transparent hover:border-slate-300"></button>
                                             <button aria-label="Custom Color" className="size-8 rounded-full bg-white border border-slate-300 hover:scale-110 transition-transform flex items-center justify-center group">
-                                                <span className="material-symbols-outlined text-slate-400 text-sm group-hover:text-admin-primary">add</span>
+                                                <Plus className="text-slate-400 w-4 h-4 group-hover:text-admin-primary" />
                                             </button>
                                         </div>
                                     </div>
@@ -84,7 +85,7 @@ const InstitutionSettings: React.FC = () => {
                         <section className="bg-white dark:bg-white/5 rounded-2xl border border-slate-200 dark:border-white/10 p-6 md:p-8 shadow-sm">
                             <div className="flex items-center gap-3 mb-6">
                                 <div className="p-2 rounded-lg bg-admin-primary/10 text-admin-primary">
-                                    <span className="material-symbols-outlined">domain</span>
+                                    <Building2 className="w-6 h-6" />
                                 </div>
                                 <h2 className="text-xl font-bold text-slate-900 dark:text-white">Institution Details</h2>
                             </div>
@@ -143,7 +144,7 @@ const InstitutionSettings: React.FC = () => {
                                         {/* Logo Place */}
                                         <div className="flex justify-center mb-8">
                                             <div className="size-20 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center shadow-sm">
-                                                <span className="material-symbols-outlined text-[#3B82F6] text-4xl">school</span>
+                                                <School className="text-[#3B82F6] w-10 h-10" />
                                             </div>
                                         </div>
                                         <div className="space-y-4">
@@ -161,7 +162,7 @@ const InstitutionSettings: React.FC = () => {
                                             </div>
                                             <button className="w-full h-9 rounded text-xs font-bold text-white shadow-md mt-2 flex items-center justify-center gap-2" style={{ backgroundColor: "#3B82F6" }}>
                                                 Sign In
-                                                <span className="material-symbols-outlined text-[14px]">arrow_forward</span>
+                                                <ArrowRight className="w-[14px] h-[14px]" />
                                             </button>
                                             <div className="text-center mt-4">
                                                 <span className="text-[10px] text-slate-400 hover:text-admin-primary cursor-pointer">Forgot password?</span>
@@ -174,7 +175,7 @@ const InstitutionSettings: React.FC = () => {
                                 </div>
                             </div>
                             <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-900 rounded-lg p-3 flex gap-3">
-                                <span className="material-symbols-outlined text-blue-600 dark:text-blue-400 text-sm mt-0.5">info</span>
+                                <Info className="text-blue-600 dark:text-blue-400 w-4 h-4 mt-0.5" />
                                 <p className="text-xs text-blue-800 dark:text-blue-300 leading-relaxed">
                                     Changes to branding may take up to 5 minutes to propagate to all student devices.
                                 </p>
@@ -208,7 +209,7 @@ const InstitutionSettings: React.FC = () => {
                                     </label>
                                     <div className="relative">
                                         <div className="absolute inset-y-0 start-0 flex items-center ps-3.5 pointer-events-none">
-                                            <span className="material-symbols-outlined text-slate-400">speed</span>
+                                            <Zap className="text-slate-400 w-5 h-5" />
                                         </div>
                                         <input className="bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-600 text-slate-900 dark:text-white text-sm rounded-lg focus:ring-admin-primary focus:border-admin-primary block w-full ps-10 p-2.5 font-display font-semibold" id="level1" placeholder="30" type="number" defaultValue="35" />
                                         <div className="absolute inset-y-0 end-0 flex items-center pe-3.5 pointer-events-none">
@@ -228,7 +229,7 @@ const InstitutionSettings: React.FC = () => {
                                     </label>
                                     <div className="relative">
                                         <div className="absolute inset-y-0 start-0 flex items-center ps-3.5 pointer-events-none">
-                                            <span className="material-symbols-outlined text-emerald-600 dark:text-emerald-500">verified</span>
+                                            <BadgeCheck className="text-emerald-600 dark:text-emerald-500 w-5 h-5" />
                                         </div>
                                         <input className="bg-emerald-50/50 dark:bg-emerald-900/10 border border-emerald-200 dark:border-emerald-800 text-slate-900 dark:text-white text-sm rounded-lg focus:ring-emerald-500 focus:border-emerald-500 block w-full ps-10 p-2.5 font-display font-semibold shadow-sm" id="level2" placeholder="50" type="number" defaultValue="55" />
                                         <div className="absolute inset-y-0 end-0 flex items-center pe-3.5 pointer-events-none">
@@ -261,7 +262,7 @@ const InstitutionSettings: React.FC = () => {
                     <div className="lg:col-span-5">
                         <div className="sticky top-24 space-y-4">
                             <div className="flex items-center gap-2 mb-2 px-1">
-                                <span className="material-symbols-outlined text-slate-400 text-[20px]">visibility</span>
+                                <Eye className="text-slate-400 w-5 h-5" />
                                 <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-wider">Student Dashboard Preview</h3>
                             </div>
                             {/* Card Mockup */}
@@ -276,7 +277,7 @@ const InstitutionSettings: React.FC = () => {
                                     <div className="flex items-center justify-between mb-2">
                                         <span className="text-3xl font-black text-slate-900 dark:text-white">45 <span className="text-lg font-medium text-slate-500">WPM</span></span>
                                         <div className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/20 px-2 py-1 rounded text-sm font-medium">
-                                            <span className="material-symbols-outlined text-[16px]">trending_up</span>
+                                            <TrendingUp className="w-4 h-4" />
                                             +5 this week
                                         </div>
                                     </div>
@@ -290,7 +291,7 @@ const InstitutionSettings: React.FC = () => {
                                             <div className="h-4 w-1 bg-white/50 z-10"></div> {/* Tick mark inside bar */}
                                             <div className="mt-2 flex flex-col items-center">
                                                 <div className="h-6 w-6 rounded-full bg-admin-primary text-white flex items-center justify-center border-2 border-white dark:border-surface-dark shadow-md z-20">
-                                                    <span className="material-symbols-outlined text-[14px]">check</span>
+                                                    <Check className="w-[14px] h-[14px]" />
                                                 </div>
                                                 <span className="text-[10px] font-bold text-slate-500 mt-1 uppercase tracking-wide">Lvl 1</span>
                                                 <span className="text-xs font-bold text-slate-700 dark:text-slate-300">35</span>
@@ -300,7 +301,7 @@ const InstitutionSettings: React.FC = () => {
                                         <div className="absolute top-0 flex flex-col items-center -ml-3" style={{ left: "100%" }}>
                                             <div className="mt-2 flex flex-col items-center">
                                                 <div className="h-6 w-6 rounded-full bg-white dark:bg-slate-700 border-2 border-emerald-500 text-emerald-500 flex items-center justify-center shadow-md z-20">
-                                                    <span className="material-symbols-outlined text-[14px]">star</span>
+                                                    <Star className="w-[14px] h-[14px]" />
                                                 </div>
                                                 <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 mt-1 uppercase tracking-wide">Goal</span>
                                                 <span className="text-xs font-bold text-slate-700 dark:text-slate-300">55</span>
@@ -310,7 +311,7 @@ const InstitutionSettings: React.FC = () => {
                                     {/* Dynamic Text Feedback */}
                                     <div className="bg-blue-50 dark:bg-admin-primary/10 rounded-lg p-4 mt-8 flex gap-3">
                                         <div className="bg-white dark:bg-slate-800 p-2 rounded-full h-8 w-8 flex items-center justify-center shrink-0 shadow-sm text-admin-primary">
-                                            <span className="material-symbols-outlined text-[18px]">lightbulb</span>
+                                            <Lightbulb className="w-[18px] h-[18px]" />
                                         </div>
                                         <div className="text-sm">
                                             <p className="font-medium text-slate-800 dark:text-white mb-1">Keep pushing!</p>

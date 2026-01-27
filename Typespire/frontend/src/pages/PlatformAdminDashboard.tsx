@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import api from '../api/axios';
 import type { Institution, CreateInstitutionDto } from '../types/institution';
+import { Search, Bell, PlusCircle, Building, TrendingUp, Users, Zap, Activity, Filter, Trash2, X, ShieldCheck, Shield, Info, Save, Rocket } from 'lucide-react';
 
 const PlatformAdminDashboard: React.FC = () => {
     const [filter, setFilter] = useState<'all' | 'active' | 'suspended'>('all');
@@ -137,17 +138,17 @@ const PlatformAdminDashboard: React.FC = () => {
                 </div>
                 <div className="flex items-center gap-4">
                     <div className="relative w-64 hidden md:block">
-                        <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xl">search</span>
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5" />
                         <input className="w-full pl-10 pr-4 py-2 bg-slate-100 dark:bg-slate-800 border-none rounded-lg focus:ring-2 focus:ring-admin-primary text-sm" placeholder="Global search..." type="text" />
                     </div>
                     <button className="size-10 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">
-                        <span className="material-symbols-outlined text-slate-600 dark:text-slate-300">notifications</span>
+                        <Bell className="text-slate-600 dark:text-slate-300 w-6 h-6" />
                     </button>
                     <button
                         onClick={() => handleOnboardClick()}
                         className="bg-admin-primary hover:bg-admin-primary/90 text-navy-blue font-bold text-sm px-4 py-2 rounded-lg flex items-center gap-2 shadow-lg shadow-admin-primary/20 transition-all"
                     >
-                        <span className="material-symbols-outlined text-xl">add_circle</span>
+                        <PlusCircle className="w-5 h-5" />
                         <span className="hidden sm:inline">Onboard Institution</span>
                     </button>
                 </div>
@@ -160,9 +161,9 @@ const PlatformAdminDashboard: React.FC = () => {
                     <div className="bg-white dark:bg-slate-800/50 p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
                         <div className="flex items-center justify-between mb-4">
                             <span className="p-2 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-lg">
-                                <span className="material-symbols-outlined">apartment</span>
+                                <Building className="w-6 h-6" />
                             </span>
-                            <span className="text-emerald-500 text-sm font-bold flex items-center gap-1">+4.2% <span className="material-symbols-outlined text-xs">trending_up</span></span>
+                            <span className="text-emerald-500 text-sm font-bold flex items-center gap-1">+4.2% <TrendingUp className="w-4 h-4" /></span>
                         </div>
                         <p className="text-slate-500 dark:text-slate-400 text-sm font-medium">Total Institutions</p>
                         <h3 className="text-3xl font-bold mt-1">{stats.totalInstitutions}</h3>
@@ -170,9 +171,9 @@ const PlatformAdminDashboard: React.FC = () => {
                     <div className="bg-white dark:bg-slate-800/50 p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
                         <div className="flex items-center justify-between mb-4">
                             <span className="p-2 bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 rounded-lg">
-                                <span className="material-symbols-outlined">group</span>
+                                <Users className="w-6 h-6" />
                             </span>
-                            <span className="text-emerald-500 text-sm font-bold flex items-center gap-1">+12.5% <span className="material-symbols-outlined text-xs">trending_up</span></span>
+                            <span className="text-emerald-500 text-sm font-bold flex items-center gap-1">+12.5% <TrendingUp className="w-4 h-4" /></span>
                         </div>
                         <p className="text-slate-500 dark:text-slate-400 text-sm font-medium">Active Students</p>
                         <h3 className="text-3xl font-bold mt-1">{stats.activeStudents}</h3>
@@ -180,9 +181,9 @@ const PlatformAdminDashboard: React.FC = () => {
                     <div className="bg-white dark:bg-slate-800/50 p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
                         <div className="flex items-center justify-between mb-4">
                             <span className="p-2 bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 rounded-lg">
-                                <span className="material-symbols-outlined">speed</span>
+                                <Zap className="w-6 h-6" />
                             </span>
-                            <span className="text-emerald-500 text-sm font-bold flex items-center gap-1">+8.1% <span className="material-symbols-outlined text-xs">trending_up</span></span>
+                            <span className="text-emerald-500 text-sm font-bold flex items-center gap-1">+8.1% <TrendingUp className="w-4 h-4" /></span>
                         </div>
                         <p className="text-slate-500 dark:text-slate-400 text-sm font-medium">Avg. Typing Speed</p>
                         <h3 className="text-3xl font-bold mt-1">{stats.avgWpm} <span className="text-sm font-normal text-slate-400 uppercase">WPM</span></h3>
@@ -190,7 +191,7 @@ const PlatformAdminDashboard: React.FC = () => {
                     <div className="bg-white dark:bg-slate-800/50 p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
                         <div className="flex items-center justify-between mb-4">
                             <span className="p-2 bg-admin-primary/20 text-admin-primary rounded-lg">
-                                <span className="material-symbols-outlined">health_and_safety</span>
+                                <Activity className="w-6 h-6" />
                             </span>
                             <span className="text-slate-400 text-sm font-bold">Stable</span>
                         </div>
@@ -225,7 +226,7 @@ const PlatformAdminDashboard: React.FC = () => {
                                 </button>
                             </div>
                             <button className="flex items-center gap-2 px-4 py-2 bg-slate-100 dark:bg-slate-800 rounded-lg text-sm font-medium w-full sm:w-auto justify-center">
-                                <span className="material-symbols-outlined text-lg">filter_list</span>
+                                <Filter className="w-5 h-5" />
                                 Filters
                             </button>
                         </div>
@@ -283,7 +284,7 @@ const PlatformAdminDashboard: React.FC = () => {
                                                         className="p-2 text-slate-400 hover:text-red-500 transition-colors"
                                                         title="Delete Institution"
                                                     >
-                                                        <span className="material-symbols-outlined text-xl">delete</span>
+                                                        <Trash2 className="w-5 h-5" />
                                                     </button>
                                                     <button
                                                         onClick={() => handleOnboardClick(inst)}
@@ -319,7 +320,7 @@ const PlatformAdminDashboard: React.FC = () => {
                                 onClick={() => setShowOnboardModal(false)}
                                 className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors"
                             >
-                                <span className="material-symbols-outlined">close</span>
+                                <X className="w-6 h-6" />
                             </button>
                         </div>
 
@@ -328,7 +329,7 @@ const PlatformAdminDashboard: React.FC = () => {
                                 {/* Left Column: Institution Details */}
                                 <div className="space-y-4">
                                     <div className="flex items-center gap-2 mb-2 text-admin-primary">
-                                        <span className="material-symbols-outlined">apartment</span>
+                                        <Building className="w-5 h-5" />
                                         <h3 className="font-bold text-sm uppercase tracking-wider">Institution Details</h3>
                                     </div>
 
@@ -386,7 +387,7 @@ const PlatformAdminDashboard: React.FC = () => {
                                 {/* Right Column: Admin User */}
                                 <div className="space-y-4">
                                     <div className="flex items-center gap-2 mb-2 text-blue-500">
-                                        <span className="material-symbols-outlined">shield_person</span>
+                                        <ShieldCheck className="w-5 h-5" />
                                         <h3 className="font-bold text-sm uppercase tracking-wider">
                                             {editingId ? 'Institution Admin' : 'Initial Administrator'}
                                         </h3>
@@ -394,7 +395,7 @@ const PlatformAdminDashboard: React.FC = () => {
 
                                     {editingId ? (
                                         <div className="p-5 bg-blue-50 dark:bg-blue-900/10 rounded-xl border border-blue-100 dark:border-blue-900/30 flex flex-col items-center justify-center text-center h-full">
-                                            <span className="material-symbols-outlined text-4xl text-blue-400 mb-2">admin_panel_settings</span>
+                                            <Shield className="text-blue-400 w-10 h-10 mb-2" />
                                             <p className="text-sm text-slate-600 dark:text-slate-400 font-medium">Admin Management</p>
                                             <p className="text-xs text-slate-500 dark:text-slate-500 mt-1 max-w-[200px]">
                                                 To manage administrators, please use the "Manage Users" section or ask the institution admin to invite new users.
@@ -449,7 +450,7 @@ const PlatformAdminDashboard: React.FC = () => {
                                             </div>
 
                                             <div className="bg-amber-50 dark:bg-amber-900/10 p-3 rounded-lg border border-amber-100 dark:border-amber-900/30 flex gap-3 items-start">
-                                                <span className="material-symbols-outlined text-amber-500 text-lg mt-0.5">info</span>
+                                                <Info className="text-amber-500 w-5 h-5 mt-0.5" />
                                                 <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
                                                     The initial administrator will receive an email with their credentials. They will have full access to manage the institution's settings.
                                                 </p>
@@ -471,9 +472,7 @@ const PlatformAdminDashboard: React.FC = () => {
                                     type="submit"
                                     className="px-6 py-2.5 bg-admin-primary hover:bg-admin-primary/90 text-navy-blue font-bold rounded-lg shadow-lg shadow-admin-primary/20 transition-all transform active:scale-[0.98] flex items-center gap-2 text-sm"
                                 >
-                                    <span className="material-symbols-outlined text-lg">
-                                        {editingId ? 'save' : 'rocket_launch'}
-                                    </span>
+                                    {editingId ? <Save className="w-5 h-5" /> : <Rocket className="w-5 h-5" />}
                                     {editingId ? 'Update Institution' : 'Create Institution'}
                                 </button>
                             </div>

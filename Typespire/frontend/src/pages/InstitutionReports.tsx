@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import api from '../api/axios';
+import { FileText, Download, History, Loader2, File } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 const InstitutionReports: React.FC = () => {
@@ -32,7 +33,7 @@ const InstitutionReports: React.FC = () => {
             }
 
             const headers = Object.keys(data[0]).join(',');
-            const rows = data.map((row: any) => Object.values(row).join(',')).join('\n');
+            const rows = data.map((row: Record<string, unknown>) => Object.values(row).join(',')).join('\n');
             const csvContent = `${headers}\n${rows}`;
 
             // Create download link
@@ -65,7 +66,7 @@ const InstitutionReports: React.FC = () => {
                 <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-6">
                     <div className="flex items-center gap-3 mb-6">
                         <div className="p-2 bg-admin-primary/10 rounded-lg text-admin-primary">
-                            <span className="material-symbols-outlined">post_add</span>
+                            <FileText className="w-6 h-6" />
                         </div>
                         <h2 className="text-xl font-bold text-slate-900 dark:text-white">Generate New Report</h2>
                     </div>
@@ -101,9 +102,9 @@ const InstitutionReports: React.FC = () => {
                                 className="w-full py-2.5 rounded-lg bg-admin-primary text-slate-900 font-bold hover:bg-admin-primary/90 transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                                 {loading ? (
-                                    <span className="material-symbols-outlined animate-spin">progress_activity</span>
+                                    <Loader2 className="w-5 h-5 animate-spin" />
                                 ) : (
-                                    <span className="material-symbols-outlined">download</span>
+                                    <Download className="w-5 h-5" />
                                 )}
                                 {loading ? 'Generating...' : 'Generate Report'}
                             </button>
@@ -115,7 +116,7 @@ const InstitutionReports: React.FC = () => {
                 <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-6">
                     <div className="flex items-center gap-3 mb-6">
                         <div className="p-2 bg-slate-100 dark:bg-slate-700 rounded-lg text-slate-600 dark:text-slate-300">
-                            <span className="material-symbols-outlined">history</span>
+                            <History className="w-6 h-6" />
                         </div>
                         <h2 className="text-xl font-bold text-slate-900 dark:text-white">Recent Reports</h2>
                     </div>
@@ -125,7 +126,7 @@ const InstitutionReports: React.FC = () => {
                             <div key={i} className="flex items-center justify-between p-3 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors border border-transparent hover:border-slate-200 dark:hover:border-slate-600 group">
                                 <div className="flex items-center gap-3">
                                     <div className="size-10 rounded-lg bg-red-50 dark:bg-red-900/20 flex items-center justify-center text-red-600 dark:text-red-400">
-                                        <span className="material-symbols-outlined">picture_as_pdf</span>
+                                        <File className="w-6 h-6" />
                                     </div>
                                     <div>
                                         <p className="text-sm font-bold text-slate-900 dark:text-white">Jan 2025 Intake Summary</p>
@@ -133,7 +134,7 @@ const InstitutionReports: React.FC = () => {
                                     </div>
                                 </div>
                                 <button className="p-2 text-slate-400 hover:text-admin-primary transition-colors opacity-0 group-hover:opacity-100">
-                                    <span className="material-symbols-outlined">download</span>
+                                    <Download className="w-5 h-5" />
                                 </button>
                             </div>
                         ))}

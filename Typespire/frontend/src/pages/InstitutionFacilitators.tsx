@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import api from '../api/axios';
+import { UserPlus, MoreVertical, X } from 'lucide-react';
 
 // --- Types ---
 interface Facilitator {
@@ -30,12 +31,20 @@ const InstitutionFacilitators: React.FC = () => {
 
     const fetchFacilitators = async (institutionId: string) => {
         try {
-            const response = await api.get(`/institution/${institutionId}/facilitators`);
-            const mappedFacilitators: Facilitator[] = response.data.map((f: any) => ({
+            interface BackendFacilitator {
+                id: string;
+                firstName?: string;
+                lastName?: string;
+                email: string;
+                role: string;
+            }
+
+            const response = await api.get<BackendFacilitator[]>(`/institution/${institutionId}/facilitators`);
+            const mappedFacilitators: Facilitator[] = response.data.map((f) => ({
                 id: f.id,
                 name: `${f.firstName || ''} ${f.lastName || ''}`.trim() || f.email,
-                email: f.email,
                 role: f.role,
+                email: f.email,
                 status: 'Active', // Default status for now
                 assignedIntakes: [] // Placeholder
             }));
@@ -89,7 +98,7 @@ const InstitutionFacilitators: React.FC = () => {
                     onClick={() => setShowInviteModal(true)}
                     className="flex items-center gap-2 px-4 py-2 bg-[#0d1b17] text-white rounded-lg text-sm font-bold hover:bg-[#1a2e28] transition-colors shadow-lg shadow-gray-200"
                 >
-                    <span className="material-symbols-outlined text-[20px]">person_add</span>
+                    <UserPlus className="w-5 h-5" />
                     Invite Facilitator
                 </button>
             </header>
@@ -149,7 +158,7 @@ const InstitutionFacilitators: React.FC = () => {
                                         </td>
                                         <td className="px-6 py-4 text-right">
                                             <button className="p-2 text-gray-400 hover:text-[#0d1b17] transition-colors">
-                                                <span className="material-symbols-outlined text-[20px]">more_vert</span>
+                                                <MoreVertical className="w-5 h-5" />
                                             </button>
                                         </td>
                                     </tr>
@@ -167,7 +176,7 @@ const InstitutionFacilitators: React.FC = () => {
                         <div className="p-6 border-b border-gray-100 flex justify-between items-center">
                             <h3 className="text-xl font-bold text-[#0d1b17]">Invite Facilitator</h3>
                             <button onClick={() => setShowInviteModal(false)} className="text-gray-400 hover:text-gray-600">
-                                <span className="material-symbols-outlined">close</span>
+                                <X className="w-6 h-6" />
                             </button>
                         </div>
                         <form onSubmit={handleInvite} className="p-6 flex flex-col gap-4">

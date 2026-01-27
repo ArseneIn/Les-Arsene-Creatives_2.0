@@ -1,6 +1,7 @@
 import React from 'react';
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { Keyboard, X, LayoutDashboard, Calendar, Users, BarChart, FileText, Settings, LogOut, Menu } from 'lucide-react';
 
 const InstitutionAdminLayout: React.FC = () => {
     const location = useLocation();
@@ -34,7 +35,7 @@ const InstitutionAdminLayout: React.FC = () => {
                     <div className="flex items-center justify-between mb-10">
                         <div className="flex items-center gap-3">
                             <div className="bg-admin-primary rounded-lg p-2 flex items-center justify-center">
-                                <span className="material-symbols-outlined text-navy-blue text-2xl">keyboard</span>
+                                <Keyboard className="text-navy-blue w-6 h-6" />
                             </div>
                             <div>
                                 <h1 className="text-xl font-bold tracking-tight">Typespire</h1>
@@ -45,7 +46,7 @@ const InstitutionAdminLayout: React.FC = () => {
                             className="lg:hidden text-slate-400 hover:text-white"
                             onClick={() => setIsSidebarOpen(false)}
                         >
-                            <span className="material-symbols-outlined">close</span>
+                            <X className="w-6 h-6" />
                         </button>
                     </div>
                     <nav className="space-y-1">
@@ -57,7 +58,8 @@ const InstitutionAdminLayout: React.FC = () => {
                                 : 'text-slate-400 hover:text-white hover:bg-white/5 border-transparent'
                                 }`}
                         >
-                            <span className="material-symbols-outlined">dashboard</span>
+
+                            <LayoutDashboard className="w-6 h-6" />
                             <span className="font-medium">Dashboard</span>
                         </Link>
                         <Link
@@ -68,7 +70,8 @@ const InstitutionAdminLayout: React.FC = () => {
                                 : 'text-slate-400 hover:text-white hover:bg-white/5 border-transparent'
                                 }`}
                         >
-                            <span className="material-symbols-outlined">calendar_month</span>
+
+                            <Calendar className="w-6 h-6" />
                             <span className="font-medium">Intakes & Sections</span>
                         </Link>
                         <Link
@@ -79,7 +82,8 @@ const InstitutionAdminLayout: React.FC = () => {
                                 : 'text-slate-400 hover:text-white hover:bg-white/5 border-transparent'
                                 }`}
                         >
-                            <span className="material-symbols-outlined">group</span>
+
+                            <Users className="w-6 h-6" />
                             <span className="font-medium">Facilitators</span>
                         </Link>
                         <Link
@@ -90,7 +94,8 @@ const InstitutionAdminLayout: React.FC = () => {
                                 : 'text-slate-400 hover:text-white hover:bg-white/5 border-transparent'
                                 }`}
                         >
-                            <span className="material-symbols-outlined">analytics</span>
+
+                            <BarChart className="w-6 h-6" />
                             <span className="font-medium">Analytics</span>
                         </Link>
                         <Link
@@ -101,7 +106,8 @@ const InstitutionAdminLayout: React.FC = () => {
                                 : 'text-slate-400 hover:text-white hover:bg-white/5 border-transparent'
                                 }`}
                         >
-                            <span className="material-symbols-outlined">description</span>
+
+                            <FileText className="w-6 h-6" />
                             <span className="font-medium">Reports</span>
                         </Link>
                         <Link
@@ -112,17 +118,17 @@ const InstitutionAdminLayout: React.FC = () => {
                                 : 'text-slate-400 hover:text-white hover:bg-white/5 border-transparent'
                                 }`}
                         >
-                            <span className="material-symbols-outlined">settings</span>
+
+                            <Settings className="w-6 h-6" />
                             <span className="font-medium">Settings</span>
                         </Link>
                     </nav>
                 </div>
                 <div className="mt-auto p-6 space-y-4">
                     <div className="flex items-center gap-3 p-2">
-                        <div
-                            className="size-10 rounded-full bg-center bg-cover border-2 border-admin-primary/50"
-                            style={{ backgroundImage: "url('https://lh3.googleusercontent.com/aida-public/AB6AXuDnqzAOeX1XfN82EJ_uOk9P6n0niJbbsId9F7JIoiwjwzt_ZyxItvopzLPVLDjKcbJDRtMCf7PuvF6HlH8By-59-Zv4BsxHFEB8cUJcYkE6qgJ9aHLG-eeeBLP5gBVAAsJWEGz3CKY-yezTEfWBIyXIP6DEaVDZg_t6d30_4-8jbbC2cjgzAk1NFTKX5weqcxYbXPJublmpVMDxI8_FPKHVLHVR36z08OrF5rLT0nADAi4KWBLPQEiwvCgGZ3KvfJeEp1MOAHnglWJy')" }}
-                        ></div>
+                        <div className="size-10 rounded-full bg-admin-primary/20 border-2 border-admin-primary/50 flex items-center justify-center text-admin-primary font-bold">
+                            {user?.firstName?.[0] || 'A'}
+                        </div>
                         <div className="flex-1 overflow-hidden">
                             <p className="text-sm font-bold truncate">
                                 {user ? `${user.firstName || ''} ${user.lastName || ''}` : 'Institution Admin'}
@@ -131,9 +137,9 @@ const InstitutionAdminLayout: React.FC = () => {
                         </div>
                         <button
                             onClick={handleLogout}
-                            className="material-symbols-outlined text-slate-400 cursor-pointer hover:text-white"
+                            className="text-slate-400 cursor-pointer hover:text-white"
                         >
-                            logout
+                            <LogOut className="w-6 h-6" />
                         </button>
                     </div>
                 </div>
@@ -147,7 +153,7 @@ const InstitutionAdminLayout: React.FC = () => {
                         onClick={() => setIsSidebarOpen(true)}
                         className="p-2 -ml-2 text-slate-600 dark:text-white hover:bg-gray-100 dark:hover:bg-white/10 rounded-lg"
                     >
-                        <span className="material-symbols-outlined">menu</span>
+                        <Menu className="w-6 h-6" />
                     </button>
                     <span className="font-bold text-lg text-slate-900 dark:text-white">Typespire Admin</span>
                 </div>

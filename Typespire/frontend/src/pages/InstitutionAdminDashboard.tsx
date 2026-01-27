@@ -15,6 +15,7 @@ import {
 import { useInstitution } from '../context/InstitutionContext';
 import api from '../api/axios';
 import { useAuth } from '../context/AuthContext';
+import { ChevronRight, Download, UserPlus, Users, TrendingUp, Folder, Zap, Target, TrendingDown, Filter, MoreVertical } from 'lucide-react';
 
 // --- Types ---
 interface Facilitator {
@@ -149,7 +150,7 @@ const InstitutionAdminDashboard: React.FC = () => {
                     <div>
                         <div className="flex items-center gap-2 text-sm text-gray-500 mb-1">
                             <span>Institutions</span>
-                            <span className="material-symbols-outlined text-xs">chevron_right</span>
+                            <ChevronRight className="w-3 h-3" />
                             <span className="font-medium text-gray-700">Dashboard</span>
                         </div>
                         <h2 className="text-[#0d1b17] text-3xl font-bold leading-tight">Institution Hub</h2>
@@ -157,11 +158,11 @@ const InstitutionAdminDashboard: React.FC = () => {
 
                     <div className="flex flex-wrap gap-3">
                         <button className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-lg text-gray-700 text-sm font-bold hover:bg-gray-50 transition-colors shadow-sm">
-                            <span className="material-symbols-outlined text-[20px]">download</span>
+                            <Download className="w-5 h-5" />
                             Export Data
                         </button>
                         <button className="flex items-center gap-2 px-4 py-2 bg-[#0d1b17] text-white rounded-lg text-sm font-bold hover:bg-[#1a2e28] transition-colors shadow-lg shadow-gray-200">
-                            <span className="material-symbols-outlined text-[20px]">person_add</span>
+                            <UserPlus className="w-5 h-5" />
                             Invite Facilitator
                         </button>
                     </div>
@@ -178,11 +179,11 @@ const InstitutionAdminDashboard: React.FC = () => {
                             <h3 className="text-[#0d1b17] text-4xl font-bold">{stats.totalFacilitators}</h3>
                         </div>
                         <div className="p-2 bg-blue-50 rounded-lg text-blue-600 group-hover:bg-blue-100 transition-colors">
-                            <span className="material-symbols-outlined icon-filled">group</span>
+                            <Users className="w-6 h-6 icon-filled" />
                         </div>
                     </div>
                     <div className="flex items-center gap-1 text-xs font-bold text-green-600">
-                        <span className="material-symbols-outlined text-sm">trending_up</span>
+                        <TrendingUp className="w-4 h-4" />
                         <span>+2% this month</span>
                     </div>
                 </div>
@@ -195,7 +196,7 @@ const InstitutionAdminDashboard: React.FC = () => {
                             <h3 className="text-[#0d1b17] text-4xl font-bold">{stats.activeIntakes}</h3>
                         </div>
                         <div className="p-2 bg-purple-50 rounded-lg text-purple-600 group-hover:bg-purple-100 transition-colors">
-                            <span className="material-symbols-outlined icon-filled">folder_shared</span>
+                            <Folder className="w-6 h-6 icon-filled" />
                         </div>
                     </div>
                     <p className="text-gray-400 text-xs font-medium">Across all departments</p>
@@ -209,11 +210,11 @@ const InstitutionAdminDashboard: React.FC = () => {
                             <h3 className="text-[#0d1b17] text-4xl font-bold">{stats.avgWpm}</h3>
                         </div>
                         <div className="p-2 bg-green-50 rounded-lg text-green-600 group-hover:bg-green-100 transition-colors">
-                            <span className="material-symbols-outlined icon-filled">speed</span>
+                            <Zap className="w-6 h-6 icon-filled" />
                         </div>
                     </div>
                     <div className="flex items-center gap-1 text-xs font-bold text-green-600">
-                        <span className="material-symbols-outlined text-sm">trending_up</span>
+                        <TrendingUp className="w-4 h-4" />
                         <span>+5% vs last sem</span>
                     </div>
                 </div>
@@ -226,11 +227,11 @@ const InstitutionAdminDashboard: React.FC = () => {
                             <h3 className="text-[#0d1b17] text-4xl font-bold">{stats.avgAccuracy}%</h3>
                         </div>
                         <div className="p-2 bg-yellow-50 rounded-lg text-yellow-600 group-hover:bg-yellow-100 transition-colors">
-                            <span className="material-symbols-outlined icon-filled">target</span>
+                            <Target className="w-6 h-6 icon-filled" />
                         </div>
                     </div>
                     <div className="flex items-center gap-1 text-xs font-bold text-red-500">
-                        <span className="material-symbols-outlined text-sm">trending_down</span>
+                        <TrendingDown className="w-4 h-4" />
                         <span>-1% trend</span>
                     </div>
                 </div>
@@ -327,7 +328,7 @@ const InstitutionAdminDashboard: React.FC = () => {
                     </div>
                     <div className="flex gap-3">
                         <button className="flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-200 text-gray-600 text-sm font-bold hover:bg-gray-50 transition-colors">
-                            <span className="material-symbols-outlined text-[18px]">filter_list</span>
+                            <Filter className="w-[18px] h-[18px]" />
                             Filter
                         </button>
                     </div>
@@ -385,7 +386,7 @@ const InstitutionAdminDashboard: React.FC = () => {
                                         </td>
                                         <td className="px-6 py-4 text-right">
                                             <button className="p-2 text-gray-400 hover:text-[#0d1b17] transition-colors">
-                                                <span className="material-symbols-outlined text-[20px]">more_vert</span>
+                                                <MoreVertical className="w-5 h-5" />
                                             </button>
                                         </td>
                                     </tr>

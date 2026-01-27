@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { UserRole } from '../types/auth';
 import { institutionService } from '../services/institution';
 import type { Institution } from '../types/institution';
+import { Keyboard, Star, School, User, Lock, Eye, ArrowRight, ChevronDown, GraduationCap, Presentation, Building2, ShieldCheck } from 'lucide-react';
 
 const Login: React.FC = () => {
     const [email, setEmail] = useState('');
@@ -78,7 +79,7 @@ const Login: React.FC = () => {
                 <div className="relative z-10">
                     <div className="flex items-center gap-3 mb-6">
                         <div className="bg-primary/20 p-2 rounded-lg backdrop-blur-sm border border-primary/30">
-                            <span className="material-symbols-outlined text-primary text-2xl">keyboard</span>
+                            <Keyboard className="text-primary w-6 h-6" />
                         </div>
                         <h1 className="text-2xl font-bold tracking-tight text-white">Typespire</h1>
                     </div>
@@ -93,15 +94,15 @@ const Login: React.FC = () => {
                 <div className="relative z-10">
                     <div className="bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl p-5 max-w-md">
                         <div className="flex gap-1 text-yellow-400 mb-2">
-                            <span className="material-symbols-outlined text-sm icon-filled">star</span>
-                            <span className="material-symbols-outlined text-sm icon-filled">star</span>
-                            <span className="material-symbols-outlined text-sm icon-filled">star</span>
-                            <span className="material-symbols-outlined text-sm icon-filled">star</span>
-                            <span className="material-symbols-outlined text-sm icon-filled">star</span>
+                            <Star className="w-4 h-4 fill-current" />
+                            <Star className="w-4 h-4 fill-current" />
+                            <Star className="w-4 h-4 fill-current" />
+                            <Star className="w-4 h-4 fill-current" />
+                            <Star className="w-4 h-4 fill-current" />
                         </div>
                         <p className="text-slate-200 italic text-sm mb-3">"Typespire has completely transformed how our institution approaches digital literacy. The analytics are unmatched."</p>
                         <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 rounded-full bg-gray-300 bg-[url('https://randomuser.me/api/portraits/women/44.jpg')] bg-cover"></div>
+                            <div className="w-8 h-8 rounded-full bg-slate-200 flex items-center justify-center text-xs font-bold text-slate-600 border border-slate-300">SM</div>
                             <div>
                                 <p className="font-bold text-sm">Dr. Sarah Mitchell</p>
                                 <p className="text-xs text-slate-400">Dean of Technology, Kepler College</p>
@@ -123,7 +124,7 @@ const Login: React.FC = () => {
                 <div className="w-full max-w-[420px] flex flex-col gap-6">
                     {/* Mobile Logo (visible only on small screens) */}
                     <div className="lg:hidden flex items-center gap-2 mb-2">
-                        <span className="material-symbols-outlined text-primary text-3xl">keyboard</span>
+                        <Keyboard className="text-primary w-8 h-8" />
                         <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Typespire</h1>
                     </div>
 
@@ -143,7 +144,7 @@ const Login: React.FC = () => {
                         <div className="flex flex-col gap-1">
                             <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">Institution</label>
                             <div className="relative">
-                                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 material-symbols-outlined text-[18px]">school</span>
+                                <School className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-[18px] h-[18px]" />
                                 <select
                                     value={institution}
                                     onChange={(e) => setInstitution(e.target.value)}
@@ -155,8 +156,9 @@ const Login: React.FC = () => {
                                             {inst.name}
                                         </option>
                                     ))}
+
                                 </select>
-                                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 material-symbols-outlined text-[18px] pointer-events-none">expand_more</span>
+                                <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 w-[18px] h-[18px] pointer-events-none" />
                             </div>
                         </div>
 
@@ -164,7 +166,7 @@ const Login: React.FC = () => {
                         <div className="flex flex-col gap-1">
                             <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">Student ID or Email</label>
                             <div className="relative">
-                                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 material-symbols-outlined text-[18px]">person</span>
+                                <User className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-[18px] h-[18px]" />
                                 <input
                                     type="text"
                                     value={email}
@@ -183,7 +185,7 @@ const Login: React.FC = () => {
                                 <a href="#" className="text-xs font-medium text-primary hover:text-primary/80 transition-colors">Forgot password?</a>
                             </div>
                             <div className="relative">
-                                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 material-symbols-outlined text-[18px]">lock</span>
+                                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-[18px] h-[18px]" />
                                 <input
                                     type="password"
                                     value={password}
@@ -193,7 +195,7 @@ const Login: React.FC = () => {
                                     required
                                 />
                                 <button type="button" className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors">
-                                    <span className="material-symbols-outlined text-[18px]">visibility</span>
+                                    <Eye className="w-[18px] h-[18px]" />
                                 </button>
                             </div>
                         </div>
@@ -214,7 +216,7 @@ const Login: React.FC = () => {
                             ) : (
                                 <>
                                     <span>Sign in</span>
-                                    <span className="material-symbols-outlined text-[18px]">arrow_forward</span>
+                                    <ArrowRight className="w-[18px] h-[18px]" />
                                 </>
                             )}
                         </button>
@@ -232,7 +234,8 @@ const Login: React.FC = () => {
                                 }}
                                 className="flex flex-col items-center justify-center gap-1 p-2 rounded-lg border border-slate-200 dark:border-slate-700 hover:border-primary hover:bg-primary/5 transition-all group"
                             >
-                                <span className="material-symbols-outlined text-slate-400 group-hover:text-primary transition-colors text-[20px]">school</span>
+
+                                <GraduationCap className="text-slate-400 group-hover:text-primary transition-colors w-5 h-5" />
                                 <span className="text-[10px] font-medium text-slate-600 dark:text-slate-300 group-hover:text-primary">Student</span>
                             </button>
                             <button
@@ -243,7 +246,8 @@ const Login: React.FC = () => {
                                 }}
                                 className="flex flex-col items-center justify-center gap-1 p-2 rounded-lg border border-slate-200 dark:border-slate-700 hover:border-facilitator-primary hover:bg-facilitator-primary/5 transition-all group"
                             >
-                                <span className="material-symbols-outlined text-slate-400 group-hover:text-facilitator-primary transition-colors text-[20px]">cast_for_education</span>
+
+                                <Presentation className="text-slate-400 group-hover:text-facilitator-primary transition-colors w-5 h-5" />
                                 <span className="text-[10px] font-medium text-slate-600 dark:text-slate-300 group-hover:text-facilitator-primary">Facilitator</span>
                             </button>
                             <button
@@ -254,7 +258,8 @@ const Login: React.FC = () => {
                                 }}
                                 className="flex flex-col items-center justify-center gap-1 p-2 rounded-lg border border-slate-200 dark:border-slate-700 hover:border-admin-primary hover:bg-admin-primary/5 transition-all group"
                             >
-                                <span className="material-symbols-outlined text-slate-400 group-hover:text-admin-primary transition-colors text-[20px]">domain</span>
+
+                                <Building2 className="text-slate-400 group-hover:text-admin-primary transition-colors w-5 h-5" />
                                 <span className="text-[10px] font-medium text-slate-600 dark:text-slate-300 group-hover:text-admin-primary">Inst.</span>
                             </button>
                             <button
@@ -266,7 +271,8 @@ const Login: React.FC = () => {
                                 }}
                                 className="flex flex-col items-center justify-center gap-1 p-2 rounded-lg border border-slate-200 dark:border-slate-700 hover:border-blue-500 hover:bg-blue-500/5 transition-all group"
                             >
-                                <span className="material-symbols-outlined text-slate-400 group-hover:text-blue-500 transition-colors text-[20px]">admin_panel_settings</span>
+
+                                <ShieldCheck className="text-slate-400 group-hover:text-blue-500 transition-colors w-5 h-5" />
                                 <span className="text-[10px] font-medium text-slate-600 dark:text-slate-300 group-hover:text-blue-500">Admin</span>
                             </button>
                         </div>
@@ -276,8 +282,10 @@ const Login: React.FC = () => {
                         Don't have an account? <Link to="/register" className="font-bold text-primary hover:underline">Create an account</Link>
                     </p>
                 </div>
+
             </div>
         </div>
+
     );
 };
 
