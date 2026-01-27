@@ -3,10 +3,12 @@ import { Plus, Calendar, ChevronDown, MoreHorizontal, Upload, X, CloudUpload, Fi
 import { useInstitution, type Intake } from '../context/InstitutionContext';
 
 const InstitutionIntakes: React.FC = () => {
-    const { intakes, addIntake, addSection } = useInstitution();
+    const { intakes, addIntake, addSection, facilitators, assignFacilitatorToSection } = useInstitution();
     const [expandedIntake, setExpandedIntake] = useState<string | null>('1');
     const [showNewIntakeModal, setShowNewIntakeModal] = useState(false);
     const [showBulkUploadModal, setShowBulkUploadModal] = useState<{ sectionId: string, intakeName: string, sectionName: string } | null>(null);
+    const [assignFacilitatorModal, setAssignFacilitatorModal] = useState<{ sectionId: string, currentFacilitatorId?: string } | null>(null);
+    const [selectedFacilitatorId, setSelectedFacilitatorId] = useState('');
 
     // Form States
     const [newIntakeName, setNewIntakeName] = useState('');
@@ -42,6 +44,14 @@ const InstitutionIntakes: React.FC = () => {
         addSection(intakeId, newSectionName);
         setNewSectionName('');
         setSelectedIntakeForSection(null);
+    };
+
+    const handleAssignFacilitator = async () => {
+        if (assignFacilitatorModal && selectedFacilitatorId) {
+            await assignFacilitatorToSection(assignFacilitatorModal.sectionId, selectedFacilitatorId);
+            setAssignFacilitatorModal(null);
+            setSelectedFacilitatorId('');
+        }
     };
 
     return (
@@ -88,23 +98,6 @@ const InstitutionIntakes: React.FC = () => {
                                 </div>
                             </div>
                             <div className="flex items-center gap-4">
-                                <div className="hidden md:flex flex-col items-end mr-4">
-                                    <span className="text-xs text-gray-400 font-bold uppercase tracking-wider">Facilitators</span>
-                                    <div className="flex -space-x-2 mt-1">
-                                        {intake.facilitators.length > 0 ? (
-                                            intake.facilitators.map((f, i) => (
-                                                <div key={i} className="w-6 h-6 rounded-full bg-gray-200 border-2 border-white flex items-center justify-center text-[8px] font-bold text-gray-600" title={f}>
-                                                    {f.charAt(0)}
-                                                </div>
-                                            ))
-                                        ) : (
-                                            <span className="text-xs text-gray-400 italic">None assigned</span>
-                                        )}
-                                        <button className="w-6 h-6 rounded-full bg-gray-100 border-2 border-white flex items-center justify-center text-gray-400 hover:bg-gray-200 hover:text-gray-600 transition-colors" title="Assign Facilitator">
-                                            <Plus className="w-[14px] h-[14px]" />
-                                        </button>
-                                    </div>
-                                </div>
                                 <ChevronDown className={`text-gray-400 transition-transform duration-200 ${expandedIntake === intake.id ? 'rotate-180' : ''}`} />
                             </div>
                         </div>
@@ -159,7 +152,38 @@ const InstitutionIntakes: React.FC = () => {
                                                         <MoreHorizontal className="w-[18px] h-[18px]" />
                                                     </button>
                                                 </div>
-                                                <div className="flex items-end justify-between">
+                                                <div className="mb-3">
+                                                    <p className="text-xs text-gray-400 font-bold uppercase tracking-wider mb-1">Facilitator</p>
+                                                    {section.facilitator ? (
+                                                        <div className="flex items-center gap-2">
+                                                            <div className="w-6 h-6 rounded-full bg-gray-100 flex items-center justify-center text-xs font-bold text-[#0d1b17]">
+                                                                {section.facilitator.name.charAt(0)}
+                                                            </div>
+                                                            <span className="text-sm font-medium text-gray-700 truncate">{section.facilitator.name}</span>
+                                                            <button
+                                                                onClick={() => {
+                                                                    setAssignFacilitatorModal({ sectionId: section.id, currentFacilitatorId: section.facilitator?.id });
+                                                                    setSelectedFacilitatorId(section.facilitator?.id || '');
+                                                                }}
+                                                                className="ml-auto text-xs text-blue-600 hover:underline"
+                                                            >
+                                                                Change
+                                                            </button>
+                                                        </div>
+                                                    ) : (
+                                                        <button
+                                                            onClick={() => {
+                                                                setAssignFacilitatorModal({ sectionId: section.id });
+                                                                setSelectedFacilitatorId('');
+                                                            }}
+                                                            className="flex items-center gap-1 text-xs text-gray-400 hover:text-[#0d1b17] border border-dashed border-gray-300 rounded px-2 py-1 w-full justify-center hover:border-gray-400 transition-colors"
+                                                        >
+                                                            <Plus className="w-3 h-3" />
+                                                            Assign Facilitator
+                                                        </button>
+                                                    )}
+                                                </div>
+                                                <div className="flex items-end justify-between pt-3 border-t border-gray-50">
                                                     <div>
                                                         <span className="text-2xl font-bold text-gray-800">{section.students.length}</span>
                                                         <span className="text-xs text-gray-500 ml-1">Students</span>
@@ -252,6 +276,50 @@ const InstitutionIntakes: React.FC = () => {
                                 </button>
                             </div>
                         </form>
+                    </div>
+                </div>
+            )}
+
+            {/* Assign Facilitator Modal */}
+            {assignFacilitatorModal && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+                    <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+                        <div className="p-6 border-b border-gray-100 flex justify-between items-center">
+                            <h3 className="text-xl font-bold text-[#0d1b17]">Assign Facilitator</h3>
+                            <button onClick={() => setAssignFacilitatorModal(null)} className="text-gray-400 hover:text-gray-600">
+                                <X className="w-6 h-6" />
+                            </button>
+                        </div>
+                        <div className="p-6 flex flex-col gap-4">
+                            <div>
+                                <label className="block text-sm font-bold text-gray-700 mb-1">Select Facilitator</label>
+                                <select
+                                    className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#0d1b17]/20 outline-none bg-white"
+                                    value={selectedFacilitatorId}
+                                    onChange={(e) => setSelectedFacilitatorId(e.target.value)}
+                                >
+                                    <option value="">Select a facilitator...</option>
+                                    {facilitators.map(f => (
+                                        <option key={f.id} value={f.id}>{f.name}</option>
+                                    ))}
+                                </select>
+                            </div>
+                            <div className="mt-2 flex justify-end gap-3">
+                                <button
+                                    onClick={() => setAssignFacilitatorModal(null)}
+                                    className="px-4 py-2 text-gray-600 font-bold hover:bg-gray-50 rounded-lg"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    onClick={handleAssignFacilitator}
+                                    disabled={!selectedFacilitatorId}
+                                    className="px-6 py-2 bg-[#0d1b17] text-white font-bold rounded-lg hover:bg-[#1a2e28] shadow-lg shadow-[#0d1b17]/20 disabled:opacity-50 disabled:cursor-not-allowed"
+                                >
+                                    Assign
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             )}

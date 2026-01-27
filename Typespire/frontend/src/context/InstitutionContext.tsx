@@ -9,10 +9,17 @@ export interface Student {
     email: string;
 }
 
+export interface Facilitator {
+    id: string;
+    name: string;
+    email: string;
+}
+
 export interface Section {
     id: string;
     name: string;
     students: Student[];
+    facilitator?: Facilitator;
 }
 
 export interface Intake {
@@ -27,8 +34,10 @@ export interface Intake {
 
 interface InstitutionContextType {
     intakes: Intake[];
+    facilitators: Facilitator[];
     addIntake: (intake: Intake) => void;
     addSection: (intakeId: string, sectionName: string) => void;
+    assignFacilitatorToSection: (sectionId: string, facilitatorId: string) => Promise<void>;
 }
 
 const InstitutionContext = createContext<InstitutionContextType | undefined>(undefined);
@@ -36,12 +45,7 @@ const InstitutionContext = createContext<InstitutionContextType | undefined>(und
 export const InstitutionProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     const { user } = useAuth();
     const [intakes, setIntakes] = useState<Intake[]>([]);
-
-    useEffect(() => {
-        if (user?.institutionId) {
-            fetchIntakes(user.institutionId);
-        }
-    }, [user?.institutionId]);
+    const [facilitators, setFacilitators] = useState<Facilitator[]>([]);
 
     const fetchIntakes = async (institutionId: string) => {
         try {
@@ -59,7 +63,12 @@ export const InstitutionProvider: React.FC<{ children: ReactNode }> = ({ childre
                 sections: item.sections ? item.sections.map((s: any) => ({
                     id: s.id,
                     name: s.name,
-                    students: s.students || []
+                    students: s.students || [],
+                    facilitator: s.facilitator ? {
+                        id: s.facilitator.id,
+                        name: `${s.facilitator.firstName || ''} ${s.facilitator.lastName || ''}`.trim() || s.facilitator.email,
+                        email: s.facilitator.email
+                    } : undefined
                 })) : []
             }));
 
@@ -68,6 +77,27 @@ export const InstitutionProvider: React.FC<{ children: ReactNode }> = ({ childre
             console.error('Failed to fetch intakes', error);
         }
     };
+
+    const fetchFacilitators = async (institutionId: string) => {
+        try {
+            const response = await api.get<any[]>(`/institution/${institutionId}/facilitators`);
+            const mappedFacilitators: Facilitator[] = response.data.map(f => ({
+                id: f.id,
+                name: `${f.firstName || ''} ${f.lastName || ''}`.trim() || f.email,
+                email: f.email
+            }));
+            setFacilitators(mappedFacilitators);
+        } catch (error) {
+            console.error('Failed to fetch facilitators', error);
+        }
+    };
+
+    useEffect(() => {
+        if (user?.institutionId) {
+            fetchIntakes(user.institutionId);
+            fetchFacilitators(user.institutionId);
+        }
+    }, [user?.institutionId]);
 
     const addIntake = async (intake: Intake) => {
         try {
@@ -103,8 +133,24 @@ export const InstitutionProvider: React.FC<{ children: ReactNode }> = ({ childre
         }
     };
 
+    const assignFacilitatorToSection = async (sectionId: string, facilitatorId: string) => {
+        try {
+            await api.patch(`/section/${sectionId}/assign-facilitator`, {
+                facilitatorId
+            });
+
+            // Refresh intakes to show updated assignment
+            if (user?.institutionId) {
+                fetchIntakes(user.institutionId);
+            }
+        } catch (error) {
+            console.error('Failed to assign facilitator', error);
+            throw error;
+        }
+    };
+
     return (
-        <InstitutionContext.Provider value={{ intakes, addIntake, addSection }}>
+        <InstitutionContext.Provider value={{ intakes, facilitators, addIntake, addSection, assignFacilitatorToSection }}>
             {children}
         </InstitutionContext.Provider>
     );
