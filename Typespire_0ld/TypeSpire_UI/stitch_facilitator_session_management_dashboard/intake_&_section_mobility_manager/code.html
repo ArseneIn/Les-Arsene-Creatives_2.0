@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Typespire - Mobility Manager</title>
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&amp;family=Noto+Sans:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<!-- Material Icons -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#137fec",
+                        "background-light": "#f6f7f8",
+                        "background-dark": "#101922",
+                        "surface-light": "#ffffff",
+                        "surface-dark": "#1a2632",
+                    },
+                    fontFamily: {
+                        "display": ["Lexend", "sans-serif"],
+                        "body": ["Noto Sans", "sans-serif"],
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        /* Custom scrollbar for data-heavy tables */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background-color: #cbd5e1;
+            border-radius: 20px;
+        }
+        .dark .custom-scrollbar::-webkit-scrollbar-thumb {
+            background-color: #475569;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-[#0d141b] dark:text-slate-100 font-display flex flex-col h-screen overflow-hidden">
+<!-- Top Navigation -->
+<header class="flex items-center justify-between whitespace-nowrap border-b border-solid border-[#e7edf3] dark:border-slate-800 bg-surface-light dark:bg-surface-dark px-6 py-3 shrink-0 z-20">
+<div class="flex items-center gap-8">
+<div class="flex items-center gap-3 text-[#0d141b] dark:text-white">
+<div class="size-8 bg-primary rounded-lg flex items-center justify-center text-white">
+<span class="material-symbols-outlined text-xl">school</span>
+</div>
+<h2 class="text-xl font-bold leading-tight tracking-tight">Typespire</h2>
+</div>
+<!-- Global Search -->
+<label class="hidden md:flex flex-col min-w-40 h-10 w-80">
+<div class="flex w-full flex-1 items-stretch rounded-lg h-full bg-[#f0f4f8] dark:bg-slate-800 border border-transparent focus-within:border-primary/50 transition-colors">
+<div class="text-[#4c739a] flex items-center justify-center pl-3">
+<span class="material-symbols-outlined text-[20px]">search</span>
+</div>
+<input class="flex w-full min-w-0 flex-1 resize-none overflow-hidden bg-transparent text-[#0d141b] dark:text-white focus:outline-0 focus:ring-0 border-none h-full placeholder:text-[#4c739a] px-3 text-sm font-normal" placeholder="Search student, ID, or intake..."/>
+</div>
+</label>
+</div>
+<div class="flex items-center gap-4">
+<button class="p-2 text-[#4c739a] hover:text-primary transition-colors relative">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-2 right-2 size-2 bg-red-500 rounded-full border border-white dark:border-surface-dark"></span>
+</button>
+<div class="flex items-center gap-3 pl-4 border-l border-[#e7edf3] dark:border-slate-700">
+<div class="text-right hidden sm:block">
+<p class="text-sm font-semibold leading-none">Jane Doe</p>
+<p class="text-xs text-[#4c739a] mt-1">Institution Admin</p>
+</div>
+<div class="bg-center bg-no-repeat bg-cover rounded-full size-10 ring-2 ring-white dark:ring-slate-700 shadow-sm" data-alt="User profile avatar showing a professional woman" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCXTZJAKsDFwwH55NC73mGsJzTY-7TETta2gaGccLhYplZNrTgBdhngtaXzKlEpWCy6EdJ-qER_t2xhT8RkMgRkAwDgXALBfeeCXgxAC3GogGQ8C6YD-DIRvgoWcBuxlhdFW8HrofM6AG-TBu6GeFnT6_Xq9OaQ16V5TgslqPfQZr3kmS3ceVO39XPx2Gdq2CW2rBxSa_iwYz1MpdPv6nZN6-UGi0ggB2DgnS8UdakM2uhqW7Qb7MA26jJu02r_1H5Qs_I2nfZFz17T");'></div>
+</div>
+</div>
+</header>
+<div class="flex flex-1 overflow-hidden">
+<!-- Sidebar Navigation (Tree View) -->
+<aside class="w-72 bg-surface-light dark:bg-surface-dark border-r border-[#e7edf3] dark:border-slate-800 flex flex-col shrink-0 overflow-y-auto custom-scrollbar">
+<div class="p-4">
+<div class="mb-6">
+<h3 class="text-xs font-bold text-[#4c739a] uppercase tracking-wider mb-3 px-2">Main Menu</h3>
+<nav class="flex flex-col gap-1">
+<a class="flex items-center gap-3 px-3 py-2 text-[#4c739a] hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors group" href="#">
+<span class="material-symbols-outlined text-[20px] group-hover:text-primary transition-colors">dashboard</span>
+<span class="text-sm font-medium">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-primary bg-primary/10 rounded-lg transition-colors" href="#">
+<span class="material-symbols-outlined text-[20px] fill-1">account_tree</span>
+<span class="text-sm font-medium">Structure &amp; Mobility</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-[#4c739a] hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors group" href="#">
+<span class="material-symbols-outlined text-[20px] group-hover:text-primary transition-colors">school</span>
+<span class="text-sm font-medium">Curriculum</span>
+</a>
+</nav>
+</div>
+<div class="border-t border-[#e7edf3] dark:border-slate-800 pt-6">
+<div class="flex items-center justify-between px-2 mb-3">
+<h3 class="text-xs font-bold text-[#4c739a] uppercase tracking-wider">Intakes &amp; Sections</h3>
+<button class="text-primary hover:bg-primary/10 p-1 rounded transition-colors" title="Add New Intake">
+<span class="material-symbols-outlined text-[18px]">add</span>
+</button>
+</div>
+<!-- Hierarchy Tree -->
+<div class="flex flex-col gap-1">
+<!-- Intake Item (Expanded) -->
+<div class="flex flex-col">
+<button class="flex items-center gap-2 px-2 py-2 w-full text-left text-sm font-semibold text-[#0d141b] dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg group">
+<span class="material-symbols-outlined text-[#4c739a] text-[20px] group-hover:text-primary transition-colors">expand_more</span>
+<span class="material-symbols-outlined text-primary text-[20px]">calendar_today</span>
+<span>Spring 2025</span>
+<span class="ml-auto text-xs bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 px-1.5 py-0.5 rounded">Active</span>
+</button>
+<!-- Nested Sections -->
+<div class="flex flex-col pl-9 gap-1 mt-1 border-l border-slate-200 dark:border-slate-700 ml-4 mb-2">
+<button class="flex items-center justify-between px-3 py-2 text-sm bg-primary/5 text-primary font-medium rounded-r-lg border-l-2 border-primary w-full text-left">
+<span>Section A</span>
+<span class="text-xs bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-1.5 rounded-full">32</span>
+</button>
+<button class="flex items-center justify-between px-3 py-2 text-sm text-[#4c739a] hover:text-[#0d141b] dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-r-lg border-l-2 border-transparent w-full text-left transition-colors">
+<span>Section B</span>
+<span class="text-xs bg-slate-100 dark:bg-slate-800 px-1.5 rounded-full">28</span>
+</button>
+<button class="flex items-center justify-between px-3 py-2 text-sm text-[#4c739a] hover:text-[#0d141b] dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-r-lg border-l-2 border-transparent w-full text-left transition-colors">
+<span>Section C</span>
+<span class="text-xs bg-slate-100 dark:bg-slate-800 px-1.5 rounded-full">30</span>
+</button>
+</div>
+</div>
+<!-- Intake Item (Collapsed) -->
+<div class="flex flex-col">
+<button class="flex items-center gap-2 px-2 py-2 w-full text-left text-sm font-medium text-[#4c739a] hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg group transition-colors">
+<span class="material-symbols-outlined text-[#4c739a] text-[20px] -rotate-90">expand_more</span>
+<span class="material-symbols-outlined text-[#4c739a] text-[20px] group-hover:text-[#0d141b] dark:group-hover:text-slate-200">calendar_today</span>
+<span>Fall 2024</span>
+<span class="ml-auto text-xs bg-slate-100 dark:bg-slate-800 text-slate-500 px-1.5 py-0.5 rounded">Archived</span>
+</button>
+</div>
+<!-- Intake Item (Collapsed) -->
+<div class="flex flex-col">
+<button class="flex items-center gap-2 px-2 py-2 w-full text-left text-sm font-medium text-[#4c739a] hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg group transition-colors">
+<span class="material-symbols-outlined text-[#4c739a] text-[20px] -rotate-90">expand_more</span>
+<span class="material-symbols-outlined text-[#4c739a] text-[20px] group-hover:text-[#0d141b] dark:group-hover:text-slate-200">calendar_today</span>
+<span>Spring 2024</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Bottom Actions -->
+<div class="mt-auto p-4 border-t border-[#e7edf3] dark:border-slate-800">
+<button class="flex items-center justify-center gap-2 w-full py-2 px-4 border border-[#e7edf3] dark:border-slate-700 rounded-lg text-sm font-medium text-[#4c739a] hover:text-[#0d141b] dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
+<span class="material-symbols-outlined text-[18px]">settings</span>
+<span>Hierarchy Settings</span>
+</button>
+</div>
+</aside>
+<!-- Main Workspace -->
+<main class="flex-1 flex flex-col h-full overflow-hidden bg-background-light dark:bg-background-dark relative">
+<!-- Context Header -->
+<div class="px-8 py-6 pb-2 shrink-0">
+<!-- Breadcrumbs -->
+<nav class="flex items-center gap-2 text-sm mb-4">
+<a class="text-[#4c739a] hover:text-primary transition-colors" href="#">Home</a>
+<span class="text-[#4c739a] material-symbols-outlined text-[16px]">chevron_right</span>
+<a class="text-[#4c739a] hover:text-primary transition-colors" href="#">Academic Structure</a>
+<span class="text-[#4c739a] material-symbols-outlined text-[16px]">chevron_right</span>
+<span class="font-medium text-[#0d141b] dark:text-slate-200">Mobility Manager</span>
+</nav>
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-4">
+<div>
+<h1 class="text-3xl font-bold tracking-tight text-[#0d141b] dark:text-white mb-1">Structure &amp; Mobility</h1>
+<p class="text-[#4c739a] max-w-2xl">Manage student placement and transfer across sections. Progress data is automatically preserved during transfer.</p>
+</div>
+<div class="flex items-center gap-3">
+<div class="flex items-center gap-2 px-3 py-1.5 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 rounded text-sm font-medium border border-blue-100 dark:border-blue-800">
+<span class="material-symbols-outlined text-[18px]">info</span>
+<span>Auto-save enabled</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Split Pane View -->
+<div class="flex-1 p-8 pt-6 overflow-hidden">
+<div class="h-full flex flex-col lg:flex-row gap-6">
+<!-- Left Panel: Source Section -->
+<div class="flex-1 flex flex-col bg-surface-light dark:bg-surface-dark rounded-xl shadow-sm border border-[#e7edf3] dark:border-slate-800 overflow-hidden">
+<div class="p-4 border-b border-[#e7edf3] dark:border-slate-800 flex flex-col gap-3">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<div class="size-8 rounded-lg bg-blue-100 dark:bg-blue-900/30 text-primary flex items-center justify-center font-bold">A</div>
+<div>
+<h3 class="font-bold text-[#0d141b] dark:text-white">Spring 2025 - Section A</h3>
+<p class="text-xs text-[#4c739a]">32 Students • 85% Avg. Speed</p>
+</div>
+</div>
+<button class="text-[#4c739a] hover:text-primary p-1">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</div>
+<!-- Filter Bar Source -->
+<div class="relative">
+<span class="material-symbols-outlined absolute left-2.5 top-2 text-[#4c739a] text-[18px]">search</span>
+<input class="w-full bg-[#f0f4f8] dark:bg-slate-800 border-none rounded-lg py-1.5 pl-9 pr-3 text-sm focus:ring-1 focus:ring-primary placeholder:text-[#94a3b8]" placeholder="Filter roster..." type="text"/>
+</div>
+</div>
+<!-- Roster List Source -->
+<div class="flex-1 overflow-y-auto custom-scrollbar p-2">
+<table class="w-full text-left border-collapse">
+<thead class="sticky top-0 bg-surface-light dark:bg-surface-dark z-10 text-xs font-semibold text-[#4c739a] uppercase tracking-wider">
+<tr>
+<th class="p-2 w-8"><input class="rounded border-gray-300 text-primary focus:ring-primary bg-transparent" type="checkbox"/></th>
+<th class="p-2">Student</th>
+<th class="p-2 text-right">Progress</th>
+</tr>
+</thead>
+<tbody class="text-sm divide-y divide-[#e7edf3] dark:divide-slate-800">
+<!-- Selected Row -->
+<tr class="group hover:bg-slate-50 dark:hover:bg-slate-800/50 bg-blue-50/50 dark:bg-blue-900/10 transition-colors">
+<td class="p-2"><input checked="" class="rounded border-gray-300 text-primary focus:ring-primary bg-transparent" type="checkbox"/></td>
+<td class="p-2">
+<div class="flex items-center gap-3">
+<div class="size-8 rounded-full bg-cover bg-center" data-alt="Student avatar placeholder" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBxLuRL8pOU79IG5m4PHH2U5J-7jthcaQZXewAkmdVXMyMa6n12H1uNm_UQJIWa1ZgNNDdjsIjn-in5CjgTbdGDKDzspxvVOC6tNoiltJ5RzK4u42cYlyq39bcz7O5i8Y4k56JgjNGLIDXRVO1fitPZPklUFCy4Ku6Gk3Jwnk2-Xgpy7SgLGbQj4JH0k11zJViy1RzZcdqrMoKXB_7kLcQVbUwJDvisIG6HgYwFSfooKGsS7kRt-5NE0PPGIF5OKKV0-pZiYVSZXnTO')"></div>
+<div>
+<div class="font-medium text-[#0d141b] dark:text-white">Alex Morgan</div>
+<div class="text-xs text-[#4c739a]">ID: 2025001</div>
+</div>
+</div>
+</td>
+<td class="p-2 text-right">
+<div class="flex flex-col items-end gap-1">
+<span class="font-semibold text-[#0d141b] dark:text-white">45 WPM</span>
+<div class="w-20 h-1.5 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+<div class="h-full bg-green-500 w-[65%]"></div>
+</div>
+</div>
+</td>
+</tr>
+<!-- Selected Row -->
+<tr class="group hover:bg-slate-50 dark:hover:bg-slate-800/50 bg-blue-50/50 dark:bg-blue-900/10 transition-colors">
+<td class="p-2"><input checked="" class="rounded border-gray-300 text-primary focus:ring-primary bg-transparent" type="checkbox"/></td>
+<td class="p-2">
+<div class="flex items-center gap-3">
+<div class="size-8 rounded-full bg-cover bg-center" data-alt="Student avatar placeholder" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCRf7Bl6FT3aGesuIwGXSXkBIFRA3GGOPR4sRROO4m4pJgNG9q1dGu9CRgHEvoFj3KPLVkaM9UVP3AF9pwrP5_KvN3pV1ut3E44cHtztBv1vdg1-hluR4IDFaMubVSNMKI0v0SLUUcZf-xozy3Rw4hhdk70wloRutPmW3PUBj2-BNpGPKD5pwb5-hgCCBkiqyN2ne9bqS87rVULEkT0hI0RyYSntgfBeVXa3UQBXEmXMCTj-pDx0Kc-G8u8GIJcJ9imcl-WfG68CCDR')"></div>
+<div>
+<div class="font-medium text-[#0d141b] dark:text-white">Marcus Chen</div>
+<div class="text-xs text-[#4c739a]">ID: 2025004</div>
+</div>
+</div>
+</td>
+<td class="p-2 text-right">
+<div class="flex flex-col items-end gap-1">
+<span class="font-semibold text-[#0d141b] dark:text-white">52 WPM</span>
+<div class="w-20 h-1.5 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+<div class="h-full bg-green-500 w-[78%]"></div>
+</div>
+</div>
+</td>
+</tr>
+<!-- Normal Row -->
+<tr class="group hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+<td class="p-2"><input class="rounded border-gray-300 text-primary focus:ring-primary bg-transparent" type="checkbox"/></td>
+<td class="p-2">
+<div class="flex items-center gap-3">
+<div class="size-8 rounded-full bg-purple-100 dark:bg-purple-900 text-purple-600 dark:text-purple-300 flex items-center justify-center text-xs font-bold">SJ</div>
+<div>
+<div class="font-medium text-[#0d141b] dark:text-white">Sarah Jenkins</div>
+<div class="text-xs text-[#4c739a]">ID: 2025012</div>
+</div>
+</div>
+</td>
+<td class="p-2 text-right">
+<div class="flex flex-col items-end gap-1">
+<span class="font-semibold text-[#0d141b] dark:text-white">38 WPM</span>
+<div class="w-20 h-1.5 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+<div class="h-full bg-yellow-500 w-[45%]"></div>
+</div>
+</div>
+</td>
+</tr>
+<!-- Normal Row -->
+<tr class="group hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+<td class="p-2"><input class="rounded border-gray-300 text-primary focus:ring-primary bg-transparent" type="checkbox"/></td>
+<td class="p-2">
+<div class="flex items-center gap-3">
+<div class="size-8 rounded-full bg-cover bg-center" data-alt="Student avatar placeholder" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDlxXy5kyBV53Q_lPRqhsTBaxPTmuagjBw-6vDEbTthSfTQ90ZpZVXnubSGwTYvMVBjKE4h-YMn4jVezvqerWl1lpcfuBYGGVQlaF1ViQUItR85x8tZd0wHiO01aDm-smawvXjCm686z_juYbQ_kStvU045StEn6ySE7l9flrlpu6ZVRMlQ6nYmn3Y_qhMSXzD-7dmMEQhtpqRXvMl7hLucmXG8FQ9Vd-Uz1-ma72SZOlM9R99auBGsNicX5-kPHEj7yZCEK3Z7_vfG')"></div>
+<div>
+<div class="font-medium text-[#0d141b] dark:text-white">David Kim</div>
+<div class="text-xs text-[#4c739a]">ID: 2025022</div>
+</div>
+</div>
+</td>
+<td class="p-2 text-right">
+<div class="flex flex-col items-end gap-1">
+<span class="font-semibold text-[#0d141b] dark:text-white">60 WPM</span>
+<div class="w-20 h-1.5 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+<div class="h-full bg-green-600 w-[85%]"></div>
+</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="p-3 bg-slate-50 dark:bg-slate-800/50 border-t border-[#e7edf3] dark:border-slate-800 text-center">
+<span class="text-xs text-[#4c739a]">Showing 4 of 32 students</span>
+</div>
+</div>
+<!-- Middle Action Zone (Desktop) -->
+<div class="flex lg:flex-col items-center justify-center gap-4 shrink-0">
+<div class="flex flex-col items-center gap-2 group cursor-pointer">
+<button class="size-10 rounded-full bg-primary text-white shadow-lg shadow-blue-500/30 flex items-center justify-center hover:scale-105 transition-transform active:scale-95 relative z-10">
+<span class="material-symbols-outlined lg:rotate-0 rotate-90">arrow_forward</span>
+</button>
+<div class="absolute lg:relative -top-12 lg:top-auto bg-slate-800 text-white text-xs px-3 py-1.5 rounded shadow-lg whitespace-nowrap opacity-100 transition-opacity">
+                                Move 2 Students
+                                <div class="absolute bottom-[-4px] left-1/2 -translate-x-1/2 w-2 h-2 bg-slate-800 rotate-45 lg:hidden"></div>
+</div>
+</div>
+</div>
+<!-- Right Panel: Destination Section -->
+<div class="flex-1 flex flex-col bg-surface-light dark:bg-surface-dark rounded-xl shadow-sm border border-[#e7edf3] dark:border-slate-800 overflow-hidden border-dashed border-2 border-slate-300 dark:border-slate-700">
+<!-- Header with Dropdown for Destination -->
+<div class="p-4 border-b border-[#e7edf3] dark:border-slate-800 flex flex-col gap-3 bg-slate-50/50 dark:bg-slate-800/20">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2 w-full">
+<div class="size-8 rounded-lg bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400 flex items-center justify-center font-bold">B</div>
+<div class="flex-1">
+<div class="flex items-center gap-2">
+<h3 class="font-bold text-[#0d141b] dark:text-white">Spring 2025 - Section B</h3>
+<span class="material-symbols-outlined text-[#4c739a] text-[18px] cursor-pointer hover:text-primary">edit</span>
+</div>
+<p class="text-xs text-[#4c739a]">Destination • 28 Students</p>
+</div>
+</div>
+</div>
+<!-- Filter Bar Dest -->
+<div class="relative opacity-60 hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined absolute left-2.5 top-2 text-[#4c739a] text-[18px]">search</span>
+<input class="w-full bg-[#f0f4f8] dark:bg-slate-800 border-none rounded-lg py-1.5 pl-9 pr-3 text-sm focus:ring-1 focus:ring-primary placeholder:text-[#94a3b8]" placeholder="Filter destination roster..." type="text"/>
+</div>
+</div>
+<!-- Drop Zone / Roster List Dest -->
+<div class="flex-1 overflow-y-auto custom-scrollbar p-2 flex flex-col relative">
+<!-- Drag Overlay (Simulated) -->
+<div class="absolute inset-2 border-2 border-primary border-dashed rounded-lg bg-primary/5 z-10 flex flex-col items-center justify-center opacity-0 hover:opacity-100 transition-opacity pointer-events-none">
+<span class="material-symbols-outlined text-primary text-4xl mb-2">move_item</span>
+<p class="text-primary font-medium">Drop students here to move</p>
+</div>
+<table class="w-full text-left border-collapse opacity-60">
+<thead class="text-xs font-semibold text-[#4c739a] uppercase tracking-wider">
+<tr>
+<th class="p-2 w-8"></th>
+<th class="p-2">Student</th>
+<th class="p-2 text-right">Progress</th>
+</tr>
+</thead>
+<tbody class="text-sm divide-y divide-[#e7edf3] dark:divide-slate-800">
+<tr>
+<td class="p-2"></td>
+<td class="p-2">
+<div class="flex items-center gap-3">
+<div class="size-8 rounded-full bg-cover bg-center" data-alt="Student avatar placeholder" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuChBis3W8g_WS2FdyGAqt32Oxdj6tx9vryZu4LezeKxiviXW22iByYw3j53PY-bqo-J1qH3RSRJWUyuJJQsge-agFyGgtfBlJj0qxQzwg2AC30lxXs3qty0M72lrXT03XSkXhorOIpRaGG1rcLcia7zpubzUhaMmsdYLoYzULLwpy7CIZ1y5s4e2Kd1ZIJUpbPAqzTNuV8dXKxk1PdGOBC97uAIcIqeq2dwUyNzW9K-hxobiuilmKIBEGxrfHBFSnS9F_WEX9zabf91')"></div>
+<div>
+<div class="font-medium text-[#0d141b] dark:text-white">Emily Zhang</div>
+<div class="text-xs text-[#4c739a]">ID: 2025044</div>
+</div>
+</div>
+</td>
+<td class="p-2 text-right">
+<span class="font-semibold text-[#0d141b] dark:text-white">41 WPM</span>
+</td>
+</tr>
+<tr>
+<td class="p-2"></td>
+<td class="p-2">
+<div class="flex items-center gap-3">
+<div class="size-8 rounded-full bg-teal-100 dark:bg-teal-900 text-teal-600 dark:text-teal-300 flex items-center justify-center text-xs font-bold">MR</div>
+<div>
+<div class="font-medium text-[#0d141b] dark:text-white">Michael Ross</div>
+<div class="text-xs text-[#4c739a]">ID: 2025051</div>
+</div>
+</div>
+</td>
+<td class="p-2 text-right">
+<span class="font-semibold text-[#0d141b] dark:text-white">33 WPM</span>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="mt-auto p-4 text-center">
+<p class="text-sm text-[#4c739a]">Select a destination to load more students or drag items here.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Confirmation Tooltip / Info Toast (Fixed Position) -->
+<div class="absolute bottom-6 right-6 max-w-sm w-full bg-surface-light dark:bg-surface-dark border-l-4 border-blue-500 shadow-lg rounded-r-lg p-4 flex items-start gap-3 animate-pulse">
+<span class="material-symbols-outlined text-blue-500 mt-0.5">info</span>
+<div class="flex-1">
+<p class="text-sm font-medium text-[#0d141b] dark:text-white">Safe Transfer Mode</p>
+<p class="text-xs text-[#4c739a] mt-1">Progress data is strictly linked to Student ID. Moving students between sections will <strong>not</strong> reset their WPM or progress history.</p>
+</div>
+<button class="text-[#4c739a] hover:text-[#0d141b] dark:hover:text-white">
+<span class="material-symbols-outlined text-[18px]">close</span>
+</button>
+</div>
+</main>
+</div>
+</body></html>

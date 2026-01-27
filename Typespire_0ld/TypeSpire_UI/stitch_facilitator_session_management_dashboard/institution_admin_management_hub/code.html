@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Institution Admin Management Hub | Typespire</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#38e07b",
+                        "secondary-navy": "#0e1a13",
+                        "accent-yellow": "#facc15",
+                        "background-light": "#f6f8f7",
+                        "background-dark": "#122017",
+                        "border-light": "#d1e6d9",
+                    },
+                    fontFamily: {
+                        "display": ["Lexend"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        body { font-family: 'Lexend', sans-serif; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-secondary-navy dark:text-white antialiased min-h-screen">
+<!-- TopNavBar -->
+<header class="sticky top-0 z-50 w-full border-b border-border-light dark:border-white/10 bg-white/80 dark:bg-background-dark/80 backdrop-blur-md">
+<div class="max-w-[1280px] mx-auto px-6 h-16 flex items-center justify-between">
+<div class="flex items-center gap-8">
+<div class="flex items-center gap-3">
+<div class="size-8 bg-primary rounded-lg flex items-center justify-center text-white">
+<span class="material-symbols-outlined">keyboard</span>
+</div>
+<div class="flex flex-col">
+<h2 class="text-secondary-navy dark:text-white text-lg font-bold leading-none tracking-tight">Typespire Hub</h2>
+<span class="text-[10px] uppercase tracking-widest font-semibold text-primary">Institution Admin</span>
+</div>
+</div>
+<nav class="hidden md:flex items-center gap-6">
+<a class="text-secondary-navy/70 dark:text-white/70 hover:text-primary dark:hover:text-primary text-sm font-medium transition-colors" href="#">Dashboard</a>
+<a class="text-secondary-navy/70 dark:text-white/70 hover:text-primary dark:hover:text-primary text-sm font-medium transition-colors" href="#">Analytics</a>
+<a class="text-secondary-navy/70 dark:text-white/70 hover:text-primary dark:hover:text-primary text-sm font-medium transition-colors" href="#">Reports</a>
+<a class="text-secondary-navy/70 dark:text-white/70 hover:text-primary dark:hover:text-primary text-sm font-medium transition-colors" href="#">Support</a>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<div class="relative hidden sm:block">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-secondary-navy/40 dark:text-white/40 text-sm">search</span>
+<input class="w-64 pl-10 pr-4 py-2 rounded-lg border-none bg-secondary-navy/5 dark:bg-white/5 text-sm focus:ring-2 focus:ring-primary/50 transition-all" placeholder="Search accounts..." type="text"/>
+</div>
+<button class="p-2 rounded-lg bg-secondary-navy/5 dark:bg-white/5 text-secondary-navy dark:text-white hover:bg-secondary-navy/10 transition-colors">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<div class="h-8 w-[1px] bg-border-light dark:bg-white/10 mx-2"></div>
+<div class="flex items-center gap-3">
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-9 border-2 border-primary" data-alt="Kepler College institutional logo placeholder" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDnqzAOeX1XfN82EJ_uOk9P6n0niJbbsId9F7JIoiwjwzt_ZyxItvopzLPVLDjKcbJDRtMCf7PuvF6HlH8By-59-Zv4BsxHFEB8cUJcYkE6qgJ9aHLG-eeeBLP5gBVAAsJWEGz3CKY-yezTEfWBIyXIP6DEaVDZg_t6d30_4-8jbbC2cjgzAk1NFTKX5weqcxYbXPJublmpVMDxI8_FPKHVLHVR36z08OrF5rLT0nADAi4KWBLPQEiwvCgGZ3KvfJeEp1MOAHnglWJy");'></div>
+<div class="hidden lg:block">
+<p class="text-xs font-bold leading-none">Kepler Admin</p>
+<p class="text-[10px] text-secondary-navy/60 dark:text-white/60">Institutional Manager</p>
+</div>
+</div>
+</div>
+</div>
+</header>
+<main class="max-w-[1280px] mx-auto px-6 py-8">
+<!-- Breadcrumbs -->
+<div class="flex items-center gap-2 mb-6">
+<a class="text-primary hover:underline text-sm font-medium" href="#">Institutions</a>
+<span class="material-symbols-outlined text-secondary-navy/30 dark:text-white/30 text-xs">chevron_right</span>
+<span class="text-secondary-navy/50 dark:text-white/50 text-sm font-medium">Kepler College</span>
+</div>
+<!-- PageHeading -->
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10">
+<div class="flex flex-col gap-2">
+<div class="flex items-center gap-3">
+<h1 class="text-secondary-navy dark:text-white text-4xl font-black tracking-tight">Kepler College Hub</h1>
+<span class="px-2 py-1 rounded bg-accent-yellow/20 text-accent-yellow text-[10px] font-bold uppercase tracking-wider border border-accent-yellow/30">Standard Tier</span>
+</div>
+<p class="text-secondary-navy/60 dark:text-white/60 text-lg max-w-2xl">Manage your school's staff, student intakes, and global typing proficiency benchmarks.</p>
+</div>
+<div class="flex gap-3">
+<button class="flex items-center gap-2 px-5 py-2.5 bg-white dark:bg-white/5 border border-border-light dark:border-white/10 rounded-lg text-secondary-navy dark:text-white text-sm font-bold hover:bg-secondary-navy/5 transition-all">
+<span class="material-symbols-outlined text-lg">download</span>
+                    Export Data
+                </button>
+<button class="flex items-center gap-2 px-5 py-2.5 bg-primary text-secondary-navy rounded-lg text-sm font-bold hover:opacity-90 transition-all shadow-lg shadow-primary/20">
+<span class="material-symbols-outlined text-lg">person_add</span>
+                    Invite New Facilitator
+                </button>
+</div>
+</div>
+<!-- Stats Grid -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
+<div class="flex flex-col gap-3 rounded-xl p-6 bg-white dark:bg-white/5 border border-border-light dark:border-white/10 shadow-sm">
+<div class="flex items-center justify-between">
+<p class="text-secondary-navy/60 dark:text-white/60 text-sm font-medium">Total Facilitators</p>
+<span class="material-symbols-outlined text-primary text-xl">group</span>
+</div>
+<div class="flex items-baseline gap-2">
+<p class="text-secondary-navy dark:text-white text-3xl font-bold">24</p>
+<p class="text-primary text-xs font-bold">+2% this month</p>
+</div>
+</div>
+<div class="flex flex-col gap-3 rounded-xl p-6 bg-white dark:bg-white/5 border border-border-light dark:border-white/10 shadow-sm">
+<div class="flex items-center justify-between">
+<p class="text-secondary-navy/60 dark:text-white/60 text-sm font-medium">Active Intakes</p>
+<span class="material-symbols-outlined text-primary text-xl">folder_shared</span>
+</div>
+<div class="flex items-baseline gap-2">
+<p class="text-secondary-navy dark:text-white text-3xl font-bold">8</p>
+<p class="text-secondary-navy/40 dark:text-white/40 text-xs font-bold">0% change</p>
+</div>
+</div>
+<div class="flex flex-col gap-3 rounded-xl p-6 bg-white dark:bg-white/5 border border-border-light dark:border-white/10 shadow-sm">
+<div class="flex items-center justify-between">
+<p class="text-secondary-navy/60 dark:text-white/60 text-sm font-medium">Avg. School WPM</p>
+<span class="material-symbols-outlined text-primary text-xl">speed</span>
+</div>
+<div class="flex items-baseline gap-2">
+<p class="text-secondary-navy dark:text-white text-3xl font-bold">42 <span class="text-sm font-medium opacity-60 uppercase">wpm</span></p>
+<p class="text-primary text-xs font-bold">+5% vs last sem</p>
+</div>
+</div>
+<div class="flex flex-col gap-3 rounded-xl p-6 bg-white dark:bg-white/5 border border-border-light dark:border-white/10 shadow-sm">
+<div class="flex items-center justify-between">
+<p class="text-secondary-navy/60 dark:text-white/60 text-sm font-medium">Avg. Accuracy</p>
+<span class="material-symbols-outlined text-primary text-xl">target</span>
+</div>
+<div class="flex items-baseline gap-2">
+<p class="text-secondary-navy dark:text-white text-3xl font-bold">96.5%</p>
+<p class="text-red-500 text-xs font-bold">-1% trend</p>
+</div>
+</div>
+</div>
+<!-- Content Area with Tabs -->
+<div class="bg-white dark:bg-white/5 border border-border-light dark:border-white/10 rounded-xl overflow-hidden shadow-sm">
+<!-- Tabs -->
+<div class="border-b border-border-light dark:border-white/10 px-6">
+<div class="flex gap-8">
+<a class="flex items-center gap-2 border-b-2 border-primary text-secondary-navy dark:text-white pb-4 pt-5 px-1 transition-all" href="#">
+<span class="material-symbols-outlined text-sm">badge</span>
+<p class="text-sm font-bold tracking-tight">Staff Accounts</p>
+</a>
+<a class="flex items-center gap-2 border-b-2 border-transparent text-secondary-navy/50 dark:text-white/50 hover:text-secondary-navy dark:hover:text-white pb-4 pt-5 px-1 transition-all" href="#">
+<span class="material-symbols-outlined text-sm">calendar_month</span>
+<p class="text-sm font-bold tracking-tight">Intakes</p>
+</a>
+<a class="flex items-center gap-2 border-b-2 border-transparent text-secondary-navy/50 dark:text-white/50 hover:text-secondary-navy dark:hover:text-white pb-4 pt-5 px-1 transition-all" href="#">
+<span class="material-symbols-outlined text-sm">settings_input_component</span>
+<p class="text-sm font-bold tracking-tight">Global Benchmarks</p>
+</a>
+</div>
+</div>
+<!-- Manage Staff Table Container -->
+<div class="p-6">
+<div class="flex items-center justify-between mb-6">
+<div class="flex items-center gap-4">
+<h3 class="text-lg font-bold">Facilitator Directory</h3>
+<div class="flex gap-2">
+<span class="px-2 py-1 bg-primary/10 text-primary text-[10px] font-bold rounded">Active (22)</span>
+<span class="px-2 py-1 bg-accent-yellow/10 text-accent-yellow text-[10px] font-bold rounded">Pending (2)</span>
+</div>
+</div>
+<div class="flex gap-2">
+<button class="p-2 border border-border-light dark:border-white/10 rounded-lg hover:bg-secondary-navy/5 transition-colors">
+<span class="material-symbols-outlined text-lg">filter_list</span>
+</button>
+</div>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="text-secondary-navy/40 dark:text-white/40 text-[11px] uppercase tracking-widest border-b border-border-light dark:border-white/10">
+<th class="pb-4 font-bold">Facilitator</th>
+<th class="pb-4 font-bold">Role</th>
+<th class="pb-4 font-bold">Assigned Intakes</th>
+<th class="pb-4 font-bold">Status</th>
+<th class="pb-4 font-bold text-right">Actions</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-border-light dark:divide-white/5">
+<tr class="group hover:bg-secondary-navy/[0.02] dark:hover:bg-white/[0.02] transition-colors">
+<td class="py-4">
+<div class="flex items-center gap-3">
+<div class="size-10 rounded-full bg-primary/20 flex items-center justify-center text-primary font-bold">JD</div>
+<div>
+<p class="text-sm font-bold">Jane Doe</p>
+<p class="text-xs text-secondary-navy/50 dark:text-white/50">jane.doe@kepler.edu</p>
+</div>
+</div>
+</td>
+<td class="py-4">
+<span class="text-xs font-medium">Senior Facilitator</span>
+</td>
+<td class="py-4">
+<div class="flex flex-wrap gap-1">
+<span class="px-2 py-0.5 bg-secondary-navy/5 dark:bg-white/5 border border-border-light dark:border-white/10 rounded text-[10px] font-medium uppercase">Fall 2023</span>
+<span class="px-2 py-0.5 bg-secondary-navy/5 dark:bg-white/5 border border-border-light dark:border-white/10 rounded text-[10px] font-medium uppercase">Spring 2024</span>
+</div>
+</td>
+<td class="py-4">
+<span class="flex items-center gap-1.5 text-xs font-bold text-primary">
+<span class="size-1.5 rounded-full bg-primary animate-pulse"></span>
+                                        Active
+                                    </span>
+</td>
+<td class="py-4 text-right">
+<button class="p-1.5 text-secondary-navy/40 dark:text-white/40 hover:text-primary transition-colors">
+<span class="material-symbols-outlined">edit_square</span>
+</button>
+<button class="p-1.5 text-secondary-navy/40 dark:text-white/40 hover:text-red-500 transition-colors">
+<span class="material-symbols-outlined">delete</span>
+</button>
+</td>
+</tr>
+<tr class="group hover:bg-secondary-navy/[0.02] dark:hover:bg-white/[0.02] transition-colors">
+<td class="py-4">
+<div class="flex items-center gap-3">
+<div class="size-10 rounded-full bg-blue-100 dark:bg-blue-900/40 flex items-center justify-center text-blue-600 dark:text-blue-400 font-bold">MS</div>
+<div>
+<p class="text-sm font-bold">Michael Smith</p>
+<p class="text-xs text-secondary-navy/50 dark:text-white/50">m.smith@kepler.edu</p>
+</div>
+</div>
+</td>
+<td class="py-4">
+<span class="text-xs font-medium">Junior Facilitator</span>
+</td>
+<td class="py-4">
+<div class="flex flex-wrap gap-1">
+<span class="px-2 py-0.5 bg-secondary-navy/5 dark:bg-white/5 border border-border-light dark:border-white/10 rounded text-[10px] font-medium uppercase">Spring 2024</span>
+</div>
+</td>
+<td class="py-4">
+<span class="flex items-center gap-1.5 text-xs font-bold text-accent-yellow">
+<span class="size-1.5 rounded-full bg-accent-yellow"></span>
+                                        Pending Invite
+                                    </span>
+</td>
+<td class="py-4 text-right">
+<button class="p-1.5 text-secondary-navy/40 dark:text-white/40 hover:text-primary transition-colors">
+<span class="material-symbols-outlined">edit_square</span>
+</button>
+<button class="p-1.5 text-secondary-navy/40 dark:text-white/40 hover:text-red-500 transition-colors">
+<span class="material-symbols-outlined">delete</span>
+</button>
+</td>
+</tr>
+<tr class="group hover:bg-secondary-navy/[0.02] dark:hover:bg-white/[0.02] transition-colors">
+<td class="py-4">
+<div class="flex items-center gap-3">
+<div class="size-10 rounded-full bg-purple-100 dark:bg-purple-900/40 flex items-center justify-center text-purple-600 dark:text-purple-400 font-bold">RK</div>
+<div>
+<p class="text-sm font-bold">Rachel Kim</p>
+<p class="text-xs text-secondary-navy/50 dark:text-white/50">rachel.kim@kepler.edu</p>
+</div>
+</div>
+</td>
+<td class="py-4">
+<span class="text-xs font-medium">Head of Department</span>
+</td>
+<td class="py-4">
+<span class="text-xs text-secondary-navy/40 italic">All Access</span>
+</td>
+<td class="py-4">
+<span class="flex items-center gap-1.5 text-xs font-bold text-primary">
+<span class="size-1.5 rounded-full bg-primary"></span>
+                                        Active
+                                    </span>
+</td>
+<td class="py-4 text-right">
+<button class="p-1.5 text-secondary-navy/40 dark:text-white/40 hover:text-primary transition-colors">
+<span class="material-symbols-outlined">edit_square</span>
+</button>
+<button class="p-1.5 text-secondary-navy/40 dark:text-white/40 hover:text-red-500 transition-colors">
+<span class="material-symbols-outlined">delete</span>
+</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Table Footer -->
+<div class="mt-6 flex items-center justify-between">
+<p class="text-xs text-secondary-navy/50 dark:text-white/50">Showing 1-10 of 24 facilitators</p>
+<div class="flex gap-2">
+<button class="px-3 py-1 border border-border-light dark:border-white/10 rounded hover:bg-secondary-navy/5 disabled:opacity-30 text-xs font-bold transition-colors" disabled="">Previous</button>
+<button class="px-3 py-1 bg-primary/20 text-primary border border-primary/20 rounded text-xs font-bold">1</button>
+<button class="px-3 py-1 border border-border-light dark:border-white/10 rounded hover:bg-secondary-navy/5 text-xs font-bold transition-colors">2</button>
+<button class="px-3 py-1 border border-border-light dark:border-white/10 rounded hover:bg-secondary-navy/5 text-xs font-bold transition-colors">3</button>
+<button class="px-3 py-1 border border-border-light dark:border-white/10 rounded hover:bg-secondary-navy/5 text-xs font-bold transition-colors">Next</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Global Settings Quick Look -->
+<div class="mt-10 grid grid-cols-1 md:grid-cols-2 gap-6">
+<div class="bg-secondary-navy text-white p-8 rounded-xl relative overflow-hidden group">
+<div class="relative z-10 flex flex-col h-full justify-between">
+<div>
+<div class="flex items-center gap-2 mb-4">
+<span class="material-symbols-outlined text-primary">verified</span>
+<h4 class="text-lg font-bold">Institutional Goal</h4>
+</div>
+<p class="text-white/60 mb-6 max-w-sm">Current threshold for 'Certified Typist' status at Kepler College is set to 40 WPM with 95% accuracy.</p>
+</div>
+<button class="w-fit flex items-center gap-2 text-primary font-bold hover:underline text-sm">
+                        Edit Benchmark Settings
+                        <span class="material-symbols-outlined text-sm">arrow_forward</span>
+</button>
+</div>
+<div class="absolute -right-12 -bottom-12 size-48 bg-primary/10 rounded-full blur-3xl group-hover:bg-primary/20 transition-all duration-500"></div>
+</div>
+<div class="bg-white dark:bg-white/5 border border-border-light dark:border-white/10 p-8 rounded-xl flex items-center justify-between">
+<div>
+<h4 class="text-lg font-bold mb-2">Automated Intakes</h4>
+<p class="text-secondary-navy/60 dark:text-white/60 text-sm mb-4">Automatic synchronization with Canvas LMS is active.</p>
+<div class="flex items-center gap-2">
+<span class="size-2 rounded-full bg-primary"></span>
+<span class="text-xs font-bold uppercase tracking-wider text-secondary-navy/40 dark:text-white/40">Synced 2m ago</span>
+</div>
+</div>
+<div class="p-4 bg-primary/10 rounded-full">
+<span class="material-symbols-outlined text-primary text-4xl">sync</span>
+</div>
+</div>
+</div>
+</main>
+<footer class="max-w-[1280px] mx-auto px-6 py-12 border-t border-border-light dark:border-white/10 mt-12">
+<div class="flex flex-col md:flex-row justify-between items-center gap-6">
+<div class="flex items-center gap-2 opacity-50">
+<span class="material-symbols-outlined text-xl">keyboard</span>
+<p class="text-sm font-bold">Typespire © 2024</p>
+</div>
+<div class="flex gap-8">
+<a class="text-sm text-secondary-navy/50 dark:text-white/50 hover:text-primary" href="#">System Status</a>
+<a class="text-sm text-secondary-navy/50 dark:text-white/50 hover:text-primary" href="#">Privacy Policy</a>
+<a class="text-sm text-secondary-navy/50 dark:text-white/50 hover:text-primary" href="#">Terms of Service</a>
+</div>
+</div>
+</footer>
+</body></html>
