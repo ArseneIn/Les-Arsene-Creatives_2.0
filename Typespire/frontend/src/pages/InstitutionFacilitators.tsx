@@ -37,17 +37,28 @@ const InstitutionFacilitators: React.FC = () => {
                 lastName?: string;
                 email: string;
                 role: string;
+                facilitatedSections?: {
+                    name: string;
+                    intake: {
+                        name: string;
+                    };
+                }[];
             }
 
             const response = await api.get<BackendFacilitator[]>(`/institution/${institutionId}/facilitators`);
-            const mappedFacilitators: Facilitator[] = response.data.map((f) => ({
-                id: f.id,
-                name: `${f.firstName || ''} ${f.lastName || ''}`.trim() || f.email,
-                role: f.role,
-                email: f.email,
-                status: 'Active', // Default status for now
-                assignedIntakes: [] // Placeholder
-            }));
+            const mappedFacilitators: Facilitator[] = response.data.map((f) => {
+                // Map sections to a readable string like "Intake Name - Section Name"
+                const assignedIntakes = f.facilitatedSections?.map(s => `${s.intake.name} - ${s.name}`) || [];
+
+                return {
+                    id: f.id,
+                    name: `${f.firstName || ''} ${f.lastName || ''}`.trim() || f.email,
+                    role: f.role,
+                    email: f.email,
+                    status: 'Active', // Default status for now
+                    assignedIntakes: assignedIntakes
+                };
+            });
             setFacilitators(mappedFacilitators);
         } catch (error) {
             console.error('Failed to fetch facilitators', error);

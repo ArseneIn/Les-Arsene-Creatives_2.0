@@ -1,36 +1,8 @@
-import React, { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from 'react';
 import api from '../api/axios';
 import { useAuth } from './AuthContext';
+import type { Intake, Facilitator } from '../types/institution';
 
-// --- Types ---
-export interface Student {
-    id: string;
-    name: string;
-    email: string;
-}
-
-export interface Facilitator {
-    id: string;
-    name: string;
-    email: string;
-}
-
-export interface Section {
-    id: string;
-    name: string;
-    students: Student[];
-    facilitator?: Facilitator;
-}
-
-export interface Intake {
-    id: string;
-    name: string;
-    startDate: string;
-    endDate: string;
-    status: 'Active' | 'Upcoming' | 'Archived';
-    facilitators: string[];
-    sections: Section[];
-}
 
 interface InstitutionContextType {
     intakes: Intake[];
@@ -47,20 +19,48 @@ export const InstitutionProvider: React.FC<{ children: ReactNode }> = ({ childre
     const [intakes, setIntakes] = useState<Intake[]>([]);
     const [facilitators, setFacilitators] = useState<Facilitator[]>([]);
 
-    const fetchIntakes = async (institutionId: string) => {
+    const fetchIntakes = useCallback(async (institutionId: string) => {
         try {
-            const response = await api.get<any[]>('/intake', {
+            // Define backend response types locally
+            interface BackendStudent {
+                id: string;
+                name: string;
+                email: string;
+            }
+
+            interface BackendSection {
+                id: string;
+                name: string;
+                students: BackendStudent[];
+                facilitator?: {
+                    id: string;
+                    firstName?: string;
+                    lastName?: string;
+                    email: string;
+                };
+            }
+
+            interface BackendIntake {
+                id: string;
+                name: string;
+                startDate: string;
+                endDate: string | null;
+                status: string;
+                sections: BackendSection[];
+            }
+
+            const response = await api.get<BackendIntake[]>('/intake', {
                 params: { institutionId }
             });
 
-            const mappedIntakes: Intake[] = response.data.map(item => ({
+            const mappedIntakes: Intake[] = response.data.map((item) => ({
                 id: item.id,
                 name: item.name,
                 startDate: new Date(item.startDate).toISOString().split('T')[0],
                 endDate: item.endDate ? new Date(item.endDate).toISOString().split('T')[0] : '',
                 status: item.status === 'ACTIVE' ? 'Active' : item.status === 'ARCHIVED' ? 'Archived' : 'Upcoming',
                 facilitators: [], // Backend doesn't support this yet
-                sections: item.sections ? item.sections.map((s: any) => ({
+                sections: item.sections ? item.sections.map((s) => ({
                     id: s.id,
                     name: s.name,
                     students: s.students || [],
@@ -76,12 +76,19 @@ export const InstitutionProvider: React.FC<{ children: ReactNode }> = ({ childre
         } catch (error) {
             console.error('Failed to fetch intakes', error);
         }
-    };
+    }, []);
 
-    const fetchFacilitators = async (institutionId: string) => {
+    const fetchFacilitators = useCallback(async (institutionId: string) => {
         try {
-            const response = await api.get<any[]>(`/institution/${institutionId}/facilitators`);
-            const mappedFacilitators: Facilitator[] = response.data.map(f => ({
+            interface BackendUser {
+                id: string;
+                firstName?: string;
+                lastName?: string;
+                email: string;
+            }
+
+            const response = await api.get<BackendUser[]>(`/institution/${institutionId}/facilitators`);
+            const mappedFacilitators: Facilitator[] = response.data.map((f) => ({
                 id: f.id,
                 name: `${f.firstName || ''} ${f.lastName || ''}`.trim() || f.email,
                 email: f.email
@@ -90,14 +97,18 @@ export const InstitutionProvider: React.FC<{ children: ReactNode }> = ({ childre
         } catch (error) {
             console.error('Failed to fetch facilitators', error);
         }
-    };
+    }, []);
 
     useEffect(() => {
-        if (user?.institutionId) {
-            fetchIntakes(user.institutionId);
-            fetchFacilitators(user.institutionId);
-        }
-    }, [user?.institutionId]);
+        const loadData = async () => {
+            if (user?.institutionId) {
+                await fetchIntakes(user.institutionId);
+                await fetchFacilitators(user.institutionId);
+            }
+        };
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
+        loadData();
+    }, [user?.institutionId, fetchIntakes, fetchFacilitators]);
 
     const addIntake = async (intake: Intake) => {
         try {
@@ -111,7 +122,7 @@ export const InstitutionProvider: React.FC<{ children: ReactNode }> = ({ childre
             });
 
             // Refresh intakes
-            fetchIntakes(user.institutionId);
+            await fetchIntakes(user.institutionId);
         } catch (error) {
             console.error('Failed to create intake', error);
         }
@@ -126,7 +137,7 @@ export const InstitutionProvider: React.FC<{ children: ReactNode }> = ({ childre
 
             // Refresh intakes
             if (user?.institutionId) {
-                fetchIntakes(user.institutionId);
+                await fetchIntakes(user.institutionId);
             }
         } catch (error) {
             console.error('Failed to create section', error);
@@ -141,7 +152,7 @@ export const InstitutionProvider: React.FC<{ children: ReactNode }> = ({ childre
 
             // Refresh intakes to show updated assignment
             if (user?.institutionId) {
-                fetchIntakes(user.institutionId);
+                await fetchIntakes(user.institutionId);
             }
         } catch (error) {
             console.error('Failed to assign facilitator', error);

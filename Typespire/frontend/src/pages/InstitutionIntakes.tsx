@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { Plus, Calendar, ChevronDown, MoreHorizontal, Upload, X, CloudUpload, FileText, PlusCircle } from 'lucide-react';
-import { useInstitution, type Intake } from '../context/InstitutionContext';
+import { useInstitution } from '../context/InstitutionContext';
+import api from '../api/axios';
+import type { Intake } from '../types/institution';
 
 const InstitutionIntakes: React.FC = () => {
     const { intakes, addIntake, addSection, facilitators, assignFacilitatorToSection } = useInstitution();
@@ -340,11 +342,62 @@ const InstitutionIntakes: React.FC = () => {
                             </div>
                             <div className="text-center">
                                 <p className="font-bold text-gray-700">Click to upload or drag and drop</p>
-                                <p className="text-xs text-gray-400 mt-1">CSV, Excel (max 5MB)</p>
+                                <p className="text-xs text-gray-400 mt-1">CSV (max 5MB)</p>
                             </div>
-                            <button className="px-4 py-2 border border-gray-300 bg-white rounded-lg text-sm font-bold text-gray-600 hover:bg-gray-50">
+                            <input
+                                type="file"
+                                accept=".csv"
+                                className="hidden"
+                                id="bulk-upload-input"
+                                onChange={async (e) => {
+                                    const file = e.target.files?.[0];
+                                    if (!file) return;
+
+                                    const text = await file.text();
+                                    const lines = text.split('\n');
+                                    const students: { name: string; email: string }[] = [];
+
+                                    // Skip header if present (simple check)
+                                    const startIndex = lines[0].toLowerCase().includes('email') ? 1 : 0;
+
+                                    for (let i = startIndex; i < lines.length; i++) {
+                                        const line = lines[i].trim();
+                                        if (!line) continue;
+
+                                        // Simple CSV parsing: assume Name, Email or Email, Name
+                                        // Let's assume Name, Email for now based on template
+                                        const parts = line.split(',');
+                                        if (parts.length >= 2) {
+                                            const name = parts[0].trim();
+                                            const email = parts[1].trim();
+                                            if (name && email) {
+                                                students.push({ name, email });
+                                            }
+                                        }
+                                    }
+
+                                    if (students.length > 0) {
+                                        try {
+                                            await api.post(`/section/${showBulkUploadModal.sectionId}/students/bulk`, { students });
+                                            alert(`Successfully processed ${students.length} students.`);
+                                            setShowBulkUploadModal(null);
+                                            // Refresh data
+                                            window.location.reload(); // Or use context refresh
+                                        } catch (error) {
+                                            console.error('Bulk upload failed', error);
+                                            alert('Failed to upload students. Please check the file format.');
+                                        }
+                                    } else {
+                                        alert('No valid students found in the file.');
+                                    }
+                                }}
+                            />
+                            <label
+                                htmlFor="bulk-upload-input"
+                                className="px-4 py-2 border border-gray-300 bg-white rounded-lg text-sm font-bold text-gray-600 hover:bg-gray-50 cursor-pointer"
+                            >
                                 Select File
-                            </button>
+                            </label>
                         </div>
                         <div className="p-6 bg-white">
                             <h4 className="text-sm font-bold text-gray-700 mb-2">Template</h4>
@@ -353,10 +406,24 @@ const InstitutionIntakes: React.FC = () => {
                                     <FileText className="text-green-600 w-6 h-6" />
                                     <div>
                                         <p className="text-sm font-bold text-gray-700">student_import_template.csv</p>
-                                        <p className="text-xs text-gray-400">12KB</p>
+                                        <p className="text-xs text-gray-400">Name, Email</p>
                                     </div>
                                 </div>
-                                <button className="text-blue-600 hover:underline text-xs font-bold">Download</button>
+                                <button
+                                    onClick={() => {
+                                        const csvContent = "data:text/csv;charset=utf-8,Name,Email\nJohn Doe,john@example.com";
+                                        const encodedUri = encodeURI(csvContent);
+                                        const link = document.createElement("a");
+                                        link.setAttribute("href", encodedUri);
+                                        link.setAttribute("download", "student_import_template.csv");
+                                        document.body.appendChild(link);
+                                        link.click();
+                                        document.body.removeChild(link);
+                                    }}
+                                    className="text-blue-600 hover:underline text-xs font-bold"
+                                >
+                                    Download
+                                </button>
                             </div>
                         </div>
                         <div className="p-6 border-t border-gray-100 flex justify-end gap-3 bg-gray-50">
@@ -365,11 +432,6 @@ const InstitutionIntakes: React.FC = () => {
                                 className="px-4 py-2 text-gray-600 font-bold hover:bg-gray-100 rounded-lg"
                             >
                                 Cancel
-                            </button>
-                            <button
-                                className="px-6 py-2 bg-[#0d1b17] text-white font-bold rounded-lg hover:bg-[#1a2e28] shadow-lg shadow-[#0d1b17]/20 opacity-50 cursor-not-allowed"
-                            >
-                                Upload & Process
                             </button>
                         </div>
                     </div>
