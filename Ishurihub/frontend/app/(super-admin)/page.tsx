@@ -14,35 +14,6 @@ export default function InstitutionsPage() {
                     <div className="flex gap-3">
                         <button className="flex min-w-[140px] items-center justify-center rounded-lg h-11 px-5 bg-[#0f172a] text-white text-sm font-bold shadow-lg hover:bg-[#1e293b] active:scale-[0.98] transition-all">
                             <span className="material-symbols-outlined text-[18px] mr-2">add_business</span>
-                            Register School
-                        </button>
-                    </div>
-                </div>
-
-                {/* Stats Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-                    <div className="bg-white dark:bg-[#1e293b] p-6 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm">
-                        <p className="text-slate-500 dark:text-slate-400 text-sm font-medium">Total Institutions</p>
-                        <h3 className="text-3xl font-bold text-[#0f172a] dark:text-white mt-2">{mockInstitutions.length}</h3>
-                    </div>
-                    <div className="bg-white dark:bg-[#1e293b] p-6 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm">
-                        <p className="text-slate-500 dark:text-slate-400 text-sm font-medium">Total Students</p>
-                        <h3 className="text-3xl font-bold text-[#0f172a] dark:text-white mt-2">
-                            {mockInstitutions.reduce((acc, curr) => acc + curr.studentCount, 0).toLocaleString()}
-                        </h3>
-                    </div>
-                    <div className="bg-white dark:bg-[#1e293b] p-6 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm">
-                        <p className="text-slate-500 dark:text-slate-400 text-sm font-medium">Active Licenses</p>
-                        <h3 className="text-3xl font-bold text-green-600 dark:text-green-400 mt-2">
-                            {mockInstitutions.filter(i => i.status === 'Active').length}
-                        </h3>
-                    </div>
-                </div>
-
-                {/* Institutions Table */}
-                <div className="bg-white dark:bg-[#1e293b] rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
-                    <table className="w-full text-left border-collapse">
-                        <thead>
                             <tr className="bg-slate-50 dark:bg-[#0f172a]/50 border-b border-slate-200 dark:border-slate-700">
                                 <th className="px-6 py-4 text-slate-500 dark:text-slate-400 text-xs font-bold uppercase tracking-wider">Institution Name</th>
                                 <th className="px-6 py-4 text-slate-500 dark:text-slate-400 text-xs font-bold uppercase tracking-wider">Type</th>
@@ -79,12 +50,12 @@ export default function InstitutionsPage() {
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap">
                                         <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold ${inst.status === 'Active' ? 'bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-400' :
-                                                inst.status === 'Pending' ? 'bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-400' :
-                                                    'bg-red-100 text-red-700 dark:bg-red-500/20 dark:text-red-400'
+                                            inst.status === 'Pending' ? 'bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-400' :
+                                                'bg-red-100 text-red-700 dark:bg-red-500/20 dark:text-red-400'
                                             }`}>
                                             <span className={`size-1.5 rounded-full ${inst.status === 'Active' ? 'bg-green-500' :
-                                                    inst.status === 'Pending' ? 'bg-amber-500' :
-                                                        'bg-red-500'
+                                                inst.status === 'Pending' ? 'bg-amber-500' :
+                                                    'bg-red-500'
                                                 }`}></span>
                                             {inst.status}
                                         </span>
