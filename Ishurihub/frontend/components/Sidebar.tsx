@@ -18,7 +18,7 @@ export default function Sidebar() {
             <div className="flex-1 overflow-y-auto px-4 py-2 custom-scrollbar">
                 <nav className="flex flex-col gap-1.5">
                     {/* Dashboard (Active State) */}
-                    <Link href="/" className="group flex items-center gap-3 px-3 py-3 rounded-lg bg-white/20 text-white shadow-sm ring-1 ring-white/10 transition-all">
+                    <Link href="/school-dashboard" className="group flex items-center gap-3 px-3 py-3 rounded-lg bg-white/20 text-white shadow-sm ring-1 ring-white/10 transition-all">
                         <span className="material-symbols-outlined" style={{ fontSize: '24px' }}>dashboard</span>
                         <span className="text-sm font-medium leading-normal">Dashboard</span>
                     </Link>
@@ -33,15 +33,15 @@ export default function Sidebar() {
                             <span className="material-symbols-outlined transition-transform duration-200 group-open/accordion:rotate-180" style={{ fontSize: '20px' }}>expand_more</span>
                         </summary>
                         <div className="flex flex-col gap-1 pl-11 pr-2 pb-2 mt-1">
-                            <Link href="/timetable" className="flex items-center gap-2 px-3 py-2 rounded-md text-blue-200 hover:text-white hover:bg-white/10 text-sm font-medium transition-colors">
+                            <Link href="/school-dashboard/timetable" className="flex items-center gap-2 px-3 py-2 rounded-md text-blue-200 hover:text-white hover:bg-white/10 text-sm font-medium transition-colors">
                                 <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>calendar_month</span>
                                 Timetable
                             </Link>
-                            <Link href="/teachers" className="flex items-center gap-2 px-3 py-2 rounded-md text-blue-200 hover:text-white hover:bg-white/10 text-sm font-medium transition-colors">
+                            <Link href="/school-dashboard/teachers" className="flex items-center gap-2 px-3 py-2 rounded-md text-blue-200 hover:text-white hover:bg-white/10 text-sm font-medium transition-colors">
                                 <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>person_apron</span>
                                 Teachers
                             </Link>
-                            <Link href="/students" className="flex items-center gap-2 px-3 py-2 rounded-md text-blue-200 hover:text-white hover:bg-white/10 text-sm font-medium transition-colors">
+                            <Link href="/school-dashboard/students" className="flex items-center gap-2 px-3 py-2 rounded-md text-blue-200 hover:text-white hover:bg-white/10 text-sm font-medium transition-colors">
                                 <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>groups</span>
                                 Students
                             </Link>
@@ -55,19 +55,19 @@ export default function Sidebar() {
                     </Link>
 
                     {/* Finance */}
-                    <Link href="/finance" className="flex items-center gap-3 px-3 py-3 rounded-lg text-blue-100 hover:bg-white/10 hover:text-white transition-all">
+                    <Link href="/school-dashboard/finance" className="flex items-center gap-3 px-3 py-3 rounded-lg text-blue-100 hover:bg-white/10 hover:text-white transition-all">
                         <span className="material-symbols-outlined" style={{ fontSize: '24px' }}>payments</span>
                         <span className="text-sm font-medium leading-normal">Finance</span>
                     </Link>
 
                     {/* Library */}
-                    <Link href="/library" className="flex items-center gap-3 px-3 py-3 rounded-lg text-blue-100 hover:bg-white/10 hover:text-white transition-all">
+                    <Link href="/school-dashboard/library" className="flex items-center gap-3 px-3 py-3 rounded-lg text-blue-100 hover:bg-white/10 hover:text-white transition-all">
                         <span className="material-symbols-outlined" style={{ fontSize: '24px' }}>local_library</span>
                         <span className="text-sm font-medium leading-normal">Library</span>
                     </Link>
 
                     {/* System & Compliance */}
-                    <Link href="/system" className="flex items-center gap-3 px-3 py-3 rounded-lg text-blue-100 hover:bg-white/10 hover:text-white transition-all">
+                    <Link href="/school-dashboard/system" className="flex items-center gap-3 px-3 py-3 rounded-lg text-blue-100 hover:bg-white/10 hover:text-white transition-all">
                         <span className="material-symbols-outlined" style={{ fontSize: '24px' }}>verified_user</span>
                         <span className="text-sm font-medium leading-normal">System & Compliance</span>
                     </Link>
