@@ -1,7 +1,8 @@
+@import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap');
 @import "tailwindcss";
 
 @theme {
-  --font-sans: var(--font-inter);
+  --font-sans: var(--font-outfit);
   --font-heading: var(--font-jakarta);
 
   /* Modern Blue Palette */
