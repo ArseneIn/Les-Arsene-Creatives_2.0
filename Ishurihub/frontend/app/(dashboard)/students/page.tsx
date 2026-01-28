@@ -1,7 +1,31 @@
-import { mockStudents } from "@/data/students";
+"use client";
+
+import { useState } from "react";
+import { mockStudents, Student } from "@/data/students";
 import Link from "next/link";
+import Modal from "@/components/Modal";
+import AddStudentForm from "@/components/AddStudentForm";
 
 export default function StudentsPage() {
+    const [students, setStudents] = useState<Student[]>(mockStudents);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+
+    const handleAddStudent = (data: any) => {
+        const newStudent: Student = {
+            id: Math.random().toString(36).substr(2, 9),
+            name: data.fullName,
+            studentId: data.studentId,
+            grade: data.grade,
+            section: `Section ${data.section}`,
+            cardUid: null,
+            status: "Pending",
+            avatarUrl: `https://ui-avatars.com/api/?name=${encodeURIComponent(data.fullName)}&background=random`,
+        };
+
+        setStudents([newStudent, ...students]);
+        setIsModalOpen(false);
+    };
+
     return (
         <div className="flex flex-1 justify-center py-8">
             <div className="layout-content-container flex flex-col w-full max-w-[1200px] px-6">
@@ -23,7 +47,10 @@ export default function StudentsPage() {
                             <span className="material-symbols-outlined text-[18px] mr-2">file_download</span>
                             Export CSV
                         </button>
-                        <button className="flex min-w-[140px] items-center justify-center rounded-lg h-11 px-5 bg-primary text-white text-sm font-bold shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-100 transition-all">
+                        <button
+                            onClick={() => setIsModalOpen(true)}
+                            className="flex min-w-[140px] items-center justify-center rounded-lg h-11 px-5 bg-primary text-white text-sm font-bold shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-100 transition-all"
+                        >
                             <span className="material-symbols-outlined text-[18px] mr-2">person_add</span>
                             Add Student
                         </button>
@@ -48,7 +75,7 @@ export default function StudentsPage() {
                         <button className="text-primary text-sm font-bold px-2 hover:underline">Reset Filters</button>
                     </div>
                     <div className="text-[#4c4c9a] dark:text-gray-400 text-sm font-medium">
-                        Showing <span className="text-black dark:text-white font-bold">{mockStudents.length}</span> students
+                        Showing <span className="text-black dark:text-white font-bold">{students.length}</span> students
                     </div>
                 </div>
 
@@ -66,7 +93,7 @@ export default function StudentsPage() {
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-[#cfcfe7] dark:divide-white/10">
-                                {mockStudents.map((student) => (
+                                {students.map((student) => (
                                     <tr key={student.id} className="hover:bg-primary/5 dark:hover:bg-white/5 transition-colors group">
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             <div className="flex items-center gap-3">
@@ -123,7 +150,7 @@ export default function StudentsPage() {
                         </table>
                         {/* Pagination */}
                         <div className="px-6 py-4 flex items-center justify-between bg-[#f8f8fc] dark:bg-white/5 border-t border-[#cfcfe7] dark:border-white/10">
-                            <p className="text-sm text-[#4c4c9a] dark:text-gray-400 font-medium">Showing <span className="text-black dark:text-white font-bold">1 to {mockStudents.length}</span> of 452 results</p>
+                            <p className="text-sm text-[#4c4c9a] dark:text-gray-400 font-medium">Showing <span className="text-black dark:text-white font-bold">1 to {students.length}</span> of {students.length} results</p>
                             <div className="flex gap-1">
                                 <button className="size-9 flex items-center justify-center rounded-lg border border-[#cfcfe7] dark:border-white/10 bg-white dark:bg-transparent text-black dark:text-white hover:bg-gray-50 transition-colors">
                                     <span className="material-symbols-outlined text-[18px]">chevron_left</span>
@@ -149,6 +176,18 @@ export default function StudentsPage() {
                     <div>Last synchronized: Oct 24, 2023 - 09:12 AM</div>
                 </div>
             </div>
+
+            {/* Add Student Modal */}
+            <Modal
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+                title="Register New Student"
+            >
+                <AddStudentForm
+                    onSubmit={handleAddStudent}
+                    onCancel={() => setIsModalOpen(false)}
+                />
+            </Modal>
         </div>
     );
 }

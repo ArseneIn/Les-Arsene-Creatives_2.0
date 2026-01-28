@@ -48,6 +48,12 @@ export default function Sidebar() {
                         </div>
                     </details>
 
+                    {/* Attendance (New) */}
+                    <Link href="/attendance" className="flex items-center gap-3 px-3 py-3 rounded-lg text-blue-100 hover:bg-white/10 hover:text-white transition-all">
+                        <span className="material-symbols-outlined" style={{ fontSize: '24px' }}>co_present</span>
+                        <span className="text-sm font-medium leading-normal">Attendance Scan</span>
+                    </Link>
+
                     {/* Finance */}
                     <Link href="/finance" className="flex items-center gap-3 px-3 py-3 rounded-lg text-blue-100 hover:bg-white/10 hover:text-white transition-all">
                         <span className="material-symbols-outlined" style={{ fontSize: '24px' }}>payments</span>
@@ -98,9 +104,9 @@ export default function Sidebar() {
                         <p className="text-white text-sm font-semibold truncate group-hover/profile:text-white transition-colors">Jane Doe</p>
                         <p className="text-blue-200 text-xs truncate">Super Admin</p>
                     </div>
-                    <button className="text-blue-300 hover:text-white p-1 rounded-md hover:bg-white/10 transition-colors">
+                    <Link href="/login" className="text-blue-300 hover:text-white p-1 rounded-md hover:bg-white/10 transition-colors">
                         <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>logout</span>
-                    </button>
+                    </Link>
                 </div>
             </div>
         </aside>
