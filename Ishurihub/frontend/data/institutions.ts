@@ -6,6 +6,9 @@ export interface Institution {
     studentCount: number;
     status: 'Active' | 'Pending' | 'Suspended';
     logoUrl: string;
+    category: 'Boarding' | 'Day' | 'Mixed';
+    levels: ('O-Level' | 'A-Level' | 'TVET' | 'University')[];
+    combinations?: string[]; // For A-Level
     joinedDate: string;
 }
 
@@ -18,6 +21,9 @@ export const mockInstitutions: Institution[] = [
         studentCount: 1250,
         status: 'Active',
         logoUrl: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCheTQTRBiKDh_R17Hi84JJGnwQ0jaxBAcM46A_wtrh7oNR_Afs2d3zwqV-RTuOdCG2JGq1EubjauMW9JB3WzkOu9t77dX7FwNBi0WZZkEywkyut3SE992cjLIDbjUM_W4UOyM4PFceIQmNdPFr6d_sYK8Vw2dy5WWao4eDD200rSs2Irf5U8bHK6KHRrNYt34_FZz1WeaVUTcnQhLXCI1Ibc5iYO4SX5EIIuR2U4xTSj0pJ6FeFmjCoB5f3u3K2PCAcbT8QvRTi5oE',
+        category: 'Boarding',
+        levels: ['O-Level', 'A-Level'],
+        combinations: ['MCE', 'PCB', 'PCM', 'MEG'],
         joinedDate: '2023-01-15'
     },
     {
@@ -28,6 +34,9 @@ export const mockInstitutions: Institution[] = [
         studentCount: 1800,
         status: 'Active',
         logoUrl: 'https://ui-avatars.com/api/?name=Green+Hills&background=0D8ABC&color=fff',
+        category: 'Mixed',
+        levels: ['O-Level', 'A-Level'],
+        combinations: ['PCB', 'MCB', 'HEG'],
         joinedDate: '2023-03-10'
     },
     {
@@ -38,6 +47,9 @@ export const mockInstitutions: Institution[] = [
         studentCount: 950,
         status: 'Pending',
         logoUrl: 'https://ui-avatars.com/api/?name=Riviera+High&background=F59E0B&color=fff',
+        category: 'Boarding',
+        levels: ['O-Level', 'A-Level'],
+        combinations: ['PCM', 'PCB', 'MEG'],
         joinedDate: '2023-10-05'
     },
     {
@@ -48,6 +60,8 @@ export const mockInstitutions: Institution[] = [
         studentCount: 240,
         status: 'Active',
         logoUrl: 'https://ui-avatars.com/api/?name=RCA&background=10B981&color=fff',
+        category: 'Boarding',
+        levels: ['TVET'],
         joinedDate: '2023-06-20'
     }
 ];

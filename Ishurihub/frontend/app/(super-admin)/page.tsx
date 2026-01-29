@@ -1,7 +1,30 @@
-import { mockInstitutions } from "@/data/institutions";
+"use client";
+
+import { mockInstitutions, Institution } from "@/data/institutions";
 import Link from "next/link";
+import { useState } from "react";
+import Modal from "@/components/Modal";
+import AddSchoolForm, { AddSchoolFormData } from "@/components/AddSchoolForm";
 
 export default function InstitutionsPage() {
+    const [institutions, setInstitutions] = useState<Institution[]>(mockInstitutions);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+
+    const handleAddSchool = (data: AddSchoolFormData) => {
+        const newSchool: Institution = {
+            id: (institutions.length + 1).toString(),
+            name: data.name,
+            type: data.type as Institution['type'],
+            location: data.location,
+            studentCount: 0,
+            status: 'Active',
+            logoUrl: data.logoUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(data.name)}&background=random&color=fff`,
+            joinedDate: new Date().toISOString().split('T')[0]
+        };
+
+        setInstitutions([newSchool, ...institutions]);
+        setIsModalOpen(false);
+    };
     return (
         <div className="flex flex-1 justify-center py-8">
             <div className="layout-content-container flex flex-col w-full max-w-[1200px] px-6">
@@ -12,7 +35,10 @@ export default function InstitutionsPage() {
                         <p className="text-slate-500 dark:text-slate-400 text-base font-normal">Manage registered schools and educational centers.</p>
                     </div>
                     <div className="flex gap-3">
-                        <button className="flex min-w-[140px] items-center justify-center rounded-lg h-11 px-5 bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-sm font-bold shadow-lg hover:bg-slate-800 dark:hover:bg-slate-100 active:scale-[0.98] transition-all">
+                        <button
+                            onClick={() => setIsModalOpen(true)}
+                            className="flex min-w-[140px] items-center justify-center rounded-lg h-11 px-5 bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-sm font-bold shadow-lg hover:bg-slate-800 dark:hover:bg-slate-100 active:scale-[0.98] transition-all"
+                        >
                             <span className="material-symbols-outlined text-[18px] mr-2">add_business</span>
                             Register School
                         </button>
@@ -28,7 +54,7 @@ export default function InstitutionsPage() {
                             </div>
                             <p className="text-slate-500 dark:text-slate-400 text-sm font-medium">Total Institutions</p>
                         </div>
-                        <h3 className="text-3xl font-heading font-bold text-slate-900 dark:text-white">{mockInstitutions.length}</h3>
+                        <h3 className="text-3xl font-heading font-bold text-slate-900 dark:text-white">{institutions.length}</h3>
                     </div>
                     <div className="bg-white dark:bg-slate-800/50 backdrop-blur-sm p-6 rounded-2xl border border-slate-200 dark:border-slate-700/50 shadow-lg shadow-slate-200/50 dark:shadow-black/20">
                         <div className="flex items-center gap-3 mb-2">
@@ -38,7 +64,7 @@ export default function InstitutionsPage() {
                             <p className="text-slate-500 dark:text-slate-400 text-sm font-medium">Total Students</p>
                         </div>
                         <h3 className="text-3xl font-heading font-bold text-slate-900 dark:text-white">
-                            {mockInstitutions.reduce((acc, curr) => acc + curr.studentCount, 0).toLocaleString()}
+                            {institutions.reduce((acc, curr) => acc + curr.studentCount, 0).toLocaleString()}
                         </h3>
                     </div>
                     <div className="bg-white dark:bg-slate-800/50 backdrop-blur-sm p-6 rounded-2xl border border-slate-200 dark:border-slate-700/50 shadow-lg shadow-slate-200/50 dark:shadow-black/20">
@@ -49,7 +75,7 @@ export default function InstitutionsPage() {
                             <p className="text-slate-500 dark:text-slate-400 text-sm font-medium">Active Licenses</p>
                         </div>
                         <h3 className="text-3xl font-heading font-bold text-slate-900 dark:text-white">
-                            {mockInstitutions.filter(i => i.status === 'Active').length}
+                            {institutions.filter(i => i.status === 'Active').length}
                         </h3>
                     </div>
                 </div>
@@ -68,7 +94,7 @@ export default function InstitutionsPage() {
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-200 dark:divide-slate-700">
-                            {mockInstitutions.map((inst) => (
+                            {institutions.map((inst) => (
                                 <tr key={inst.id} className="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors group">
                                     <td className="px-6 py-4 whitespace-nowrap">
                                         <div className="flex items-center gap-3">
@@ -94,19 +120,19 @@ export default function InstitutionsPage() {
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap">
                                         <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold ${inst.status === 'Active' ? 'bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-400' :
-                                                inst.status === 'Pending' ? 'bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-400' :
-                                                    'bg-red-100 text-red-700 dark:bg-red-500/20 dark:text-red-400'
+                                            inst.status === 'Pending' ? 'bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-400' :
+                                                'bg-red-100 text-red-700 dark:bg-red-500/20 dark:text-red-400'
                                             }`}>
                                             <span className={`size-1.5 rounded-full ${inst.status === 'Active' ? 'bg-green-500' :
-                                                    inst.status === 'Pending' ? 'bg-amber-500' :
-                                                        'bg-red-500'
+                                                inst.status === 'Pending' ? 'bg-amber-500' :
+                                                    'bg-red-500'
                                                 }`}></span>
                                             {inst.status}
                                         </span>
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap text-right">
                                         <Link
-                                            href="/school-dashboard"
+                                            href={`/school/${inst.id}/dashboard`}
                                             className="inline-flex items-center gap-2 px-3 py-1.5 bg-primary-50 text-primary-600 dark:bg-primary-900/30 dark:text-primary-400 hover:bg-primary-100 dark:hover:bg-primary-900/50 rounded-lg text-xs font-bold transition-all"
                                         >
                                             View Dashboard
@@ -119,6 +145,18 @@ export default function InstitutionsPage() {
                     </table>
                 </div>
             </div>
-        </div>
+
+
+            <Modal
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+                title="Register New School"
+            >
+                <AddSchoolForm
+                    onSubmit={handleAddSchool}
+                    onCancel={() => setIsModalOpen(false)}
+                />
+            </Modal>
+        </div >
     );
 }

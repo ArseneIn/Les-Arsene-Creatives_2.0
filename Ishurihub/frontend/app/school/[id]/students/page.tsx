@@ -4,19 +4,35 @@ import { useState } from "react";
 import { mockStudents, Student } from "@/data/students";
 import Link from "next/link";
 import Modal from "@/components/Modal";
-import AddStudentForm from "@/components/AddStudentForm";
+import AddStudentForm, { AddStudentFormData } from "@/components/AddStudentForm";
+import { useParams } from "next/navigation";
 
 export default function StudentsPage() {
     const [students, setStudents] = useState<Student[]>(mockStudents);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const params = useParams();
+    const schoolId = params.id as string;
 
-    const handleAddStudent = (data: any) => {
+    const handleAddStudent = (data: AddStudentFormData) => {
         const newStudent: Student = {
             id: Math.random().toString(36).substr(2, 9),
             name: data.fullName,
             studentId: data.studentId,
-            grade: data.grade,
-            section: `Section ${data.section}`,
+            level: data.level,
+            year: data.grade as Student['year'],
+            combination: data.combination,
+            // Personal
+            dob: data.dob,
+            gender: data.gender,
+            age: data.age,
+            // Parent
+            fatherName: data.fatherName,
+            motherName: data.motherName,
+            primaryPhone: data.primaryPhone,
+            emergencyPhone: data.emergencyPhone,
+            email: data.email,
+
+            grade: data.grade, // Keeping for backward compatibility if needed, or just mapping year to it
             cardUid: null,
             status: "Pending",
             avatarUrl: `https://ui-avatars.com/api/?name=${encodeURIComponent(data.fullName)}&background=random`,
@@ -31,7 +47,7 @@ export default function StudentsPage() {
             <div className="layout-content-container flex flex-col w-full max-w-[1200px] px-6">
                 {/* Breadcrumbs */}
                 <div className="flex flex-wrap gap-2 pb-4">
-                    <Link href="/" className="text-[#4c4c9a] dark:text-gray-400 text-sm font-medium hover:text-primary">Home</Link>
+                    <Link href={`/school/${schoolId}/dashboard`} className="text-[#4c4c9a] dark:text-gray-400 text-sm font-medium hover:text-primary">Home</Link>
                     <span className="text-[#4c4c9a] dark:text-gray-600 text-sm font-medium">/</span>
                     <span className="text-black dark:text-white text-sm font-bold">Student Management</span>
                 </div>
@@ -86,7 +102,7 @@ export default function StudentsPage() {
                             <thead>
                                 <tr className="bg-primary dark:bg-primary">
                                     <th className="px-6 py-4 text-white text-sm font-bold uppercase tracking-wider w-[350px]">Student Name</th>
-                                    <th className="px-6 py-4 text-white text-sm font-bold uppercase tracking-wider">Class & Section</th>
+                                    <th className="px-6 py-4 text-white text-sm font-bold uppercase tracking-wider">Level & Year</th>
                                     <th className="px-6 py-4 text-white text-sm font-bold uppercase tracking-wider">Card UID</th>
                                     <th className="px-6 py-4 text-white text-sm font-bold uppercase tracking-wider">Status</th>
                                     <th className="px-6 py-4 text-white text-sm font-bold uppercase tracking-wider text-right">Actions</th>
@@ -109,9 +125,16 @@ export default function StudentsPage() {
                                             </div>
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap">
-                                            <div className="flex items-center gap-2">
-                                                <span className="px-2.5 py-1 rounded bg-[#e7e7f3] dark:bg-white/10 text-primary dark:text-primary text-xs font-bold">{student.grade}</span>
-                                                <span className="text-black dark:text-white text-sm font-medium">{student.section}</span>
+                                            <div className="flex flex-col gap-1">
+                                                <div className="flex items-center gap-2">
+                                                    <span className="px-2.5 py-1 rounded bg-[#e7e7f3] dark:bg-white/10 text-primary dark:text-primary text-xs font-bold">{student.level}</span>
+                                                    <span className="text-black dark:text-white text-sm font-bold">{student.year}</span>
+                                                </div>
+                                                {student.level === 'A-Level' && (
+                                                    <span className="text-xs text-gray-500 dark:text-gray-400">
+                                                        {student.combination}
+                                                    </span>
+                                                )}
                                             </div>
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap">
@@ -123,12 +146,12 @@ export default function StudentsPage() {
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold ${student.status === 'Active' ? 'bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-400' :
-                                                    student.status === 'Pending' ? 'bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-400' :
-                                                        'bg-red-100 text-red-700 dark:bg-red-500/20 dark:text-red-400'
+                                                student.status === 'Pending' ? 'bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-400' :
+                                                    'bg-red-100 text-red-700 dark:bg-red-500/20 dark:text-red-400'
                                                 }`}>
                                                 <span className={`size-1.5 rounded-full ${student.status === 'Active' ? 'bg-green-500' :
-                                                        student.status === 'Pending' ? 'bg-amber-500' :
-                                                            'bg-red-500'
+                                                    student.status === 'Pending' ? 'bg-amber-500' :
+                                                        'bg-red-500'
                                                     }`}></span>
                                                 {student.status}
                                             </span>

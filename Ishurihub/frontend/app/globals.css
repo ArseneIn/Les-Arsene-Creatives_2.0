@@ -1,9 +1,8 @@
-@import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap');
 @import "tailwindcss";
 
 @theme {
-  --font-sans: var(--font-outfit);
-  --font-heading: var(--font-jakarta);
+  --font-sans: var(--font-dm-sans);
+  --font-heading: var(--font-outfit);
 
   /* Modern Blue Palette */
   --color-primary-50: #eff6ff;
@@ -24,9 +23,10 @@
   --color-background-dark: #0f172a;
 }
 
-/* Material Symbols */
+/* Material Symbols - Loaded via layout.tsx */
+
 .material-symbols-outlined {
-  font-family: 'Material Symbols Outlined';
+  font-family: 'Material Symbols Outlined' !important;
   font-weight: normal;
   font-style: normal;
   font-size: 24px;
@@ -44,6 +44,7 @@
 body {
   background-color: var(--color-background-light);
   color: #000;
+  font-family: var(--font-dm-sans), sans-serif;
 }
 
 @media (prefers-color-scheme: dark) {
