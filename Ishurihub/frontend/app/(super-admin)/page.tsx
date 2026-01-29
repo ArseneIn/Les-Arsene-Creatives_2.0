@@ -1,6 +1,7 @@
 "use client";
 
 import { mockInstitutions, Institution } from "@/data/institutions";
+import { mockStudents } from "@/data/students";
 import Link from "next/link";
 import { useState } from "react";
 import Modal from "@/components/Modal";
@@ -10,11 +11,20 @@ export default function InstitutionsPage() {
     const [institutions, setInstitutions] = useState<Institution[]>(mockInstitutions);
     const [isModalOpen, setIsModalOpen] = useState(false);
 
+    // Calculate total students dynamically (Derived State)
+    const demoSchoolStudents = mockStudents.length;
+    const otherSchoolsStudents = institutions
+        .filter(i => i.id !== '1')
+        .reduce((acc, curr) => acc + curr.studentCount, 0);
+    const totalStudents = demoSchoolStudents + otherSchoolsStudents;
+
     const handleAddSchool = (data: AddSchoolFormData) => {
         const newSchool: Institution = {
             id: (institutions.length + 1).toString(),
             name: data.name,
             type: data.type as Institution['type'],
+            category: 'Day', // Valid value
+            levels: ['O-Level', 'A-Level'], // Valid values
             location: data.location,
             studentCount: 0,
             status: 'Active',
@@ -64,7 +74,7 @@ export default function InstitutionsPage() {
                             <p className="text-slate-500 dark:text-slate-400 text-sm font-medium">Total Students</p>
                         </div>
                         <h3 className="text-3xl font-heading font-bold text-slate-900 dark:text-white">
-                            {institutions.reduce((acc, curr) => acc + curr.studentCount, 0).toLocaleString()}
+                            {totalStudents.toLocaleString()}
                         </h3>
                     </div>
                     <div className="bg-white dark:bg-slate-800/50 backdrop-blur-sm p-6 rounded-2xl border border-slate-200 dark:border-slate-700/50 shadow-lg shadow-slate-200/50 dark:shadow-black/20">

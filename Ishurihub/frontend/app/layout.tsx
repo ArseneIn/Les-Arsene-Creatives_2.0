@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { DM_Sans, Outfit } from "next/font/google";
+import "material-symbols";
 import "./globals.css";
 
 const dmSans = DM_Sans({
@@ -27,8 +28,6 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        {/* eslint-disable-next-line @next/next/no-page-custom-font */}
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=optional" />
       </head>
       <body className={`${dmSans.variable} ${outfit.variable} antialiased font-sans bg-slate-50 dark:bg-[#0f172a]`}>
         {children}
