@@ -2,12 +2,14 @@
 
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import { User, mockUsers, getUserWithRole } from "@/data/users";
+import { Permission } from "@/data/rbac";
 
 interface AuthContextType {
     user: User | undefined;
     isLoading: boolean;
-    login: (userId: string) => void;
+    login: (email: string) => string | null; // Returns redirect path or null if failed
     logout: () => void;
+    checkPermission: (permission: string) => boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -18,24 +20,38 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     useEffect(() => {
         // Simulate checking for existing session
-        const storedUserId = localStorage.getItem("ishurihub_user_id");
-        if (storedUserId) {
-            const foundUser = getUserWithRole(storedUserId);
-            setUser(foundUser);
-        } else {
-            // Default to Head Teacher for demo if no session
-            const defaultUser = getUserWithRole('u1');
-            setUser(defaultUser);
-        }
-        setIsLoading(false);
+        const initAuth = () => {
+            const storedUserId = localStorage.getItem("ishurihub_user_id");
+            if (storedUserId) {
+                const foundUser = getUserWithRole(storedUserId);
+                setUser(foundUser);
+            }
+            setIsLoading(false);
+        };
+
+        // Use timeout to bypass synchronous state update warning and simulate async load
+        const timer = setTimeout(initAuth, 100);
+        return () => clearTimeout(timer);
     }, []);
 
-    const login = (userId: string) => {
-        const foundUser = getUserWithRole(userId);
+    const login = (email: string): string | null => {
+        // Simple mock login by email
+        const foundUser = mockUsers.find(u => u.email === email);
         if (foundUser) {
-            setUser(foundUser);
-            localStorage.setItem("ishurihub_user_id", userId);
+            const userWithRole = getUserWithRole(foundUser.id);
+            if (userWithRole) {
+                setUser(userWithRole);
+                localStorage.setItem("ishurihub_user_id", userWithRole.id);
+
+                // Determine redirect path
+                if (userWithRole.roleId === 'super_admin') {
+                    return '/';
+                } else {
+                    return `/school/${userWithRole.schoolId}/dashboard`;
+                }
+            }
         }
+        return null;
     };
 
     const logout = () => {
@@ -43,8 +59,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         localStorage.removeItem("ishurihub_user_id");
     };
 
+    const checkPermission = (permission: string): boolean => {
+        if (!user || !user.role) return false;
+        // Super admins have implicit access to system level, but specific permissions are better
+        return user.role.permissions.includes(permission as Permission);
+    };
+
     return (
-        <AuthContext.Provider value={{ user, isLoading, login, logout }}>
+        <AuthContext.Provider value={{ user, isLoading, login, logout, checkPermission }}>
             {children}
         </AuthContext.Provider>
     );

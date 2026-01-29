@@ -12,6 +12,14 @@ export interface User {
 
 export const mockUsers: User[] = [
     {
+        id: 'admin_1',
+        name: 'Admin User',
+        email: 'admin@ishurihub.rw',
+        avatarUrl: 'https://ui-avatars.com/api/?name=Admin+User&background=000000&color=fff',
+        roleId: 'super_admin',
+        schoolId: 'system' // Special ID for platform level
+    },
+    {
         id: 'u1',
         name: 'Dr. Jean Claude',
         email: 'headteacher@ishurihub.rw',

@@ -22,7 +22,8 @@ export type Permission =
     // System
     | 'system.manage_users'
     | 'system.manage_roles'
-    | 'system.view_logs';
+    | 'system.view_logs'
+    | 'system.manage_institutions';
 
 export interface Role {
     id: string;
@@ -33,6 +34,16 @@ export interface Role {
 }
 
 export const SYSTEM_ROLES: Role[] = [
+    {
+        id: 'super_admin',
+        name: 'Super Admin',
+        description: 'Platform owner with full access to all institutions.',
+        isSystem: true,
+        permissions: [
+            'system.manage_institutions',
+            'system.manage_users', 'system.manage_roles', 'system.view_logs'
+        ]
+    },
     {
         id: 'head_teacher',
         name: 'Head Teacher',
