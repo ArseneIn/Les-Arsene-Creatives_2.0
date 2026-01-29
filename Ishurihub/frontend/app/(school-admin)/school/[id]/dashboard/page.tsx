@@ -1,4 +1,4 @@
-import DashboardResolver from "@/components/dashboards/DashboardResolver";
+import SchoolAdminDashboard from "@/components/dashboards/SchoolAdminDashboard";
 
 export default function DashboardPage() {
     return (
@@ -18,7 +18,7 @@ export default function DashboardPage() {
             </header>
 
             {/* Content Body */}
-            <DashboardResolver />
+            <SchoolAdminDashboard />
         </>
     );
 }

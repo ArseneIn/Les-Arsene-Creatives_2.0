@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { mockStudents, Student } from "@/data/students";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
 
 interface ScanLog {
     student: Student;
@@ -13,6 +13,8 @@ interface ScanLog {
 
 export default function AttendancePage() {
     const router = useRouter();
+    const params = useParams();
+    const schoolId = params.id as string;
     const [lastScanned, setLastScanned] = useState<ScanLog | null>(null);
     const [recentScans, setRecentScans] = useState<ScanLog[]>([]);
     const [isReady, setIsReady] = useState(true);
@@ -86,7 +88,7 @@ export default function AttendancePage() {
             {/* Top Navigation Bar */}
             <header className="flex-none flex items-center justify-between border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-[#151a2d] px-8 py-4 z-20 shadow-sm">
                 <div className="flex items-center gap-4">
-                    <Link href="/" className="size-10 bg-primary/10 rounded-lg flex items-center justify-center text-primary hover:bg-primary hover:text-white transition-colors">
+                    <Link href={`/school/${schoolId}/dashboard`} className="size-10 bg-primary/10 rounded-lg flex items-center justify-center text-primary hover:bg-primary hover:text-white transition-colors">
                         <span className="material-symbols-outlined !text-3xl">arrow_back</span>
                     </Link>
                     <div>

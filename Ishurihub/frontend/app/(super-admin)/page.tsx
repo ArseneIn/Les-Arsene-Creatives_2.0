@@ -3,13 +3,25 @@
 import { mockInstitutions, Institution } from "@/data/institutions";
 import { mockStudents } from "@/data/students";
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Modal from "@/components/Modal";
 import AddSchoolForm, { AddSchoolFormData } from "@/components/AddSchoolForm";
 
 export default function InstitutionsPage() {
     const [institutions, setInstitutions] = useState<Institution[]>(mockInstitutions);
     const [isModalOpen, setIsModalOpen] = useState(false);
+
+    // Load from localStorage on mount
+    useEffect(() => {
+        const saved = localStorage.getItem('ishuri_institutions');
+        if (saved) {
+            try {
+                setInstitutions(JSON.parse(saved));
+            } catch (e) {
+                console.error("Failed to parse institutions", e);
+            }
+        }
+    }, []);
 
     // Calculate total students dynamically (Derived State)
     const demoSchoolStudents = mockStudents.length;
@@ -32,7 +44,9 @@ export default function InstitutionsPage() {
             joinedDate: new Date().toISOString().split('T')[0]
         };
 
-        setInstitutions([newSchool, ...institutions]);
+        const updatedInstitutions = [newSchool, ...institutions];
+        setInstitutions(updatedInstitutions);
+        localStorage.setItem('ishuri_institutions', JSON.stringify(updatedInstitutions));
         setIsModalOpen(false);
     };
     return (
