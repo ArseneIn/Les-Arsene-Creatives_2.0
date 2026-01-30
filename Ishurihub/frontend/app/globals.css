@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 @theme {
-  --font-sans: var(--font-dm-sans);
+  --font-sans: var(--font-poppins);
   --font-heading: var(--font-outfit);
 
   /* Modern Blue Palette */
@@ -24,10 +24,11 @@
 }
 
 
+html,
 body {
   background-color: var(--color-background-light);
   color: #000;
-  font-family: var(--font-dm-sans), sans-serif;
+  font-family: var(--font-poppins), sans-serif !important;
 }
 
 @media (prefers-color-scheme: dark) {

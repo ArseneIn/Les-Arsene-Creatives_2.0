@@ -1,12 +1,13 @@
 import type { Metadata } from "next";
-import { DM_Sans, Outfit } from "next/font/google";
+import { Poppins, Outfit } from "next/font/google";
 import "material-symbols";
 import "./globals.css";
 import { AuthProvider } from "@/context/AuthContext";
 
-const dmSans = DM_Sans({
-  variable: "--font-dm-sans",
+const poppins = Poppins({
+  variable: "--font-poppins",
   subsets: ["latin"],
+  weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
   display: "swap",
 });
 
@@ -30,7 +31,7 @@ export default function RootLayout({
     <html lang="en">
       <head>
       </head>
-      <body className={`${dmSans.variable} ${outfit.variable} antialiased font-sans bg-slate-50 dark:bg-[#0f172a]`}>
+      <body className={`${poppins.variable} ${outfit.variable} antialiased font-sans bg-slate-50 dark:bg-[#0f172a]`}>
         <AuthProvider>
           {children}
         </AuthProvider>
