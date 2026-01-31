@@ -21,6 +21,7 @@ interface SchoolProfile {
     website?: string;
     email?: string;
     phone?: string;
+    combinations?: { name: string; isActive: boolean }[];
 }
 
 export default function SystemPage() {
@@ -33,6 +34,29 @@ export default function SystemPage() {
         address: ''
     });
     const [isLoading, setIsLoading] = useState(true);
+
+    const [newCombo, setNewCombo] = useState("");
+
+    const addCombination = () => {
+        if (!newCombo.trim()) return;
+        const updatedCombos = [...(profile.combinations || []), { name: newCombo.toUpperCase(), isActive: true }];
+        setProfile({ ...profile, combinations: updatedCombos });
+        setNewCombo("");
+    };
+
+    const toggleCombination = (index: number) => {
+        const updatedCombos = [...(profile.combinations || [])];
+        updatedCombos[index].isActive = !updatedCombos[index].isActive;
+        setProfile({ ...profile, combinations: updatedCombos });
+    };
+
+    const removeCombination = (index: number) => {
+        if (confirm("Are you sure you want to remove this combination?")) {
+            const updatedCombos = profile.combinations?.filter((_, i) => i !== index);
+            setProfile({ ...profile, combinations: updatedCombos });
+        }
+    };
+
 
     const fetchSchool = useCallback(async () => {
         if (!schoolId) return;
@@ -150,6 +174,63 @@ export default function SystemPage() {
                                                     onChange={(e) => setProfile({ ...profile, address: e.target.value })}
                                                     className="w-full h-10 px-3 rounded-lg border border-[#cfcfe7] dark:border-gray-600 bg-transparent text-sm"
                                                 />
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Academic Combinations */}
+                                    <div>
+                                        <h3 className="text-lg font-bold text-black dark:text-white mb-4 flex items-center gap-2">
+                                            <span className="material-symbols-outlined text-primary">fact_check</span>
+                                            Academic Combinations
+                                        </h3>
+                                        <div className="space-y-4 p-4 rounded-xl bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-gray-700/50">
+                                            <div className="flex gap-2">
+                                                <input
+                                                    type="text"
+                                                    value={newCombo}
+                                                    onChange={(e) => setNewCombo(e.target.value)}
+                                                    placeholder="Add new combination (e.g. MEG)"
+                                                    className="flex-1 h-10 px-3 rounded-lg border border-[#cfcfe7] dark:border-gray-600 bg-white dark:bg-black/20 text-sm focus:ring-2 focus:ring-primary/20 outline-none"
+                                                />
+                                                <button
+                                                    onClick={addCombination}
+                                                    type="button"
+                                                    disabled={!newCombo.trim()}
+                                                    className="px-4 h-10 bg-primary text-white text-sm font-bold rounded-lg hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                                >
+                                                    Add
+                                                </button>
+                                            </div>
+
+                                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                                {profile.combinations?.map((combo, index) => (
+                                                    <div key={index} className={`flex items-center justify-between p-3 rounded-lg border transition-all ${combo.isActive ? 'bg-white dark:bg-black/20 border-gray-200 dark:border-gray-700' : 'bg-gray-100 dark:bg-white/5 border-transparent opacity-75'}`}>
+                                                        <div className="flex items-center gap-3">
+                                                            <div className={`size-2 rounded-full ${combo.isActive ? 'bg-green-500' : 'bg-gray-400'}`}></div>
+                                                            <span className="font-bold text-gray-700 dark:text-gray-200">{combo.name}</span>
+                                                        </div>
+                                                        <div className="flex items-center gap-1">
+                                                            <button
+                                                                onClick={() => toggleCombination(index)}
+                                                                title={combo.isActive ? "Deactivate" : "Activate"}
+                                                                className={`p-1.5 rounded-md transition-colors ${combo.isActive ? 'text-green-600 hover:bg-green-50 dark:hover:bg-green-900/20' : 'text-gray-400 hover:bg-gray-200 dark:hover:bg-white/10'}`}
+                                                            >
+                                                                <span className="material-symbols-outlined text-[18px]">{combo.isActive ? 'toggle_on' : 'toggle_off'}</span>
+                                                            </button>
+                                                            <button
+                                                                onClick={() => removeCombination(index)}
+                                                                title="Remove"
+                                                                className="p-1.5 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-md transition-colors"
+                                                            >
+                                                                <span className="material-symbols-outlined text-[18px]">delete</span>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                                {(!profile.combinations || profile.combinations.length === 0) && (
+                                                    <p className="col-span-full text-center text-sm text-gray-400 py-2 italic">No combinations added yet.</p>
+                                                )}
                                             </div>
                                         </div>
                                     </div>

@@ -47,6 +47,7 @@ export default function Sidebar({ schoolId }: SidebarProps) {
             href: '#',
             permission: 'academic.view_grades', // Base permission to see the group
             subItems: [
+                { label: 'Classes', icon: 'meeting_room', href: `${baseUrl}/classes`, permission: 'academic.view_grades' },
                 { label: 'Timetable', icon: 'calendar_month', href: `${baseUrl}/timetable`, permission: 'academic.manage_timetable' },
                 { label: 'Teachers', icon: 'person_apron', href: `${baseUrl}/teachers`, permission: 'academic.manage_timetable' },
                 { label: 'Students', icon: 'groups', href: `${baseUrl}/students`, permission: 'student.view' },

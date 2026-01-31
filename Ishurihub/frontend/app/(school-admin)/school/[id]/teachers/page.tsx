@@ -5,32 +5,53 @@ import { Teacher } from "@/data/teachers";
 import api from "@/lib/api";
 import Link from "next/link";
 import { useParams } from "next/navigation";
+import Modal from "@/components/Modal";
+import AddTeacherForm, { AddTeacherFormData } from "@/components/AddTeacherForm";
 
 export default function TeachersPage() {
     const [teachers, setTeachers] = useState<Teacher[]>([]);
     const [isLoading, setIsLoading] = useState(true);
+    const [isModalOpen, setIsModalOpen] = useState(false);
     const params = useParams();
     const schoolId = params.id as string;
 
-    useEffect(() => {
-        const fetchTeachers = async () => {
-            setIsLoading(true);
-            try {
-                const response = await api.get('/teachers', {
-                    params: { schoolId }
-                });
-                setTeachers(response.data);
-            } catch (error) {
-                console.error("Failed to fetch teachers:", error);
-            } finally {
-                setIsLoading(false);
-            }
-        };
+    const fetchTeachers = async () => {
+        setIsLoading(true);
+        try {
+            const response = await api.get('/teachers', {
+                params: { schoolId }
+            });
+            setTeachers(response.data);
+        } catch (error) {
+            console.error("Failed to fetch teachers:", error);
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
+    useEffect(() => {
         if (schoolId) {
             fetchTeachers();
         }
     }, [schoolId]);
+
+    const handleAddTeacher = async (data: AddTeacherFormData) => {
+        try {
+            const newTeacherData = {
+                ...data,
+                schoolId: schoolId,
+                status: 'Active',
+                avatarUrl: `https://ui-avatars.com/api/?name=${encodeURIComponent(data.name)}&background=random`,
+            };
+
+            await api.post('/teachers', newTeacherData);
+            await fetchTeachers(); // Refresh list
+            setIsModalOpen(false);
+        } catch (error) {
+            console.error("Failed to add teacher:", error);
+            // Ideally show a toast notification here
+        }
+    };
 
     // Stats
     const totalTeachers = teachers.length;
@@ -58,7 +79,10 @@ export default function TeachersPage() {
                             <span className="material-symbols-outlined text-[18px] mr-2">file_download</span>
                             Export List
                         </button>
-                        <button className="flex min-w-[140px] items-center justify-center rounded-lg h-11 px-5 bg-primary text-white text-sm font-bold shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-100 transition-all">
+                        <button
+                            onClick={() => setIsModalOpen(true)}
+                            className="flex min-w-[140px] items-center justify-center rounded-lg h-11 px-5 bg-primary text-white text-sm font-bold shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-100 transition-all"
+                        >
                             <span className="material-symbols-outlined text-[18px] mr-2">person_add</span>
                             Add Teacher
                         </button>
@@ -158,6 +182,19 @@ export default function TeachersPage() {
                     </table>
                 </div>
             </div>
+
+            {/* Add Teacher Modal */}
+            <Modal
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+                title="Add New Staff"
+                size="4xl"
+            >
+                <AddTeacherForm
+                    onSubmit={handleAddTeacher}
+                    onCancel={() => setIsModalOpen(false)}
+                />
+            </Modal>
         </div>
     );
 }

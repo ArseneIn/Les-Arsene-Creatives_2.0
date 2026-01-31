@@ -1,7 +1,9 @@
 "use client";
 
 import { useForm, useWatch } from "react-hook-form";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { useParams } from "next/navigation";
+import api from "@/lib/api";
 
 export interface AddStudentFormData {
     fullName: string;
@@ -61,6 +63,21 @@ export default function AddStudentForm({ onSubmit, onCancel }: AddStudentFormPro
             setValue("age", age);
         }
     }, [dob, setValue]);
+
+    // Fetch classes
+    const [availableClasses, setAvailableClasses] = useState<any[]>([]);
+    const params = useParams();
+    const schoolId = params.id as string;
+
+    useEffect(() => {
+        if (schoolId) {
+            api.get('/classes', { params: { schoolId } })
+                .then(res => setAvailableClasses(res.data))
+                .catch(err => console.error(err));
+        }
+    }, [schoolId]);
+
+    const classOptions = availableClasses.filter(c => !level || c.level === level);
 
     const inputClasses = "w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-[#0f172a] text-gray-900 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all";
 
@@ -178,8 +195,15 @@ export default function AddStudentForm({ onSubmit, onCancel }: AddStudentFormPro
                                         className={`${inputClasses} appearance-none cursor-pointer`}
                                     >
                                         <option value="">Select...</option>
-                                        {level === 'O-Level' && ['S1', 'S2', 'S3'].map(g => <option key={g} value={g}>{g}</option>)}
-                                        {level === 'A-Level' && ['S4', 'S5', 'S6'].map(g => <option key={g} value={g}>{g}</option>)}
+                                        {classOptions.length > 0 ? (
+                                            classOptions.map(cls => (
+                                                <option key={cls.id} value={`${cls.year} ${cls.stream}`}>
+                                                    {cls.name}
+                                                </option>
+                                            ))
+                                        ) : (
+                                            <option disabled>No classes found for this level</option>
+                                        )}
                                     </select>
                                     <span className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 material-symbols-outlined pointer-events-none">expand_more</span>
                                 </div>

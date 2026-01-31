@@ -43,3 +43,11 @@ The project is structured into several distinct portals and modules, each servin
 - **NFC Centric**: The system relies heavily on physical cards for identity and interaction (attendance, library, payments).
 - **Modern UI**: The designs use a clean, "Inter" font-based aesthetic with Tailwind CSS, supporting both Light and Dark modes.
 - **Role-Based Access**: Clear separation of concerns between Admin, Teacher, Parent, and specialized roles (Library, Finance).
+
+### 6. Academic Management (New)
+- **`classes_module`**: Centralized management of classes (streams/combinations). 
+    - Supports **O-Level** (Random streaming) and **A-Level** (Combination-based grouping).
+    - Randomization logic to automatically assign students to classes.
+- **`school_system_settings`**: Configuration for school-wide settings.
+    - **Combinations Management**: Ability to add/remove/toggle A-Level subject combinations.
+
