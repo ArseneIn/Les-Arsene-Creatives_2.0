@@ -20,22 +20,46 @@ export default function SuperAdminSidebar() {
             {/* Scrollable Navigation */}
             <div className="relative flex-1 overflow-y-auto px-4 py-2 custom-scrollbar z-10">
                 <nav className="flex flex-col gap-1.5">
-                    {/* Dashboard (Active State) */}
-                    <Link href="/" className="group flex items-center gap-3 px-3 py-3 rounded-lg bg-white/10 text-white shadow-lg shadow-black/5 ring-1 ring-white/20 backdrop-blur-md transition-all hover:bg-white/20">
+                    {/* Overview */}
+                    <Link href="/system" className="group flex items-center gap-3 px-3 py-3 rounded-lg text-slate-300 hover:bg-white/10 hover:text-white transition-all">
+                        <span className="material-symbols-outlined" style={{ fontSize: '24px' }}>dashboard</span>
+                        <span className="text-sm font-medium leading-normal">Overview</span>
+                    </Link>
+
+                    {/* Schools */}
+                    <Link href="/system/dashboard" className="group flex items-center gap-3 px-3 py-3 rounded-lg bg-white/10 text-white shadow-lg shadow-black/5 ring-1 ring-white/20 backdrop-blur-md transition-all hover:bg-white/20">
                         <span className="material-symbols-outlined" style={{ fontSize: '24px' }}>domain</span>
                         <span className="text-sm font-medium leading-normal">Institutions</span>
                     </Link>
 
-                    {/* Analytics */}
-                    <Link href="/analytics" className="flex items-center gap-3 px-3 py-3 rounded-lg text-slate-300 hover:bg-white/10 hover:text-white transition-all">
+                    {/* Users */}
+                    <Link href="/system/users" className="flex items-center gap-3 px-3 py-3 rounded-lg text-slate-300 hover:bg-white/10 hover:text-white transition-all">
+                        <span className="material-symbols-outlined" style={{ fontSize: '24px' }}>group</span>
+                        <span className="text-sm font-medium leading-normal">Users</span>
+                    </Link>
+
+                    {/* Finance */}
+                    <Link href="/system/finance" className="flex items-center gap-3 px-3 py-3 rounded-lg text-slate-300 hover:bg-white/10 hover:text-white transition-all">
+                        <span className="material-symbols-outlined" style={{ fontSize: '24px' }}>payments</span>
+                        <span className="text-sm font-medium leading-normal">Finance</span>
+                    </Link>
+
+                    {/* Support */}
+                    <Link href="/system/support" className="flex items-center gap-3 px-3 py-3 rounded-lg text-slate-300 hover:bg-white/10 hover:text-white transition-all">
+                        <span className="material-symbols-outlined" style={{ fontSize: '24px' }}>support_agent</span>
+                        <span className="text-sm font-medium leading-normal">Support</span>
+                    </Link>
+
+                    {/* Reports */}
+                    <Link href="/system/reports" className="flex items-center gap-3 px-3 py-3 rounded-lg text-slate-300 hover:bg-white/10 hover:text-white transition-all">
                         <span className="material-symbols-outlined" style={{ fontSize: '24px' }}>analytics</span>
-                        <span className="text-sm font-medium leading-normal">Global Analytics</span>
+                        <span className="text-sm font-medium leading-normal">Reports</span>
                     </Link>
 
                     {/* Settings */}
-                    <Link href="/settings" className="flex items-center gap-3 px-3 py-3 rounded-lg text-slate-300 hover:bg-white/10 hover:text-white transition-all">
+                    <Link href="/system/settings" className="flex items-center gap-3 px-3 py-3 rounded-lg text-slate-300 hover:bg-white/10 hover:text-white transition-all">
                         <span className="material-symbols-outlined" style={{ fontSize: '24px' }}>settings</span>
-                        <span className="text-sm font-medium leading-normal">Platform Settings</span>
+                        <span className="text-sm font-medium leading-normal">Settings</span>
                     </Link>
                 </nav>
             </div>
