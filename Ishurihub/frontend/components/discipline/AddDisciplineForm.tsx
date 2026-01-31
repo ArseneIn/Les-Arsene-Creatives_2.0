@@ -51,19 +51,40 @@ export default function AddDisciplineForm({ onClose, onSubmit, students }: AddDi
                     {/* Student Selection */}
                     <div>
                         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Student</label>
-                        <select
-                            value={formData.studentId}
-                            onChange={(e) => setFormData({ ...formData, studentId: e.target.value })}
-                            className="w-full p-2.5 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-[#0f172a] text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none"
-                            required
-                        >
-                            <option value="">Select a student...</option>
-                            {students.map(student => (
-                                <option key={student.id} value={student.id}>
-                                    {student.name} ({student.grade})
-                                </option>
-                            ))}
-                        </select>
+                        <div className="flex gap-2">
+                            <select
+                                value={formData.studentId}
+                                onChange={(e) => setFormData({ ...formData, studentId: e.target.value })}
+                                className="flex-1 p-2.5 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-[#0f172a] text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none"
+                                required
+                            >
+                                <option value="">Select a student...</option>
+                                {students.map(student => (
+                                    <option key={student.id} value={student.id}>
+                                        {student.name} ({student.grade})
+                                    </option>
+                                ))}
+                            </select>
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    const uid = prompt("Simulate NFC Scan: Enter Card UID");
+                                    if (uid) {
+                                        const student = students.find(s => s.cardUid === uid);
+                                        if (student) {
+                                            setFormData(prev => ({ ...prev, studentId: student.id }));
+                                            alert(`Found student: ${student.name}`);
+                                        } else {
+                                            alert("Student not found!");
+                                        }
+                                    }
+                                }}
+                                className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg flex items-center gap-2 transition-colors"
+                            >
+                                <span className="material-symbols-outlined">nfc</span>
+                                <span className="hidden sm:inline">Scan</span>
+                            </button>
+                        </div>
                     </div>
 
                     {/* Record Type */}
@@ -127,17 +148,31 @@ export default function AddDisciplineForm({ onClose, onSubmit, students }: AddDi
                     {/* Conditional Fields: Sanction (Severity, Action) / Merit (Points) */}
                     {formData.type === 'Sanction' && (
                         <div className="space-y-4 p-4 bg-red-50 dark:bg-red-900/10 rounded-xl border border-red-100 dark:border-red-900/20">
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Severity</label>
-                                <select
-                                    value={formData.severity}
-                                    onChange={(e) => setFormData({ ...formData, severity: e.target.value as SeverityLevel })}
-                                    className="w-full p-2.5 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-[#0f172a] text-gray-900 dark:text-white focus:ring-2 focus:ring-red-500 outline-none"
-                                >
-                                    {['Low', 'Medium', 'High', 'Critical'].map(lvl => (
-                                        <option key={lvl} value={lvl}>{lvl}</option>
-                                    ))}
-                                </select>
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Severity</label>
+                                    <select
+                                        value={formData.severity}
+                                        onChange={(e) => setFormData({ ...formData, severity: e.target.value as SeverityLevel })}
+                                        className="w-full p-2.5 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-[#0f172a] text-gray-900 dark:text-white focus:ring-2 focus:ring-red-500 outline-none"
+                                    >
+                                        {['Low', 'Medium', 'High', 'Critical'].map(lvl => (
+                                            <option key={lvl} value={lvl}>{lvl}</option>
+                                        ))}
+                                    </select>
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Points to Deduct</label>
+                                    <input
+                                        type="number"
+                                        min="0"
+                                        max="100"
+                                        value={formData.points}
+                                        onChange={(e) => setFormData({ ...formData, points: parseInt(e.target.value) || 0 })}
+                                        className="w-full p-2.5 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-[#0f172a] text-gray-900 dark:text-white focus:ring-2 focus:ring-red-500 outline-none"
+                                        placeholder="0"
+                                    />
+                                </div>
                             </div>
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Action Taken</label>
@@ -154,7 +189,7 @@ export default function AddDisciplineForm({ onClose, onSubmit, students }: AddDi
 
                     {formData.type === 'Merit' && (
                         <div className="p-4 bg-green-50 dark:bg-green-900/10 rounded-xl border border-green-100 dark:border-green-900/20">
-                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Points</label>
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Points Awarded</label>
                             <input
                                 type="number"
                                 min="1"

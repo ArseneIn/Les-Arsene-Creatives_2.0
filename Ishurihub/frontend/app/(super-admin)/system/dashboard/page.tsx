@@ -7,6 +7,21 @@ import AddSchoolForm, { AddSchoolFormData } from "@/components/AddSchoolForm";
 import api from "@/lib/api";
 import { AxiosError } from 'axios';
 
+// Define the Backend response interface
+interface BackendSchool {
+    id: string;
+    name: string;
+    type?: string;
+    category?: string;
+    levels?: string[];
+    location: string;
+    students?: unknown[];
+    subscriptionStatus?: string;
+    logoUrl?: string;
+    createdAt: string;
+    plan?: string;
+}
+
 // Define the Institution interface based on backend entity
 interface Institution {
     id: string;
@@ -28,8 +43,7 @@ export default function InstitutionsPage() {
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
-
-
+    const [editingSchool, setEditingSchool] = useState<AddSchoolFormData & { id?: string } | null>(null);
 
     // ... (imports)
 
@@ -39,15 +53,17 @@ export default function InstitutionsPage() {
     const fetchInstitutions = async () => {
         try {
             setIsLoading(true);
-            const response = await api.get('/schools');
+            const response = await api.get<BackendSchool[]>('/schools');
             // Ensure response data maps to our interface.
-            const data = response.data.map((school: any) => ({
+            const data = response.data.map((school) => ({
                 ...school,
+                type: school.name.includes('University') ? 'University' : 'K-12', // distinct property 'type' is missing in BackendSchool? adding fallback or logic
                 studentCount: school.students?.length || 0,
                 status: school.subscriptionStatus || 'Active',
-                type: school.name.includes('University') ? 'University' : 'K-12',
+                // Ensure mandatory Institution fields are present if not in BackendSchool
+                location: school.location || '',
             }));
-            setInstitutions(data);
+            setInstitutions(data as Institution[]);
         } catch (err) {
             console.error("Failed to fetch schools:", err);
             setError("Failed to load institutions. Please try again.");
@@ -60,18 +76,47 @@ export default function InstitutionsPage() {
         fetchInstitutions();
     }, []);
 
-    const handleAddSchool = async (data: AddSchoolFormData) => {
+    const handleSaveSchool = async (data: AddSchoolFormData) => {
         try {
-            await api.post('/schools', {
-                ...data,
-            });
+            if (editingSchool?.id) {
+                // Update existing school
+                await api.patch(`/schools/${editingSchool.id}`, data);
+            } else {
+                // Create new school
+                await api.post('/schools', {
+                    ...data,
+                });
+            }
             await fetchInstitutions(); // Refresh list
             setIsModalOpen(false);
+            setEditingSchool(null);
         } catch (err: unknown) {
-            console.error("Failed to create school:", err);
+            console.error("Failed to save school:", err);
             const error = err as AxiosError<{ message: string }>;
-            alert(error.response?.data?.message || "Failed to create school");
+            alert(error.response?.data?.message || "Failed to save school");
         }
+    };
+
+    const handleEditSchool = (inst: Institution) => {
+        // Map Institution back to AddSchoolFormData
+        // Note: Some fields might be missing in the simple Institution list view so ideally we fetch details, 
+        // but for now we map what we have.
+        setEditingSchool({
+            id: inst.id,
+            name: inst.name,
+            levels: inst.levels || [],
+            genderType: 'Mixed', // Default or need to be in Institution interface
+            category: (inst.category as AddSchoolFormData['category']) || 'Day',
+            location: inst.location,
+            phone: '', // Need to ensure backend sends this or fetch detail
+            email: '', // Need to ensure backend sends this or fetch detail
+            adminName: '', // Usually separate user entity
+            adminEmail: '',
+            adminPassword: '',
+            plan: (inst.plan as AddSchoolFormData['plan']) || 'Free',
+            billingCycle: 'Monthly'
+        });
+        setIsModalOpen(true);
     };
 
     const handleDeleteSchool = async (id: string) => {
@@ -100,7 +145,10 @@ export default function InstitutionsPage() {
                     </div>
                     <div className="flex gap-3">
                         <button
-                            onClick={() => setIsModalOpen(true)}
+                            onClick={() => {
+                                setEditingSchool(null);
+                                setIsModalOpen(true);
+                            }}
                             className="flex min-w-[140px] items-center justify-center rounded-lg h-11 px-5 bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-sm font-bold shadow-lg hover:bg-slate-800 dark:hover:bg-slate-100 active:scale-[0.98] transition-all"
                         >
                             <span className="material-symbols-outlined text-[18px] mr-2">add_business</span>
@@ -111,6 +159,7 @@ export default function InstitutionsPage() {
 
                 {/* Stats Grid */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+                    {/* ... stats ... */}
                     <div className="bg-white dark:bg-slate-800/50 backdrop-blur-sm p-6 rounded-2xl border border-slate-200 dark:border-slate-700/50 shadow-lg shadow-slate-200/50 dark:shadow-black/20">
                         <div className="flex items-center gap-3 mb-2">
                             <div className="p-2 bg-blue-50 dark:bg-blue-900/20 rounded-lg text-blue-600 dark:text-blue-400">
@@ -210,6 +259,13 @@ export default function InstitutionsPage() {
                                                     View
                                                 </Link>
                                                 <button
+                                                    onClick={() => handleEditSchool(inst)}
+                                                    className="inline-flex items-center justify-center p-1.5 bg-slate-50 text-slate-600 dark:bg-slate-800 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-all"
+                                                    title="Edit School"
+                                                >
+                                                    <span className="material-symbols-outlined text-[18px]">edit</span>
+                                                </button>
+                                                <button
                                                     onClick={() => handleDeleteSchool(inst.id)}
                                                     className="inline-flex items-center justify-center p-1.5 bg-red-50 text-red-600 dark:bg-red-900/30 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/50 rounded-lg transition-all"
                                                     title="Delete School"
@@ -230,10 +286,13 @@ export default function InstitutionsPage() {
             <Modal
                 isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)}
-                title="Register New School"
+                title={editingSchool ? "Edit School" : "Register New School"}
+                size="5xl"
             >
                 <AddSchoolForm
-                    onSubmit={handleAddSchool}
+                    initialData={editingSchool || undefined}
+                    isEditing={!!editingSchool}
+                    onSubmit={handleSaveSchool}
                     onCancel={() => setIsModalOpen(false)}
                 />
             </Modal>

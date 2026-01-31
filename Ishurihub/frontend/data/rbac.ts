@@ -45,8 +45,8 @@ export const SYSTEM_ROLES: Role[] = [
         ]
     },
     {
-        id: 'head_teacher',
-        name: 'Head Teacher',
+        id: 'school_admin',
+        name: 'School Admin',
         description: 'Full access to all school modules.',
         isSystem: true,
         permissions: [

@@ -32,18 +32,21 @@ export default function SchoolAdminDashboard() {
 
     const [students, setStudents] = useState<Student[]>([]);
     const [teachers, setTeachers] = useState<Teacher[]>([]);
+    const [attendanceStats, setAttendanceStats] = useState<any>(null);
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
         const fetchData = async () => {
             if (!schoolId) return;
             try {
-                const [studentsRes, teachersRes] = await Promise.all([
+                const [studentsRes, teachersRes, attendanceRes] = await Promise.all([
                     api.get('/students', { params: { schoolId } }),
-                    api.get('/teachers', { params: { schoolId } })
+                    api.get('/teachers', { params: { schoolId } }),
+                    api.get('/attendance/stats', { params: { schoolId } })
                 ]);
                 setStudents(studentsRes.data);
                 setTeachers(teachersRes.data);
+                setAttendanceStats(attendanceRes.data);
             } catch (error) {
                 console.error("Failed to fetch dashboard data:", error);
             } finally {
@@ -91,7 +94,7 @@ export default function SchoolAdminDashboard() {
     }
 
     return (
-        <div className="p-6 space-y-6 bg-gray-50 dark:bg-[#0f172a] min-h-full">
+        <div className="p-6 space-y-6 bg-gray-50 dark:bg-space-indigo-950 min-h-full">
             {/* Header */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
@@ -105,7 +108,7 @@ export default function SchoolAdminDashboard() {
                     <input
                         type="text"
                         placeholder="Search for students, teachers..."
-                        className="pl-10 pr-4 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-[#1e293b] text-sm focus:ring-2 focus:ring-primary outline-none w-full md:w-64"
+                        className="pl-10 pr-4 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-space-indigo-900 text-sm focus:ring-2 focus:ring-primary outline-none w-full md:w-64"
                     />
                 </div>
             </div>
@@ -113,7 +116,7 @@ export default function SchoolAdminDashboard() {
             {/* Stats Cards */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {/* Students Card */}
-                <div className="bg-white dark:bg-[#1e293b] p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 flex items-center justify-between">
+                <div className="bg-white dark:bg-space-indigo-900 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 flex items-center justify-between">
                     <div>
                         <div className="flex items-center gap-2 mb-1">
                             <div className="p-2 bg-blue-50 dark:bg-blue-900/20 rounded-lg text-blue-600 dark:text-blue-400">
@@ -133,7 +136,7 @@ export default function SchoolAdminDashboard() {
                 </div>
 
                 {/* Teachers Card */}
-                <div className="bg-white dark:bg-[#1e293b] p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 flex items-center justify-between">
+                <div className="bg-white dark:bg-space-indigo-900 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 flex items-center justify-between">
                     <div>
                         <div className="flex items-center gap-2 mb-1">
                             <div className="p-2 bg-purple-50 dark:bg-purple-900/20 rounded-lg text-purple-600 dark:text-purple-400">
@@ -153,7 +156,7 @@ export default function SchoolAdminDashboard() {
                 </div>
 
                 {/* Attendance Card */}
-                <div className="bg-white dark:bg-[#1e293b] p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 flex items-center justify-between">
+                <div className="bg-white dark:bg-space-indigo-900 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 flex items-center justify-between">
                     <div>
                         <div className="flex items-center gap-2 mb-1">
                             <div className="p-2 bg-amber-50 dark:bg-amber-900/20 rounded-lg text-amber-600 dark:text-amber-400">
@@ -161,9 +164,9 @@ export default function SchoolAdminDashboard() {
                             </div>
                             <span className="text-sm font-medium text-gray-500 dark:text-gray-400">Attendance Rate</span>
                         </div>
-                        <h3 className="text-3xl font-bold text-gray-900 dark:text-white mt-2">--%</h3>
+                        <h3 className="text-3xl font-bold text-gray-900 dark:text-white mt-2">{attendanceStats?.attendanceRate ? `${Math.round(attendanceStats.attendanceRate)}%` : '0%'}</h3>
                         <span className="inline-flex items-center gap-1 text-xs font-medium text-gray-500 bg-gray-100 dark:bg-gray-800 px-2 py-0.5 rounded-full mt-2">
-                            Not available yet
+                            <span>Today</span>
                         </span>
                     </div>
                     <div className="size-12 rounded-full bg-amber-50 dark:bg-amber-900/10 flex items-center justify-center">
@@ -176,7 +179,7 @@ export default function SchoolAdminDashboard() {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
                 {/* Left Column (Recent Enrollments - formerly Top Performers) */}
-                <div className="lg:col-span-2 bg-white dark:bg-[#1e293b] rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
+                <div className="lg:col-span-2 bg-white dark:bg-space-indigo-900 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
                     <div className="flex items-center justify-between mb-6">
                         <h3 className="text-lg font-bold text-gray-900 dark:text-white">Recent Enrollments</h3>
                         <Link href={`/school/${schoolId}/students`} className="text-sm text-primary font-medium hover:underline">View All</Link>
@@ -214,7 +217,7 @@ export default function SchoolAdminDashboard() {
                                             <td className="py-4 text-sm text-gray-600 dark:text-gray-300">{student.year || student.grade}</td>
                                             <td className="py-4">
                                                 <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold ${student.status === 'Active' ? 'bg-green-50 text-green-600 dark:bg-green-900/20 dark:text-green-400' :
-                                                        'bg-amber-50 text-amber-600 dark:bg-amber-900/20 dark:text-amber-400'
+                                                    'bg-amber-50 text-amber-600 dark:bg-amber-900/20 dark:text-amber-400'
                                                     }`}>
                                                     {student.status || 'Active'}
                                                 </span>
@@ -228,7 +231,7 @@ export default function SchoolAdminDashboard() {
                 </div>
 
                 {/* Right Column (Gender Chart) */}
-                <div className="bg-white dark:bg-[#1e293b] rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
+                <div className="bg-white dark:bg-space-indigo-900 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
                     <div className="flex items-center justify-between mb-6">
                         <h3 className="text-lg font-bold text-gray-900 dark:text-white">Student Body</h3>
                         <button className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors">
@@ -253,7 +256,7 @@ export default function SchoolAdminDashboard() {
                                     ))}
                                 </Pie>
                                 <Tooltip
-                                    contentStyle={{ backgroundColor: '#1e293b', borderColor: '#334155', color: '#fff' }}
+                                    contentStyle={{ backgroundColor: '#1e1e48', borderColor: '#2c2c6d', color: '#fff' }}
                                     itemStyle={{ color: '#fff' }}
                                 />
                             </PieChart>
@@ -283,11 +286,8 @@ export default function SchoolAdminDashboard() {
             </div>
 
             {/* Bottom Row (Attendance Chart - Static for now) */}
-            <div className="bg-white dark:bg-[#1e293b] rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 opacity-50 pointer-events-none">
-                <div className="absolute inset-0 flex items-center justify-center z-10">
-                    <span className="bg-gray-800 text-white px-4 py-2 rounded-lg text-sm font-bold shadow-lg">Attendance Module Coming Soon</span>
-                </div>
-                <div className="flex items-center justify-between mb-6 blur-[2px]">
+            <div className="bg-white dark:bg-space-indigo-900 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
+                <div className="flex items-center justify-between mb-6">
                     <h3 className="text-lg font-bold text-gray-900 dark:text-white">Attendance Overview</h3>
                     <select className="bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-sm rounded-lg px-3 py-1.5 outline-none focus:ring-2 focus:ring-primary">
                         <option>This Week</option>
@@ -295,7 +295,7 @@ export default function SchoolAdminDashboard() {
                     </select>
                 </div>
 
-                <div className="h-[300px] w-full blur-[2px]">
+                <div className="h-[300px] w-full">
                     <ResponsiveContainer width="100%" height="100%" minWidth={100} minHeight={100}>
                         <AreaChart data={attendanceData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
                             <defs>

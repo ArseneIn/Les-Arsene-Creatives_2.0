@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import SuperAdminSidebar from "@/components/SuperAdminSidebar";
 import api from "@/lib/api";
 import {
     AreaChart,
@@ -13,8 +12,25 @@ import {
     ResponsiveContainer,
 } from "recharts";
 
+interface Transaction {
+    id: string;
+    schoolId: string;
+    plan: string;
+    amount: number;
+    status: string;
+    createdAt: string;
+}
+
+interface FinanceStats {
+    totalRevenue: number;
+    mrr: number;
+    activeSubscriptions: number;
+    churnRate: number;
+    recentTransactions: Transaction[];
+}
+
 export default function SystemFinancePage() {
-    const [stats, setStats] = useState({
+    const [stats, setStats] = useState<FinanceStats>({
         totalRevenue: 0,
         mrr: 0,
         activeSubscriptions: 0,
@@ -56,7 +72,7 @@ export default function SystemFinancePage() {
             {/* KPI Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                 {/* Total Revenue */}
-                <div className="p-6 bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700">
+                <div className="p-6 bg-white dark:bg-space-indigo-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700">
                     <p className="text-sm font-medium text-slate-500 dark:text-slate-400 mb-1">Total Revenue</p>
                     <h3 className="text-2xl font-bold text-slate-900 dark:text-white">
                         {new Intl.NumberFormat('en-RW', { style: 'currency', currency: 'RWF' }).format(stats.totalRevenue)}
@@ -64,7 +80,7 @@ export default function SystemFinancePage() {
                 </div>
 
                 {/* MRR */}
-                <div className="p-6 bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700">
+                <div className="p-6 bg-white dark:bg-space-indigo-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700">
                     <p className="text-sm font-medium text-slate-500 dark:text-slate-400 mb-1">Monthly Recurring (MRR)</p>
                     <h3 className="text-2xl font-bold text-slate-900 dark:text-white">
                         {new Intl.NumberFormat('en-RW', { style: 'currency', currency: 'RWF' }).format(stats.mrr)}
@@ -72,20 +88,20 @@ export default function SystemFinancePage() {
                 </div>
 
                 {/* Active Subscriptions */}
-                <div className="p-6 bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700">
+                <div className="p-6 bg-white dark:bg-space-indigo-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700">
                     <p className="text-sm font-medium text-slate-500 dark:text-slate-400 mb-1">Active Subscriptions</p>
                     <h3 className="text-2xl font-bold text-slate-900 dark:text-white">{stats.activeSubscriptions}</h3>
                 </div>
 
                 {/* Churn Rate */}
-                <div className="p-6 bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700">
+                <div className="p-6 bg-white dark:bg-space-indigo-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700">
                     <p className="text-sm font-medium text-slate-500 dark:text-slate-400 mb-1">Churn Rate</p>
                     <h3 className="text-2xl font-bold text-slate-900 dark:text-white">{stats.churnRate}%</h3>
                 </div>
             </div>
 
             {/* Revenue Chart */}
-            <div className="mb-8 bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700">
+            <div className="mb-8 bg-white dark:bg-space-indigo-900 p-6 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700">
                 <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-4">Revenue Trends</h3>
                 <div className="h-[300px] w-full">
                     <ResponsiveContainer width="100%" height="100%">
@@ -100,7 +116,7 @@ export default function SystemFinancePage() {
                             <YAxis stroke="#64748b" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(value) => `${value / 1000}k`} />
                             <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
                             <Tooltip
-                                contentStyle={{ backgroundColor: '#1e293b', borderRadius: '8px', border: 'none', color: '#fff' }}
+                                contentStyle={{ backgroundColor: '#1e1e48', borderRadius: '8px', border: 'none', color: '#fff' }}
                                 itemStyle={{ color: '#fff' }}
                             />
                             <Area type="monotone" dataKey="revenue" stroke="#8884d8" fillOpacity={1} fill="url(#colorRevenue)" />
@@ -110,7 +126,7 @@ export default function SystemFinancePage() {
             </div>
 
             {/* Recent Transactions Table */}
-            <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
+            <div className="bg-white dark:bg-space-indigo-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
                 <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-700">
                     <h3 className="text-lg font-bold text-slate-900 dark:text-white">Recent Transactions</h3>
                 </div>
@@ -135,7 +151,7 @@ export default function SystemFinancePage() {
                                     <td colSpan={5} className="px-6 py-8 text-center text-slate-500">No recent transactions found.</td>
                                 </tr>
                             ) : (
-                                stats.recentTransactions.map((tx: any) => (
+                                stats.recentTransactions.map((tx: Transaction) => (
                                     <tr key={tx.id} className="hover:bg-slate-50 dark:hover:bg-slate-700/50">
                                         <td className="px-6 py-4 text-sm text-slate-900 dark:text-white font-mono">{tx.schoolId.substring(0, 8)}...</td>
                                         <td className="px-6 py-4 text-sm text-slate-600 dark:text-slate-300">

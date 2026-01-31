@@ -4,23 +4,84 @@
   --font-sans: var(--font-poppins);
   --font-heading: var(--font-outfit);
 
-  /* Modern Blue Palette */
-  --color-primary-50: #eff6ff;
-  --color-primary-100: #dbeafe;
-  --color-primary-200: #bfdbfe;
-  --color-primary-300: #93c5fd;
-  --color-primary-400: #60a5fa;
-  --color-primary-500: #3b82f6;
-  --color-primary-600: #2563eb;
-  --color-primary-700: #1d4ed8;
-  --color-primary-800: #1e40af;
-  --color-primary-900: #1e3a8a;
-  --color-primary-950: #172554;
+  /* New Color Palette */
+  --color-space-indigo-50: #ededf8;
+  --color-space-indigo-100: #dbdbf0;
+  --color-space-indigo-200: #b7b7e1;
+  --color-space-indigo-300: #9292d3;
+  --color-space-indigo-400: #6e6ec4;
+  --color-space-indigo-500: #4a4ab5;
+  --color-space-indigo-600: #3b3b91;
+  --color-space-indigo-700: #2c2c6d;
+  --color-space-indigo-800: #1e1e48;
+  --color-space-indigo-900: #0f0f24;
+  --color-space-indigo-950: #0a0a19;
+
+  --color-deep-twilight-50: #efeafa;
+  --color-deep-twilight-100: #e0d6f5;
+  --color-deep-twilight-200: #c1adeb;
+  --color-deep-twilight-300: #a184e1;
+  --color-deep-twilight-400: #825bd7;
+  --color-deep-twilight-500: #6332cd;
+  --color-deep-twilight-600: #4f28a4;
+  --color-deep-twilight-700: #3b1e7b;
+  --color-deep-twilight-800: #281452;
+  --color-deep-twilight-900: #140a29;
+  --color-deep-twilight-950: #0e071d;
+
+  --color-vivid-royal-50: #eceafb;
+  --color-vivid-royal-100: #d9d5f6;
+  --color-vivid-royal-200: #b4abed;
+  --color-vivid-royal-300: #8e81e4;
+  --color-vivid-royal-400: #6857db;
+  --color-vivid-royal-500: #432dd2;
+  --color-vivid-royal-600: #3524a8;
+  --color-vivid-royal-700: #281b7e;
+  --color-vivid-royal-800: #1b1254;
+  --color-vivid-royal-900: #0d092a;
+  --color-vivid-royal-950: #09061d;
+
+  --color-glaucous-50: #eef0f7;
+  --color-glaucous-100: #dde0ee;
+  --color-glaucous-200: #bbc2dd;
+  --color-glaucous-300: #98a3cd;
+  --color-glaucous-400: #7684bc;
+  --color-glaucous-500: #5465ab;
+  --color-glaucous-600: #435189;
+  --color-glaucous-700: #323d67;
+  --color-glaucous-800: #222944;
+  --color-glaucous-900: #111422;
+  --color-glaucous-950: #0c0e18;
+
+  --color-honeydew-50: #edf8ef;
+  --color-honeydew-100: #daf1e0;
+  --color-honeydew-200: #b5e3c1;
+  --color-honeydew-300: #90d5a1;
+  --color-honeydew-400: #6bc782;
+  --color-honeydew-500: #46b963;
+  --color-honeydew-600: #38944f;
+  --color-honeydew-700: #2a6f3b;
+  --color-honeydew-800: #1c4a28;
+  --color-honeydew-900: #0e2514;
+  --color-honeydew-950: #0a1a0e;
+
+  /* Mappings */
+  --color-primary-50: var(--color-vivid-royal-50);
+  --color-primary-100: var(--color-vivid-royal-100);
+  --color-primary-200: var(--color-vivid-royal-200);
+  --color-primary-300: var(--color-vivid-royal-300);
+  --color-primary-400: var(--color-vivid-royal-400);
+  --color-primary-500: var(--color-vivid-royal-500);
+  --color-primary-600: var(--color-vivid-royal-600);
+  --color-primary-700: var(--color-vivid-royal-700);
+  --color-primary-800: var(--color-vivid-royal-800);
+  --color-primary-900: var(--color-vivid-royal-900);
+  --color-primary-950: var(--color-vivid-royal-950);
 
   --color-primary: var(--color-primary-600);
 
-  --color-background-light: #f8fafc;
-  --color-background-dark: #0f172a;
+  --color-background-light: var(--color-space-indigo-50);
+  --color-background-dark: var(--color-space-indigo-950);
 }
 
 

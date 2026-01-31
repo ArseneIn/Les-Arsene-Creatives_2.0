@@ -16,6 +16,7 @@ interface SidebarItem {
     href: string;
     permission?: Permission;
     subItems?: SidebarItem[];
+    feature?: string; // Feature key for plan gating
 }
 
 export default function Sidebar({ schoolId }: SidebarProps) {
@@ -23,6 +24,16 @@ export default function Sidebar({ schoolId }: SidebarProps) {
     const pathname = usePathname();
     const { user, logout } = useAuth();
     const { hasPermission } = usePermission();
+
+    // TODO: Fetch this from School/Subscription context
+    const enabledFeatures = ['discipline', 'attendance', 'finance', 'library'];
+
+    console.log('Sidebar Debug:', {
+        user,
+        role: user?.role,
+        roleId: user?.roleId,
+        permissions: user?.role?.permissions
+    });
 
     const sidebarItems: SidebarItem[] = [
         {
@@ -45,25 +56,29 @@ export default function Sidebar({ schoolId }: SidebarProps) {
             label: 'Attendance Scan',
             icon: 'co_present',
             href: `${baseUrl}/attendance`,
-            permission: 'student.edit' // Proxy for staff access
+            permission: 'student.edit', // Proxy for staff access
+            feature: 'attendance'
         },
         {
             label: 'Discipline',
             icon: 'gavel',
             href: `${baseUrl}/discipline`,
-            permission: 'discipline.view'
+            permission: 'discipline.view',
+            feature: 'discipline'
         },
         {
             label: 'Finance',
             icon: 'payments',
             href: `${baseUrl}/finance`,
-            permission: 'finance.view'
+            permission: 'finance.view',
+            feature: 'finance'
         },
         {
             label: 'Library',
             icon: 'local_library',
             href: `${baseUrl}/library`,
-            permission: 'library.view'
+            permission: 'library.view',
+            feature: 'library'
         },
         {
             label: 'System & Compliance',
@@ -101,6 +116,7 @@ export default function Sidebar({ schoolId }: SidebarProps) {
                 <nav className="flex flex-col gap-1">
                     {sidebarItems.map((item, index) => {
                         if (item.permission && !hasPermission(item.permission)) return null;
+                        if (item.feature && !enabledFeatures.includes(item.feature)) return null;
 
                         // Handle Sub-items (Accordion)
                         if (item.subItems) {

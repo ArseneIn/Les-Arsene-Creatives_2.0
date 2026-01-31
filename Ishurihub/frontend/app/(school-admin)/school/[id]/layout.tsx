@@ -1,6 +1,5 @@
 "use client";
 import Sidebar from "@/components/Sidebar";
-import RoleSwitcher from "@/components/RoleSwitcher";
 import { useAuthContext } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 import React, { useEffect } from "react";
@@ -61,7 +60,6 @@ export default function DashboardLayout({
             <main className="flex-1 flex flex-col min-w-0 overflow-y-auto">
                 {children}
             </main>
-            <RoleSwitcher />
         </div>
     );
 }

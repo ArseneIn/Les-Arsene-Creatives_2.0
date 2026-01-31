@@ -230,6 +230,7 @@ export default function StudentsPage() {
                 isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)}
                 title="Register New Student"
+                size="4xl"
             >
                 <AddStudentForm
                     onSubmit={handleAddStudent}

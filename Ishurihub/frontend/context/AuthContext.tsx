@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import { User } from "@/data/users";
-import { Permission } from "@/data/rbac";
+import { Permission, SYSTEM_ROLES } from "@/data/rbac";
 import api from "@/lib/api";
 
 interface AuthContextType {
@@ -32,7 +32,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                     // Fallback: If we don't have a profile endpoint yet, we might store user in localstorage too (less secure but ok for v1 transition)
                     const storedUser = localStorage.getItem("ishurihub_user");
                     if (storedUser) {
-                        setUser(JSON.parse(storedUser));
+                        const parsedUser = JSON.parse(storedUser);
+                        // Hydrate role if missing
+                        if (!parsedUser.role && parsedUser.roleId) {
+                            parsedUser.role = SYSTEM_ROLES.find(r => r.id === parsedUser.roleId);
+                        }
+                        setUser(parsedUser);
                     }
                 } catch (error) {
                     console.error("Auth initialization failed", error);
@@ -51,9 +56,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             const response = await api.post('/auth/login', { email, password: password || 'password123' }); // Default password for dev transition
             const { access_token, user } = response.data;
 
+            // Hydrate role
+            const fullUser = {
+                ...user,
+                role: SYSTEM_ROLES.find(r => r.id === user.roleId)
+            };
+
             localStorage.setItem("ishurihub_token", access_token);
-            localStorage.setItem("ishurihub_user", JSON.stringify(user));
-            setUser(user);
+            localStorage.setItem("ishurihub_user", JSON.stringify(fullUser));
+            setUser(fullUser);
 
             // Determine redirect path
             if (user.roleId === 'super_admin') {
@@ -76,7 +87,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const checkPermission = (permission: string): boolean => {
         if (!user || !user.role) return false;
-        // Super admins have implicit access to system level, but specific permissions are better
+        if (user.role.id === 'super_admin') return true;
         return user.role.permissions.includes(permission as Permission);
     };
 

@@ -7,9 +7,10 @@ interface ModalProps {
     onClose: () => void;
     title: string;
     children: React.ReactNode;
+    size?: 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl' | '4xl' | '5xl' | 'full';
 }
 
-export default function Modal({ isOpen, onClose, title, children }: ModalProps) {
+export default function Modal({ isOpen, onClose, title, children, size = 'md' }: ModalProps) {
     const modalRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
@@ -32,11 +33,23 @@ export default function Modal({ isOpen, onClose, title, children }: ModalProps) 
 
     if (!isOpen) return null;
 
+    const sizeClasses = {
+        sm: 'max-w-sm',
+        md: 'max-w-md',
+        lg: 'max-w-lg',
+        xl: 'max-w-xl',
+        '2xl': 'max-w-2xl',
+        '3xl': 'max-w-3xl',
+        '4xl': 'max-w-4xl',
+        '5xl': 'max-w-5xl',
+        'full': 'max-w-full m-4'
+    };
+
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-8 bg-black/50 backdrop-blur-sm">
             <div
                 ref={modalRef}
-                className="bg-white dark:bg-[#1e2536] rounded-xl shadow-2xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in-95 duration-200"
+                className={`bg-white dark:bg-space-indigo-900 rounded-xl shadow-2xl w-full ${sizeClasses[size]} overflow-hidden animate-in fade-in zoom-in-95 duration-200 max-h-[90vh] flex flex-col`}
             >
                 <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 dark:border-gray-700">
                     <h3 className="text-lg font-bold text-gray-900 dark:text-white">{title}</h3>
@@ -47,7 +60,7 @@ export default function Modal({ isOpen, onClose, title, children }: ModalProps) 
                         <span className="material-symbols-outlined">close</span>
                     </button>
                 </div>
-                <div className="p-6">{children}</div>
+                <div className="p-6 overflow-y-auto custom-scrollbar">{children}</div>
             </div>
         </div>
     );

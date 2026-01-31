@@ -6,6 +6,7 @@ export interface Student {
     cardUid: string | null;
     section?: string;
     status: 'Active' | 'Pending' | 'Inactive';
+    disciplinePoints?: number;
     // Academic Info
     level: 'O-Level' | 'A-Level';
     year: 'S1' | 'S2' | 'S3' | 'S4' | 'S5' | 'S6';

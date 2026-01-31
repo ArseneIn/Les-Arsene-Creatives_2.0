@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { useAuthContext } from "@/context/AuthContext";
 
 export default function LoginPage() {
@@ -97,7 +98,7 @@ export default function LoginPage() {
                                 <label className="text-sm font-semibold text-gray-700 dark:text-gray-300">
                                     Password
                                 </label>
-                                <a href="#" className="text-sm font-semibold text-primary hover:text-primary/80 transition-colors">Forgot Password?</a>
+                                <Link href="/forgot-password" className="text-sm font-semibold text-primary hover:text-primary/80 transition-colors">Forgot Password?</Link>
                             </div>
                             <div className="relative group">
                                 <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-gray-400 group-focus-within:text-primary transition-colors">

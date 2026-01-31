@@ -24,7 +24,7 @@ export const mockUsers: User[] = [
         name: 'Dr. Jean Claude',
         email: 'headteacher@ishurihub.rw',
         avatarUrl: 'https://ui-avatars.com/api/?name=Jean+Claude&background=random',
-        roleId: 'head_teacher',
+        roleId: 'school_admin',
         schoolId: '1'
     },
     {
