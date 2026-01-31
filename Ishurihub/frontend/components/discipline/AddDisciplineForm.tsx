@@ -1,15 +1,16 @@
 "use client";
 
 import { useState } from 'react';
-import { mockStudents } from '@/data/students';
-import { DisciplineType, SeverityLevel } from '@/data/discipline';
+import { DisciplineType, SeverityLevel, DisciplineRecord } from '@/data/discipline';
+import { Student } from '@/data/students';
 
 interface AddDisciplineFormProps {
     onClose: () => void;
-    onSubmit: (data: any) => void;
+    onSubmit: (data: Omit<DisciplineRecord, 'id'>) => void;
+    students: Student[];
 }
 
-export default function AddDisciplineForm({ onClose, onSubmit }: AddDisciplineFormProps) {
+export default function AddDisciplineForm({ onClose, onSubmit, students }: AddDisciplineFormProps) {
     const [formData, setFormData] = useState({
         studentId: '',
         type: 'Merit' as DisciplineType,
@@ -18,7 +19,9 @@ export default function AddDisciplineForm({ onClose, onSubmit }: AddDisciplineFo
         date: new Date().toISOString().split('T')[0],
         severity: 'Low' as SeverityLevel,
         points: 0,
-        actionTaken: ''
+        actionTaken: '',
+        status: 'Pending' as const,
+        reportedBy: 'School Admin' // Mocked default
     });
 
     const handleSubmit = (e: React.FormEvent) => {
@@ -55,7 +58,7 @@ export default function AddDisciplineForm({ onClose, onSubmit }: AddDisciplineFo
                             required
                         >
                             <option value="">Select a student...</option>
-                            {mockStudents.map(student => (
+                            {students.map(student => (
                                 <option key={student.id} value={student.id}>
                                     {student.name} ({student.grade})
                                 </option>

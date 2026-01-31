@@ -6,6 +6,7 @@ export type SeverityLevel = 'Low' | 'Medium' | 'High' | 'Critical';
 export interface DisciplineRecord {
     id: string;
     studentId: string; // References Student.id
+    student?: Student; // Populated by API
     type: DisciplineType;
     category: string; // e.g., "Late Arrival", "Homework Missing", "Helping a Peer"
     description: string;

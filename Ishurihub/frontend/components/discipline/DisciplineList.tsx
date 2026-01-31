@@ -1,12 +1,16 @@
 "use client";
 
 import { useState } from 'react';
-import { mockDisciplineRecords, getStudentForRecord, DisciplineType } from '@/data/discipline';
+import { DisciplineRecord, DisciplineType } from '@/data/discipline';
 
-export default function DisciplineList() {
+interface DisciplineListProps {
+    records: DisciplineRecord[];
+}
+
+export default function DisciplineList({ records }: DisciplineListProps) {
     const [filter, setFilter] = useState<DisciplineType | 'All'>('All');
 
-    const filteredRecords = mockDisciplineRecords.filter(record =>
+    const filteredRecords = records.filter(record =>
         filter === 'All' ? true : record.type === filter
     );
 
@@ -21,8 +25,8 @@ export default function DisciplineList() {
                             key={type}
                             onClick={() => setFilter(type)}
                             className={`px-3 py-1.5 text-sm font-medium rounded-lg transition-colors ${filter === type
-                                    ? 'bg-blue-600 text-white'
-                                    : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700'
+                                ? 'bg-blue-600 text-white'
+                                : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700'
                                 }`}
                         >
                             {type}
@@ -46,7 +50,7 @@ export default function DisciplineList() {
                     <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
                         {filteredRecords.length > 0 ? (
                             filteredRecords.map((record) => {
-                                const student = getStudentForRecord(record);
+                                const student = record.student;
                                 return (
                                     <tr key={record.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
                                         <td className="px-6 py-4 text-sm text-gray-600 dark:text-gray-300 whitespace-nowrap">
@@ -69,10 +73,10 @@ export default function DisciplineList() {
                                         </td>
                                         <td className="px-6 py-4">
                                             <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold ${record.type === 'Merit'
-                                                    ? 'bg-green-50 text-green-600 dark:bg-green-900/20 dark:text-green-400'
-                                                    : record.type === 'Sanction'
-                                                        ? 'bg-red-50 text-red-600 dark:bg-red-900/20 dark:text-red-400'
-                                                        : 'bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400'
+                                                ? 'bg-green-50 text-green-600 dark:bg-green-900/20 dark:text-green-400'
+                                                : record.type === 'Sanction'
+                                                    ? 'bg-red-50 text-red-600 dark:bg-red-900/20 dark:text-red-400'
+                                                    : 'bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400'
                                                 }`}>
                                                 {record.type}
                                             </span>

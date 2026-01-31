@@ -1,17 +1,45 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import DisciplineList from '@/components/discipline/DisciplineList';
 import AddDisciplineForm from '@/components/discipline/AddDisciplineForm';
-import { mockDisciplineRecords } from '@/data/discipline';
+import { DisciplineRecord } from '@/data/discipline';
+import { useParams } from 'next/navigation';
+import api from '@/lib/api';
 
 export default function DisciplinePage() {
+    const [records, setRecords] = useState<DisciplineRecord[]>([]);
+    const [students, setStudents] = useState<any[]>([]); // Using any for Student to avoid importing conflicts if strictly typed
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+    const params = useParams();
+    const schoolId = params.id as string;
 
-    const handleAddRecord = (data: any) => {
-        // In a real app, we would send this to an API
-        console.log('New Record:', data);
-        // We could also update local state here if we weren't using static mock data
+    const fetchData = useCallback(async () => {
+        if (!schoolId) return;
+        try {
+            const [recordsRes, studentsRes] = await Promise.all([
+                api.get('/discipline', { params: { schoolId } }),
+                api.get('/students', { params: { schoolId } })
+            ]);
+            setRecords(recordsRes.data);
+            setStudents(studentsRes.data);
+        } catch (error) {
+            console.error("Failed to fetch data:", error);
+        }
+    }, [schoolId]);
+
+    useEffect(() => {
+        fetchData();
+    }, [fetchData]);
+
+    const handleAddRecord = async (data: Omit<DisciplineRecord, 'id'>) => {
+        try {
+            await api.post('/discipline', { ...data, schoolId });
+            await fetchData();
+            setIsAddModalOpen(false);
+        } catch (error) {
+            console.error("Failed to add record:", error);
+        }
     };
 
     return (
@@ -30,20 +58,20 @@ export default function DisciplinePage() {
                 </button>
             </div>
 
-            {/* Implementation Check */}
-            {mockDisciplineRecords.length === 0 && (
-                <div className="bg-yellow-50 text-yellow-800 p-4 rounded-lg flex items-center gap-2">
-                    <span className="material-symbols-outlined">warning</span>
-                    <span>No records found. Please update data/discipline.ts or add a record.</span>
+            {records.length === 0 && (
+                <div className="bg-blue-50 text-blue-800 p-4 rounded-lg flex items-center gap-2">
+                    <span className="material-symbols-outlined">info</span>
+                    <span>No discipline records found. Add a new record to get started.</span>
                 </div>
             )}
 
-            <DisciplineList />
+            <DisciplineList records={records} />
 
             {isAddModalOpen && (
                 <AddDisciplineForm
                     onClose={() => setIsAddModalOpen(false)}
                     onSubmit={handleAddRecord}
+                    students={students}
                 />
             )}
         </div>

@@ -1,45 +1,70 @@
 "use client";
 
-import { useState } from "react";
-import { mockStudents, Student } from "@/data/students";
+import { useState, useEffect } from "react";
+import { Student } from "@/data/students";
+import api from "@/lib/api";
 import Link from "next/link";
 import Modal from "@/components/Modal";
 import AddStudentForm, { AddStudentFormData } from "@/components/AddStudentForm";
 import { useParams } from "next/navigation";
 
 export default function StudentsPage() {
-    const [students, setStudents] = useState<Student[]>(mockStudents);
+    const [students, setStudents] = useState<Student[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const params = useParams();
     const schoolId = params.id as string;
 
-    const handleAddStudent = (data: AddStudentFormData) => {
-        const newStudent: Student = {
-            id: Math.random().toString(36).substr(2, 9),
-            name: data.fullName,
-            studentId: data.studentId,
-            level: data.level,
-            year: data.grade as Student['year'],
-            combination: data.combination,
-            // Personal
-            dob: data.dob,
-            gender: data.gender,
-            age: data.age,
-            // Parent
-            fatherName: data.fatherName,
-            motherName: data.motherName,
-            primaryPhone: data.primaryPhone,
-            emergencyPhone: data.emergencyPhone,
-            email: data.email,
-
-            grade: data.grade, // Keeping for backward compatibility if needed, or just mapping year to it
-            cardUid: null,
-            status: "Pending",
-            avatarUrl: `https://ui-avatars.com/api/?name=${encodeURIComponent(data.fullName)}&background=random`,
+    useEffect(() => {
+        const fetchStudents = async () => {
+            setIsLoading(true);
+            try {
+                const response = await api.get('/students', {
+                    params: { schoolId }
+                });
+                setStudents(response.data);
+            } catch (error) {
+                console.error("Failed to fetch students:", error);
+            } finally {
+                setIsLoading(false);
+            }
         };
 
-        setStudents([newStudent, ...students]);
-        setIsModalOpen(false);
+        if (schoolId) {
+            fetchStudents();
+        }
+    }, [schoolId]);
+
+    const handleAddStudent = async (data: AddStudentFormData) => {
+        try {
+            const newStudentData = {
+                name: data.fullName,
+                studentId: data.studentId,
+                level: data.level,
+                year: data.grade,
+                combination: data.combination,
+                dob: data.dob,
+                gender: data.gender,
+                fatherName: data.fatherName,
+                motherName: data.motherName,
+                primaryPhone: data.primaryPhone,
+                emergencyPhone: data.emergencyPhone,
+                email: data.email,
+                grade: data.grade,
+                schoolId: schoolId,
+                status: "Pending",
+                avatarUrl: `https://ui-avatars.com/api/?name=${encodeURIComponent(data.fullName)}&background=random`,
+            };
+
+            await api.post('/students', newStudentData);
+            // Re-fetch logic or optimistically update.
+            // For simplicity, let's just trigger a re-fetch via state or similar,
+            // but since we moved fetchStudents inside useEffect, we can't call it directly.
+            // Let's reload the page or use a trigger state.
+            window.location.reload();
+        } catch (error) {
+            console.error("Failed to add student:", error);
+        }
     };
 
     return (

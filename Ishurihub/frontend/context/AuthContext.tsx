@@ -1,13 +1,14 @@
 "use client";
 
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
-import { User, mockUsers, getUserWithRole } from "@/data/users";
+import { User } from "@/data/users";
 import { Permission } from "@/data/rbac";
+import api from "@/lib/api";
 
 interface AuthContextType {
     user: User | undefined;
     isLoading: boolean;
-    login: (email: string) => string | null; // Returns redirect path or null if failed
+    login: (email: string, password?: string) => Promise<string | null>; // Returns redirect path or null if failed
     logout: () => void;
     checkPermission: (permission: string) => boolean;
 }
@@ -19,44 +20,58 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
-        // Simulate checking for existing session
-        const initAuth = () => {
-            const storedUserId = localStorage.getItem("ishurihub_user_id");
-            if (storedUserId) {
-                const foundUser = getUserWithRole(storedUserId);
-                setUser(foundUser);
+        const initAuth = async () => {
+            const token = localStorage.getItem("ishurihub_token");
+            if (token) {
+                try {
+                    // Verify token and get user details
+                    // For now, we decode or fetch profile. Let's assume we fetch profile.
+                    // const response = await api.get('/auth/profile'); 
+                    // setUser(response.data);
+
+                    // Fallback: If we don't have a profile endpoint yet, we might store user in localstorage too (less secure but ok for v1 transition)
+                    const storedUser = localStorage.getItem("ishurihub_user");
+                    if (storedUser) {
+                        setUser(JSON.parse(storedUser));
+                    }
+                } catch (error) {
+                    console.error("Auth initialization failed", error);
+                    localStorage.removeItem("ishurihub_token");
+                }
             }
             setIsLoading(false);
         };
 
-        // Use timeout to bypass synchronous state update warning and simulate async load
-        const timer = setTimeout(initAuth, 100);
-        return () => clearTimeout(timer);
+        initAuth();
     }, []);
 
-    const login = (email: string): string | null => {
-        // Simple mock login by email
-        const foundUser = mockUsers.find(u => u.email === email);
-        if (foundUser) {
-            const userWithRole = getUserWithRole(foundUser.id);
-            if (userWithRole) {
-                setUser(userWithRole);
-                localStorage.setItem("ishurihub_user_id", userWithRole.id);
+    const login = async (email: string, password?: string): Promise<string | null> => {
+        try {
+            // TODO: Update Login Component to pass password
+            const response = await api.post('/auth/login', { email, password: password || 'password123' }); // Default password for dev transition
+            const { access_token, user } = response.data;
 
-                // Determine redirect path
-                if (userWithRole.roleId === 'super_admin') {
-                    return '/';
-                } else {
-                    return `/school/${userWithRole.schoolId}/dashboard`;
-                }
+            localStorage.setItem("ishurihub_token", access_token);
+            localStorage.setItem("ishurihub_user", JSON.stringify(user));
+            setUser(user);
+
+            // Determine redirect path
+            if (user.roleId === 'super_admin') {
+                return '/';
+            } else {
+                return `/school/${user.schoolId}/dashboard`;
             }
+        } catch (error) {
+            console.error("Login failed", error);
+            return null;
         }
-        return null;
     };
 
     const logout = () => {
         setUser(undefined);
-        localStorage.removeItem("ishurihub_user_id");
+        localStorage.removeItem("ishurihub_token");
+        localStorage.removeItem("ishurihub_user");
+        window.location.href = '/login';
     };
 
     const checkPermission = (permission: string): boolean => {

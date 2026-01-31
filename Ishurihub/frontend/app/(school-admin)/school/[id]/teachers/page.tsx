@@ -1,14 +1,36 @@
 "use client";
 
-import { useState } from "react";
-import { mockTeachers, Teacher } from "@/data/teachers";
+import { useState, useEffect } from "react";
+import { Teacher } from "@/data/teachers";
+import api from "@/lib/api";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 
 export default function TeachersPage() {
-    const [teachers, setTeachers] = useState<Teacher[]>(mockTeachers);
+    const [teachers, setTeachers] = useState<Teacher[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
     const params = useParams();
     const schoolId = params.id as string;
+
+    useEffect(() => {
+        const fetchTeachers = async () => {
+            setIsLoading(true);
+            try {
+                const response = await api.get('/teachers', {
+                    params: { schoolId }
+                });
+                setTeachers(response.data);
+            } catch (error) {
+                console.error("Failed to fetch teachers:", error);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        if (schoolId) {
+            fetchTeachers();
+        }
+    }, [schoolId]);
 
     // Stats
     const totalTeachers = teachers.length;

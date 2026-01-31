@@ -4,6 +4,7 @@ export interface Student {
     studentId: string;
     grade: string;
     cardUid: string | null;
+    section?: string;
     status: 'Active' | 'Pending' | 'Inactive';
     // Academic Info
     level: 'O-Level' | 'A-Level';

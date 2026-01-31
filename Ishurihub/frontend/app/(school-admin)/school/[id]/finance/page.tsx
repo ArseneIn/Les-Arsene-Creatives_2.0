@@ -6,7 +6,7 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 
 export default function FinancePage() {
-    const [transactions, setTransactions] = useState<Transaction[]>(mockTransactions);
+    const [transactions] = useState<Transaction[]>(mockTransactions);
     const params = useParams();
     const schoolId = params.id as string;
 

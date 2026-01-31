@@ -11,12 +11,15 @@ export default function InstitutionsPage() {
     const [institutions, setInstitutions] = useState<Institution[]>(mockInstitutions);
     const [isModalOpen, setIsModalOpen] = useState(false);
 
-    // Load from localStorage on mount
+    // Load from localStorage only on client mount
     useEffect(() => {
         const saved = localStorage.getItem('ishuri_institutions');
         if (saved) {
             try {
-                setInstitutions(JSON.parse(saved));
+                // Use setTimeout to avoid "synchronous setState" warning during effect execution
+                setTimeout(() => {
+                    setInstitutions(JSON.parse(saved));
+                }, 0);
             } catch (e) {
                 console.error("Failed to parse institutions", e);
             }

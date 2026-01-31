@@ -23,6 +23,32 @@ export default function AttendancePage() {
     const bufferRef = useRef("");
     const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
+    const processScan = (uid: string) => {
+        setIsReady(false);
+
+        // Find student (or random for demo if UID doesn't match)
+        let student = mockStudents.find(s => s.cardUid === uid);
+
+        // Fallback for demo: if UID not found, just pick the first one or random
+        if (!student) {
+            student = mockStudents[Math.floor(Math.random() * mockStudents.length)];
+        }
+
+        const newScan: ScanLog = {
+            student,
+            timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+            status: "Present"
+        };
+
+        setLastScanned(newScan);
+        setRecentScans(prev => [newScan, ...prev].slice(0, 10));
+
+        // Reset ready state after animation
+        setTimeout(() => {
+            setIsReady(true);
+        }, 2000);
+    };
+
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
             // If user is typing in an input, ignore
@@ -57,31 +83,7 @@ export default function AttendancePage() {
         return () => window.removeEventListener("keydown", handleKeyDown);
     }, []);
 
-    const processScan = (uid: string) => {
-        setIsReady(false);
 
-        // Find student (or random for demo if UID doesn't match)
-        let student = mockStudents.find(s => s.cardUid === uid);
-
-        // Fallback for demo: if UID not found, just pick the first one or random
-        if (!student) {
-            student = mockStudents[Math.floor(Math.random() * mockStudents.length)];
-        }
-
-        const newScan: ScanLog = {
-            student,
-            timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-            status: "Present"
-        };
-
-        setLastScanned(newScan);
-        setRecentScans(prev => [newScan, ...prev].slice(0, 10));
-
-        // Reset ready state after animation
-        setTimeout(() => {
-            setIsReady(true);
-        }, 2000);
-    };
 
     return (
         <div className="bg-background-light dark:bg-background-dark font-sans h-screen flex flex-col overflow-hidden text-[#0d111b] dark:text-white transition-colors duration-200">
