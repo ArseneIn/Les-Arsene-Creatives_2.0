@@ -217,11 +217,11 @@ export default function StudentsPage() {
                 {/* Additional Footer Info */}
                 <div className="mt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-[#4c4c9a] dark:text-gray-500">
                     <div className="flex items-center gap-4">
-                        <span className="flex items-center gap-1"><span className="size-2 rounded-full bg-green-500"></span> 380 Active Cards</span>
-                        <span className="flex items-center gap-1"><span className="size-2 rounded-full bg-amber-500"></span> 12 Pending Requests</span>
-                        <span className="flex items-center gap-1"><span className="size-2 rounded-full bg-red-500"></span> 60 Inactive/Lost</span>
+                        <span className="flex items-center gap-1"><span className="size-2 rounded-full bg-green-500"></span> {students.filter(s => s.status === 'Active').length} Active Cards</span>
+                        <span className="flex items-center gap-1"><span className="size-2 rounded-full bg-amber-500"></span> {students.filter(s => s.status === 'Pending').length} Pending Requests</span>
+                        <span className="flex items-center gap-1"><span className="size-2 rounded-full bg-red-500"></span> {students.filter(s => s.status === 'Inactive').length} Inactive/Lost</span>
                     </div>
-                    <div>Last synchronized: Oct 24, 2023 - 09:12 AM</div>
+                    <div>Data up to date</div>
                 </div>
             </div>
 

@@ -9,14 +9,15 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@tailwindcss/postcss": "^4",
+    "axios": "^1.13.4",
     "material-symbols": "^0.40.2",
     "next": "16.1.6",
     "react": "19.2.3",
     "react-dom": "19.2.3",
     "react-hook-form": "^7.71.1",
     "recharts": "^3.7.0",
-    "tailwindcss": "^4",
-    "@tailwindcss/postcss": "^4"
+    "tailwindcss": "^4"
   },
   "devDependencies": {
     "@types/node": "^20",
