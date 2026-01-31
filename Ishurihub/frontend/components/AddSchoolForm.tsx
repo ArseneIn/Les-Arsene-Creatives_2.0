@@ -10,6 +10,9 @@ export interface AddSchoolFormData {
     combinations?: string; // Comma separated string for input
     location: string;
     logoUrl: string;
+    adminName: string;
+    adminEmail: string;
+    adminPassword: string;
 }
 
 interface AddSchoolFormProps {
@@ -139,6 +142,54 @@ export default function AddSchoolForm({ onSubmit, onCancel }: AddSchoolFormProps
                 />
             </div>
 
+            <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
+                <h3 className="text-sm font-bold text-gray-900 dark:text-white mb-3">School Administrator</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                            Admin Name
+                        </label>
+                        <input
+                            {...register("adminName", { required: "Admin name is required" })}
+                            type="text"
+                            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-white/5 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all"
+                            placeholder="Full Name"
+                        />
+                        {errors.adminName && (
+                            <p className="text-red-500 text-xs mt-1">{errors.adminName.message}</p>
+                        )}
+                    </div>
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                            Admin Email
+                        </label>
+                        <input
+                            {...register("adminEmail", { required: "Admin email is required", pattern: { value: /^\S+@\S+$/i, message: "Invalid email" } })}
+                            type="email"
+                            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-white/5 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all"
+                            placeholder="admin@school.com"
+                        />
+                        {errors.adminEmail && (
+                            <p className="text-red-500 text-xs mt-1">{errors.adminEmail.message}</p>
+                        )}
+                    </div>
+                    <div className="md:col-span-2">
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                            Default Password
+                        </label>
+                        <input
+                            {...register("adminPassword", { required: "Password is required", minLength: { value: 6, message: "Min 6 chars" } })}
+                            type="password"
+                            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-white/5 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all"
+                            placeholder="******"
+                        />
+                        {errors.adminPassword && (
+                            <p className="text-red-500 text-xs mt-1">{errors.adminPassword.message}</p>
+                        )}
+                    </div>
+                </div>
+            </div>
+
             <div className="flex justify-end gap-3 pt-4">
                 <button
                     type="button"
@@ -151,7 +202,7 @@ export default function AddSchoolForm({ onSubmit, onCancel }: AddSchoolFormProps
                     type="submit"
                     className="px-4 py-2 text-sm font-bold text-white bg-primary rounded-lg hover:bg-primary/90 transition-colors shadow-lg shadow-primary/20"
                 >
-                    Register School
+                    Register School & Admin
                 </button>
             </div>
         </form>

@@ -1,57 +1,94 @@
 "use client";
 
-import { mockInstitutions, Institution } from "@/data/institutions";
-import { mockStudents } from "@/data/students";
-import Link from "next/link";
 import { useState, useEffect } from "react";
+import Link from "next/link";
 import Modal from "@/components/Modal";
 import AddSchoolForm, { AddSchoolFormData } from "@/components/AddSchoolForm";
+import api from "@/lib/api";
+import { AxiosError } from 'axios';
+
+// Define the Institution interface based on backend entity
+interface Institution {
+    id: string;
+    name: string;
+    type: string;
+    category?: string;
+    levels?: string[];
+    location: string;
+    studentCount: number; // This might need to be added to backend response or calculated
+    status: string; // 'Active', 'Pending', etc.
+    logoUrl?: string;
+    createdAt: string;
+    plan?: string;
+    subscriptionStatus?: string;
+}
 
 export default function InstitutionsPage() {
-    const [institutions, setInstitutions] = useState<Institution[]>(mockInstitutions);
+    const [institutions, setInstitutions] = useState<Institution[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
 
-    // Load from localStorage only on client mount
-    useEffect(() => {
-        const saved = localStorage.getItem('ishuri_institutions');
-        if (saved) {
-            try {
-                // Use setTimeout to avoid "synchronous setState" warning during effect execution
-                setTimeout(() => {
-                    setInstitutions(JSON.parse(saved));
-                }, 0);
-            } catch (e) {
-                console.error("Failed to parse institutions", e);
-            }
+
+
+    // ... (imports)
+
+    // ...
+
+    // Fetch institutions from API
+    const fetchInstitutions = async () => {
+        try {
+            setIsLoading(true);
+            const response = await api.get('/schools');
+            // Ensure response data maps to our interface.
+            const data = response.data.map((school: any) => ({
+                ...school,
+                studentCount: school.students?.length || 0,
+                status: school.subscriptionStatus || 'Active',
+                type: school.name.includes('University') ? 'University' : 'K-12',
+            }));
+            setInstitutions(data);
+        } catch (err) {
+            console.error("Failed to fetch schools:", err);
+            setError("Failed to load institutions. Please try again.");
+        } finally {
+            setIsLoading(false);
         }
+    };
+
+    useEffect(() => {
+        fetchInstitutions();
     }, []);
 
-    // Calculate total students dynamically (Derived State)
-    const demoSchoolStudents = mockStudents.length;
-    const otherSchoolsStudents = institutions
-        .filter(i => i.id !== '1')
-        .reduce((acc, curr) => acc + curr.studentCount, 0);
-    const totalStudents = demoSchoolStudents + otherSchoolsStudents;
-
-    const handleAddSchool = (data: AddSchoolFormData) => {
-        const newSchool: Institution = {
-            id: (institutions.length + 1).toString(),
-            name: data.name,
-            type: data.type as Institution['type'],
-            category: 'Day', // Valid value
-            levels: ['O-Level', 'A-Level'], // Valid values
-            location: data.location,
-            studentCount: 0,
-            status: 'Active',
-            logoUrl: data.logoUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(data.name)}&background=random&color=fff`,
-            joinedDate: new Date().toISOString().split('T')[0]
-        };
-
-        const updatedInstitutions = [newSchool, ...institutions];
-        setInstitutions(updatedInstitutions);
-        localStorage.setItem('ishuri_institutions', JSON.stringify(updatedInstitutions));
-        setIsModalOpen(false);
+    const handleAddSchool = async (data: AddSchoolFormData) => {
+        try {
+            await api.post('/schools', {
+                ...data,
+            });
+            await fetchInstitutions(); // Refresh list
+            setIsModalOpen(false);
+        } catch (err: unknown) {
+            console.error("Failed to create school:", err);
+            const error = err as AxiosError<{ message: string }>;
+            alert(error.response?.data?.message || "Failed to create school");
+        }
     };
+
+    const handleDeleteSchool = async (id: string) => {
+        if (!confirm("Are you sure you want to delete this school? This action cannot be undone.")) return;
+        try {
+            await api.delete(`/schools/${id}`);
+            setInstitutions(prev => prev.filter(i => i.id !== id));
+        } catch (err: unknown) {
+            console.error("Failed to delete school:", err);
+            alert("Failed to delete school.");
+        }
+    };
+
+    // Derived Stats
+    const totalStudents = institutions.reduce((acc, curr) => acc + (curr.studentCount || 0), 0);
+    const activeLicenses = institutions.filter(i => i.status === 'Active').length;
+
     return (
         <div className="flex flex-1 justify-center py-8">
             <div className="layout-content-container flex flex-col w-full max-w-[1200px] px-6">
@@ -102,74 +139,90 @@ export default function InstitutionsPage() {
                             <p className="text-slate-500 dark:text-slate-400 text-sm font-medium">Active Licenses</p>
                         </div>
                         <h3 className="text-3xl font-heading font-bold text-slate-900 dark:text-white">
-                            {institutions.filter(i => i.status === 'Active').length}
+                            {activeLicenses}
                         </h3>
                     </div>
                 </div>
 
                 {/* Institutions Table */}
                 <div className="bg-white dark:bg-slate-800/50 backdrop-blur-sm rounded-2xl border border-slate-200 dark:border-slate-700/50 shadow-lg shadow-slate-200/50 dark:shadow-black/20 overflow-hidden">
-                    <table className="w-full text-left border-collapse">
-                        <thead>
-                            <tr className="bg-slate-50/50 dark:bg-slate-900/50 border-b border-slate-200 dark:border-slate-700">
-                                <th className="px-6 py-4 text-slate-500 dark:text-slate-400 text-xs font-bold uppercase tracking-wider">Institution Name</th>
-                                <th className="px-6 py-4 text-slate-500 dark:text-slate-400 text-xs font-bold uppercase tracking-wider">Type</th>
-                                <th className="px-6 py-4 text-slate-500 dark:text-slate-400 text-xs font-bold uppercase tracking-wider">Location</th>
-                                <th className="px-6 py-4 text-slate-500 dark:text-slate-400 text-xs font-bold uppercase tracking-wider">Students</th>
-                                <th className="px-6 py-4 text-slate-500 dark:text-slate-400 text-xs font-bold uppercase tracking-wider">Status</th>
-                                <th className="px-6 py-4 text-slate-500 dark:text-slate-400 text-xs font-bold uppercase tracking-wider text-right">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y divide-slate-200 dark:divide-slate-700">
-                            {institutions.map((inst) => (
-                                <tr key={inst.id} className="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors group">
-                                    <td className="px-6 py-4 whitespace-nowrap">
-                                        <div className="flex items-center gap-3">
-                                            <div
-                                                className="size-10 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center overflow-hidden border border-slate-200 dark:border-slate-700 bg-cover bg-center shadow-sm"
-                                                style={{ backgroundImage: `url('${inst.logoUrl}')` }}
-                                            >
-                                            </div>
-                                            <div>
-                                                <p className="text-slate-900 dark:text-white text-sm font-bold">{inst.name}</p>
-                                                <p className="text-slate-500 dark:text-slate-400 text-xs">Joined: {new Date(inst.joinedDate).toLocaleDateString()}</p>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap">
-                                        <span className="px-2.5 py-1 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-xs font-bold border border-slate-200 dark:border-slate-700">{inst.type}</span>
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap">
-                                        <span className="text-slate-600 dark:text-slate-300 text-sm">{inst.location}</span>
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap">
-                                        <span className="text-slate-900 dark:text-white text-sm font-bold">{inst.studentCount.toLocaleString()}</span>
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap">
-                                        <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold ${inst.status === 'Active' ? 'bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-400' :
-                                            inst.status === 'Pending' ? 'bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-400' :
-                                                'bg-red-100 text-red-700 dark:bg-red-500/20 dark:text-red-400'
-                                            }`}>
-                                            <span className={`size-1.5 rounded-full ${inst.status === 'Active' ? 'bg-green-500' :
-                                                inst.status === 'Pending' ? 'bg-amber-500' :
-                                                    'bg-red-500'
-                                                }`}></span>
-                                            {inst.status}
-                                        </span>
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-right">
-                                        <Link
-                                            href={`/school/${inst.id}/dashboard`}
-                                            className="inline-flex items-center gap-2 px-3 py-1.5 bg-primary-50 text-primary-600 dark:bg-primary-900/30 dark:text-primary-400 hover:bg-primary-100 dark:hover:bg-primary-900/50 rounded-lg text-xs font-bold transition-all"
-                                        >
-                                            View Dashboard
-                                            <span className="material-symbols-outlined !text-sm">arrow_forward</span>
-                                        </Link>
-                                    </td>
+                    {isLoading ? (
+                        <div className="p-12 text-center text-slate-500">Loading schools...</div>
+                    ) : error ? (
+                        <div className="p-12 text-center text-red-500">{error}</div>
+                    ) : institutions.length === 0 ? (
+                        <div className="p-12 text-center text-slate-500">No schools registered yet.</div>
+                    ) : (
+                        <table className="w-full text-left border-collapse">
+                            <thead>
+                                <tr className="bg-slate-50/50 dark:bg-slate-900/50 border-b border-slate-200 dark:border-slate-700">
+                                    <th className="px-6 py-4 text-slate-500 dark:text-slate-400 text-xs font-bold uppercase tracking-wider">Institution Name</th>
+                                    <th className="px-6 py-4 text-slate-500 dark:text-slate-400 text-xs font-bold uppercase tracking-wider">Type</th>
+                                    <th className="px-6 py-4 text-slate-500 dark:text-slate-400 text-xs font-bold uppercase tracking-wider">Location</th>
+                                    <th className="px-6 py-4 text-slate-500 dark:text-slate-400 text-xs font-bold uppercase tracking-wider">Students</th>
+                                    <th className="px-6 py-4 text-slate-500 dark:text-slate-400 text-xs font-bold uppercase tracking-wider">Status</th>
+                                    <th className="px-6 py-4 text-slate-500 dark:text-slate-400 text-xs font-bold uppercase tracking-wider text-right">Actions</th>
                                 </tr>
-                            ))}
-                        </tbody>
-                    </table>
+                            </thead>
+                            <tbody className="divide-y divide-slate-200 dark:divide-slate-700">
+                                {institutions.map((inst) => (
+                                    <tr key={inst.id} className="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors group">
+                                        <td className="px-6 py-4 whitespace-nowrap">
+                                            <div className="flex items-center gap-3">
+                                                <div
+                                                    className="size-10 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center overflow-hidden border border-slate-200 dark:border-slate-700 bg-cover bg-center shadow-sm"
+                                                    style={{ backgroundImage: `url('${inst.logoUrl || "https://ui-avatars.com/api/?name=" + inst.name}')` }}
+                                                >
+                                                </div>
+                                                <div>
+                                                    <p className="text-slate-900 dark:text-white text-sm font-bold">{inst.name}</p>
+                                                    <p className="text-slate-500 dark:text-slate-400 text-xs">Joined: {new Date(inst.createdAt).toLocaleDateString()}</p>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap">
+                                            <span className="px-2.5 py-1 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-xs font-bold border border-slate-200 dark:border-slate-700">{inst.type || 'General'}</span>
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap">
+                                            <span className="text-slate-600 dark:text-slate-300 text-sm">{inst.location || 'N/A'}</span>
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap">
+                                            <span className="text-slate-900 dark:text-white text-sm font-bold">{inst.studentCount?.toLocaleString() || 0}</span>
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap">
+                                            <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold ${inst.status === 'Active' ? 'bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-400' :
+                                                inst.status === 'Pending' ? 'bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-400' :
+                                                    'bg-red-100 text-red-700 dark:bg-red-500/20 dark:text-red-400'
+                                                }`}>
+                                                <span className={`size-1.5 rounded-full ${inst.status === 'Active' ? 'bg-green-500' :
+                                                    inst.status === 'Pending' ? 'bg-amber-500' :
+                                                        'bg-red-500'
+                                                    }`}></span>
+                                                {inst.status}
+                                            </span>
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-right">
+                                            <div className="flex items-center justify-end gap-2">
+                                                <Link
+                                                    href={`/school/${inst.id}/dashboard`}
+                                                    className="inline-flex items-center gap-2 px-3 py-1.5 bg-primary-50 text-primary-600 dark:bg-primary-900/30 dark:text-primary-400 hover:bg-primary-100 dark:hover:bg-primary-900/50 rounded-lg text-xs font-bold transition-all"
+                                                >
+                                                    View
+                                                </Link>
+                                                <button
+                                                    onClick={() => handleDeleteSchool(inst.id)}
+                                                    className="inline-flex items-center justify-center p-1.5 bg-red-50 text-red-600 dark:bg-red-900/30 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/50 rounded-lg transition-all"
+                                                    title="Delete School"
+                                                >
+                                                    <span className="material-symbols-outlined text-[18px]">delete</span>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    )}
                 </div>
             </div>
 
