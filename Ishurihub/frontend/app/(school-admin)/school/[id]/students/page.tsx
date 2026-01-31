@@ -144,7 +144,9 @@ export default function StudentsPage() {
                                                 >
                                                 </div>
                                                 <div>
-                                                    <p className="text-black dark:text-white text-sm font-bold">{student.name}</p>
+                                                    <Link href={`/school/${schoolId}/students/${student.id}`} className="text-black dark:text-white text-sm font-bold hover:underline hover:text-primary transition-all">
+                                                        {student.name}
+                                                    </Link>
                                                     <p className="text-[#4c4c9a] dark:text-gray-500 text-xs">ID: {student.studentId}</p>
                                                 </div>
                                             </div>
