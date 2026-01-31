@@ -38,3 +38,9 @@
     -   `(school-admin)`: Layout for the school-specific view (existing sidebar).
 -   **Mock Data**:
     -   `institutions.ts`: List of schools.
+
+## Phase 5: Academic Logic Implementation (In Progress)
+-   [x] **Academic Years & Terms**: Hierarchy setup (Year -> Term) and "Active" state logic.
+-   [x] **Class Management**: Refactored to link classes to Academic Years.
+-   [ ] **Attendance Refactor**: Moving from simple "present" to "Term-based, Class-based" registers.
+-   [ ] **Report Cards**: Term-based assessment generation.

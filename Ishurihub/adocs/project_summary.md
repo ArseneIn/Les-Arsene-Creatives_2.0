@@ -46,8 +46,9 @@ The project is structured into several distinct portals and modules, each servin
 
 ### 6. Academic Management (New)
 - **`classes_module`**: Centralized management of classes (streams/combinations). 
-    - Supports **O-Level** (Random streaming) and **A-Level** (Combination-based grouping).
-    - Randomization logic to automatically assign students to classes.
+    - Supports **O-Level** (Stream-based) and **A-Level** (Combination-based).
+    - Classes are tightly coupled to the **Active Academic Year**.
 - **`school_system_settings`**: Configuration for school-wide settings.
     - **Combinations Management**: Ability to add/remove/toggle A-Level subject combinations.
+    - **Academic Years & Terms**: Management of the school's time hierarchy. allows setting the "Active" year and term which drives all system logic (see `academic_logic.md`).
 

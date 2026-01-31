@@ -82,22 +82,38 @@ export default function ClassesPage() {
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
     const [addModalLevel, setAddModalLevel] = useState<'O-Level' | 'A-Level'>('O-Level');
 
-    const [isRandomizeModalOpen, setIsRandomizeModalOpen] = useState(false);
     const [selectedClass, setSelectedClass] = useState<Classroom | null>(null);
 
     const params = useParams();
     const schoolId = params.id as string;
 
     const { register: registerAdd, handleSubmit: handleSubmitAdd, reset: resetAdd, watch: watchAdd, setValue: setValueAdd } = useForm<CreateClassFormData>();
-    const { register: registerRand, handleSubmit: handleSubmitRand, reset: resetRand } = useForm<RandomizeFormData>();
+
 
     // Watch year to auto-suggest name
     const watchedYear = watchAdd('year');
     const watchedStream = watchAdd('stream');
 
+    // Academic Year State
+    const [academicYear, setAcademicYear] = useState<any>(null);
+
     useEffect(() => {
-        if (watchedYear && watchedStream) {
-            setValueAdd('name', `${watchedYear} ${watchedStream}`);
+        const fetchActiveYear = async () => {
+            try {
+                const res = await api.get('/academic-years', { params: { schoolId } });
+                const active = res.data.find((y: any) => y.isActive);
+                setAcademicYear(active);
+            } catch (err) {
+                console.error("Failed to fetch academic year");
+            }
+        };
+        if (schoolId) fetchActiveYear();
+    }, [schoolId]);
+
+    useEffect(() => {
+        if (watchedYear) {
+            const streamSuffix = watchedStream ? ` ${watchedStream}` : '';
+            setValueAdd('name', `${watchedYear}${streamSuffix}`);
         }
     }, [watchedYear, watchedStream, setValueAdd]);
 
@@ -130,10 +146,15 @@ export default function ClassesPage() {
 
     const handleCreateClass = async (data: CreateClassFormData) => {
         try {
+            if (!academicYear) {
+                alert("Please set an active Academic Year in System Settings first.");
+                return;
+            }
             await api.post('/classes', {
                 ...data,
                 level: addModalLevel,
-                schoolId
+                schoolId,
+                academicYearId: academicYear.id
             });
             await fetchClasses();
             setIsAddModalOpen(false);
@@ -141,31 +162,6 @@ export default function ClassesPage() {
         } catch (error) {
             console.error("Failed to create class:", error);
             alert("Failed to create class");
-        }
-    };
-
-    const handleRandomize = async (data: RandomizeFormData) => {
-        try {
-            const streams = data.streamNames.split(',').map(s => s.trim()).filter(s => s);
-            if (streams.length === 0) {
-                alert("Please enter at least one stream name");
-                return;
-            }
-
-            await api.post('/classes/randomize', {
-                year: data.year,
-                streams: streams,
-                schoolId
-            });
-
-            await fetchClasses();
-            setIsRandomizeModalOpen(false);
-            resetRand();
-            alert("Students randomized successfully!");
-        } catch (error: any) {
-            console.error("Failed to randomize:", error);
-            const message = error.response?.data?.message || "Failed to randomize students. Ensure students exist in this year.";
-            alert(message);
         }
     };
 
@@ -189,17 +185,15 @@ export default function ClassesPage() {
                 {/* Header */}
                 <div className="flex flex-wrap justify-between items-end gap-3 pb-6">
                     <div className="flex flex-col gap-1">
-                        <h1 className="text-3xl font-black text-gray-900 dark:text-white">Class Management</h1>
+                        <div className="flex items-center gap-3">
+                            <h1 className="text-3xl font-black text-gray-900 dark:text-white">Class Management</h1>
+                            {academicYear && (
+                                <span className="px-3 py-1 rounded-full bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 text-xs font-bold border border-blue-200 dark:border-blue-800">
+                                    {academicYear.name}
+                                </span>
+                            )}
+                        </div>
                         <p className="text-gray-500 text-sm">Organize students into streams.</p>
-                    </div>
-                    <div className="flex gap-3">
-                        <button
-                            onClick={() => setIsRandomizeModalOpen(true)}
-                            className="flex items-center gap-2 px-5 py-2.5 bg-purple-600 text-white font-bold rounded-lg shadow-lg shadow-purple-600/20 hover:bg-purple-700 transition-all"
-                        >
-                            <span className="material-symbols-outlined">shuffle</span>
-                            Randomize Students
-                        </button>
                     </div>
                 </div>
 
@@ -276,7 +270,6 @@ export default function ClassesPage() {
                     onClose={() => setSelectedClass(null)}
                     classId={selectedClass.id}
                     className={selectedClass.name}
-                    classYear={selectedClass.year}
                     classStream={selectedClass.stream}
                     classLevel={selectedClass.level}
                 />
@@ -335,37 +328,6 @@ export default function ClassesPage() {
                     <div className="pt-4 flex justify-end gap-2">
                         <button type="button" onClick={() => setIsAddModalOpen(false)} className="px-4 py-2 text-sm font-bold text-gray-500 hover:bg-gray-100 rounded-lg">Cancel</button>
                         <button type="submit" className="px-6 py-2 text-sm font-bold text-white bg-primary rounded-lg">Create Class</button>
-                    </div>
-                </form>
-            </Modal>
-
-            {/* Randomize Modal */}
-            <Modal
-                isOpen={isRandomizeModalOpen}
-                onClose={() => setIsRandomizeModalOpen(false)}
-                title="Randomize Students (O-Level Only)"
-                size="md"
-            >
-                <form onSubmit={handleSubmitRand(handleRandomize)} className="space-y-4">
-                    <div className="bg-amber-50 text-amber-800 p-3 rounded-lg text-sm mb-4">
-                        <p className="font-bold mb-1">Warning</p>
-                        This will shuffle ALL students in the selected O-Level year (S1-S3) and re-assign them to new classes. This cannot be undone.
-                        <br /><span className="text-xs mt-1 block">A-Level students are automatically assigned based on their combinations.</span>
-                    </div>
-                    <div>
-                        <label className="block text-sm font-bold mb-1">Target Year</label>
-                        <select {...registerRand('year', { required: true })} className={inputClasses}>
-                            {['S1', 'S2', 'S3'].map(y => <option key={y} value={y}>{y}</option>)}
-                        </select>
-                    </div>
-                    <div>
-                        <label className="block text-sm font-bold mb-1">Target Streams (Comma Separated)</label>
-                        <input {...registerRand('streamNames', { required: true })} className={inputClasses} placeholder="e.g. A, B, C, D" />
-                        <p className="text-xs text-gray-400 mt-1">We will create {`{n}`} classes and distribute students evenly.</p>
-                    </div>
-                    <div className="pt-4 flex justify-end gap-2">
-                        <button type="button" onClick={() => setIsRandomizeModalOpen(false)} className="px-4 py-2 text-sm font-bold text-gray-500 hover:bg-gray-100 rounded-lg">Cancel</button>
-                        <button type="submit" className="px-6 py-2 text-sm font-bold text-white bg-purple-600 hover:bg-purple-700 rounded-lg">Start Randomization</button>
                     </div>
                 </form>
             </Modal>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Teacher } from "@/data/teachers";
 import api from "@/lib/api";
 import Link from "next/link";
@@ -15,7 +15,7 @@ export default function TeachersPage() {
     const params = useParams();
     const schoolId = params.id as string;
 
-    const fetchTeachers = async () => {
+    const fetchTeachers = useCallback(async () => {
         setIsLoading(true);
         try {
             const response = await api.get('/teachers', {
@@ -27,13 +27,13 @@ export default function TeachersPage() {
         } finally {
             setIsLoading(false);
         }
-    };
+    }, [schoolId]);
 
     useEffect(() => {
         if (schoolId) {
             fetchTeachers();
         }
-    }, [schoolId]);
+    }, [schoolId, fetchTeachers]);
 
     const handleAddTeacher = async (data: AddTeacherFormData) => {
         try {
@@ -133,51 +133,65 @@ export default function TeachersPage() {
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-[#cfcfe7] dark:divide-white/10">
-                            {teachers.map((teacher) => (
-                                <tr key={teacher.id} className="hover:bg-gray-50 dark:hover:bg-white/5 transition-colors group">
-                                    <td className="px-6 py-4 whitespace-nowrap">
-                                        <div className="flex items-center gap-3">
-                                            <div
-                                                className="size-10 rounded-full bg-gray-200 dark:bg-gray-700 bg-cover bg-center border border-gray-300 dark:border-gray-600"
-                                                style={{ backgroundImage: `url('${teacher.avatarUrl}')` }}
-                                            ></div>
-                                            <div>
-                                                <p className="text-black dark:text-white text-sm font-bold">{teacher.name}</p>
-                                                <p className="text-[#4c4c9a] dark:text-gray-500 text-xs">{teacher.email}</p>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap">
-                                        <span className="text-black dark:text-white text-sm font-medium">{teacher.subject}</span>
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap">
-                                        <div className="flex flex-wrap gap-1">
-                                            {teacher.classes.map((cls, idx) => (
-                                                <span key={idx} className="px-2 py-0.5 rounded bg-[#e7e7f3] dark:bg-white/10 text-[#4c4c9a] dark:text-gray-300 text-xs font-bold">
-                                                    {cls}
-                                                </span>
-                                            ))}
-                                        </div>
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap">
-                                        <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold ${teacher.status === 'Active' ? 'bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-400' :
-                                            teacher.status === 'On Leave' ? 'bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-400' :
-                                                'bg-red-100 text-red-700 dark:bg-red-500/20 dark:text-red-400'
-                                            }`}>
-                                            <span className={`size-1.5 rounded-full ${teacher.status === 'Active' ? 'bg-green-500' :
-                                                teacher.status === 'On Leave' ? 'bg-amber-500' :
-                                                    'bg-red-500'
-                                                }`}></span>
-                                            {teacher.status}
-                                        </span>
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-right">
-                                        <button className="p-2 text-gray-400 hover:text-primary transition-colors">
-                                            <span className="material-symbols-outlined">more_vert</span>
-                                        </button>
+                            {isLoading ? (
+                                <tr>
+                                    <td colSpan={5} className="px-6 py-12 text-center text-gray-500">
+                                        Loading staff data...
                                     </td>
                                 </tr>
-                            ))}
+                            ) : teachers.length === 0 ? (
+                                <tr>
+                                    <td colSpan={5} className="px-6 py-12 text-center text-gray-500">
+                                        No teachers found. Add one to get started.
+                                    </td>
+                                </tr>
+                            ) : (
+                                teachers.map((teacher) => (
+                                    <tr key={teacher.id} className="hover:bg-gray-50 dark:hover:bg-white/5 transition-colors group">
+                                        <td className="px-6 py-4 whitespace-nowrap">
+                                            <div className="flex items-center gap-3">
+                                                <div
+                                                    className="size-10 rounded-full bg-gray-200 dark:bg-gray-700 bg-cover bg-center border border-gray-300 dark:border-gray-600"
+                                                    style={{ backgroundImage: `url('${teacher.avatarUrl}')` }}
+                                                ></div>
+                                                <div>
+                                                    <p className="text-black dark:text-white text-sm font-bold">{teacher.name}</p>
+                                                    <p className="text-[#4c4c9a] dark:text-gray-500 text-xs">{teacher.email}</p>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap">
+                                            <span className="text-black dark:text-white text-sm font-medium">{teacher.subject}</span>
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap">
+                                            <div className="flex flex-wrap gap-1">
+                                                {teacher.classes?.map((cls, idx) => (
+                                                    <span key={idx} className="px-2 py-0.5 rounded bg-[#e7e7f3] dark:bg-white/10 text-[#4c4c9a] dark:text-gray-300 text-xs font-bold">
+                                                        {cls}
+                                                    </span>
+                                                ))}
+                                            </div>
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap">
+                                            <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold ${teacher.status === 'Active' ? 'bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-400' :
+                                                teacher.status === 'On Leave' ? 'bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-400' :
+                                                    'bg-red-100 text-red-700 dark:bg-red-500/20 dark:text-red-400'
+                                                }`}>
+                                                <span className={`size-1.5 rounded-full ${teacher.status === 'Active' ? 'bg-green-500' :
+                                                    teacher.status === 'On Leave' ? 'bg-amber-500' :
+                                                        'bg-red-500'
+                                                    }`}></span>
+                                                {teacher.status}
+                                            </span>
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-right">
+                                            <button className="p-2 text-gray-400 hover:text-primary transition-colors">
+                                                <span className="material-symbols-outlined">more_vert</span>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                ))
+                            )}
                         </tbody>
                     </table>
                 </div>

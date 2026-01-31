@@ -27,7 +27,7 @@ interface SchoolProfile {
 export default function SystemPage() {
     const params = useParams();
     const schoolId = params.id as string;
-    const [activeTab, setActiveTab] = useState<'settings' | 'logs' | 'roles'>('settings');
+    const [activeTab, setActiveTab] = useState<'settings' | 'logs' | 'roles' | 'academic'>('settings');
     const [profile, setProfile] = useState<SchoolProfile>({
         name: '',
         motto: '',
@@ -84,6 +84,98 @@ export default function SystemPage() {
         }
     };
 
+    // Academic Years Logic
+    const [years, setYears] = useState<any[]>([]);
+    const [newYear, setNewYear] = useState({ name: '', startDate: '', endDate: '' });
+    const [isYearLoading, setIsYearLoading] = useState(false);
+
+    const fetchYears = useCallback(async () => {
+        try {
+            const res = await api.get('/academic-years', { params: { schoolId } });
+            setYears(res.data);
+        } catch (err) {
+            console.error("Failed to fetch years:", err);
+        }
+    }, [schoolId]);
+
+    useEffect(() => {
+        if (activeTab === 'academic') {
+            fetchYears();
+        }
+    }, [activeTab, fetchYears]);
+
+    const handleCreateYear = async () => {
+        if (!newYear.name || !newYear.startDate || !newYear.endDate) return;
+        setIsYearLoading(true);
+        try {
+            await api.post('/academic-years', { ...newYear, schoolId, isActive: false });
+            setNewYear({ name: '', startDate: '', endDate: '' });
+            await fetchYears();
+        } catch (err) {
+            alert('Failed to create year');
+            console.error(err);
+        } finally {
+            setIsYearLoading(false);
+        }
+    };
+
+
+    const handleActivateYear = async (id: string) => {
+        if (!confirm("Are you sure? This will deactivate all other years.")) return;
+        try {
+            await api.patch(`/academic-years/${id}/activate`, { schoolId });
+            await fetchYears();
+        } catch (err) {
+            alert('Failed to activate year');
+        }
+    };
+
+    // Terms Logic
+    const [expandedYearId, setExpandedYearId] = useState<string | null>(null);
+    const [terms, setTerms] = useState<any[]>([]);
+    const [newTerm, setNewTerm] = useState({ name: '', startDate: '', endDate: '' });
+    const [isTermLoading, setIsTermLoading] = useState(false);
+
+    const toggleTerms = (yearId: string) => {
+        if (expandedYearId === yearId) {
+            setExpandedYearId(null);
+        } else {
+            setExpandedYearId(yearId);
+        }
+    };
+
+    const handleCreateTerm = async (academicYearId: string) => {
+        if (!newTerm.name || !newTerm.startDate || !newTerm.endDate) return;
+        setIsTermLoading(true);
+        try {
+            await api.post('/academic-years/terms', {
+                ...newTerm,
+                academicYearId,
+                isActive: false
+            });
+            setNewTerm({ name: '', startDate: '', endDate: '' });
+            await fetchYears(); // Refresh to show new term
+        } catch (err) {
+            alert('Failed to create term');
+            console.error(err);
+        } finally {
+            setIsTermLoading(false);
+        }
+    };
+
+    const handleActivateTerm = async (termId: string) => {
+        if (!confirm("Are you sure? This will designate this term as the ACTIVE term for the entire school.")) return;
+        try {
+            await api.patch(`/academic-years/terms/${termId}/activate`, { schoolId });
+            await fetchYears();
+        } catch (err) {
+            alert('Failed to activate term');
+        }
+    };
+
+
+
+
     return (
         <div className="flex flex-1 justify-center py-8">
             <div className="layout-content-container flex flex-col w-full max-w-[1200px] px-6">
@@ -130,6 +222,15 @@ export default function SystemPage() {
                             }`}
                     >
                         Roles & Permissions
+                    </button>
+                    <button
+                        onClick={() => setActiveTab('academic')}
+                        className={`px-6 py-3 text-sm font-bold border-b-2 transition-colors ${activeTab === 'academic'
+                            ? 'border-primary text-primary'
+                            : 'border-transparent text-[#4c4c9a] dark:text-gray-400 hover:text-black dark:hover:text-white'
+                            }`}
+                    >
+                        Academic Years
                     </button>
                 </div>
 
@@ -308,6 +409,155 @@ export default function SystemPage() {
                                     ))}
                                 </tbody>
                             </table>
+                        </div>
+                    )}
+
+                    {activeTab === 'academic' && (
+                        <div className="max-w-2xl space-y-8">
+                            <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-xl border border-blue-100 dark:border-blue-900/30 flex gap-3">
+                                <span className="material-symbols-outlined text-blue-600 dark:text-blue-400">info</span>
+                                <div>
+                                    <p className="text-sm font-bold text-blue-800 dark:text-blue-300">Academic Year & Terms</p>
+                                    <p className="text-xs text-blue-600 dark:text-blue-400 mt-1">
+                                        Data such as Attendance, Report Cards, and Grades are linked to the <strong>Active Term</strong>.
+                                        Ensure you set the correct term as active.
+                                    </p>
+                                </div>
+                            </div>
+
+                            {/* Create Year */}
+                            <div>
+                                <h3 className="text-lg font-bold text-black dark:text-white mb-4 flex items-center gap-2">
+                                    <span className="material-symbols-outlined text-primary">calendar_month</span>
+                                    Academic Years
+                                </h3>
+                                <div className="space-y-4 p-4 rounded-xl bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-gray-700/50">
+                                    <div className="flex gap-2">
+                                        <input
+                                            value={newYear.name}
+                                            onChange={(e) => setNewYear({ ...newYear, name: e.target.value })}
+                                            placeholder="Year Name (e.g. 2025-2026)"
+                                            className="flex-1 h-10 px-3 rounded-lg border border-[#cfcfe7] dark:border-gray-600 bg-white dark:bg-black/20 text-sm outline-none"
+                                        />
+                                        <input
+                                            type="date"
+                                            value={newYear.startDate}
+                                            onChange={(e) => setNewYear({ ...newYear, startDate: e.target.value })}
+                                            className="h-10 px-3 rounded-lg border border-[#cfcfe7] dark:border-gray-600 bg-white dark:bg-black/20 text-sm outline-none"
+                                        />
+                                        <input
+                                            type="date"
+                                            value={newYear.endDate}
+                                            onChange={(e) => setNewYear({ ...newYear, endDate: e.target.value })}
+                                            className="h-10 px-3 rounded-lg border border-[#cfcfe7] dark:border-gray-600 bg-white dark:bg-black/20 text-sm outline-none"
+                                        />
+                                        <button
+                                            onClick={handleCreateYear}
+                                            disabled={isYearLoading || !newYear.name}
+                                            className="px-4 h-10 bg-primary text-white text-sm font-bold rounded-lg hover:bg-primary/90 disabled:opacity-50"
+                                        >
+                                            {isYearLoading ? '...' : 'Create'}
+                                        </button>
+                                    </div>
+
+                                    {/* List of Years */}
+                                    <div className="space-y-4">
+                                        {years.map(year => (
+                                            <div key={year.id} className={`rounded-lg border transition-all ${year.isActive ? 'bg-white dark:bg-black/20 border-green-500' : 'bg-gray-100 dark:bg-white/5 border-transparent'}`}>
+                                                <div className="p-3 flex justify-between items-center">
+                                                    <div>
+                                                        <div className="flex items-center gap-2">
+                                                            <span className="font-bold text-black dark:text-white">{year.name}</span>
+                                                            {year.isActive && <span className="text-[10px] font-bold bg-green-100 text-green-700 px-1.5 py-0.5 rounded uppercase">Active</span>}
+                                                        </div>
+                                                        <p className="text-xs text-gray-500">{new Date(year.startDate).toLocaleDateString()} - {new Date(year.endDate).toLocaleDateString()}</p>
+                                                    </div>
+                                                    <div className="flex gap-2">
+                                                        {!year.isActive && (
+                                                            <button onClick={() => handleActivateYear(year.id)} className="text-xs font-bold text-gray-600 hover:text-black dark:text-gray-400 dark:hover:text-white">Set Active</button>
+                                                        )}
+                                                        <button
+                                                            onClick={() => toggleTerms(year.id)}
+                                                            className="text-xs font-bold text-primary hover:underline flex items-center gap-1"
+                                                        >
+                                                            {expandedYearId === year.id ? 'Hide Terms' : 'Manage Terms'}
+                                                            <span className="material-symbols-outlined text-[14px]">{expandedYearId === year.id ? 'expand_less' : 'expand_more'}</span>
+                                                        </button>
+                                                    </div>
+                                                </div>
+
+                                                {/* Expanded Terms Section */}
+                                                {expandedYearId === year.id && (
+                                                    <div className="p-3 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-black/40 rounded-b-lg">
+                                                        <h4 className="text-xs font-bold uppercase text-gray-500 mb-2">Terms in {year.name}</h4>
+
+                                                        {/* List Terms */}
+                                                        <div className="space-y-2 mb-3">
+                                                            {year.terms && year.terms.length > 0 ? (
+                                                                year.terms.sort((a: any, b: any) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime()).map((term: any) => (
+                                                                    <div key={term.id} className="flex justify-between items-center p-2 bg-white dark:bg-white/5 rounded border border-gray-100 dark:border-gray-800">
+                                                                        <div>
+                                                                            <div className="flex items-center gap-2">
+                                                                                <span className="text-sm font-bold text-black dark:text-white">{term.name}</span>
+                                                                                {term.isActive && <span className="text-[10px] font-bold bg-green-100 text-green-700 px-1.5 py-0.5 rounded uppercase">Active Term</span>}
+                                                                            </div>
+                                                                            <p className="text-[10px] text-gray-500">{new Date(term.startDate).toLocaleDateString()} - {new Date(term.endDate).toLocaleDateString()}</p>
+                                                                        </div>
+                                                                        {!term.isActive && (
+                                                                            <button onClick={() => handleActivateTerm(term.id)} className="text-xs text-primary hover:underline">Set Active</button>
+                                                                        )}
+                                                                    </div>
+                                                                ))
+                                                            ) : (
+                                                                <p className="text-xs text-gray-400 italic">No terms added yet.</p>
+                                                            )}
+                                                        </div>
+
+                                                        {/* Add Term Form */}
+                                                        <div className="flex gap-2 items-end">
+                                                            <div className="flex-1 space-y-1">
+                                                                <label className="text-[10px] font-bold text-gray-500 uppercase">New Term Name</label>
+                                                                <input
+                                                                    value={newTerm.name}
+                                                                    onChange={(e) => setNewTerm({ ...newTerm, name: e.target.value })}
+                                                                    placeholder="e.g. Term 1"
+                                                                    className="w-full h-8 px-2 rounded border border-gray-300 dark:border-gray-700 bg-white dark:bg-black/20 text-xs outline-none"
+                                                                />
+                                                            </div>
+                                                            <div className="space-y-1">
+                                                                <label className="text-[10px] font-bold text-gray-500 uppercase">Start Date</label>
+                                                                <input
+                                                                    type="date"
+                                                                    value={newTerm.startDate}
+                                                                    onChange={(e) => setNewTerm({ ...newTerm, startDate: e.target.value })}
+                                                                    className="h-8 px-2 rounded border border-gray-300 dark:border-gray-700 bg-white dark:bg-black/20 text-xs outline-none"
+                                                                />
+                                                            </div>
+                                                            <div className="space-y-1">
+                                                                <label className="text-[10px] font-bold text-gray-500 uppercase">End Date</label>
+                                                                <input
+                                                                    type="date"
+                                                                    value={newTerm.endDate}
+                                                                    onChange={(e) => setNewTerm({ ...newTerm, endDate: e.target.value })}
+                                                                    className="h-8 px-2 rounded border border-gray-300 dark:border-gray-700 bg-white dark:bg-black/20 text-xs outline-none"
+                                                                />
+                                                            </div>
+                                                            <button
+                                                                onClick={() => handleCreateTerm(year.id)}
+                                                                disabled={isTermLoading || !newTerm.name}
+                                                                className="h-8 px-3 bg-primary text-white text-xs font-bold rounded hover:bg-primary/90 disabled:opacity-50"
+                                                            >
+                                                                Add
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        ))}
+                                        {years.length === 0 && <p className="text-sm text-gray-500 italic">No academic years found.</p>}
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     )}
 
