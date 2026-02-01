@@ -258,6 +258,7 @@ export default function LibraryPage() {
                     initialData={selectedBook}
                     onClose={() => setShowBookModal(false)}
                     onSuccess={fetchBooks}
+                    schoolId={schoolId}
                 />
             )}
 
@@ -268,6 +269,7 @@ export default function LibraryPage() {
                         fetchBooks(); // Update quantity
                         if (activeTab === 'issued') fetchIssuedBooks();
                     }}
+                    schoolId={schoolId}
                 />
             )}
 
@@ -278,6 +280,7 @@ export default function LibraryPage() {
                         fetchBooks();
                         if (activeTab === 'issued') fetchIssuedBooks();
                     }}
+                    schoolId={schoolId}
                 />
             )}
         </div>

@@ -1,10 +1,11 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { useParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import api from "@/lib/api";
+import PhotoUploadModal from "@/components/students/PhotoUploadModal";
 
 // --- Types ---
 interface Student {
@@ -78,6 +79,7 @@ export default function StudentDetailsPage() {
     const [activeTab, setActiveTab] = useState<'overview' | 'attendance' | 'library' | 'discipline'>('overview');
     const [student, setStudent] = useState<Student | null>(null);
     const [isLoading, setIsLoading] = useState(true);
+    const [isPhotoModalOpen, setIsPhotoModalOpen] = useState(false);
 
     // Module Data
     const [attendanceData, setAttendanceData] = useState<{ stats: AttendanceStats; history: AttendanceRecord[] } | null>(null);
@@ -95,7 +97,6 @@ export default function StudentDetailsPage() {
         });
     }, [studentId]);
 
-    // Fetch Tab Data on Change
     useEffect(() => {
         if (!studentId) return;
 
@@ -108,7 +109,7 @@ export default function StudentDetailsPage() {
         if (activeTab === 'discipline' && !disciplineData) {
             api.get(`/discipline/student/${studentId}`).then(res => setDisciplineData(res.data));
         }
-    }, [activeTab, studentId]);
+    }, [activeTab, studentId, attendanceData, libraryData, disciplineData]);
 
     if (isLoading) return <div className="p-8 text-center text-gray-500">Loading profile...</div>;
     if (!student) return <div className="p-8 text-center text-gray-500">Student not found</div>;
@@ -124,14 +125,28 @@ export default function StudentDetailsPage() {
 
             {/* Header / Profile Card */}
             <div className="bg-white dark:bg-[#1e2538] rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-700 mb-8 flex flex-col md:flex-row gap-8 items-start">
-                <div className="size-32 rounded-2xl overflow-hidden bg-gray-100 relative shrink-0">
-                    {student.avatarUrl ? (
-                        <Image src={student.avatarUrl} alt={student.name} fill className="object-cover" />
-                    ) : (
-                        <div className="w-full h-full flex items-center justify-center bg-primary text-white text-3xl font-bold">
-                            {student.name.charAt(0)}
-                        </div>
-                    )}
+                <div className="relative group">
+                    <div className="size-32 rounded-2xl overflow-hidden bg-gray-100 relative shrink-0 border-4 border-white dark:border-gray-800 shadow-lg">
+                        {student.avatarUrl ? (
+                            <Image
+                                src={student.avatarUrl.startsWith('http') ? student.avatarUrl : `http://localhost:4000${student.avatarUrl}`}
+                                alt={student.name}
+                                fill
+                                className="object-cover"
+                                unoptimized
+                            />
+                        ) : (
+                            <div className="w-full h-full flex items-center justify-center bg-primary text-white text-3xl font-bold">
+                                {student.name.charAt(0)}
+                            </div>
+                        )}
+                    </div>
+                    <button
+                        onClick={() => setIsPhotoModalOpen(true)}
+                        className="absolute bottom-[-10px] right-[-10px] bg-white dark:bg-gray-800 p-2 rounded-full shadow-md border border-gray-100 dark:border-gray-600 hover:scale-110 transition-transform text-primary"
+                    >
+                        <span className="material-symbols-outlined !text-lg">photo_camera</span>
+                    </button>
                 </div>
 
                 <div className="flex-1 space-y-2">
@@ -380,6 +395,16 @@ export default function StudentDetailsPage() {
                     </div>
                 )}
             </div>
+
+            <PhotoUploadModal
+                isOpen={isPhotoModalOpen}
+                onClose={() => setIsPhotoModalOpen(false)}
+                onSuccess={(newUrl) => {
+                    setStudent(prev => prev ? { ...prev, avatarUrl: newUrl } : null);
+                    setIsPhotoModalOpen(false);
+                }}
+                studentId={studentId}
+            />
         </div>
     );
 }

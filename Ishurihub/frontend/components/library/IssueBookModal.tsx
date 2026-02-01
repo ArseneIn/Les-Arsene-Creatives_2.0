@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useForm } from "react-hook-form";
 import api from "@/lib/api";
 
@@ -13,25 +13,63 @@ type IssueFormData = {
 type IssueBookModalProps = {
     onClose: () => void;
     onSuccess: () => void;
+    schoolId: string;
 };
 
-export default function IssueBookModal({ onClose, onSuccess }: IssueBookModalProps) {
-    const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<IssueFormData>();
-    const [books, setBooks] = useState<any[]>([]);
+interface Book {
+    id: string;
+    title: string;
+    available: number;
+}
+
+interface Student {
+    id: string;
+    name: string;
+    studentId: string;
+    grade: string;
+}
+
+export default function IssueBookModal({ onClose, onSuccess, schoolId }: IssueBookModalProps) {
+    const { register, handleSubmit, setValue, formState: { errors, isSubmitting } } = useForm<IssueFormData>();
+    const [books, setBooks] = useState<Book[]>([]);
+    const [students, setStudents] = useState<Student[]>([]);
+    const [searchTerm, setSearchTerm] = useState("");
+    const [showSuggestions, setShowSuggestions] = useState(false);
 
     useEffect(() => {
-        // Fetch available books
-        api.get('/library/books?schoolId=default-school-id').then(res => {
-            // Filter only available books
-            setBooks(res.data.filter((b: any) => b.available > 0));
-        });
-    }, []);
+        if (schoolId) {
+            // Fetch available books
+            api.get(`/library/books?schoolId=${schoolId}`).then(res => {
+                setBooks(res.data.filter((b: Book) => b.available > 0));
+            });
+
+            // Fetch all students for search
+            api.get(`/students?schoolId=${schoolId}`).then(res => {
+                setStudents(res.data);
+            });
+        }
+    }, [schoolId]);
+
+    const filteredStudents = useMemo(() => {
+        if (!searchTerm) return [];
+        const lower = searchTerm.toLowerCase();
+        return students.filter(s =>
+            s.name.toLowerCase().includes(lower) ||
+            s.studentId.toLowerCase().includes(lower)
+        ).slice(0, 10);
+    }, [searchTerm, students]);
+
+    const selectStudent = (student: Student) => {
+        setValue("studentId", student.id);
+        setSearchTerm(`${student.name} (${student.studentId})`);
+        setShowSuggestions(false);
+    };
 
     const onSubmit = async (data: IssueFormData) => {
         try {
             await api.post('/library/issue', {
                 ...data,
-                schoolId: 'default-school-id',
+                schoolId,
                 dueDate: new Date(data.dueDate)
             });
             onSuccess();
@@ -57,7 +95,7 @@ export default function IssueBookModal({ onClose, onSuccess }: IssueBookModalPro
                         <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-1">Select Book</label>
                         <select
                             {...register("bookId", { required: "Book is required" })}
-                            className="w-full px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-black/20 focus:outline-none focus:ring-2 focus:ring-primary/50"
+                            className="w-full px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-black/20 focus:outline-none focus:ring-2 focus:ring-primary/50 text-gray-900 dark:text-white"
                         >
                             <option value="">-- Choose Book --</option>
                             {books.map(book => (
@@ -67,15 +105,40 @@ export default function IssueBookModal({ onClose, onSuccess }: IssueBookModalPro
                         {errors.bookId && <p className="text-red-500 text-xs mt-1">{errors.bookId.message}</p>}
                     </div>
 
-                    <div>
-                        <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-1">Student ID / Name</label>
-                        {/* Simplified Input for MVP - Ideally a Searchable Dropdown */}
+                    <div className="relative">
+                        <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-1">Student</label>
                         <input
-                            {...register("studentId", { required: "Student ID/Name is required" })}
-                            className="w-full px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-black/20 focus:outline-none focus:ring-2 focus:ring-primary/50"
-                            placeholder="Enter Student ID"
+                            type="text"
+                            value={searchTerm}
+                            onChange={(e) => {
+                                setSearchTerm(e.target.value);
+                                setShowSuggestions(true);
+                                setValue("studentId", ""); // Reset ID on manual type
+                            }}
+                            onFocus={() => setShowSuggestions(true)}
+                            className="w-full px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-black/20 focus:outline-none focus:ring-2 focus:ring-primary/50 text-gray-900 dark:text-white"
+                            placeholder="Search by name or ID..."
+                            autoComplete="off"
                         />
-                        {errors.studentId && <p className="text-red-500 text-xs mt-1">{errors.studentId.message}</p>}
+                        {/* Hidden input to store the actual UUID */}
+                        <input type="hidden" {...register("studentId", { required: "Student is required" })} />
+
+                        {showSuggestions && filteredStudents.length > 0 && (
+                            <div className="absolute z-10 w-full mt-1 bg-white dark:bg-[#1e2538] border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg max-h-48 overflow-y-auto">
+                                {filteredStudents.map(student => (
+                                    <button
+                                        key={student.id}
+                                        type="button"
+                                        onClick={() => selectStudent(student)}
+                                        className="w-full text-left px-4 py-2 hover:bg-gray-50 dark:hover:bg-white/5 text-sm text-gray-900 dark:text-white border-b border-gray-100 dark:border-gray-800 last:border-0"
+                                    >
+                                        <p className="font-bold">{student.name}</p>
+                                        <p className="text-xs text-gray-500">{student.studentId} • {student.grade}</p>
+                                    </button>
+                                ))}
+                            </div>
+                        )}
+                        {errors.studentId && <p className="text-red-500 text-xs mt-1">Please select a valid student from the list</p>}
                     </div>
 
                     <div>
@@ -83,7 +146,7 @@ export default function IssueBookModal({ onClose, onSuccess }: IssueBookModalPro
                         <input
                             type="date"
                             {...register("dueDate", { required: "Due date is required" })}
-                            className="w-full px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-black/20 focus:outline-none focus:ring-2 focus:ring-primary/50"
+                            className="w-full px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-black/20 focus:outline-none focus:ring-2 focus:ring-primary/50 text-gray-900 dark:text-white"
                         />
                         {errors.dueDate && <p className="text-red-500 text-xs mt-1">{errors.dueDate.message}</p>}
                     </div>

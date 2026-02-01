@@ -22,9 +22,10 @@ type Book = {
 interface LibraryKioskProps {
     onClose: () => void;
     onSuccess: () => void;
+    schoolId: string;
 }
 
-export default function LibraryKiosk({ onClose, onSuccess }: LibraryKioskProps) {
+export default function LibraryKiosk({ onClose, onSuccess, schoolId }: LibraryKioskProps) {
     const [scannedUid, setScannedUid] = useState("");
     const [lastKeystroke, setLastKeystroke] = useState(0);
     const [student, setStudent] = useState<Student | null>(null);
@@ -36,10 +37,12 @@ export default function LibraryKiosk({ onClose, onSuccess }: LibraryKioskProps) 
 
     // Initial fetch of books
     useEffect(() => {
-        api.get('/library/books?schoolId=default-school-id').then(res => {
-            setBooks(res.data.filter((b: Book) => b.available > 0));
-        });
-    }, []);
+        if (schoolId) {
+            api.get(`/library/books?schoolId=${schoolId}`).then(res => {
+                setBooks(res.data.filter((b: Book) => b.available > 0));
+            });
+        }
+    }, [schoolId]);
 
     // Keep focus on input
     const keepFocus = () => inputRef.current?.focus();
@@ -51,7 +54,7 @@ export default function LibraryKiosk({ onClose, onSuccess }: LibraryKioskProps) 
             setStudent(res.data);
             setStatus('success');
             setMessage("Student Verified");
-        } catch (_error) {
+        } catch {
             setStudent(null);
             setStatus('error');
             setMessage("Card not recognized or student not found.");
@@ -82,10 +85,10 @@ export default function LibraryKiosk({ onClose, onSuccess }: LibraryKioskProps) 
         };
 
         // Attach to window to catch global scans
-        window.addEventListener("keypress", handleKeyDown as any);
+        window.addEventListener("keypress", handleKeyDown as unknown as EventListener);
         inputRef.current?.focus();
 
-        return () => window.removeEventListener("keypress", handleKeyDown as any);
+        return () => window.removeEventListener("keypress", handleKeyDown as unknown as EventListener);
     }, [scannedUid, lastKeystroke]);
 
     const handleScanInput = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -103,7 +106,7 @@ export default function LibraryKiosk({ onClose, onSuccess }: LibraryKioskProps) 
             await api.post('/library/issue', {
                 bookId: selectedBookId,
                 studentId: student.id,
-                schoolId: 'default-school-id',
+                schoolId,
                 dueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) // Default 7 days
             });
             setStatus('success');
@@ -117,7 +120,8 @@ export default function LibraryKiosk({ onClose, onSuccess }: LibraryKioskProps) 
                 setMessage("");
                 inputRef.current?.focus();
             }, 2000);
-        } catch (_error) {
+        } catch (error) {
+            console.error(error);
             setStatus('error');
             setMessage("Failed to issue book.");
         }
@@ -149,15 +153,15 @@ export default function LibraryKiosk({ onClose, onSuccess }: LibraryKioskProps) 
                     </div>
 
                     <div className={`p-6 rounded-2xl border-2 transition-all ${status === 'idle' ? 'border-gray-700 bg-white/5' :
-                            status === 'loading' ? 'border-primary/50 bg-primary/10' :
-                                status === 'success' ? 'border-green-500/50 bg-green-500/10' :
-                                    'border-red-500/50 bg-red-500/10'
+                        status === 'loading' ? 'border-primary/50 bg-primary/10' :
+                            status === 'success' ? 'border-green-500/50 bg-green-500/10' :
+                                'border-red-500/50 bg-red-500/10'
                         }`}>
                         <div className="flex items-center gap-4">
                             <div className={`size-12 rounded-full flex items-center justify-center ${status === 'idle' ? 'bg-gray-700' :
-                                    status === 'loading' ? 'bg-primary animate-pulse' :
-                                        status === 'success' ? 'bg-green-500' :
-                                            'bg-red-500'
+                                status === 'loading' ? 'bg-primary animate-pulse' :
+                                    status === 'success' ? 'bg-green-500' :
+                                        'bg-red-500'
                                 }`}>
                                 <span className="material-symbols-outlined">
                                     {status === 'idle' ? 'contactless' :

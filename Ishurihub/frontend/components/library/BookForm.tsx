@@ -16,9 +16,10 @@ type BookFormProps = {
     initialData?: Partial<BookFormData> & { id?: string };
     onClose: () => void;
     onSuccess: () => void;
+    schoolId: string;
 };
 
-export default function BookForm({ initialData, onClose, onSuccess }: BookFormProps) {
+export default function BookForm({ initialData, onClose, onSuccess, schoolId }: BookFormProps) {
     const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<BookFormData>({
         defaultValues: (initialData as any) || {
             quantity: 1,
@@ -28,7 +29,7 @@ export default function BookForm({ initialData, onClose, onSuccess }: BookFormPr
     const onSubmit = async (data: BookFormData) => {
         try {
             // Ensure available quantity matches total quantity for new books (simplified logic)
-            const payload = { ...data, available: data.quantity, schoolId: 'default-school-id' }; // TODO: Get from context
+            const payload = { ...data, available: data.quantity, schoolId }; // TODO: Get from context
 
             if (initialData?.id) {
                 await api.patch(`/library/books/${initialData.id}`, data);
