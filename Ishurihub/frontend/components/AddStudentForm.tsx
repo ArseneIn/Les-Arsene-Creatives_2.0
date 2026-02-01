@@ -1,6 +1,6 @@
 "use client";
 
-import { useForm, useWatch } from "react-hook-form";
+import { useForm, useWatch, useFieldArray } from "react-hook-form";
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import api from "@/lib/api";
@@ -19,33 +19,47 @@ export interface AddStudentFormData {
     grade: string; // S1-S6
     combination?: string; // Only for A-Level
 
-    // Parent Info
-    fatherName: string;
-    motherName: string;
-    primaryPhone: string;
-    emergencyPhone: string;
-    email?: string;
+    // Guardian Info
+    guardians: {
+        name: string;
+        relation: string;
+        phone: string;
+        email?: string;
+    }[];
 }
 
 interface AddStudentFormProps {
     onSubmit: (data: AddStudentFormData) => void;
     onCancel: () => void;
+    initialData?: Partial<AddStudentFormData>; // Added for Edit Mode
 }
 
-const InputLabel = ({ children, required }: { children: React.ReactNode, required?: boolean }) => (
-    <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-        {children} {required && <span className="text-red-500">*</span>}
-    </label>
+const InputLabel = ({ children, required, subtitle }: { children: React.ReactNode, required?: boolean, subtitle?: string }) => (
+    <div className="mb-2">
+        <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300">
+            {children} {required && <span className="text-red-500">*</span>}
+        </label>
+        {subtitle && <p className="text-xs text-gray-400 font-normal">{subtitle}</p>}
+    </div>
 );
 
-export default function AddStudentForm({ onSubmit, onCancel }: AddStudentFormProps) {
+export default function AddStudentForm({ onSubmit, onCancel, initialData }: AddStudentFormProps) {
     const {
         register,
         handleSubmit,
         control,
         setValue,
         formState: { errors, isSubmitting },
-    } = useForm<AddStudentFormData>();
+    } = useForm<AddStudentFormData>({
+        defaultValues: initialData || {
+            guardians: [{ name: '', relation: '', phone: '' }] // Default one empty guardian
+        }
+    });
+
+    const { fields, append, remove } = useFieldArray({
+        control,
+        name: "guardians"
+    });
 
     const level = useWatch({ control, name: "level" });
     const dob = useWatch({ control, name: "dob" });
@@ -63,6 +77,22 @@ export default function AddStudentForm({ onSubmit, onCancel }: AddStudentFormPro
             setValue("age", age);
         }
     }, [dob, setValue]);
+
+    const grade = useWatch({ control, name: "grade" });
+
+    // Auto-detect Combination from Class Name
+    useEffect(() => {
+        if (grade && level === 'A-Level') {
+            // Look for standard 3-letter upper case combination pattern (excluding S4, S5, S6)
+            // This handles "S4 MCE" and "S4 MCE A"
+            const parts = grade.split(' ');
+            const foundCombo = parts.find(p => /^[A-Z]{3}$/.test(p) && !['III', 'IV'].includes(p)); // Avoid Roman numerals if any
+
+            if (foundCombo) {
+                setValue("combination", foundCombo);
+            }
+        }
+    }, [grade, level, setValue]);
 
     // Fetch classes
     const [availableClasses, setAvailableClasses] = useState<any[]>([]);
@@ -87,11 +117,11 @@ export default function AddStudentForm({ onSubmit, onCancel }: AddStudentFormPro
             <div className="bg-blue-50/50 dark:bg-blue-900/10 p-4 rounded-xl border border-blue-100 dark:border-blue-900/20">
                 <div className="flex items-center gap-3">
                     <div className="size-10 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 dark:text-blue-400">
-                        <span className="material-symbols-outlined">person_add</span>
+                        <span className="material-symbols-outlined">{initialData ? 'edit' : 'person_add'}</span>
                     </div>
                     <div>
-                        <h3 className="text-sm font-bold text-gray-900 dark:text-white">New Student Enrollment</h3>
-                        <p className="text-xs text-gray-500 dark:text-gray-400">Enter the student&apos;s details to register them in the system.</p>
+                        <h3 className="text-sm font-bold text-gray-900 dark:text-white">{initialData ? 'Edit Student Profile' : 'New Student Enrollment'}</h3>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">{initialData ? 'Update the student\'s information below.' : 'Enter the student\'s details to register them in the system.'}</p>
                     </div>
                 </div>
             </div>
@@ -213,12 +243,24 @@ export default function AddStudentForm({ onSubmit, onCancel }: AddStudentFormPro
                             {level === 'A-Level' && (
                                 <div className="md:col-span-2 animate-in fade-in slide-in-from-top-2">
                                     <InputLabel required>Combination</InputLabel>
-                                    <input
-                                        {...register("combination", { required: "Required for A-Level" })}
-                                        type="text"
-                                        className={inputClasses}
-                                        placeholder="e.g. MPC (Maths, Physics, Comp)"
-                                    />
+                                    <div className="relative">
+                                        <select
+                                            {...register("combination", { required: "Required for A-Level" })}
+                                            className={`${inputClasses} appearance-none cursor-pointer`}
+                                        >
+                                            <option value="">Select Combination...</option>
+                                            <optgroup label="Sciences">
+                                                {["PCM", "PCB", "MCB", "MPC", "MPG", "BCP", "MEG"].map(c => <option key={c} value={c}>{c}</option>)}
+                                            </optgroup>
+                                            <optgroup label="Humanities & Languages">
+                                                {["HEG", "HEL", "LEG", "LGL", "LFK", "HGL"].map(c => <option key={c} value={c}>{c}</option>)}
+                                            </optgroup>
+                                            <optgroup label="Technical & Other">
+                                                {["MCE", "CEM", "EFK"].map(c => <option key={c} value={c}>{c}</option>)}
+                                            </optgroup>
+                                        </select>
+                                        <span className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 material-symbols-outlined pointer-events-none">expand_more</span>
+                                    </div>
                                     {errors.combination && <p className="text-red-500 text-xs mt-1 ml-1">{errors.combination.message}</p>}
                                 </div>
                             )}
@@ -226,64 +268,97 @@ export default function AddStudentForm({ onSubmit, onCancel }: AddStudentFormPro
                     </section>
                 </div>
 
-                {/* Right Column: Family */}
+                {/* Right Column: Family & Guardians */}
                 <div>
                     <section className="h-full">
-                        <div className="flex items-center gap-2 mb-4">
-                            <span className="material-symbols-outlined text-gray-400">family_restroom</span>
-                            <h4 className="text-lg font-bold text-gray-900 dark:text-white">Family & Guardian Info</h4>
+                        <div className="flex items-center justify-between gap-2 mb-4">
+                            <div className="flex items-center gap-2">
+                                <span className="material-symbols-outlined text-gray-400">family_restroom</span>
+                                <h4 className="text-lg font-bold text-gray-900 dark:text-white">Guardians</h4>
+                            </div>
+                            <button
+                                type="button"
+                                onClick={() => append({ name: '', relation: '', phone: '', email: '' })}
+                                className="text-xs font-bold text-primary hover:bg-primary/5 px-2 py-1 rounded transition-colors flex items-center gap-1"
+                            >
+                                <span className="material-symbols-outlined !text-sm">add</span>
+                                Add Another
+                            </button>
                         </div>
 
-                        <div className="p-6 rounded-2xl bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-gray-700/50 space-y-4">
-                            <div>
-                                <InputLabel required>Father&apos;s Name</InputLabel>
-                                <input
-                                    {...register("fatherName", { required: "Required" })}
-                                    type="text"
-                                    className={`${inputClasses} bg-white dark:bg-black/20`}
-                                    placeholder="e.g. Jean Pierre"
-                                />
-                                {errors.fatherName && <p className="text-red-500 text-xs mt-1 ml-1">{errors.fatherName.message}</p>}
-                            </div>
+                        <div className="space-y-4">
+                            {fields.map((field, index) => (
+                                <div key={field.id} className="p-4 rounded-2xl bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-gray-700/50 relative group">
+                                    <div className="flex items-center justify-between mb-2">
+                                        <h5 className="text-xs font-bold uppercase text-gray-400">Guardian #{index + 1}</h5>
+                                        {fields.length > 1 && (
+                                            <button
+                                                type="button"
+                                                onClick={() => remove(index)}
+                                                className="text-red-500 hover:bg-red-50 p-1 rounded transition-colors"
+                                                title="Remove"
+                                            >
+                                                <span className="material-symbols-outlined !text-sm">delete</span>
+                                            </button>
+                                        )}
+                                    </div>
 
-                            <div>
-                                <InputLabel required>Mother&apos;s Name</InputLabel>
-                                <input
-                                    {...register("motherName", { required: "Required" })}
-                                    type="text"
-                                    className={`${inputClasses} bg-white dark:bg-black/20`}
-                                    placeholder="e.g. Marie Claire"
-                                />
-                                {errors.motherName && <p className="text-red-500 text-xs mt-1 ml-1">{errors.motherName.message}</p>}
-                            </div>
+                                    <div className="space-y-3">
+                                        <div className="grid grid-cols-2 gap-3">
+                                            <div className="col-span-2">
+                                                <InputLabel required>Name</InputLabel>
+                                                <input
+                                                    {...register(`guardians.${index}.name`, { required: "Name is required" })}
+                                                    type="text"
+                                                    className={`${inputClasses} py-2 text-sm`}
+                                                    placeholder="e.g. Jean Pierre"
+                                                />
+                                                {errors.guardians?.[index]?.name && <p className="text-red-500 text-xs mt-1 ml-1">{errors.guardians[index]?.name?.message}</p>}
+                                            </div>
 
-                            <div>
-                                <InputLabel required>Primary Phone</InputLabel>
-                                <div className="relative">
-                                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 material-symbols-outlined text-[20px]">call</span>
-                                    <input
-                                        {...register("primaryPhone", { required: "Required" })}
-                                        type="tel"
-                                        className={`${inputClasses} bg-white dark:bg-black/20 pl-11`}
-                                        placeholder="+250 7..."
-                                    />
+                                            <div>
+                                                <InputLabel required>Relationship</InputLabel>
+                                                <div className="relative">
+                                                    <select
+                                                        {...register(`guardians.${index}.relation`, { required: "Required" })}
+                                                        className={`${inputClasses} py-2 text-sm appearance-none cursor-pointer`}
+                                                    >
+                                                        <option value="">Select...</option>
+                                                        <option value="Father">Father</option>
+                                                        <option value="Mother">Mother</option>
+                                                        <option value="Guardian">Guardian</option>
+                                                        <option value="Sibling">Sibling</option>
+                                                        <option value="Other">Other</option>
+                                                    </select>
+                                                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 material-symbols-outlined pointer-events-none !text-sm">expand_more</span>
+                                                </div>
+                                                {errors.guardians?.[index]?.relation && <p className="text-red-500 text-xs mt-1 ml-1">{errors.guardians[index]?.relation?.message}</p>}
+                                            </div>
+
+                                            <div>
+                                                <InputLabel required>Phone</InputLabel>
+                                                <input
+                                                    {...register(`guardians.${index}.phone`, { required: "Required" })}
+                                                    type="tel"
+                                                    className={`${inputClasses} py-2 text-sm`}
+                                                    placeholder="+250 7..."
+                                                />
+                                                {errors.guardians?.[index]?.phone && <p className="text-red-500 text-xs mt-1 ml-1">{errors.guardians[index]?.phone?.message}</p>}
+                                            </div>
+
+                                            <div className="col-span-2">
+                                                <InputLabel>Email (Optional)</InputLabel>
+                                                <input
+                                                    {...register(`guardians.${index}.email`)}
+                                                    type="email"
+                                                    className={`${inputClasses} py-2 text-sm`}
+                                                    placeholder="guardian@example.com"
+                                                />
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
-                                {errors.primaryPhone && <p className="text-red-500 text-xs mt-1 ml-1">{errors.primaryPhone.message}</p>}
-                            </div>
-
-                            <div>
-                                <InputLabel required>Emergency Phone</InputLabel>
-                                <div className="relative">
-                                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 material-symbols-outlined text-[20px]">sos</span>
-                                    <input
-                                        {...register("emergencyPhone", { required: "Required" })}
-                                        type="tel"
-                                        className={`${inputClasses} bg-white dark:bg-black/20 pl-11`}
-                                        placeholder="+250 7..."
-                                    />
-                                </div>
-                                {errors.emergencyPhone && <p className="text-red-500 text-xs mt-1 ml-1">{errors.emergencyPhone.message}</p>}
-                            </div>
+                            ))}
                         </div>
                     </section>
                 </div>
@@ -310,7 +385,7 @@ export default function AddStudentForm({ onSubmit, onCancel }: AddStudentFormPro
                         </>
                     ) : (
                         <>
-                            <span>Register Student</span>
+                            <span>{initialData ? 'Update Profile' : 'Register Student'}</span>
                             <span className="material-symbols-outlined text-[18px]">arrow_forward</span>
                         </>
                     )}

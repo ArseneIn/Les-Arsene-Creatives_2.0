@@ -6,16 +6,23 @@ import api from "@/lib/api";
 import Link from "next/link";
 import Modal from "@/components/Modal";
 import AddStudentForm, { AddStudentFormData } from "@/components/AddStudentForm";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 
 import BulkImportModal from "@/components/students/BulkImportModal";
 
 export default function StudentsPage() {
     const [students, setStudents] = useState<Student[]>([]);
+    const [filteredStudents, setFilteredStudents] = useState<Student[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isImportModalOpen, setIsImportModalOpen] = useState(false);
+
+    // Filters
+    const [gradeFilter, setGradeFilter] = useState("All");
+    const [statusFilter, setStatusFilter] = useState("All"); // Default to All
+
     const params = useParams();
+    const router = useRouter();
     const schoolId = params.id as string;
 
     useEffect(() => {
@@ -26,6 +33,7 @@ export default function StudentsPage() {
                     params: { schoolId }
                 });
                 setStudents(response.data);
+                setFilteredStudents(response.data);
             } catch (error) {
                 console.error("Failed to fetch students:", error);
             } finally {
@@ -38,6 +46,27 @@ export default function StudentsPage() {
         }
     }, [schoolId]);
 
+    // Apply Filters
+    useEffect(() => {
+        let result = students;
+
+        if (gradeFilter !== "All") {
+            // Check both grade and year for compatibility
+            result = result.filter(s => s.grade === gradeFilter || s.year === gradeFilter);
+        }
+
+        if (statusFilter !== "All") {
+            if (statusFilter === "Active Cards") {
+                result = result.filter(s => s.status === "Active");
+            } else {
+                result = result.filter(s => s.status === statusFilter);
+            }
+        }
+
+        setFilteredStudents(result);
+    }, [students, gradeFilter, statusFilter]);
+
+
     const handleAddStudent = async (data: AddStudentFormData) => {
         try {
             const newStudentData = {
@@ -48,11 +77,9 @@ export default function StudentsPage() {
                 combination: data.combination,
                 dob: data.dob,
                 gender: data.gender,
-                fatherName: data.fatherName,
-                motherName: data.motherName,
-                primaryPhone: data.primaryPhone,
-                emergencyPhone: data.emergencyPhone,
-                email: data.email,
+                guardians: data.guardians,
+                primaryPhone: data.guardians[0]?.phone, // Use first guardian's phone for backward compat
+                emergencyPhone: data.guardians[0]?.phone, // Fallback
                 grade: data.grade,
                 schoolId: schoolId,
                 status: "Pending",
@@ -103,22 +130,48 @@ export default function StudentsPage() {
                 {/* Filter Chips & Actions Bar */}
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-4 mb-6 bg-white dark:bg-white/5 rounded-xl border border-[#cfcfe7] dark:border-white/10">
                     <div className="flex gap-3 flex-wrap">
-                        <button className="flex h-10 items-center justify-center gap-x-2 rounded-lg bg-[#e7e7f3] dark:bg-white/10 px-4 hover:bg-primary/10 transition-colors">
-                            <span className="text-black dark:text-white text-sm font-semibold">Grade: All</span>
-                            <span className="material-symbols-outlined text-primary text-[18px]">expand_more</span>
+                        {/* Grade Filter */}
+                        <div className="relative">
+                            <select
+                                value={gradeFilter}
+                                onChange={(e) => setGradeFilter(e.target.value)}
+                                className="flex h-10 items-center justify-center gap-x-2 rounded-lg bg-[#e7e7f3] dark:bg-white/10 px-4 pr-8 hover:bg-primary/10 transition-colors appearance-none cursor-pointer outline-none text-black dark:text-white text-sm font-semibold"
+                            >
+                                <option value="All">Grade: All</option>
+                                <option value="S1">S1</option>
+                                <option value="S2">S2</option>
+                                <option value="S3">S3</option>
+                                <option value="S4">S4</option>
+                                <option value="S5">S5</option>
+                                <option value="S6">S6</option>
+                            </select>
+                            <span className="absolute right-2 top-1/2 -translate-y-1/2 material-symbols-outlined text-primary text-[18px] pointer-events-none">expand_more</span>
+                        </div>
+
+                        {/* Status Filter */}
+                        <div className="relative">
+                            <select
+                                value={statusFilter}
+                                onChange={(e) => setStatusFilter(e.target.value)}
+                                className="flex h-10 items-center justify-center gap-x-2 rounded-lg bg-[#e7e7f3] dark:bg-white/10 px-4 pr-8 hover:bg-primary/10 transition-colors appearance-none cursor-pointer outline-none text-black dark:text-white text-sm font-semibold"
+                            >
+                                <option value="All">Status: All</option>
+                                <option value="Active Cards">Active Cards</option>
+                                <option value="Pending">Pending</option>
+                                <option value="Inactive">Inactive</option>
+                            </select>
+                            <span className="absolute right-2 top-1/2 -translate-y-1/2 material-symbols-outlined text-primary text-[18px] pointer-events-none">expand_more</span>
+                        </div>
+
+                        <button
+                            onClick={() => { setGradeFilter("All"); setStatusFilter("All"); }}
+                            className="text-primary text-sm font-bold px-2 hover:underline"
+                        >
+                            Reset Filters
                         </button>
-                        <button className="flex h-10 items-center justify-center gap-x-2 rounded-lg bg-[#e7e7f3] dark:bg-white/10 px-4 hover:bg-primary/10 transition-colors">
-                            <span className="text-black dark:text-white text-sm font-semibold">Section: All</span>
-                            <span className="material-symbols-outlined text-primary text-[18px]">expand_more</span>
-                        </button>
-                        <button className="flex h-10 items-center justify-center gap-x-2 rounded-lg bg-[#e7e7f3] dark:bg-white/10 px-4 hover:bg-primary/10 transition-colors">
-                            <span className="text-black dark:text-white text-sm font-semibold">Status: Active Cards</span>
-                            <span className="material-symbols-outlined text-primary text-[18px]">expand_more</span>
-                        </button>
-                        <button className="text-primary text-sm font-bold px-2 hover:underline">Reset Filters</button>
                     </div>
                     <div className="text-[#4c4c9a] dark:text-gray-400 text-sm font-medium">
-                        Showing <span className="text-black dark:text-white font-bold">{students.length}</span> students
+                        Showing <span className="text-black dark:text-white font-bold">{filteredStudents.length > 0 ? 1 : 0} to {filteredStudents.length}</span> of {students.length} results
                     </div>
                 </div>
 
@@ -136,8 +189,12 @@ export default function StudentsPage() {
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-[#cfcfe7] dark:divide-white/10">
-                                {students.map((student) => (
-                                    <tr key={student.id} className="hover:bg-primary/5 dark:hover:bg-white/5 transition-colors group">
+                                {filteredStudents.map((student) => (
+                                    <tr
+                                        key={student.id}
+                                        onClick={() => router.push(`/school/${schoolId}/students/${student.id}`)}
+                                        className="hover:bg-primary/5 dark:hover:bg-white/5 transition-colors group cursor-pointer"
+                                    >
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             <div className="flex items-center gap-3">
                                                 <div
@@ -146,9 +203,9 @@ export default function StudentsPage() {
                                                 >
                                                 </div>
                                                 <div>
-                                                    <Link href={`/school/${schoolId}/students/${student.id}`} className="text-black dark:text-white text-sm font-bold hover:underline hover:text-primary transition-all">
+                                                    <span className="text-black dark:text-white text-sm font-bold hover:underline hover:text-primary transition-all">
                                                         {student.name}
-                                                    </Link>
+                                                    </span>
                                                     <p className="text-[#4c4c9a] dark:text-gray-500 text-xs">ID: {student.studentId}</p>
                                                 </div>
                                             </div>
@@ -187,11 +244,17 @@ export default function StudentsPage() {
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-right">
                                             {student.status === 'Pending' ? (
-                                                <button className="px-4 py-2 bg-primary text-white rounded text-xs font-bold hover:bg-primary/90 transition-all shadow-sm">
+                                                <button
+                                                    onClick={(e) => { e.stopPropagation(); /* Add logic to issue card */ }}
+                                                    className="px-4 py-2 bg-primary text-white rounded text-xs font-bold hover:bg-primary/90 transition-all shadow-sm"
+                                                >
                                                     Issue New Card
                                                 </button>
                                             ) : (
-                                                <button className="text-primary hover:text-primary/70 text-sm font-bold transition-colors">
+                                                <button
+                                                    onClick={(e) => { e.stopPropagation(); /* Add logic to issue card */ }}
+                                                    className="text-primary hover:text-primary/70 text-sm font-bold transition-colors"
+                                                >
                                                     Issue New Card
                                                 </button>
                                             )}
@@ -202,14 +265,13 @@ export default function StudentsPage() {
                         </table>
                         {/* Pagination */}
                         <div className="px-6 py-4 flex items-center justify-between bg-[#f8f8fc] dark:bg-white/5 border-t border-[#cfcfe7] dark:border-white/10">
-                            <p className="text-sm text-[#4c4c9a] dark:text-gray-400 font-medium">Showing <span className="text-black dark:text-white font-bold">1 to {students.length}</span> of {students.length} results</p>
+                            <p className="text-sm text-[#4c4c9a] dark:text-gray-400 font-medium">Showing <span className="text-black dark:text-white font-bold">1 to {filteredStudents.length}</span> of {students.length} results</p>
                             <div className="flex gap-1">
                                 <button className="size-9 flex items-center justify-center rounded-lg border border-[#cfcfe7] dark:border-white/10 bg-white dark:bg-transparent text-black dark:text-white hover:bg-gray-50 transition-colors">
                                     <span className="material-symbols-outlined text-[18px]">chevron_left</span>
                                 </button>
                                 <button className="size-9 flex items-center justify-center rounded-lg bg-primary text-white font-bold text-sm">1</button>
-                                <button className="size-9 flex items-center justify-center rounded-lg border border-[#cfcfe7] dark:border-white/10 bg-white dark:bg-transparent text-black dark:text-white hover:bg-gray-50 transition-colors font-medium text-sm">2</button>
-                                <button className="size-9 flex items-center justify-center rounded-lg border border-[#cfcfe7] dark:border-white/10 bg-white dark:bg-transparent text-black dark:text-white hover:bg-gray-50 transition-colors font-medium text-sm">3</button>
+                                {/* Pagination logic can be added later */}
                                 <button className="size-9 flex items-center justify-center rounded-lg border border-[#cfcfe7] dark:border-white/10 bg-white dark:bg-transparent text-black dark:text-white hover:bg-gray-50 transition-colors">
                                     <span className="material-symbols-outlined text-[18px]">chevron_right</span>
                                 </button>

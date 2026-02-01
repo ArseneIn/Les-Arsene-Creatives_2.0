@@ -40,20 +40,42 @@ interface SchoolProfile {
 const O_LEVEL_YEARS = ['S1', 'S2', 'S3'];
 const A_LEVEL_YEARS = ['S4', 'S5', 'S6'];
 
-const ClassCard = ({ cls, onDelete, onClick }: { cls: Classroom, onDelete: (id: string) => void, onClick: () => void }) => (
+const ClassCard = ({ cls, onDelete, onEdit, onSync, onClick }: { cls: Classroom, onDelete: (id: string) => void, onEdit: (cls: Classroom) => void, onSync: (id: string) => void, onClick: () => void }) => (
     <div onClick={onClick} className="bg-white dark:bg-white/5 p-4 rounded-xl border border-gray-200 dark:border-white/10 shadow-sm hover:shadow-md hover:border-primary/50 cursor-pointer transition-all group relative">
-        <button
-            onClick={(e) => {
-                e.stopPropagation();
-                if (confirm('Are you sure you want to delete this class?')) {
-                    onDelete(cls.id);
-                }
-            }}
-            className="absolute top-4 right-4 p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-md opacity-0 group-hover:opacity-100 transition-all z-10"
-            title="Delete Class"
-        >
-            <span className="material-symbols-outlined text-[20px]">delete</span>
-        </button>
+        <div className="flex gap-2 absolute top-4 right-4 z-10 opacity-0 group-hover:opacity-100 transition-all">
+            <button
+                onClick={(e) => {
+                    e.stopPropagation();
+                    onSync(cls.id);
+                }}
+                className="p-1.5 text-gray-400 hover:text-green-500 hover:bg-green-50 dark:hover:bg-green-900/20 rounded-md transition-all"
+                title="Sync Students (Fix mismatch)"
+            >
+                <span className="material-symbols-outlined text-[20px]">sync</span>
+            </button>
+            <button
+                onClick={(e) => {
+                    e.stopPropagation();
+                    onEdit(cls);
+                }}
+                className="p-1.5 text-gray-400 hover:text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-md transition-all"
+                title="Edit Class"
+            >
+                <span className="material-symbols-outlined text-[20px]">edit</span>
+            </button>
+            <button
+                onClick={(e) => {
+                    e.stopPropagation();
+                    if (confirm('Are you sure you want to delete this class?')) {
+                        onDelete(cls.id);
+                    }
+                }}
+                className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-md transition-all"
+                title="Delete Class"
+            >
+                <span className="material-symbols-outlined text-[20px]">delete</span>
+            </button>
+        </div>
 
         <div className="flex items-start justify-between mb-3">
             <div className={`size-10 rounded-full flex items-center justify-center ${cls.level === 'A-Level' ? 'bg-purple-100 text-purple-600 dark:bg-purple-900/20 dark:text-purple-400' : 'bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400'}`}>
@@ -83,6 +105,7 @@ export default function ClassesPage() {
     const [addModalLevel, setAddModalLevel] = useState<'O-Level' | 'A-Level'>('O-Level');
 
     const [selectedClass, setSelectedClass] = useState<Classroom | null>(null);
+    const [editingClass, setEditingClass] = useState<Classroom | null>(null);
 
     const params = useParams();
     const schoolId = params.id as string;
@@ -110,12 +133,21 @@ export default function ClassesPage() {
         if (schoolId) fetchActiveYear();
     }, [schoolId]);
 
+    // Separate state for optional A-Level stream suffix (e.g. "A" in "S4 MCE A")
+    const [aLevelSuffix, setALevelSuffix] = useState("");
+
     useEffect(() => {
         if (watchedYear) {
-            const streamSuffix = watchedStream ? ` ${watchedStream}` : '';
-            setValueAdd('name', `${watchedYear}${streamSuffix}`);
+            let constructedName = watchedYear;
+            if (watchedStream) {
+                constructedName += ` ${watchedStream}`;
+            }
+            if (addModalLevel === 'A-Level' && aLevelSuffix) {
+                constructedName += ` ${aLevelSuffix}`;
+            }
+            setValueAdd('name', constructedName);
         }
-    }, [watchedYear, watchedStream, setValueAdd]);
+    }, [watchedYear, watchedStream, aLevelSuffix, addModalLevel, setValueAdd]);
 
 
     const fetchClasses = useCallback(async () => {
@@ -139,8 +171,36 @@ export default function ClassesPage() {
     }, [schoolId, fetchClasses]);
 
     const openAddModal = (level: 'O-Level' | 'A-Level') => {
+        setEditingClass(null);
         setAddModalLevel(level);
-        resetAdd();
+        setALevelSuffix("");
+        resetAdd({
+            year: '',
+            stream: '',
+            name: ''
+        });
+        setIsAddModalOpen(true);
+    };
+
+    const openEditModal = (cls: Classroom) => {
+        setEditingClass(cls);
+        setAddModalLevel(cls.level as 'O-Level' | 'A-Level');
+
+        // Try to parse suffix if possible, but simplest is to just load year/stream
+        // Note: cls.stream might contain the full combination "MCE A" or "MPC"
+
+        // For A-Level, we might need to split it if we want to show suffix separate, 
+        // OR we can just put the whole thing in "stream" and let user edit
+        // But our form logic constructs name from year + stream + suffix. 
+        // Restoring exact state is hard without saving suffix separately.
+        // Simplified approach: Just duplicate current stream into stream field, empty suffix.
+
+        setValueAdd('year', cls.year);
+        // For A-Level, if we want to support editing Combination & Suffix separately we need better parsing
+        // For now, let's treat the existing stream value as the "stream" (Combo)
+        setValueAdd('stream', cls.stream);
+        setValueAdd('name', cls.name);
+
         setIsAddModalOpen(true);
     };
 
@@ -150,18 +210,28 @@ export default function ClassesPage() {
                 alert("Please set an active Academic Year in System Settings first.");
                 return;
             }
-            await api.post('/classes', {
+
+            const payload = {
                 ...data,
+                stream: addModalLevel === 'A-Level' && aLevelSuffix ? `${data.stream} ${aLevelSuffix}` : data.stream,
                 level: addModalLevel,
                 schoolId,
                 academicYearId: academicYear.id
-            });
+            };
+
+            if (editingClass) {
+                await api.patch(`/classes/${editingClass.id}`, payload);
+            } else {
+                await api.post('/classes', payload);
+            }
+
             await fetchClasses();
             setIsAddModalOpen(false);
             resetAdd();
-        } catch (error) {
-            console.error("Failed to create class:", error);
-            alert("Failed to create class");
+            setEditingClass(null);
+        } catch (error: any) {
+            console.error("Failed to save class:", error);
+            alert(error.response?.data?.message || "Failed to save class");
         }
     };
 
@@ -172,6 +242,17 @@ export default function ClassesPage() {
         } catch (error) {
             console.error("Failed to delete class:", error);
             alert("Failed to delete class.");
+        }
+    };
+
+    const handleSyncClass = async (id: string) => {
+        try {
+            await api.post(`/classes/${id}/sync`);
+            alert("Sync started. Students matching the class name will be linked.");
+            await fetchClasses();
+        } catch (error) {
+            console.error("Failed to sync:", error);
+            alert("Failed to sync students.");
         }
     };
 
@@ -227,7 +308,7 @@ export default function ClassesPage() {
 
                             <div className="grid grid-cols-1 gap-4">
                                 {classes.filter(c => c.level === 'O-Level').map(cls => (
-                                    <ClassCard key={cls.id} cls={cls} onDelete={handleDeleteClass} onClick={() => setSelectedClass(cls)} />
+                                    <ClassCard key={cls.id} cls={cls} onDelete={handleDeleteClass} onEdit={openEditModal} onSync={handleSyncClass} onClick={() => setSelectedClass(cls)} />
                                 ))}
                                 {classes.filter(c => c.level === 'O-Level').length === 0 && (
                                     <p className="text-gray-400 italic text-sm">No O-Level classes.</p>
@@ -253,7 +334,7 @@ export default function ClassesPage() {
 
                             <div className="grid grid-cols-1 gap-4">
                                 {classes.filter(c => c.level === 'A-Level').map(cls => (
-                                    <ClassCard key={cls.id} cls={cls} onDelete={handleDeleteClass} onClick={() => setSelectedClass(cls)} />
+                                    <ClassCard key={cls.id} cls={cls} onDelete={handleDeleteClass} onEdit={openEditModal} onSync={handleSyncClass} onClick={() => setSelectedClass(cls)} />
                                 ))}
                                 {classes.filter(c => c.level === 'A-Level').length === 0 && (
                                     <p className="text-gray-400 italic text-sm">No A-Level classes.</p>
@@ -270,8 +351,6 @@ export default function ClassesPage() {
                     onClose={() => setSelectedClass(null)}
                     classId={selectedClass.id}
                     className={selectedClass.name}
-                    classStream={selectedClass.stream}
-                    classLevel={selectedClass.level}
                 />
             )}
 
@@ -279,7 +358,7 @@ export default function ClassesPage() {
             <Modal
                 isOpen={isAddModalOpen}
                 onClose={() => setIsAddModalOpen(false)}
-                title={`Create ${addModalLevel} Class`}
+                title={editingClass ? `Edit ${editingClass.name}` : `Create ${addModalLevel} Class`}
                 size="md"
             >
                 <form onSubmit={handleSubmitAdd(handleCreateClass)} className="space-y-4">
@@ -318,8 +397,24 @@ export default function ClassesPage() {
                                     )}
                                 </select>
                             ) : (
-                                <input {...registerAdd('stream', { required: true })} className={inputClasses} placeholder="e.g. A" />
+                                <input {...registerAdd('stream', { required: false })} className={inputClasses} placeholder="e.g. A (Optional)" />
                             )}
+
+                            {/* Optional A-Level Stream Suffix Input */}
+                            {addModalLevel === 'A-Level' && (
+                                <div className="mt-2 animate-in fade-in slide-in-from-top-1">
+                                    <label className="block text-xs font-bold mb-1 text-gray-500">Stream Suffix (Optional)</label>
+                                    <input
+                                        type="text"
+                                        value={aLevelSuffix}
+                                        onChange={(e) => setALevelSuffix(e.target.value)}
+                                        className={inputClasses}
+                                        placeholder="e.g. A"
+                                    />
+                                    <p className="text-[10px] text-gray-400 mt-1">Useful if you have multiple streams for the same combination (e.g. S4 MCE A, S4 MCE B)</p>
+                                </div>
+                            )}
+
                             {addModalLevel === 'A-Level' && activeCombinations.length === 0 && (
                                 <p className="text-xs text-red-500 mt-1">Please add combinations in System Settings first.</p>
                             )}
@@ -327,7 +422,7 @@ export default function ClassesPage() {
                     </div>
                     <div className="pt-4 flex justify-end gap-2">
                         <button type="button" onClick={() => setIsAddModalOpen(false)} className="px-4 py-2 text-sm font-bold text-gray-500 hover:bg-gray-100 rounded-lg">Cancel</button>
-                        <button type="submit" className="px-6 py-2 text-sm font-bold text-white bg-primary rounded-lg">Create Class</button>
+                        <button type="submit" className="px-6 py-2 text-sm font-bold text-white bg-primary rounded-lg">{editingClass ? 'Update Class' : 'Create Class'}</button>
                     </div>
                 </form>
             </Modal>

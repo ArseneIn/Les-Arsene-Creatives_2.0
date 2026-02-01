@@ -1,11 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import api from "@/lib/api";
 import PhotoUploadModal from "@/components/students/PhotoUploadModal";
+import Modal from "@/components/Modal";
+import AddStudentForm from "@/components/AddStudentForm";
 
 // --- Types ---
 interface Student {
@@ -26,6 +28,7 @@ interface Student {
     email?: string;
     primaryPhone?: string;
     emergencyPhone?: string;
+    guardians?: { name: string; relation: string; phone: string; email?: string }[];
     disciplinePoints?: number;
 }
 
@@ -80,6 +83,7 @@ export default function StudentDetailsPage() {
     const [student, setStudent] = useState<Student | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [isPhotoModalOpen, setIsPhotoModalOpen] = useState(false);
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
     // Module Data
     const [attendanceData, setAttendanceData] = useState<{ stats: AttendanceStats; history: AttendanceRecord[] } | null>(null);
@@ -167,7 +171,10 @@ export default function StudentDetailsPage() {
                                 )}
                             </div>
                         </div>
-                        <button className="px-4 py-2 text-sm font-bold text-primary border border-primary/20 rounded-lg hover:bg-primary/5 transition-colors">
+                        <button
+                            onClick={() => setIsEditModalOpen(true)}
+                            className="px-4 py-2 text-sm font-bold text-primary border border-primary/20 rounded-lg hover:bg-primary/5 transition-colors"
+                        >
                             Edit Profile
                         </button>
                     </div>
@@ -208,16 +215,38 @@ export default function StudentDetailsPage() {
                                 Guardian Information
                             </h3>
                             <div className="space-y-4">
+                                {student.guardians && student.guardians.length > 0 ? (
+                                    student.guardians.map((g, idx) => (
+                                        <div key={idx} className="flex justify-between items-start border-b border-gray-100 dark:border-gray-700/50 last:border-0 pb-2 last:pb-0">
+                                            <div>
+                                                <p className="text-xs font-bold text-gray-400 uppercase">{g.relation}</p>
+                                                <p className="font-medium text-gray-900 dark:text-gray-200">{g.name}</p>
+                                                <div className="flex items-center gap-1 text-xs text-gray-500 mt-1">
+                                                    <span className="material-symbols-outlined !text-[14px]">call</span>
+                                                    {g.phone}
+                                                </div>
+                                            </div>
+                                            {g.email && (
+                                                <div className="text-right">
+                                                    <span className="text-xs text-blue-500 bg-blue-50 dark:bg-blue-900/20 px-1.5 py-0.5 rounded">Email</span>
+                                                </div>
+                                            )}
+                                        </div>
+                                    ))
+                                ) : (
+                                    <>
+                                        <div>
+                                            <p className="text-xs font-bold text-gray-400 uppercase">Father</p>
+                                            <p className="font-medium text-gray-900 dark:text-gray-200">{student.fatherName || 'Not Recorded'}</p>
+                                        </div>
+                                        <div>
+                                            <p className="text-xs font-bold text-gray-400 uppercase">Mother</p>
+                                            <p className="font-medium text-gray-900 dark:text-gray-200">{student.motherName || 'Not Recorded'}</p>
+                                        </div>
+                                    </>
+                                )}
                                 <div>
-                                    <p className="text-xs font-bold text-gray-400 uppercase">Father</p>
-                                    <p className="font-medium text-gray-900 dark:text-gray-200">{student.fatherName || 'Not Recorded'}</p>
-                                </div>
-                                <div>
-                                    <p className="text-xs font-bold text-gray-400 uppercase">Mother</p>
-                                    <p className="font-medium text-gray-900 dark:text-gray-200">{student.motherName || 'Not Recorded'}</p>
-                                </div>
-                                <div>
-                                    <p className="text-xs font-bold text-gray-400 uppercase">Emergency Contact</p>
+                                    <p className="text-xs font-bold text-gray-400 uppercase mt-2">Emergency Contact</p>
                                     <p className="font-medium text-gray-900 dark:text-gray-200">{student.emergencyPhone || 'Not Recorded'}</p>
                                 </div>
                             </div>
@@ -405,6 +434,59 @@ export default function StudentDetailsPage() {
                 }}
                 studentId={studentId}
             />
+
+            {/* Edit Student Modal */}
+            {student && (
+                <Modal
+                    isOpen={isEditModalOpen}
+                    onClose={() => setIsEditModalOpen(false)}
+                    title="Edit Student Profile"
+                    size="4xl"
+                >
+                    <AddStudentForm
+                        initialData={{
+                            fullName: student.name,
+                            studentId: student.studentId,
+                            dob: student.dob ? new Date(student.dob).toISOString().split('T')[0] : '', // Format for input date
+                            gender: student.gender as 'Male' | 'Female',
+                            level: student.level as 'O-Level' | 'A-Level',
+                            grade: student.grade,
+                            combination: student.combination,
+                            guardians: student.guardians || [],
+                            // Fallback for legacy data if guardians array is empty but fields exist
+                            ...((!student.guardians || student.guardians.length === 0) && student.fatherName ? {
+                                guardians: [
+                                    { name: student.fatherName, relation: 'Father', phone: student.primaryPhone || '', email: '' },
+                                    ...(student.motherName ? [{ name: student.motherName, relation: 'Mother', phone: '', email: '' }] : [])
+                                ]
+                            } : {})
+                        }}
+                        onSubmit={async (data) => {
+                            try {
+                                const payload = {
+                                    name: data.fullName,
+                                    studentId: data.studentId,
+                                    level: data.level,
+                                    grade: data.grade,
+                                    combination: data.combination,
+                                    dob: data.dob,
+                                    gender: data.gender,
+                                    guardians: data.guardians,
+                                    primaryPhone: data.guardians[0]?.phone, // Sync backward compat fields
+                                    emergencyPhone: data.guardians[0]?.phone
+                                };
+                                await api.patch(`/students/${studentId}`, payload);
+                                setStudent(prev => prev ? { ...prev, ...payload } : null);
+                                setIsEditModalOpen(false);
+                            } catch (err) {
+                                console.error(err);
+                                alert("Failed to update profile");
+                            }
+                        }}
+                        onCancel={() => setIsEditModalOpen(false)}
+                    />
+                </Modal>
+            )}
         </div>
     );
 }
