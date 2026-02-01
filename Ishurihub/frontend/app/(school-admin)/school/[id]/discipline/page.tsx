@@ -3,16 +3,20 @@
 import { useState, useEffect, useCallback } from 'react';
 import DisciplineList from '@/components/discipline/DisciplineList';
 import AddDisciplineForm from '@/components/discipline/AddDisciplineForm';
+import DisciplineKiosk from '@/components/discipline/DisciplineKiosk';
+import { Student } from '@/data/students';
 import { DisciplineRecord } from '@/data/discipline';
 import { useParams } from 'next/navigation';
 import api from '@/lib/api';
 
 export default function DisciplinePage() {
     const [records, setRecords] = useState<DisciplineRecord[]>([]);
-    const [students, setStudents] = useState<any[]>([]); // Using any for Student to avoid importing conflicts if strictly typed
+    const [students, setStudents] = useState<Student[]>([]);
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
     const params = useParams();
     const schoolId = params.id as string;
+
+    const [isKioskOpen, setIsKioskOpen] = useState(false);
 
     const fetchData = useCallback(async () => {
         if (!schoolId) return;
@@ -29,7 +33,7 @@ export default function DisciplinePage() {
     }, [schoolId]);
 
     useEffect(() => {
-        fetchData();
+        void fetchData();
     }, [fetchData]);
 
     const handleAddRecord = async (data: Omit<DisciplineRecord, 'id'>) => {
@@ -49,13 +53,22 @@ export default function DisciplinePage() {
                     <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Discipline & Conduct</h1>
                     <p className="text-gray-500 dark:text-gray-400">Manage student behavior records, merits, and sanctions.</p>
                 </div>
-                <button
-                    onClick={() => setIsAddModalOpen(true)}
-                    className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors shadow-lg shadow-blue-600/20"
-                >
-                    <span className="material-symbols-outlined text-[20px]">add</span>
-                    <span className="font-bold sm:inline">Add Record</span>
-                </button>
+                <div className="flex gap-3">
+                    <button
+                        onClick={() => setIsKioskOpen(true)}
+                        className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors shadow-lg shadow-indigo-600/20"
+                    >
+                        <span className="material-symbols-outlined text-[20px]">contactless</span>
+                        <span className="font-bold sm:inline">Kiosk Mode</span>
+                    </button>
+                    <button
+                        onClick={() => setIsAddModalOpen(true)}
+                        className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors shadow-lg shadow-blue-600/20"
+                    >
+                        <span className="material-symbols-outlined text-[20px]">add</span>
+                        <span className="font-bold sm:inline">Add Record</span>
+                    </button>
+                </div>
             </div>
 
             {records.length === 0 && (
@@ -72,6 +85,15 @@ export default function DisciplinePage() {
                     onClose={() => setIsAddModalOpen(false)}
                     onSubmit={handleAddRecord}
                     students={students}
+                />
+            )}
+
+            {isKioskOpen && (
+                <DisciplineKiosk
+                    onClose={() => setIsKioskOpen(false)}
+                    onSuccess={() => {
+                        fetchData();
+                    }}
                 />
             )}
         </div>

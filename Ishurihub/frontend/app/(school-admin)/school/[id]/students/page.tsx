@@ -8,10 +8,13 @@ import Modal from "@/components/Modal";
 import AddStudentForm, { AddStudentFormData } from "@/components/AddStudentForm";
 import { useParams } from "next/navigation";
 
+import BulkImportModal from "@/components/students/BulkImportModal";
+
 export default function StudentsPage() {
     const [students, setStudents] = useState<Student[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isImportModalOpen, setIsImportModalOpen] = useState(false);
     const params = useParams();
     const schoolId = params.id as string;
 
@@ -57,10 +60,6 @@ export default function StudentsPage() {
             };
 
             await api.post('/students', newStudentData);
-            // Re-fetch logic or optimistically update.
-            // For simplicity, let's just trigger a re-fetch via state or similar,
-            // but since we moved fetchStudents inside useEffect, we can't call it directly.
-            // Let's reload the page or use a trigger state.
             window.location.reload();
         } catch (error) {
             console.error("Failed to add student:", error);
@@ -84,9 +83,12 @@ export default function StudentsPage() {
                         <p className="text-[#4c4c9a] dark:text-gray-400 text-base font-normal">Manage student records and monitor physical card issuance status.</p>
                     </div>
                     <div className="flex gap-3">
-                        <button className="flex min-w-[120px] items-center justify-center rounded-lg h-11 px-5 bg-white border border-[#cfcfe7] dark:bg-white/5 dark:border-white/10 text-black dark:text-white text-sm font-bold shadow-sm hover:bg-gray-50 transition-all">
-                            <span className="material-symbols-outlined text-[18px] mr-2">file_download</span>
-                            Export CSV
+                        <button
+                            onClick={() => setIsImportModalOpen(true)}
+                            className="flex min-w-[120px] items-center justify-center rounded-lg h-11 px-5 bg-white border border-[#cfcfe7] dark:bg-white/5 dark:border-white/10 text-black dark:text-white text-sm font-bold shadow-sm hover:bg-gray-50 transition-all"
+                        >
+                            <span className="material-symbols-outlined text-[18px] mr-2">upload_file</span>
+                            Bulk Import
                         </button>
                         <button
                             onClick={() => setIsModalOpen(true)}
@@ -239,6 +241,14 @@ export default function StudentsPage() {
                     onCancel={() => setIsModalOpen(false)}
                 />
             </Modal>
+
+            {/* Bulk Import Modal */}
+            <BulkImportModal
+                isOpen={isImportModalOpen}
+                onClose={() => setIsImportModalOpen(false)}
+                onSuccess={() => window.location.reload()}
+                schoolId={schoolId}
+            />
         </div>
     );
 }
