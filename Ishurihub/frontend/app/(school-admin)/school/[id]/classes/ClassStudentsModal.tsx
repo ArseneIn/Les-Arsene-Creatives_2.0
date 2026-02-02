@@ -17,13 +17,15 @@ interface ClassStudentsModalProps {
     onClose: () => void;
     classId: string;
     className: string;
+    schoolId: string;
 }
 
 export default function ClassStudentsModal({
     isOpen,
     onClose,
     classId,
-    className
+    className,
+    schoolId
 }: ClassStudentsModalProps) {
     const [students, setStudents] = useState<Student[]>([]);
     const [isLoading, setIsLoading] = useState(true);

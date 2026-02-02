@@ -255,7 +255,7 @@ export default function LibraryPage() {
             {/* Modals */}
             {showBookModal && (
                 <BookForm
-                    initialData={selectedBook}
+                    initialData={selectedBook || undefined}
                     onClose={() => setShowBookModal(false)}
                     onSuccess={fetchBooks}
                     schoolId={schoolId}

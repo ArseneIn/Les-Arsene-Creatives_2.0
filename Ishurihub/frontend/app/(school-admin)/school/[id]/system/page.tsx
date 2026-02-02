@@ -4,6 +4,8 @@ import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import api from '@/lib/api';
+import RoleModal from "./RoleModal";
+import UserModal from "./UserModal";
 
 // Mock Data
 const auditLogs = [
@@ -27,7 +29,7 @@ interface SchoolProfile {
 export default function SystemPage() {
     const params = useParams();
     const schoolId = params.id as string;
-    const [activeTab, setActiveTab] = useState<'settings' | 'logs' | 'roles' | 'academic'>('settings');
+    const [activeTab, setActiveTab] = useState<'settings' | 'logs' | 'roles' | 'academic' | 'users'>('settings');
     const [profile, setProfile] = useState<SchoolProfile>({
         name: '',
         motto: '',
@@ -176,8 +178,96 @@ export default function SystemPage() {
 
 
 
+    // Roles Logic
+    const [roles, setRoles] = useState<any[]>([]);
+    const [isRoleModalOpen, setIsRoleModalOpen] = useState(false);
+    const [selectedRole, setSelectedRole] = useState<any>(null);
+
+    const fetchRoles = useCallback(async () => {
+        if (!schoolId) return;
+        try {
+            const res = await api.get('/roles', { params: { schoolId } });
+            setRoles(res.data);
+        } catch (err) {
+            console.error("Failed to fetch roles:", err);
+        }
+    }, [schoolId]);
+
+    useEffect(() => {
+        if (activeTab === 'roles') {
+            fetchRoles();
+        }
+    }, [activeTab, fetchRoles]);
+
+    const handleEditRole = (role: any) => {
+        setSelectedRole(role);
+        setIsRoleModalOpen(true);
+    };
+
+    const handleDeleteRole = async (roleId: string) => {
+        if (!confirm("Are you sure you want to delete this role?")) return;
+        try {
+            await api.delete(`/roles/${roleId}`);
+            await fetchRoles();
+        } catch (err) {
+            alert("Failed to delete role");
+        }
+    };
+
+    // Users Logic
+    const [users, setUsers] = useState<any[]>([]);
+    const [isUserModalOpen, setIsUserModalOpen] = useState(false);
+    const [selectedUser, setSelectedUser] = useState<any>(null);
+
+    const fetchUsers = useCallback(async () => {
+        if (!schoolId) return;
+        try {
+            const res = await api.get('/users', { params: { schoolId } });
+            setUsers(res.data);
+        } catch (err) {
+            console.error("Failed to fetch users:", err);
+        }
+    }, [schoolId]);
+
+    useEffect(() => {
+        if (activeTab === 'users') {
+            fetchUsers();
+            if (roles.length === 0) fetchRoles(); // Ensure roles are loaded for the modal
+        }
+    }, [activeTab, fetchUsers, fetchRoles, roles.length]);
+
+    const handleEditUser = (user: any) => {
+        setSelectedUser(user);
+        setIsUserModalOpen(true);
+    };
+
+    const handleDeleteUser = async (userId: string) => {
+        if (!confirm("Are you sure you want to delete this user?")) return;
+        try {
+            await api.delete(`/users/${userId}`);
+            await fetchUsers();
+        } catch (err) {
+            alert("Failed to delete user");
+        }
+    };
+
     return (
         <div className="flex flex-1 justify-center py-8">
+            <RoleModal
+                isOpen={isRoleModalOpen}
+                onClose={() => { setIsRoleModalOpen(false); setSelectedRole(null); }}
+                schoolId={schoolId}
+                role={selectedRole}
+                onSuccess={fetchRoles}
+            />
+            <UserModal
+                isOpen={isUserModalOpen}
+                onClose={() => { setIsUserModalOpen(false); setSelectedUser(null); }}
+                schoolId={schoolId}
+                user={selectedUser}
+                roles={roles}
+                onSuccess={fetchUsers}
+            />
             <div className="layout-content-container flex flex-col w-full max-w-[1200px] px-6">
                 {/* Breadcrumbs */}
                 <div className="flex flex-wrap gap-2 pb-4">
@@ -231,6 +321,15 @@ export default function SystemPage() {
                             }`}
                     >
                         Academic Years
+                    </button>
+                    <button
+                        onClick={() => setActiveTab('users')}
+                        className={`px-6 py-3 text-sm font-bold border-b-2 transition-colors ${activeTab === 'users'
+                            ? 'border-primary text-primary'
+                            : 'border-transparent text-[#4c4c9a] dark:text-gray-400 hover:text-black dark:hover:text-white'
+                            }`}
+                    >
+                        User Managment
                     </button>
                 </div>
 
@@ -562,17 +661,149 @@ export default function SystemPage() {
                     )}
 
                     {activeTab === 'roles' && (
-                        <div className="flex flex-col items-center justify-center py-12 text-center">
-                            <div className="size-16 bg-gray-100 dark:bg-white/5 rounded-full flex items-center justify-center mb-4">
-                                <span className="material-symbols-outlined text-gray-400 text-3xl">lock</span>
+                        <div>
+                            <div className="flex justify-between items-center mb-6">
+                                <h3 className="text-lg font-bold text-black dark:text-white flex items-center gap-2">
+                                    <span className="material-symbols-outlined text-primary">admin_panel_settings</span>
+                                    Manage Roles & Permissions
+                                </h3>
+                                <button
+                                    onClick={() => { setSelectedRole(null); setIsRoleModalOpen(true); }}
+                                    className="px-4 py-2 bg-primary text-white text-sm font-bold rounded-lg hover:bg-primary/90 transition-colors flex items-center gap-2"
+                                >
+                                    <span className="material-symbols-outlined text-[18px]">add</span>
+                                    Add New Role
+                                </button>
                             </div>
-                            <h3 className="text-lg font-bold text-gray-900 dark:text-white">Role Management</h3>
-                            <p className="text-gray-500 dark:text-gray-400 max-w-sm mt-2">
-                                Advanced permission handling and role creation will be available in the next update.
-                            </p>
-                            <button className="mt-6 px-4 py-2 bg-gray-100 dark:bg-white/10 text-gray-600 dark:text-gray-300 font-bold rounded-lg hover:bg-gray-200 dark:hover:bg-white/20 transition-colors">
-                                Learn More
-                            </button>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                {roles.map((role) => (
+                                    <div key={role.id} className="bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-gray-700 rounded-xl p-5 hover:border-primary/30 transition-all group">
+                                        <div className="flex justify-between items-start mb-3">
+                                            <div className="flex items-center gap-3">
+                                                <div className="size-10 rounded-full bg-white dark:bg-white/10 flex items-center justify-center border border-gray-100 dark:border-gray-700 text-primary">
+                                                    <span className="material-symbols-outlined">security</span>
+                                                </div>
+                                                <div>
+                                                    <h4 className="text-base font-bold text-gray-900 dark:text-white">{role.name}</h4>
+                                                    <p className="text-xs text-gray-500">{role.permissions?.length || 0} permissions</p>
+                                                </div>
+                                            </div>
+                                            <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                <button
+                                                    onClick={() => handleEditRole(role)}
+                                                    className="p-1.5 text-gray-500 hover:text-primary hover:bg-white dark:hover:bg-white/10 rounded-lg transition-colors"
+                                                >
+                                                    <span className="material-symbols-outlined text-[18px]">edit</span>
+                                                </button>
+                                                <button
+                                                    onClick={() => handleDeleteRole(role.id)}
+                                                    className="p-1.5 text-gray-500 hover:text-red-500 hover:bg-white dark:hover:bg-white/10 rounded-lg transition-colors"
+                                                >
+                                                    <span className="material-symbols-outlined text-[18px]">delete</span>
+                                                </button>
+                                            </div>
+                                        </div>
+
+                                        <div className="flex flex-wrap gap-1.5 mt-2">
+                                            {role.permissions?.slice(0, 3).map((perm: string) => (
+                                                <span key={perm} className="px-2 py-0.5 bg-gray-200 dark:bg-white/10 text-gray-600 dark:text-gray-300 text-[10px] font-bold rounded capitalize">
+                                                    {perm.replace(/_/g, ' ')}
+                                                </span>
+                                            ))}
+                                            {(role.permissions?.length || 0) > 3 && (
+                                                <span className="px-2 py-0.5 bg-gray-100 dark:bg-white/5 text-gray-500 text-[10px] font-bold rounded">
+                                                    +{role.permissions.length - 3} more
+                                                </span>
+                                            )}
+                                        </div>
+                                    </div>
+                                ))}
+                                {roles.length === 0 && (
+                                    <div className="col-span-full py-12 text-center text-gray-400 italic">
+                                        No roles defined yet. Create one to get started.
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    )}
+
+                    {activeTab === 'users' && (
+                        <div>
+                            <div className="flex justify-between items-center mb-6">
+                                <h3 className="text-lg font-bold text-black dark:text-white flex items-center gap-2">
+                                    <span className="material-symbols-outlined text-primary">group</span>
+                                    User Management
+                                </h3>
+                                <button
+                                    onClick={() => { setSelectedUser(null); setIsUserModalOpen(true); }}
+                                    className="px-4 py-2 bg-primary text-white text-sm font-bold rounded-lg hover:bg-primary/90 transition-colors flex items-center gap-2"
+                                >
+                                    <span className="material-symbols-outlined text-[18px]">person_add</span>
+                                    Add New User
+                                </button>
+                            </div>
+
+                            <div className="overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-700">
+                                <table className="w-full text-left border-collapse">
+                                    <thead className="bg-[#f8f8fc] dark:bg-white/5">
+                                        <tr>
+                                            <th className="px-6 py-4 text-xs font-bold text-[#4c4c9a] dark:text-gray-400 uppercase">User</th>
+                                            <th className="px-6 py-4 text-xs font-bold text-[#4c4c9a] dark:text-gray-400 uppercase">Role</th>
+                                            <th className="px-6 py-4 text-xs font-bold text-[#4c4c9a] dark:text-gray-400 uppercase text-right">Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+                                        {users.map(user => (
+                                            <tr key={user.id} className="hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
+                                                <td className="px-6 py-4">
+                                                    <div className="flex items-center gap-3">
+                                                        <div className="size-10 rounded-full bg-gray-200 dark:bg-gray-700 bg-cover bg-center" style={{ backgroundImage: `url('${user.avatarUrl}')` }}></div>
+                                                        <div>
+                                                            <p className="font-bold text-gray-900 dark:text-white">{user.name}</p>
+                                                            <p className="text-xs text-gray-500">{user.email}</p>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td className="px-6 py-4">
+                                                    {user.customRole ? (
+                                                        <span className="px-2 py-1 rounded-full bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 text-xs font-bold">
+                                                            {user.customRole.name}
+                                                        </span>
+                                                    ) : (
+                                                        <span className="px-2 py-1 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-xs font-bold capitalize">
+                                                            {user.roleId?.replace('_', ' ') || 'User'}
+                                                        </span>
+                                                    )}
+                                                </td>
+                                                <td className="px-6 py-4 text-right">
+                                                    <div className="flex justify-end gap-2">
+                                                        <button
+                                                            onClick={() => handleEditUser(user)}
+                                                            className="p-1.5 text-gray-400 hover:text-primary hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors"
+                                                        >
+                                                            <span className="material-symbols-outlined text-[20px]">edit</span>
+                                                        </button>
+                                                        <button
+                                                            onClick={() => handleDeleteUser(user.id)}
+                                                            className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+                                                        >
+                                                            <span className="material-symbols-outlined text-[20px]">delete</span>
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                        {users.length === 0 && (
+                                            <tr>
+                                                <td colSpan={3} className="px-6 py-12 text-center text-gray-500 italic">
+                                                    No users found.
+                                                </td>
+                                            </tr>
+                                        )}
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                     )}
                 </div>
@@ -580,3 +811,4 @@ export default function SystemPage() {
         </div>
     );
 }
+

@@ -17,6 +17,7 @@ export interface AddTeacherFormData {
 interface AddTeacherFormProps {
     onSubmit: (data: AddTeacherFormData) => void;
     onCancel: () => void;
+    initialData?: AddTeacherFormData;
 }
 
 const InputLabel = ({ children, required }: { children: React.ReactNode, required?: boolean }) => (
@@ -25,12 +26,16 @@ const InputLabel = ({ children, required }: { children: React.ReactNode, require
     </label>
 );
 
-export default function AddTeacherForm({ onSubmit, onCancel }: AddTeacherFormProps) {
+export default function AddTeacherForm({ onSubmit, onCancel, initialData }: AddTeacherFormProps) {
     const {
         register,
         handleSubmit,
         formState: { errors, isSubmitting },
-    } = useForm<AddTeacherFormData>();
+    } = useForm<AddTeacherFormData>({
+        defaultValues: initialData || {
+            joinedDate: new Date().toISOString().split('T')[0]
+        }
+    });
 
     const [availableClasses, setAvailableClasses] = useState<{ id: string; name: string; year: string; stream: string }[]>([]);
     const params = useParams();
@@ -55,8 +60,8 @@ export default function AddTeacherForm({ onSubmit, onCancel }: AddTeacherFormPro
                         <span className="material-symbols-outlined">school</span>
                     </div>
                     <div>
-                        <h3 className="text-sm font-bold text-gray-900 dark:text-white">New Teacher Registration</h3>
-                        <p className="text-xs text-gray-500 dark:text-gray-400">Enter the teacher&apos;s details to register them in the system.</p>
+                        <h3 className="text-sm font-bold text-gray-900 dark:text-white">{initialData ? 'Edit Teacher Profile' : 'New Teacher Registration'}</h3>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">{initialData ? 'Update the teacher\'s details and assignments.' : 'Enter the teacher\'s details to register them in the system.'}</p>
                     </div>
                 </div>
             </div>
@@ -203,7 +208,7 @@ export default function AddTeacherForm({ onSubmit, onCancel }: AddTeacherFormPro
                         </>
                     ) : (
                         <>
-                            <span>Register Teacher</span>
+                            <span>{initialData ? 'Update Teacher' : 'Register Teacher'}</span>
                             <span className="material-symbols-outlined text-[18px]">arrow_forward</span>
                         </>
                     )}

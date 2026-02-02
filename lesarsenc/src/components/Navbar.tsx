@@ -26,8 +26,8 @@ export default function Navbar() {
                 animate={{ y: 0, x: "-50%" }}
                 transition={{ duration: 0.8, ease: [0.76, 0, 0.24, 1] }}
                 className={`fixed top-6 left-1/2 z-50 transition-all duration-500 w-[95%] max-w-5xl rounded-full border ${scrolled
-                    ? "bg-white/70 dark:bg-black/70 backdrop-blur-xl border-gray-200/50 dark:border-white/10 py-3 shadow-lg shadow-black/5"
-                    : "bg-white/10 dark:bg-black/10 backdrop-blur-md border-white/20 py-4"
+                    ? "bg-white dark:bg-black border-gray-200/50 dark:border-white/10 py-3 shadow-lg shadow-black/5"
+                    : "bg-white dark:bg-black border-white/20 py-4"
                     }`}
             >
                 <div className="px-6 lg:px-8 flex items-center justify-between">
@@ -104,6 +104,9 @@ export default function Navbar() {
                             <MobileNavLink href="/team" onClick={() => setIsOpen(false)}>
                                 Team
                             </MobileNavLink>
+                            <MobileNavLink href="/careers" onClick={() => setIsOpen(false)}>
+                                Careers
+                            </MobileNavLink>
                             <MobileNavLink href="/about" onClick={() => setIsOpen(false)}>
                                 About
                             </MobileNavLink>
@@ -129,6 +132,7 @@ function NavLinks() {
         { name: "Products", href: "/products" },
         { name: "Work", href: "/portfolio" },
         { name: "Team", href: "/team" },
+        { name: "Careers", href: "/careers" },
         { name: "About", href: "/about" },
     ];
 

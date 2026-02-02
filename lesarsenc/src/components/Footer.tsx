@@ -105,7 +105,7 @@ export default function Footer() {
             <div className="border-t border-gray-200 dark:border-white/10 bg-gray-50/80 dark:bg-black/20 backdrop-blur-sm relative z-10">
                 <div className="max-w-7xl mx-auto px-6 lg:px-8 py-8 flex flex-col md:flex-row justify-between items-center gap-4">
                     <p className="text-gray-500 dark:text-gray-500 text-xs font-mono">
-                        © {new Date().getFullYear()} LES ARSENE CREATIVES.
+                        © <Link href="/admin" className="hover:text-gray-900 dark:hover:text-white transition-colors cursor-default">{new Date().getFullYear()}</Link> LES ARSENE CREATIVES.
                     </p>
 
                     <div className="flex items-center gap-2 text-xs font-mono text-gray-500 dark:text-gray-400 uppercase tracking-wider">

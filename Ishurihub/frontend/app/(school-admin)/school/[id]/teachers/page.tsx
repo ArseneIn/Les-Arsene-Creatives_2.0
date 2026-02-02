@@ -12,6 +12,7 @@ export default function TeachersPage() {
     const [teachers, setTeachers] = useState<Teacher[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [editingTeacher, setEditingTeacher] = useState<Teacher | null>(null);
     const params = useParams();
     const schoolId = params.id as string;
 
@@ -37,20 +38,49 @@ export default function TeachersPage() {
 
     const handleAddTeacher = async (data: AddTeacherFormData) => {
         try {
-            const newTeacherData = {
-                ...data,
-                schoolId: schoolId,
-                status: 'Active',
-                avatarUrl: `https://ui-avatars.com/api/?name=${encodeURIComponent(data.name)}&background=random`,
-            };
+            if (editingTeacher) {
+                const updatedData = {
+                    ...data,
+                    // keep existing schoolId/status unless changed (form doesn't edit status yet)
+                };
+                await api.patch(`/teachers/${editingTeacher.id}`, updatedData);
+            } else {
+                const newTeacherData = {
+                    ...data,
+                    schoolId: schoolId,
+                    status: 'Active',
+                    avatarUrl: `https://ui-avatars.com/api/?name=${encodeURIComponent(data.name)}&background=random`,
+                };
+                await api.post('/teachers', newTeacherData);
+            }
 
-            await api.post('/teachers', newTeacherData);
             await fetchTeachers(); // Refresh list
             setIsModalOpen(false);
+            setEditingTeacher(null);
         } catch (error) {
-            console.error("Failed to add teacher:", error);
-            // Ideally show a toast notification here
+            console.error("Failed to save teacher:", error);
+            alert("Failed to save teacher details.");
         }
+    };
+
+    const handleEditTeacher = (teacher: Teacher) => {
+        setEditingTeacher(teacher);
+        setIsModalOpen(true);
+    };
+
+    const handleDeleteTeacher = async (id: string) => {
+        if (!confirm("Are you sure you want to remove this teacher?")) return;
+        try {
+            await api.delete(`/teachers/${id}`);
+            await fetchTeachers();
+        } catch (error) {
+            console.error("Failed to delete teacher", error);
+        }
+    };
+
+    const openAddModal = () => {
+        setEditingTeacher(null);
+        setIsModalOpen(true);
     };
 
     // Stats
@@ -80,7 +110,7 @@ export default function TeachersPage() {
                             Export List
                         </button>
                         <button
-                            onClick={() => setIsModalOpen(true)}
+                            onClick={openAddModal}
                             className="flex min-w-[140px] items-center justify-center rounded-lg h-11 px-5 bg-primary text-white text-sm font-bold shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-100 transition-all"
                         >
                             <span className="material-symbols-outlined text-[18px] mr-2">person_add</span>
@@ -185,9 +215,22 @@ export default function TeachersPage() {
                                             </span>
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-right">
-                                            <button className="p-2 text-gray-400 hover:text-primary transition-colors">
-                                                <span className="material-symbols-outlined">more_vert</span>
-                                            </button>
+                                            <div className="flex justify-end gap-2">
+                                                <button
+                                                    onClick={() => handleEditTeacher(teacher)}
+                                                    className="p-2 text-gray-400 hover:text-blue-500 hover:bg-blue-50 rounded-lg transition-colors"
+                                                    title="Edit Teacher"
+                                                >
+                                                    <span className="material-symbols-outlined text-[20px]">edit</span>
+                                                </button>
+                                                <button
+                                                    onClick={() => handleDeleteTeacher(teacher.id)}
+                                                    className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                                                    title="Remove Teacher"
+                                                >
+                                                    <span className="material-symbols-outlined text-[20px]">delete</span>
+                                                </button>
+                                            </div>
                                         </td>
                                     </tr>
                                 ))
@@ -201,12 +244,13 @@ export default function TeachersPage() {
             <Modal
                 isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)}
-                title="Add New Staff"
+                title={editingTeacher ? "Edit Teacher Profile" : "Add New Staff"}
                 size="4xl"
             >
                 <AddTeacherForm
                     onSubmit={handleAddTeacher}
                     onCancel={() => setIsModalOpen(false)}
+                    initialData={editingTeacher || undefined}
                 />
             </Modal>
         </div>

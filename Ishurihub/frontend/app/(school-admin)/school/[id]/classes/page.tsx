@@ -18,6 +18,7 @@ interface Classroom {
     _count?: {
         students: number;
     };
+    studentCount?: number; // Backend might return this directly or in _count
 }
 
 interface CreateClassFormData {
@@ -86,7 +87,9 @@ const ClassCard = ({ cls, onDelete, onEdit, onSync, onClick }: { cls: Classroom,
             </span>
         </div>
         <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-1">{cls.name}</h3>
-        <p className="text-sm text-gray-500 dark:text-gray-400 mb-3">{cls.level} • {cls.level === 'A-Level' ? 'Combination' : 'Stream'} {cls.stream}</p>
+        <p className="text-sm text-gray-500 dark:text-gray-400 mb-3">
+            {cls.level} • {cls.level === 'A-Level' ? 'Combination' : 'Stream'} {cls.stream} • {(cls._count?.students || cls.studentCount || 0)} Students
+        </p>
 
         <div className="flex items-center gap-2 text-xs text-primary font-medium group-hover:underline">
             <span>View Students</span>
@@ -118,13 +121,13 @@ export default function ClassesPage() {
     const watchedStream = watchAdd('stream');
 
     // Academic Year State
-    const [academicYear, setAcademicYear] = useState<any>(null);
+    const [academicYear, setAcademicYear] = useState<{ id: string, name: string, isActive: boolean } | null>(null);
 
     useEffect(() => {
         const fetchActiveYear = async () => {
             try {
                 const res = await api.get('/academic-years', { params: { schoolId } });
-                const active = res.data.find((y: any) => y.isActive);
+                const active = res.data.find((y: { isActive: boolean }) => y.isActive);
                 setAcademicYear(active);
             } catch (err) {
                 console.error("Failed to fetch academic year");
@@ -231,7 +234,7 @@ export default function ClassesPage() {
             setEditingClass(null);
         } catch (error: any) {
             console.error("Failed to save class:", error);
-            alert(error.response?.data?.message || "Failed to save class");
+            alert(error?.response?.data?.message || "Failed to save class");
         }
     };
 
@@ -351,6 +354,7 @@ export default function ClassesPage() {
                     onClose={() => setSelectedClass(null)}
                     classId={selectedClass.id}
                     className={selectedClass.name}
+                    schoolId={schoolId}
                 />
             )}
 

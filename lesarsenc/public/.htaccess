@@ -1,0 +1,17 @@
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /website_0ae36c9d/
+  
+  # Hide .html extension
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteCond %{REQUEST_FILENAME}.html -f
+  RewriteRule ^(.*)$ $1.html [L]
+  
+  # Standard React/Next.js Fallback (Optional for SSG but good for dynamic routes if any)
+  # RewriteCond %{REQUEST_FILENAME} !-f
+  # RewriteCond %{REQUEST_FILENAME} !-d
+  # RewriteRule . /website_0ae36c9d/404.html [L]
+</IfModule>
+
+# Disable Directory Listing to avoid 403s on empty folders, though trailingSlash fixes this
+Options -Indexes

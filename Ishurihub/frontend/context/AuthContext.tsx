@@ -33,8 +33,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                     const storedUser = localStorage.getItem("ishurihub_user");
                     if (storedUser) {
                         const parsedUser = JSON.parse(storedUser);
-                        // Hydrate role if missing
-                        if (!parsedUser.role && parsedUser.roleId) {
+                        // Hydrate role
+                        if (parsedUser.customRole) {
+                            parsedUser.role = {
+                                id: parsedUser.customRole.id,
+                                name: parsedUser.customRole.name,
+                                description: 'Custom Role',
+                                isSystem: false,
+                                permissions: parsedUser.customRole.permissions as Permission[]
+                            };
+                        } else if (!parsedUser.role && parsedUser.roleId) {
                             parsedUser.role = SYSTEM_ROLES.find(r => r.id === parsedUser.roleId);
                         }
                         setUser(parsedUser);
@@ -57,9 +65,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             const { access_token, user } = response.data;
 
             // Hydrate role
+            let role;
+            if (user.customRole) {
+                role = {
+                    id: user.customRole.id,
+                    name: user.customRole.name,
+                    description: 'Custom Role',
+                    isSystem: false,
+                    permissions: user.customRole.permissions as Permission[]
+                };
+            } else {
+                role = SYSTEM_ROLES.find((r: any) => r.id === user.roleId);
+            }
+
             const fullUser = {
                 ...user,
-                role: SYSTEM_ROLES.find(r => r.id === user.roleId)
+                role
             };
 
             localStorage.setItem("ishurihub_token", access_token);

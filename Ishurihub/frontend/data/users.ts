@@ -6,6 +6,11 @@ export interface User {
     email: string;
     avatarUrl: string;
     roleId: string;
+    customRole?: {
+        id: string;
+        name: string;
+        permissions: string[];
+    };
     role?: Role; // Populated at runtime or via helper
     schoolId: string;
 }

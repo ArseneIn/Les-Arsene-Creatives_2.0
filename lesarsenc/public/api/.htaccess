@@ -1,0 +1,15 @@
+# Turn off RewriteEngine to prevent main .htaccess interference
+<IfModule mod_rewrite.c>
+RewriteEngine Off
+</IfModule>
+
+# Increase Upload Limits
+php_value upload_max_filesize 64M
+php_value post_max_size 64M
+php_value max_execution_time 300
+php_value max_input_time 300
+
+# access control
+<IfModule mod_headers.c>
+    Header set Access-Control-Allow-Origin "*"
+</IfModule>
