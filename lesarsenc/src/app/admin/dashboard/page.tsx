@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { getImagePath } from "@/utils/imagePath";
 import { useRouter } from "next/navigation";
-import { LayoutDashboard, FileText, Image as ImageIcon, Settings, LogOut, Box, Mail } from "lucide-react";
+import { LayoutDashboard, FileText, Image as ImageIcon, Settings, LogOut, Box, Mail, Phone, Briefcase } from "lucide-react";
 
 export default function AdminDashboard() {
     const router = useRouter();
@@ -35,6 +35,12 @@ export default function AdminDashboard() {
                         label="Dashboard"
                         active={activeTab === "dashboard"}
                         onClick={() => setActiveTab("dashboard")}
+                    />
+                    <SidebarItem
+                        icon={<Mail className="w-5 h-5" />}
+                        label="Inbox"
+                        active={activeTab === "inbox"}
+                        onClick={() => setActiveTab("inbox")}
                     />
                     <SidebarItem
                         icon={<FileText className="w-5 h-5" />}
@@ -73,7 +79,13 @@ export default function AdminDashboard() {
                         onClick={() => setActiveTab("products")}
                     />
                     <SidebarItem
-                        icon={<Mail className="w-5 h-5" />}
+                        icon={<Briefcase className="w-5 h-5" />}
+                        label="Careers"
+                        active={activeTab === "careers"}
+                        onClick={() => setActiveTab("careers")}
+                    />
+                    <SidebarItem
+                        icon={<Phone className="w-5 h-5" />}
                         label="Contact Info"
                         active={activeTab === "contact"}
                         onClick={() => setActiveTab("contact")}
@@ -106,13 +118,14 @@ export default function AdminDashboard() {
                         {activeTab === 'portfolio' && 'Manage Portfolio'}
                         {activeTab === 'settings' && 'System Settings'}
                         {activeTab === 'products' && 'Manage Products / SaaS'}
+                        {activeTab === 'careers' && 'Manage Careers'}
                         {activeTab === 'contact' && 'Contact Information'}
                     </h1>
                 </header>
 
                 {activeTab === 'content' && <ContentEditor />}
 
-                {activeTab === 'dashboard' && <p className="text-gray-500">Welcome to your CMS. Select an option from the sidebar.</p>}
+                {activeTab === 'dashboard' && <DashboardStats />}
 
                 {activeTab === 'portfolio' && (
                     <ListEditor
@@ -142,7 +155,17 @@ export default function AdminDashboard() {
                     <ListEditor
                         title="Manage Team"
                         storageKey="team_members"
-                        itemTemplate={{ name: "Jane Doe", role: "Designer", strength: "Creativity", category: "Design", image: "https://..." }}
+                        itemTemplate={{
+                            name: "New Member",
+                            role: "Role",
+                            strength: "Superpower",
+                            category: "Design",
+                            bio: "Short bio for About page...",
+                            experience: "0+ Years",
+                            accolades: "Achievements",
+                            skills: "Skill1, Skill2, Skill3",
+                            image: "https://lh3.googleusercontent.com/..."
+                        }}
                     />
                 )}
 
@@ -150,14 +173,124 @@ export default function AdminDashboard() {
                     <ListEditor
                         title="Manage Products / SaaS"
                         storageKey="products"
-                        itemTemplate={{ name: "Product Name", description: "Short description", link: "#", image: "https://..." }}
+                        itemTemplate={{
+                            name: "Product Name",
+                            description: "Short description",
+                            features: "Feature 1\nFeature 2\nFeature 3",
+                            pricing_plans: "Basic | $29/mo | Feature A, Feature B\nPro | $99/mo | All Basic, Feature C",
+                            link: "#",
+                            image: "https://..."
+                        }}
                     />
                 )}
+
+                {activeTab === 'careers' && (
+                    <ListEditor
+                        title="Manage Careers"
+                        storageKey="careers"
+                        itemTemplate={{
+                            title: "Job Title",
+                            type: "Full-time / Remote",
+                            tag: "Department",
+                            description: "Job description goes here..."
+                        }}
+                    />
+                )}
+
+                {activeTab === 'inbox' && <InboxViewer />}
 
                 {activeTab === 'contact' && <ContactEditor />}
 
                 {activeTab === 'settings' && <SettingsEditor />}
             </main>
+        </div>
+    );
+}
+
+interface Message {
+    id: number;
+    name: string;
+    company?: string;
+    email: string;
+    budget?: string;
+    message?: string;
+    created_at: string;
+}
+
+function InboxViewer() {
+    const [messages, setMessages] = useState<Message[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        loadMessages();
+    }, []);
+
+    const loadMessages = async () => {
+        try {
+            const res = await fetch("/api/messages.php");
+            const data = await res.json();
+            setMessages(data);
+        } catch (error) {
+            console.error("Failed to load messages", error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const deleteMessage = async (id: number) => {
+        if (!confirm("Are you sure you want to delete this message?")) return;
+        try {
+            const res = await fetch("/api/messages.php", {
+                method: "DELETE",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ id }),
+            });
+            const data = await res.json();
+            if (data.status === "success") {
+                setMessages(messages.filter((m) => m.id !== id));
+            } else {
+                alert("Failed to delete");
+            }
+        } catch {
+            alert("Network error");
+        }
+    };
+
+    if (loading) return <p>Loading messages...</p>;
+
+    return (
+        <div className="space-y-4 max-w-4xl">
+            {messages.length === 0 ? (
+                <div className="p-8 text-center text-gray-500 bg-white dark:bg-white/5 rounded-2xl border border-gray-200 dark:border-white/10">
+                    <Mail className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                    <p>No messages yet.</p>
+                </div>
+            ) : (
+                messages.map((msg) => (
+                    <div key={msg.id} className="bg-white dark:bg-white/5 p-6 rounded-2xl border border-gray-200 dark:border-white/10 relative group">
+                        <button
+                            onClick={() => deleteMessage(msg.id)}
+                            className="absolute top-4 right-4 text-red-500 opacity-0 group-hover:opacity-100 transition-opacity p-2 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg"
+                        >
+                            <LogOut className="w-4 h-4" />
+                        </button>
+                        <div className="flex justify-between items-start mb-4">
+                            <div>
+                                <h4 className="font-bold text-lg">{msg.name}</h4>
+                                <p className="text-sm text-gray-500">{msg.email}</p>
+                                {msg.company && <p className="text-xs text-primary font-bold mt-1">{msg.company}</p>}
+                            </div>
+                            <span className="text-xs text-gray-400">{new Date(msg.created_at).toLocaleDateString()}</span>
+                        </div>
+                        <div className="bg-gray-50 dark:bg-black/20 p-4 rounded-xl text-sm mb-4">
+                            {msg.message}
+                        </div>
+                        <div className="inline-block px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-bold border border-primary/20">
+                            Budget: {msg.budget || "N/A"}
+                        </div>
+                    </div>
+                ))
+            )}
         </div>
     );
 }
@@ -190,6 +323,12 @@ function SidebarItem({ icon, label, active, onClick }: SidebarItemProps) {
 function ContentEditor() {
     const [heroTitle, setHeroTitle] = useState("");
     const [heroSubtitle, setHeroSubtitle] = useState("");
+    const [aboutStory, setAboutStory] = useState("");
+    const [aboutImage1, setAboutImage1] = useState("");
+    const [aboutImage2, setAboutImage2] = useState("");
+    const [privacyPolicy, setPrivacyPolicy] = useState("");
+    const [termsConditions, setTermsConditions] = useState("");
+
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState("");
 
@@ -203,6 +342,11 @@ function ContentEditor() {
             const data = await res.json();
             if (data.hero_title) setHeroTitle(data.hero_title);
             if (data.hero_subtitle) setHeroSubtitle(data.hero_subtitle);
+            if (data.about_story) setAboutStory(data.about_story);
+            if (data.about_image_1) setAboutImage1(data.about_image_1);
+            if (data.about_image_2) setAboutImage2(data.about_image_2);
+            if (data.privacy_policy) setPrivacyPolicy(data.privacy_policy);
+            if (data.terms_conditions) setTermsConditions(data.terms_conditions);
         } catch (err) {
             console.error("Failed to load content", err);
         }
@@ -224,6 +368,37 @@ function ContentEditor() {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ key: "hero_subtitle", value: heroSubtitle }),
+            });
+
+            // Save About Story
+            await fetch("/api/content.php", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ key: "about_story", value: aboutStory }),
+            });
+
+            // Save About Images
+            await fetch("/api/content.php", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ key: "about_image_1", value: aboutImage1 }),
+            });
+            await fetch("/api/content.php", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ key: "about_image_2", value: aboutImage2 }),
+            });
+
+            // Save Legal
+            await fetch("/api/content.php", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ key: "privacy_policy", value: privacyPolicy }),
+            });
+            await fetch("/api/content.php", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ key: "terms_conditions", value: termsConditions }),
             });
 
             setMessage("Content saved successfully!");
@@ -259,6 +434,80 @@ function ContentEditor() {
                         className="w-full p-3 rounded-lg bg-gray-50 dark:bg-black border border-gray-200 dark:border-white/20 h-24"
                     />
                 </div>
+
+                <div className="border-t border-gray-200 dark:border-white/10 my-6 pt-6"></div>
+                <h3 className="text-lg font-bold mb-4">About Page Configuration</h3>
+
+                <div>
+                    <label className="block text-sm font-bold mb-2">Our Story (HTML/Text)</label>
+                    <textarea
+                        value={aboutStory}
+                        onChange={(e) => setAboutStory(e.target.value)}
+                        placeholder="It started with a coincidence..."
+                        className="w-full p-3 rounded-lg bg-gray-50 dark:bg-black border border-gray-200 dark:border-white/20 h-48 font-mono text-sm"
+                    />
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label className="block text-sm font-bold mb-2">Image 1 (Left)</label>
+                        <div className="flex gap-2">
+                            <input
+                                type="text"
+                                value={aboutImage1}
+                                onChange={(e) => setAboutImage1(e.target.value)}
+                                className="flex-grow p-2 text-sm rounded-lg bg-gray-50 dark:bg-black border border-gray-200 dark:border-white/20"
+                                placeholder="Image URL"
+                            />
+                        </div>
+                        {aboutImage1 && (
+                            <div className="mt-2 relative w-full h-32 rounded-lg overflow-hidden border border-white/10 bg-black/50">
+                                {/* eslint-disable-next-line @next/next/no-img-element */}
+                                <img src={getImagePath(aboutImage1)} alt="Preview" className="w-full h-full object-cover" />
+                            </div>
+                        )}
+                    </div>
+                    <div>
+                        <label className="block text-sm font-bold mb-2">Image 2 (Right)</label>
+                        <div className="flex gap-2">
+                            <input
+                                type="text"
+                                value={aboutImage2}
+                                onChange={(e) => setAboutImage2(e.target.value)}
+                                className="flex-grow p-2 text-sm rounded-lg bg-gray-50 dark:bg-black border border-gray-200 dark:border-white/20"
+                                placeholder="Image URL"
+                            />
+                        </div>
+                        {aboutImage2 && (
+                            <div className="mt-2 relative w-full h-32 rounded-lg overflow-hidden border border-white/10 bg-black/50">
+                                {/* eslint-disable-next-line @next/next/no-img-element */}
+                                <img src={getImagePath(aboutImage2)} alt="Preview" className="w-full h-full object-cover" />
+                            </div>
+                        )}
+                    </div>
+                </div>
+
+                <div className="border-t border-gray-200 dark:border-white/10 my-6 pt-6"></div>
+                <h3 className="text-lg font-bold mb-4">Legal Pages</h3>
+
+                <div>
+                    <label className="block text-sm font-bold mb-2">Privacy Policy (HTML)</label>
+                    <textarea
+                        value={privacyPolicy}
+                        onChange={(e) => setPrivacyPolicy(e.target.value)}
+                        placeholder="<p>We respect your privacy...</p>"
+                        className="w-full p-3 rounded-lg bg-gray-50 dark:bg-black border border-gray-200 dark:border-white/20 h-32 font-mono text-sm"
+                    />
+                </div>
+                <div>
+                    <label className="block text-sm font-bold mb-2">Terms & Conditions (HTML)</label>
+                    <textarea
+                        value={termsConditions}
+                        onChange={(e) => setTermsConditions(e.target.value)}
+                        placeholder="<p>By using this site...</p>"
+                        className="w-full p-3 rounded-lg bg-gray-50 dark:bg-black border border-gray-200 dark:border-white/20 h-32 font-mono text-sm"
+                    />
+                </div>
                 <button
                     onClick={saveContent}
                     disabled={loading}
@@ -271,30 +520,31 @@ function ContentEditor() {
     )
 }
 
-function ListEditor({ title, storageKey, itemTemplate }: { title: string, storageKey: string, itemTemplate: any }) {
-    const [items, setItems] = useState<any[]>([]);
+function ListEditor({ title, storageKey, itemTemplate }: { title: string, storageKey: string, itemTemplate: Record<string, string | number> }) {
+    const [items, setItems] = useState<Record<string, string | number>[]>([]);
     const [loading, setLoading] = useState(false);
     const [uploading, setUploading] = useState<number | null>(null); // Index of item currently uploading
 
     useEffect(() => {
-        loadItems();
-    }, []);
-
-    const loadItems = async () => {
-        try {
-            const res = await fetch("/api/content.php");
-            const data = await res.json();
-            if (data[storageKey]) {
-                setItems(JSON.parse(data[storageKey]));
-            } else {
-                setItems([]);
+        const load = async () => {
+            try {
+                const res = await fetch("/api/content.php");
+                const data = await res.json();
+                if (data[storageKey]) {
+                    setItems(JSON.parse(data[storageKey]));
+                } else {
+                    setItems([]);
+                }
+            } catch (err) {
+                console.error("Failed to load list", err);
             }
-        } catch (err) {
-            console.error("Failed to load list", err);
-        }
-    };
+        };
+        load();
+    }, [storageKey]);
 
-    const saveItems = async (newItems: any[]) => {
+
+
+    const saveItems = async (newItems: Record<string, string | number>[]) => {
         setLoading(true);
         try {
             const res = await fetch("/api/content.php", {
@@ -352,12 +602,14 @@ function ListEditor({ title, storageKey, itemTemplate }: { title: string, storag
                 } else {
                     alert("Upload failed: " + data.error);
                 }
-            } catch (e) {
+            } catch {
                 console.error("Server response:", text);
                 alert("Server Error (Check Permissions): " + text.substring(0, 100));
             }
-        } catch (err: any) {
-            alert("Network Error: " + err.message);
+        } catch (err: unknown) {
+            if (err instanceof Error) {
+                alert("Network Error: " + err.message);
+            }
             console.error(err);
         } finally {
             setUploading(null);
@@ -427,10 +679,18 @@ function ListEditor({ title, storageKey, itemTemplate }: { title: string, storag
                                                 {item[key] && (
                                                     <div className="relative w-full h-24 rounded-lg overflow-hidden border border-white/10 bg-black/50">
                                                         {/* eslint-disable-next-line @next/next/no-img-element */}
-                                                        <img src={getImagePath(item[key])} alt="Preview" className="w-full h-full object-cover" />
+                                                        <img src={getImagePath(String(item[key]))} alt="Preview" className="w-full h-full object-cover" />
                                                     </div>
                                                 )}
                                             </div>
+                                        ) : key.toLowerCase().includes('desc') || key.toLowerCase().includes('features') || key.toLowerCase().includes('pricing') ? (
+                                            <textarea
+                                                value={item[key] || ""}
+                                                onChange={(e) => updateItem(index, key, e.target.value)}
+                                                onBlur={handleBlur}
+                                                className="w-full p-2 text-sm rounded-lg bg-white dark:bg-black border border-gray-200 dark:border-white/20 min-h-[100px]"
+                                                placeholder={key.toLowerCase().includes('pricing') ? "Plan Name | Price | Features..." : "Enter text..."}
+                                            />
                                         ) : (
                                             <input
                                                 type="text"
@@ -448,6 +708,89 @@ function ListEditor({ title, storageKey, itemTemplate }: { title: string, storag
                 ))}
             </div>
             {loading && <p className="text-xs text-center mt-4 text-gray-500 animate-pulse">Saving changes...</p>}
+        </div>
+    );
+}
+
+function DashboardStats() {
+    const [stats, setStats] = useState({
+        messages: 0,
+        products: 0,
+        portfolio: 0,
+        team: 0
+    });
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const loadStats = async () => {
+            try {
+                // Load Messages Count
+                const msgRes = await fetch("/api/messages.php");
+                const msgData = await msgRes.json();
+
+                // Load Content Counts
+                const contentRes = await fetch("/api/content.php");
+                const contentData = await contentRes.json();
+
+                setStats({
+                    messages: Array.isArray(msgData) ? msgData.length : 0,
+                    products: contentData.products ? JSON.parse(contentData.products).length : 0,
+                    portfolio: contentData.portfolio_items ? JSON.parse(contentData.portfolio_items).length : 0,
+                    team: contentData.team_members ? JSON.parse(contentData.team_members).length : 0,
+                });
+            } catch (err) {
+                console.error("Failed to load stats", err);
+            } finally {
+                setLoading(false);
+            }
+        };
+        loadStats();
+    }, []);
+
+    if (loading) return <div className="animate-pulse flex gap-4"><div className="w-full h-32 bg-gray-200 rounded-xl"></div></div>;
+
+    return (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <StatCard
+                title="Inbox"
+                value={stats.messages}
+                icon={<Mail className="w-6 h-6 text-blue-500" />}
+                color="bg-blue-50 dark:bg-blue-900/10 border-blue-100 dark:border-blue-900/20"
+            />
+            <StatCard
+                title="Products"
+                value={stats.products}
+                icon={<Box className="w-6 h-6 text-purple-500" />}
+                color="bg-purple-50 dark:bg-purple-900/10 border-purple-100 dark:border-purple-900/20"
+            />
+            <StatCard
+                title="Portfolio"
+                value={stats.portfolio}
+                icon={<ImageIcon className="w-6 h-6 text-pink-500" />}
+                color="bg-pink-50 dark:bg-pink-900/10 border-pink-100 dark:border-pink-900/20"
+            />
+            <StatCard
+                title="Team"
+                value={stats.team}
+                icon={<LayoutDashboard className="w-6 h-6 text-green-500" />}
+                color="bg-green-50 dark:bg-green-900/10 border-green-100 dark:border-green-900/20"
+            />
+        </div>
+    );
+}
+
+function StatCard({ title, value, icon, color }: { title: string, value: number, icon: React.ReactNode, color: string }) {
+    return (
+        <div className={`p-6 rounded-2xl border ${color} flex flex-col justify-between`}>
+            <div className="flex justify-between items-start mb-4">
+                <div>
+                    <p className="text-gray-500 dark:text-gray-400 text-sm font-bold uppercase tracking-wider">{title}</p>
+                    <h3 className="text-4xl font-syne font-bold mt-1">{value}</h3>
+                </div>
+                <div className="p-3 bg-white dark:bg-black rounded-lg shadow-sm">
+                    {icon}
+                </div>
+            </div>
         </div>
     );
 }
@@ -606,7 +949,7 @@ function SettingsEditor() {
             } else {
                 setMessage("Error: " + data.message);
             }
-        } catch (err) {
+        } catch {
             setMessage("Network error.");
         } finally {
             setLoading(false);

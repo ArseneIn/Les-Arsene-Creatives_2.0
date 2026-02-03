@@ -13,6 +13,26 @@ import { motion, useScroll, useTransform } from "framer-motion";
 import { getImagePath } from "@/utils/imagePath";
 
 import ImigongoPattern from "@/components/ImigongoPattern";
+import Skeleton from "@/components/Skeleton";
+
+interface Service {
+  icon: string;
+  title: string;
+  desc: string;
+}
+
+interface Project {
+  title: string;
+  category: string;
+  image: string;
+}
+
+interface Testimonial {
+  quote: string;
+  author: string;
+  role: string;
+  image: string;
+}
 
 export default function Home() {
   const container = useRef(null);
@@ -47,44 +67,15 @@ function Hero() {
   const { scrollY } = useScroll();
   const y = useTransform(scrollY, [0, 500], [0, 200]);
 
-  const [heroTitle, setHeroTitle] = useState("DIGITAL");
-  const [heroSubtitle, setHeroSubtitle] = useState("ALCHEMY");
+  const [heroTitle, setHeroTitle] = useState("");
+  const [heroSubtitle, setHeroSubtitle] = useState("");
+  const [paragraphText, setParagraphText] = useState("");
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Fetch content from CMS API
     fetch('/api/content.php')
       .then(res => res.json())
       .then(data => {
-        if (data.hero_title) {
-          // Split title for formatting if needed, or just use as is. 
-          // Current design splits 'DIGITAL' and 'ALCHEMY'. 
-          // For simplicity, let's assume the CMS sends the full title and we might adjust formatting later
-          // Or we can just use the CMS data directly. 
-          // Let's assume the user edits "DIGITAL ALCHEMY" as one string in the CMS 
-          // but the design requires a break. We'll handle a simple split if it contains a space.
-          const parts = data.hero_title.split(' ');
-          if (parts.length > 1) {
-            setHeroTitle(parts[0]);
-            setHeroSubtitle(parts.slice(1).join(' '));
-          } else {
-            setHeroTitle(data.hero_title);
-            setHeroSubtitle("");
-          }
-        }
-        // Actually, the previous design had Title + Subtitle (Paragraph).
-        // Let's look at the original code: 
-        // <h1> DIGITAL <br/> ALCHEMY </h1> 
-        // <p> We engineer growth... </p> (This is what I called 'hero_subtitle' in the admin?? No wait)
-
-        // In Admin I had:
-        // Main Heading (hero_title) -> "Digital Alchemy"
-        // Subheading (hero_subtitle) -> "Where Strategy Meets Serendipity" (This matches nothing in the current design)
-        // The current p tag says: "We engineer growth for SMEs..."
-
-        // Let's map it:
-        // hero_title -> The H1 (Digital Alchemy)
-        // hero_subtitle -> The Paragraph text ("We engineer growth...")
-
         if (data.hero_title) {
           const parts = data.hero_title.split(' ');
           if (parts.length >= 2) {
@@ -94,42 +85,22 @@ function Hero() {
             setHeroTitle(data.hero_title);
             setHeroSubtitle("");
           }
-        }
-
-        // Wait, I need a state for the paragraph too.
-        // I'll create a new state for the paragraph text.
-      });
-  }, []);
-
-  // Re-reading my Admin code: 
-  // Main Heading: hero_title
-  // Subheading: hero_subtitle (TextArea)
-
-  // So I should map 'hero_subtitle' to the paragraph <p>.
-
-  const [paragraphText, setParagraphText] = useState("We engineer growth for SMEs through custom SaaS and precision marketing. Enterprise-grade power, tailored for you.");
-
-  useEffect(() => {
-    fetch('/api/content.php')
-      .then(res => res.json())
-      .then(data => {
-        if (data.hero_title) {
-          // Logic to split title for the visual effect
-          // If user saves "SUPER AGENCY", it becomes "SUPER" (white) "AGENCY" (black/kinetic)
-          const parts = data.hero_title.split(' ');
-          if (parts.length >= 2) {
-            setHeroTitle(parts[0]);
-            setHeroSubtitle(parts.slice(1).join(' '));
-          } else {
-            setHeroTitle(data.hero_title);
-            setHeroSubtitle(""); // Or handle single word titles differently
-          }
+        } else {
+          // Fallback if no data
+          setHeroTitle("DIGITAL");
+          setHeroSubtitle("ALCHEMY");
         }
         if (data.hero_subtitle) {
           setParagraphText(data.hero_subtitle);
+        } else {
+          setParagraphText("We engineer growth for SMEs through custom SaaS and precision marketing. Enterprise-grade power, tailored for you.");
         }
+        setLoading(false);
       })
-      .catch(err => console.error("CMS Load Error", err));
+      .catch(err => {
+        console.error("CMS Load Error", err);
+        setLoading(false);
+      });
   }, []);
 
   return (
@@ -152,15 +123,29 @@ function Hero() {
           <div className="mb-6 px-4 py-1 rounded-full border border-black/10 bg-black/5 backdrop-blur-sm">
             <span className="text-black text-xs font-bold tracking-[0.2em] uppercase">Digital Experience Agency</span>
           </div>
-          <h1 className="text-5xl md:text-7xl lg:text-8xl font-syne font-black tracking-tighter text-black leading-[0.8] mb-8">
-            <KineticText>{heroTitle}</KineticText> <br />
-            <span className="text-white">
-              <KineticText>{heroSubtitle}</KineticText>
-            </span>
-          </h1>
-          <p className="text-xl md:text-2xl text-primary font-medium max-w-2xl leading-relaxed mb-12">
-            {paragraphText}
-          </p>
+
+          {loading ? (
+            <div className="mb-8 flex flex-col items-center gap-4">
+              <Skeleton className="h-16 md:h-24 w-64 md:w-96 rounded-lg bg-black/10 dark:bg-white/10" />
+              <Skeleton className="h-16 md:h-24 w-48 md:w-72 rounded-lg bg-black/10 dark:bg-white/10" />
+            </div>
+          ) : (
+            <h1 className="text-4xl md:text-6xl lg:text-8xl font-syne font-black tracking-tighter text-black leading-[0.9] mb-8">
+              <KineticText>{heroTitle}</KineticText> <br />
+              <span className="text-white">
+                <KineticText>{heroSubtitle}</KineticText>
+              </span>
+            </h1>
+          )}
+
+          {loading ? (
+            <Skeleton className="h-6 w-full max-w-2xl rounded-lg bg-black/10 dark:bg-white/10 mb-12" />
+          ) : (
+            <p className="text-xl md:text-2xl text-primary font-medium max-w-2xl leading-relaxed mb-12">
+              {paragraphText}
+            </p>
+          )}
+
           <Magnetic>
             <Link
               href="/portfolio"
@@ -269,7 +254,8 @@ const INITIAL_SERVICES = [
 ];
 
 function Services() {
-  const [services, setServices] = useState<any[]>(INITIAL_SERVICES);
+  const [services, setServices] = useState<Service[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetch('/api/content.php')
@@ -280,9 +266,16 @@ function Services() {
             const parsed = typeof data.services === 'string' ? JSON.parse(data.services) : data.services;
             setServices(parsed);
           } catch (e) { console.error("Services Parse Error", e); }
+        } else {
+          setServices(INITIAL_SERVICES);
         }
+        setLoading(false);
       })
-      .catch(err => console.error("CMS Load Error (Services)", err));
+      .catch(err => {
+        console.error("CMS Load Error (Services)", err);
+        setServices(INITIAL_SERVICES);
+        setLoading(false);
+      });
   }, []);
 
   const getIcon = (name: string) => {
@@ -317,15 +310,24 @@ function Services() {
             </Magnetic>
           </div>
           <div className="lg:col-span-7 grid grid-cols-1 md:grid-cols-2 gap-6">
-            {services.map((service, index) => (
-              <ServiceCard
-                key={index}
-                icon={getIcon(service.icon || "Globe")}
-                title={service.title}
-                desc={service.desc}
-                className={index % 2 !== 0 ? "md:translate-y-12" : ""}
-              />
-            ))}
+            {loading ? (
+              <>
+                <Skeleton className="h-64 w-full rounded-3xl" />
+                <Skeleton className="h-64 w-full rounded-3xl md:translate-y-12" />
+                <Skeleton className="h-64 w-full rounded-3xl" />
+                <Skeleton className="h-64 w-full rounded-3xl md:translate-y-12" />
+              </>
+            ) : (
+              services.map((service, index) => (
+                <ServiceCard
+                  key={index}
+                  icon={getIcon(service.icon || "Globe")}
+                  title={service.title}
+                  desc={service.desc}
+                  className={index % 2 !== 0 ? "md:translate-y-12" : ""}
+                />
+              ))
+            )}
           </div>
         </div>
       </div>
@@ -359,7 +361,8 @@ const INITIAL_PROJECTS = [
 ];
 
 function Portfolio() {
-  const [projects, setProjects] = useState<any[]>(INITIAL_PROJECTS);
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetch('/api/content.php')
@@ -370,9 +373,16 @@ function Portfolio() {
             const parsed = typeof data.portfolio_items === 'string' ? JSON.parse(data.portfolio_items) : data.portfolio_items;
             setProjects(parsed);
           } catch (e) { console.error("Portfolio Parse Error", e); }
+        } else {
+          setProjects(INITIAL_PROJECTS);
         }
+        setLoading(false);
       })
-      .catch(err => console.error("CMS Load Error (Portfolio)", err));
+      .catch(err => {
+        console.error("CMS Load Error (Portfolio)", err);
+        setProjects(INITIAL_PROJECTS);
+        setLoading(false);
+      });
   }, []);
 
   return (
@@ -395,15 +405,22 @@ function Portfolio() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12">
-          {projects.map((project, index) => (
-            <ProjectCard
-              key={index}
-              title={project.title}
-              category={project.category}
-              image={project.image}
-              className={index % 2 !== 0 ? "md:translate-y-24" : ""}
-            />
-          ))}
+          {loading ? (
+            <>
+              <Skeleton className="aspect-[16/10] w-full rounded-2xl" />
+              <Skeleton className="aspect-[16/10] w-full rounded-2xl md:translate-y-24" />
+            </>
+          ) : (
+            projects.map((project, index) => (
+              <ProjectCard
+                key={index}
+                title={project.title}
+                category={project.category}
+                image={project.image}
+                className={index % 2 !== 0 ? "md:translate-y-24" : ""}
+              />
+            ))
+          )}
         </div>
       </div>
     </section>
@@ -468,7 +485,8 @@ const INITIAL_TESTIMONIALS = [
 ];
 
 function Testimonials() {
-  const [testimonials, setTestimonials] = useState<any[]>(INITIAL_TESTIMONIALS);
+  const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetch('/api/content.php')
@@ -479,9 +497,16 @@ function Testimonials() {
             const parsed = typeof data.testimonials === 'string' ? JSON.parse(data.testimonials) : data.testimonials;
             setTestimonials(parsed);
           } catch (e) { console.error("Testimonials Parse Error", e); }
+        } else {
+          setTestimonials(INITIAL_TESTIMONIALS);
         }
+        setLoading(false);
       })
-      .catch(err => console.error("CMS Load Error (Testimonials)", err));
+      .catch(err => {
+        console.error("CMS Load Error (Testimonials)", err);
+        setTestimonials(INITIAL_TESTIMONIALS);
+        setLoading(false);
+      });
   }, []);
 
   return (
@@ -498,34 +523,42 @@ function Testimonials() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {testimonials.map((item, index) => (
-            <div key={index} className="flex flex-col justify-between p-8 rounded-3xl bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/10 hover:border-primary/30 transition-all duration-500 group">
-              <div>
-                <div className="text-primary mb-6">
-                  {[1, 2, 3, 4, 5].map(star => (
-                    <span key={star} className="text-xl">★</span>
-                  ))}
-                </div>
-                <p className="text-lg text-gray-700 dark:text-gray-300 font-medium leading-relaxed mb-8">
-                  &ldquo;{item.quote}&rdquo;
-                </p>
-              </div>
-              <div className="flex items-center gap-4">
-                <div className="relative w-12 h-12 rounded-full overflow-hidden border border-gray-200 dark:border-white/20">
-                  <Image
-                    src={getImagePath(item.image)}
-                    alt={item.author}
-                    fill
-                    className="object-cover"
-                  />
-                </div>
+          {loading ? (
+            <>
+              <Skeleton className="h-64 w-full rounded-3xl" />
+              <Skeleton className="h-64 w-full rounded-3xl" />
+              <Skeleton className="h-64 w-full rounded-3xl" />
+            </>
+          ) : (
+            testimonials.map((item, index) => (
+              <div key={index} className="flex flex-col justify-between p-8 rounded-3xl bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/10 hover:border-primary/30 transition-all duration-500 group">
                 <div>
-                  <h4 className="text-sm font-bold text-gray-900 dark:text-white">{item.author}</h4>
-                  <p className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wider">{item.role}</p>
+                  <div className="text-primary mb-6">
+                    {[1, 2, 3, 4, 5].map(star => (
+                      <span key={star} className="text-xl">★</span>
+                    ))}
+                  </div>
+                  <p className="text-lg text-gray-700 dark:text-gray-300 font-medium leading-relaxed mb-8">
+                    &ldquo;{item.quote}&rdquo;
+                  </p>
+                </div>
+                <div className="flex items-center gap-4">
+                  <div className="relative w-12 h-12 rounded-full overflow-hidden border border-gray-200 dark:border-white/20">
+                    <Image
+                      src={getImagePath(item.image)}
+                      alt={item.author}
+                      fill
+                      className="object-cover"
+                    />
+                  </div>
+                  <div>
+                    <h4 className="text-sm font-bold text-gray-900 dark:text-white">{item.author}</h4>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wider">{item.role}</p>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            ))
+          )}
         </div>
       </div>
     </section>

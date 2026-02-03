@@ -61,14 +61,16 @@ const jakarta = Plus_Jakarta_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "Les Arsene Creatives",
-  description: "Premium design agency transforming brands.",
+  title: "Les Arsene Creatives | Digital Experience Agency",
+  description: "We build Digital Empires. A premium design agency transforming brands through structural chaos, pixel-perfect precision, and human-centered innovation.",
 };
 
 import SmoothScroll from "@/components/SmoothScroll";
 import PageTransition from "@/components/PageTransition";
 import BackgroundTexture from "@/components/BackgroundTexture";
 import Preloader from "@/components/Preloader";
+import PromoPopup from "@/components/PromoPopup";
+import CookieConsent from "@/components/CookieConsent";
 
 // ... existing imports
 
@@ -86,6 +88,8 @@ export default function RootLayout({
         <BackgroundTexture />
         <SmoothScroll>
           <PageTransition>{children}</PageTransition>
+          <PromoPopup />
+          <CookieConsent />
         </SmoothScroll>
       </body>
     </html>

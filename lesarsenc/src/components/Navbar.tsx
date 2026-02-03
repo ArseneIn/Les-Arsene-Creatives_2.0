@@ -53,12 +53,12 @@ export default function Navbar() {
                     </Link>
 
                     {/* Desktop Menu */}
-                    <div className="hidden md:flex items-center gap-8">
+                    <div className="hidden lg:flex items-center gap-8">
                         <NavLinks />
                         <Magnetic>
                             <Link
                                 href="/contact"
-                                className="relative px-6 py-3 rounded-full bg-primary text-background-dark font-bold text-sm uppercase tracking-wider overflow-hidden group"
+                                className="relative px-6 py-3 rounded-full bg-primary text-background-dark font-bold text-sm uppercase tracking-wider overflow-hidden group shrink-0 whitespace-nowrap"
                             >
                                 <span className="relative z-10 group-hover:text-white transition-colors duration-300">
                                     Let&apos;s Talk
@@ -71,7 +71,7 @@ export default function Navbar() {
                     {/* Mobile Toggle */}
                     <button
                         onClick={() => setIsOpen(!isOpen)}
-                        className="md:hidden relative z-50 w-10 h-10 flex items-center justify-center rounded-full bg-gray-100 dark:bg-white/10"
+                        className="lg:hidden relative z-50 w-10 h-10 flex items-center justify-center rounded-full bg-gray-100 dark:bg-white/10"
                     >
                         {isOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
                     </button>

@@ -55,6 +55,22 @@ if ($conn->query($users_table_sql) === TRUE) {
     echo "<p style='color:red'>Error creating table 'cms_users': " . $conn->error . "</p>";
 }
 
+$messages_table_sql = "CREATE TABLE IF NOT EXISTS cms_messages (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100),
+    company VARCHAR(100),
+    email VARCHAR(100),
+    budget VARCHAR(50),
+    message TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+)";
+
+if ($conn->query($messages_table_sql) === TRUE) {
+    echo "<p style='color:green'>Table 'cms_messages': Checked/Created Successfully</p>";
+} else {
+    echo "<p style='color:red'>Error creating table 'cms_messages': " . $conn->error . "</p>";
+}
+
 // 3. Check Table Content
 $result = $conn->query("SELECT * FROM cms_content");
 if ($result) {

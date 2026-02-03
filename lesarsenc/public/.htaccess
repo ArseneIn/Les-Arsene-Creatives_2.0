@@ -1,17 +1,27 @@
 <IfModule mod_rewrite.c>
   RewriteEngine On
-  RewriteBase /website_0ae36c9d/
+  RewriteBase /
+
+  # Standard Next.js Static Export Rules
   
-  # Hide .html extension
-  RewriteCond %{REQUEST_FILENAME} !-d
+  # 1. If the request matches a real file or directory, serve it.
+  RewriteCond %{REQUEST_FILENAME} -f [OR]
+  RewriteCond %{REQUEST_FILENAME} -d
+  RewriteRule ^ - [L]
+
+  # 2. If the request matches an HTML file (e.g. /contact -> /contact.html)
   RewriteCond %{REQUEST_FILENAME}.html -f
   RewriteRule ^(.*)$ $1.html [L]
-  
-  # Standard React/Next.js Fallback (Optional for SSG but good for dynamic routes if any)
-  # RewriteCond %{REQUEST_FILENAME} !-f
-  # RewriteCond %{REQUEST_FILENAME} !-d
-  # RewriteRule . /website_0ae36c9d/404.html [L]
+
+  # 3. Handle trailing slashes (Next.js export with trailingSlash: true creates folders with index.html)
+  RewriteCond %{REQUEST_FILENAME}/index.html -f
+  RewriteRule ^(.*)$ $1/index.html [L]
+
+  # 4. Fallback for 404s
+  ErrorDocument 404 /404.html
 </IfModule>
 
-# Disable Directory Listing to avoid 403s on empty folders, though trailingSlash fixes this
+# Disable directory listing
 Options -Indexes
+
+# Note: Removed mod_expires and specific headers to prevent 500 errors on strict servers.

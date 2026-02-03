@@ -6,7 +6,37 @@ import { Instagram, Twitter, Linkedin, MessageCircle, ArrowUpRight, Heart } from
 import Magnetic from "./Magnetic";
 import ImigongoPattern from "./ImigongoPattern";
 
+import { useState, useEffect } from "react";
+
+// ...
+
 export default function Footer() {
+    const [socials, setSocials] = useState({
+        instagram: "#",
+        linkedin: "#",
+        twitter: "#"
+    });
+
+    useEffect(() => {
+        fetch("/api/content.php")
+            .then(res => res.json())
+            .then(data => {
+                if (data.contact_info) {
+                    try {
+                        const parsed = JSON.parse(data.contact_info);
+                        setSocials({
+                            instagram: parsed.instagram || "#",
+                            linkedin: parsed.linkedin || "#",
+                            twitter: parsed.twitter || "#"
+                        });
+                    } catch (e) {
+                        console.error("Failed to parse contact info", e);
+                    }
+                }
+            })
+            .catch(err => console.error(err));
+    }, []);
+
     return (
         <footer className="bg-background-light dark:bg-background-dark border-t border-gray-200 dark:border-white/10 relative overflow-hidden">
 
@@ -82,9 +112,9 @@ export default function Footer() {
                             Connect
                         </h4>
                         <div className="flex gap-4">
-                            <SocialLink icon={<Instagram className="w-5 h-5" />} label="Instagram" />
-                            <SocialLink icon={<Twitter className="w-5 h-5" />} label="Twitter" />
-                            <SocialLink icon={<Linkedin className="w-5 h-5" />} label="LinkedIn" />
+                            <SocialLink href={socials.instagram} icon={<Instagram className="w-5 h-5" />} label="Instagram" />
+                            <SocialLink href={socials.twitter} icon={<Twitter className="w-5 h-5" />} label="Twitter" />
+                            <SocialLink href={socials.linkedin} icon={<Linkedin className="w-5 h-5" />} label="LinkedIn" />
                         </div>
                         <div className="mt-8">
                             <Magnetic>
@@ -116,15 +146,18 @@ export default function Footer() {
                     </div>
 
                     <div className="flex gap-6">
-                        {["Privacy", "Terms"].map((item) => (
-                            <Link
-                                key={item}
-                                href="#"
-                                className="text-gray-500 dark:text-gray-500 hover:text-primary text-xs font-mono uppercase transition-colors"
-                            >
-                                {item}
-                            </Link>
-                        ))}
+                        <Link
+                            href="/privacy"
+                            className="text-gray-500 dark:text-gray-500 hover:text-primary text-xs font-mono uppercase transition-colors"
+                        >
+                            Privacy
+                        </Link>
+                        <Link
+                            href="/terms"
+                            className="text-gray-500 dark:text-gray-500 hover:text-primary text-xs font-mono uppercase transition-colors"
+                        >
+                            Terms
+                        </Link>
                     </div>
                 </div>
             </div>
@@ -145,11 +178,13 @@ function FooterLink({ href, label }: { href: string, label: string }) {
     )
 }
 
-function SocialLink({ icon, label }: { icon: React.ReactNode; label: string }) {
+function SocialLink({ icon, label, href }: { icon: React.ReactNode; label: string; href?: string }) {
     return (
         <Magnetic>
             <a
-                href="#"
+                href={href || "#"}
+                target="_blank"
+                rel="noopener noreferrer"
                 className="w-10 h-10 rounded-full border border-gray-200 dark:border-white/10 flex items-center justify-center text-gray-500 hover:text-background-dark hover:bg-primary hover:border-primary transition-all duration-300"
                 aria-label={label}
             >
