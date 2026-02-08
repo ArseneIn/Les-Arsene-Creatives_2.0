@@ -2,6 +2,9 @@
   RewriteEngine On
   RewriteBase /
 
+  # Allow access to _next directory (often blocked by default security rules)
+  RewriteRule ^_next/ - [L]
+
   # Standard Next.js Static Export Rules
   
   # 1. If the request matches a real file or directory, serve it.
