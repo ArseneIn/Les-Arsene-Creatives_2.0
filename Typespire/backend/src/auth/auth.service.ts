@@ -1,0 +1,156 @@
+import { Injectable, ConflictException } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { JwtService } from '@nestjs/jwt';
+import { PrismaService } from '../prisma/prisma.service';
+import * as bcrypt from 'bcrypt';
+import { UserRole, User } from '@prisma/client';
+
+interface SsoPayload {
+  email: string;
+  firstName?: string;
+  lastName?: string;
+  role?: UserRole;
+  institutionId?: string;
+}
+
+@Injectable()
+export class AuthService {
+  constructor(
+    private prisma: PrismaService,
+    private jwtService: JwtService,
+    private configService: ConfigService,
+  ) { }
+
+  async validateUser(
+    email: string,
+    pass: string,
+    institutionSlug?: string,
+  ): Promise<Omit<User, 'password'> | null> {
+    const user = await this.prisma.user.findUnique({
+      where: { email },
+      include: { institution: true },
+    });
+
+    if (user && (await bcrypt.compare(pass, user.password))) {
+      // If institution slug is provided, verify user belongs to it
+      if (institutionSlug) {
+        // Allow PLATFORM_ADMIN to bypass institution check if they are logging in generally
+        // But if they selected an institution, we might want to check?
+        // For now, let's enforce strict checking: if you select an institution, you must belong to it
+        // UNLESS you are a super admin who might not belong to any, or we just ignore for super admin.
+        // The requirement says "check if the logging in user currently belongs under the institution chose".
+
+        if (user.role !== UserRole.PLATFORM_ADMIN) {
+          const institution = await this.prisma.institution.findUnique({
+            where: { slug: institutionSlug },
+          });
+
+          if (!institution || user.institutionId !== institution.id) {
+            return null; // User does not belong to the selected institution
+          }
+        }
+      }
+
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { password, institution, ...result } = user;
+      return result;
+    }
+    return null;
+  }
+
+  login(user: User) {
+    const payload = { email: user.email, sub: user.id, role: user.role };
+    return {
+      access_token: this.jwtService.sign(payload),
+      user: {
+        id: user.id,
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        role: user.role,
+        institutionId: user.institutionId,
+      },
+    };
+  }
+
+  async register(data: {
+    email: string;
+    password: string;
+    firstName: string;
+    lastName: string;
+    role?: UserRole;
+    institutionId?: string;
+  }) {
+    const existingUser = await this.prisma.user.findUnique({
+      where: { email: data.email },
+    });
+    if (existingUser) {
+      throw new ConflictException('User with this email already exists');
+    }
+
+    const hashedPassword = await bcrypt.hash(data.password, 10);
+    const user = await this.prisma.user.create({
+      data: {
+        ...data,
+        password: hashedPassword,
+        role: data.role || UserRole.STUDENT,
+      },
+    });
+
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { password, ...result } = user;
+    return result;
+  }
+
+  async validateSsoToken(token: string) {
+    try {
+      const ssoSecret = this.configService.get<string>('SSO_SECRET');
+      if (!ssoSecret) {
+        throw new Error('SSO_SECRET not configured');
+      }
+
+      const payload = await this.jwtService.verifyAsync<SsoPayload>(token, {
+        secret: ssoSecret,
+      });
+
+      // Payload expected: { email, firstName, lastName, role?, institutionId?, courseId? }
+      const { email, firstName, lastName, role, institutionId } = payload;
+
+      if (!email) {
+        throw new Error('Invalid SSO token: email missing');
+      }
+
+      // Find or Create User
+      let user = await this.prisma.user.findUnique({
+        where: { email },
+      });
+
+      if (!user) {
+        // Create new user
+        // Default password for SSO users (they won't use it anyway, but DB needs it)
+        const hashedPassword = await bcrypt.hash(
+          Math.random().toString(36).slice(-8),
+          10,
+        );
+
+        user = await this.prisma.user.create({
+          data: {
+            email,
+            firstName: firstName || 'SSO',
+            lastName: lastName || 'User',
+            role: role || UserRole.STUDENT,
+            institutionId: institutionId || null,
+            password: hashedPassword,
+          },
+        });
+      }
+
+      // Generate Session Token
+      return this.login(user);
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : 'Unknown error';
+      throw new ConflictException('Invalid SSO Token: ' + errorMessage);
+    }
+  }
+}

@@ -1,0 +1,130 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  PLATFORM_ADMIN
+  INSTITUTION_ADMIN
+  FACILITATOR
+  STUDENT
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  firstName String?
+  lastName  String?
+  role      UserRole @default(STUDENT)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  institutionId String?
+  institution   Institution? @relation(fields: [institutionId], references: [id])
+  
+  // For students
+  sectionId     String?
+  section       Section?     @relation(fields: [sectionId], references: [id])
+  
+  facilitatedSections Section[] @relation("SectionFacilitator")
+  
+  testResults   TestResult[]
+}
+
+model Institution {
+  id          String   @id @default(uuid())
+  name        String
+  slug        String   @unique
+  address     String?
+  contactEmail String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  users       User[]
+  intakes     Intake[]
+  tests       Test[]
+}
+
+model Intake {
+  id            String      @id @default(uuid())
+  name          String      // e.g., "Jan 2025"
+  startDate     DateTime
+  endDate       DateTime?
+  status        String      @default("ACTIVE") // ACTIVE, ARCHIVED
+  
+  institutionId String
+  institution   Institution @relation(fields: [institutionId], references: [id])
+  
+  sections      Section[]
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+}
+
+model Section {
+  id            String   @id @default(uuid())
+  name          String   // e.g., "Section A"
+  
+  intakeId      String
+  intake        Intake   @relation(fields: [intakeId], references: [id])
+  
+  students      User[]
+  
+  facilitatorId String?
+  facilitator   User?    @relation("SectionFacilitator", fields: [facilitatorId], references: [id])
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model Test {
+  id            String   @id @default(uuid())
+  title         String
+  content       String   @db.Text // The typing text
+  duration      Int      @default(60) // in seconds
+  difficulty    String   @default("MEDIUM") // EASY, MEDIUM, HARD
+  
+  institutionId String?  // Nullable for Global/System tests
+  institution   Institution? @relation(fields: [institutionId], references: [id])
+  
+  results       TestResult[]
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model TestResult {
+  id             String   @id @default(uuid())
+  wpm            Int
+  accuracy       Float
+  duration       Int      // in seconds
+  strugglingKeys Json?    // Store as JSON
+  createdAt      DateTime @default(now())
+  
+  userId         String
+  user           User     @relation(fields: [userId], references: [id])
+  
+  testId         String
+  test           Test     @relation(fields: [testId], references: [id])
+}
+
+model SystemSettings {
+  id                 String   @id @default(uuid())
+  siteName           String   @default("Typespire")
+  supportEmail       String   @default("support@typespire.com")
+  maintenanceMode    Boolean  @default(false)
+  minPasswordLength  Int      @default(8)
+  requireSpecialChar Boolean  @default(true)
+  enable2FA          Boolean  @default(false)
+  sessionTimeout     Int      @default(30)
+  emailSenderName    String   @default("Typespire Team")
+  emailReplyTo       String   @default("no-reply@typespire.com")
+  updatedAt          DateTime @updatedAt
+}
