@@ -7,6 +7,7 @@ import api from "@/lib/api";
 
 interface AuthContextType {
     user: User | undefined;
+    token: string | null;
     isLoading: boolean;
     login: (email: string, password?: string) => Promise<string | null>; // Returns redirect path or null if failed
     logout: () => void;
@@ -17,12 +18,14 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
     const [user, setUser] = useState<User | undefined>(undefined);
+    const [token, setToken] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
         const initAuth = async () => {
-            const token = localStorage.getItem("ishurihub_token");
-            if (token) {
+            const storedToken = localStorage.getItem("ishurihub_token");
+            if (storedToken) {
+                setToken(storedToken);
                 try {
                     // Verify token and get user details
                     // For now, we decode or fetch profile. Let's assume we fetch profile.
@@ -75,7 +78,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                     permissions: user.customRole.permissions as Permission[]
                 };
             } else {
-                role = SYSTEM_ROLES.find((r: any) => r.id === user.roleId);
+                role = SYSTEM_ROLES.find((r) => r.id === user.roleId);
             }
 
             const fullUser = {
@@ -85,6 +88,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
             localStorage.setItem("ishurihub_token", access_token);
             localStorage.setItem("ishurihub_user", JSON.stringify(fullUser));
+            setToken(access_token);
             setUser(fullUser);
 
             // Determine redirect path
@@ -101,6 +105,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const logout = () => {
         setUser(undefined);
+        setToken(null);
         localStorage.removeItem("ishurihub_token");
         localStorage.removeItem("ishurihub_user");
         window.location.href = '/login';
@@ -113,7 +118,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
 
     return (
-        <AuthContext.Provider value={{ user, isLoading, login, logout, checkPermission }}>
+        <AuthContext.Provider value={{ user, token, isLoading, login, logout, checkPermission }}>
             {children}
         </AuthContext.Provider>
     );

@@ -61,6 +61,13 @@ export default function Sidebar({ schoolId }: SidebarProps) {
             feature: 'attendance'
         },
         {
+            label: 'Events',
+            icon: 'event', // Material symbol for events
+            href: `${baseUrl}/dashboard/events`,
+            permission: 'event.view', // Assuming a generic permission, or reuse existing
+            feature: 'attendance' // Or maybe 'events' if we add a new feature flag
+        },
+        {
             label: 'Discipline',
             icon: 'gavel',
             href: `${baseUrl}/discipline`,

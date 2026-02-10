@@ -20,6 +20,7 @@ import { AttendanceModule } from './attendance/attendance.module';
 import { ClassesModule } from './classes/classes.module';
 import { AcademicYearsModule } from './academic-years/academic-years.module';
 import { RolesModule } from './roles/roles.module';
+import { EventsModule } from './events/events.module';
 
 @Module({
   imports: [
@@ -60,6 +61,7 @@ import { RolesModule } from './roles/roles.module';
     ClassesModule,
     AcademicYearsModule,
     RolesModule,
+    EventsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

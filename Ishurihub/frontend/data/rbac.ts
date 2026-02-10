@@ -23,7 +23,11 @@ export type Permission =
     | 'system.manage_users'
     | 'system.manage_roles'
     | 'system.view_logs'
-    | 'system.manage_institutions';
+    | 'system.manage_institutions'
+    // Events
+    | 'event.view'
+    | 'event.create'
+    | 'event.manage';
 
 export interface Role {
     id: string;
@@ -55,7 +59,8 @@ export const SYSTEM_ROLES: Role[] = [
             'discipline.view', 'discipline.log_incident', 'discipline.manage_cards',
             'finance.view', 'finance.manage_fees',
             'library.view', 'library.manage_books', 'library.checkout',
-            'system.manage_users', 'system.manage_roles', 'system.view_logs'
+            'system.manage_users', 'system.manage_roles', 'system.view_logs',
+            'event.view', 'event.create', 'event.manage'
         ]
     },
     {
