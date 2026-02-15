@@ -23,6 +23,7 @@ interface SchoolProfile {
     website?: string;
     email?: string;
     phone?: string;
+    logoUrl?: string;
     combinations?: { name: string; isActive: boolean }[];
 }
 
@@ -348,13 +349,62 @@ export default function SystemPage() {
                                             School Profile
                                         </h3>
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                            {/* Logo Upload Section */}
+                                            <div className="md:col-span-2 flex items-center gap-6 p-4 bg-gray-50 dark:bg-white/5 rounded-xl border border-gray-100 dark:border-gray-700/50">
+                                                <div className="shrink-0 relative group">
+                                                    <div className="size-24 rounded-xl bg-white dark:bg-black/20 border-2 border-dashed border-gray-300 dark:border-gray-600 flex items-center justify-center overflow-hidden">
+                                                        {profile.logoUrl ? (
+                                                            <img
+                                                                src={`${api.defaults.baseURL}${profile.logoUrl}`}
+                                                                alt="School Logo"
+                                                                className="w-full h-full object-contain"
+                                                            />
+                                                        ) : (
+                                                            <span className="material-symbols-outlined text-gray-400 text-4xl">add_photo_alternate</span>
+                                                        )}
+                                                    </div>
+                                                    <label className="absolute inset-0 flex items-center justify-center bg-black/50 text-white opacity-0 group-hover:opacity-100 transition-opacity rounded-xl cursor-pointer">
+                                                        <span className="text-xs font-bold">Change</span>
+                                                        <input
+                                                            type="file"
+                                                            className="hidden"
+                                                            accept="image/*"
+                                                            onChange={async (e) => {
+                                                                if (e.target.files && e.target.files[0]) {
+                                                                    const file = e.target.files[0];
+                                                                    const formData = new FormData();
+                                                                    formData.append('file', file);
+
+                                                                    try {
+                                                                        const res = await api.post(`/schools/${schoolId}/logo`, formData, {
+                                                                            headers: { 'Content-Type': 'multipart/form-data' }
+                                                                        });
+                                                                        setProfile({ ...profile, logoUrl: res.data.logoUrl });
+                                                                    } catch (err) {
+                                                                        console.error("Failed to upload logo", err);
+                                                                        alert("Failed to upload logo. Please try again.");
+                                                                    }
+                                                                }
+                                                            }}
+                                                        />
+                                                    </label>
+                                                </div>
+                                                <div className="flex-1">
+                                                    <h4 className="text-sm font-bold text-gray-900 dark:text-white">School Logo</h4>
+                                                    <p className="text-xs text-gray-500 mt-1">
+                                                        Upload a PNG or JPG image. Recommended size: 500x500px.
+                                                        This logo will appear on reports and the dashboard sidebar.
+                                                    </p>
+                                                </div>
+                                            </div>
+
                                             <div className="space-y-1">
                                                 <label className="text-xs font-bold text-gray-500 uppercase">School Name</label>
                                                 <input
                                                     type="text"
                                                     value={profile.name}
                                                     onChange={(e) => setProfile({ ...profile, name: e.target.value })}
-                                                    className="w-full h-10 px-3 rounded-lg border border-[#cfcfe7] dark:border-gray-600 bg-transparent text-sm"
+                                                    className="w-full h-10 px-3 rounded-lg border border-[#cfcfe7] dark:border-gray-600 bg-transparent text-sm active:border-primary focus:border-primary outline-none"
                                                 />
                                             </div>
                                             <div className="space-y-1">
@@ -363,7 +413,7 @@ export default function SystemPage() {
                                                     type="text"
                                                     value={profile.motto || ''}
                                                     onChange={(e) => setProfile({ ...profile, motto: e.target.value })}
-                                                    className="w-full h-10 px-3 rounded-lg border border-[#cfcfe7] dark:border-gray-600 bg-transparent text-sm"
+                                                    className="w-full h-10 px-3 rounded-lg border border-[#cfcfe7] dark:border-gray-600 bg-transparent text-sm active:border-primary focus:border-primary outline-none"
                                                 />
                                             </div>
                                             <div className="space-y-1 md:col-span-2">
@@ -372,7 +422,7 @@ export default function SystemPage() {
                                                     type="text"
                                                     value={profile.address || ''}
                                                     onChange={(e) => setProfile({ ...profile, address: e.target.value })}
-                                                    className="w-full h-10 px-3 rounded-lg border border-[#cfcfe7] dark:border-gray-600 bg-transparent text-sm"
+                                                    className="w-full h-10 px-3 rounded-lg border border-[#cfcfe7] dark:border-gray-600 bg-transparent text-sm active:border-primary focus:border-primary outline-none"
                                                 />
                                             </div>
                                         </div>

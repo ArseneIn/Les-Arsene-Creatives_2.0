@@ -10,9 +10,11 @@ const api = axios.create({
 // Request interceptor to add the auth token header to requests
 api.interceptors.request.use(
     (config) => {
-        const token = localStorage.getItem('ishurihub_token');
-        if (token) {
-            config.headers.Authorization = `Bearer ${token}`;
+        if (typeof window !== 'undefined') {
+            const token = localStorage.getItem('ishurihub_token');
+            if (token) {
+                config.headers.Authorization = `Bearer ${token}`;
+            }
         }
         return config;
     },

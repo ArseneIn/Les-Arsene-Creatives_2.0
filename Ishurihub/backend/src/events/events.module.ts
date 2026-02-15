@@ -7,11 +7,11 @@ import { EventOccurrence } from './entities/event-occurrence.entity';
 import { EventAttendance } from './entities/event-attendance.entity';
 
 @Module({
-    imports: [
-        TypeOrmModule.forFeature([SchoolEvent, EventOccurrence, EventAttendance]),
-    ],
-    controllers: [EventsController],
-    providers: [EventsService],
-    exports: [EventsService],
+  imports: [
+    TypeOrmModule.forFeature([SchoolEvent, EventOccurrence, EventAttendance]),
+  ],
+  controllers: [EventsController],
+  providers: [EventsService],
+  exports: [EventsService],
 })
-export class EventsModule { }
+export class EventsModule {}

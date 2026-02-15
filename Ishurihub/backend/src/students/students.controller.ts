@@ -20,7 +20,7 @@ import { UpdateStudentDto } from './dto/update-student.dto';
 
 @Controller('students')
 export class StudentsController {
-  constructor(private readonly studentsService: StudentsService) { }
+  constructor(private readonly studentsService: StudentsService) {}
 
   @Post()
   create(@Body() createStudentDto: CreateStudentDto) {
@@ -28,7 +28,10 @@ export class StudentsController {
   }
 
   @Get()
-  findAll(@Query('schoolId') schoolId?: string, @Query('search') search?: string) {
+  findAll(
+    @Query('schoolId') schoolId?: string,
+    @Query('search') search?: string,
+  ) {
     return this.studentsService.findAll(schoolId, search);
   }
 

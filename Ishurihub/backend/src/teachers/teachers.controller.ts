@@ -7,18 +7,30 @@ import {
   Param,
   Delete,
   Query,
+  UseGuards,
+  Req,
 } from '@nestjs/common';
 import { TeachersService } from './teachers.service';
 import { CreateTeacherDto } from './dto/create-teacher.dto';
 import { UpdateTeacherDto } from './dto/update-teacher.dto';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
 @Controller('teachers')
 export class TeachersController {
-  constructor(private readonly teachersService: TeachersService) {}
+  constructor(private readonly teachersService: TeachersService) { }
 
   @Post()
   create(@Body() createTeacherDto: CreateTeacherDto) {
     return this.teachersService.create(createTeacherDto);
+  }
+
+  // TODO: Add proper Role Guard for Teacher
+  @Get('my-classes')
+  @UseGuards(JwtAuthGuard)
+  getMyClasses(@Req() req) {
+    // Requires email in JWT payload
+    const userEmail = req.user.email;
+    return this.teachersService.getMyClasses(userEmail);
   }
 
   @Get()

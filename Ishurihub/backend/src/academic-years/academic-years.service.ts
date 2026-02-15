@@ -13,7 +13,7 @@ export class AcademicYearsService {
     private yearsRepository: Repository<AcademicYear>,
     @InjectRepository(Term)
     private termsRepository: Repository<Term>,
-  ) { }
+  ) {}
 
   async createYear(dto: CreateAcademicYearDto) {
     if (dto.isActive) {

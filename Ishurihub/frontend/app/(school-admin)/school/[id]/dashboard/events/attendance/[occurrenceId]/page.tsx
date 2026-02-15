@@ -33,10 +33,8 @@ export default function EventAttendancePage({ params }: { params: { schoolId: st
         setLoading(true);
         setMessage('');
 
-        // Simulate nfc search or direct student ID. For simplified flow, let's assume we find student by Card UID first
         try {
-            // 1. Find student by Card UID (Reusing existing endpoint if available or just mocking logic here for V1)
-            // Ideally: GET /students/nfc/:cardUid
+            // 1. Find student by Card UID
             const studentRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/students/nfc/${scanInput}`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
@@ -79,52 +77,76 @@ export default function EventAttendancePage({ params }: { params: { schoolId: st
     };
 
     return (
-        <div className="p-6 max-w-lg mx-auto text-center">
-            <Link href={`/school/${schoolId}/dashboard/events`} className="text-gray-400 hover:text-white text-sm mb-8 block text-left">
-                ← Back to Events
-            </Link>
+        <div className="min-h-screen bg-[#0f172a] p-6">
+            <div className="max-w-2xl mx-auto">
+                <Link
+                    href={`/school/${schoolId}/dashboard/events`}
+                    className="inline-flex items-center gap-2 text-gray-400 hover:text-white text-sm mb-8 transition-colors group"
+                >
+                    <span className="material-symbols-outlined rounded-full p-1 bg-slate-800 group-hover:bg-primary group-hover:text-white transition-colors text-lg">arrow_back</span>
+                    Back to Events
+                </Link>
 
-            <h1 className="text-3xl font-bold text-white mb-6">Scan Event Attendance</h1>
+                <div className="bg-[#1e293b] rounded-3xl border border-slate-700/50 shadow-2xl overflow-hidden relative">
+                    <div className="absolute top-0 inset-x-0 h-1.5 bg-gradient-to-r from-green-400 via-primary to-blue-500"></div>
 
-            <div className="bg-slate-800 p-8 rounded-xl border border-slate-700 shadow-xl">
-                <span className="material-symbols-outlined text-6xl text-primary mb-4 animate-pulse">
-                    nfc
-                </span>
-                <p className="text-gray-300 mb-6">Tap Student Card to record attendance</p>
+                    <div className="p-10 text-center">
+                        <div className="size-24 bg-slate-900/50 rounded-full flex items-center justify-center mx-auto mb-6 border border-slate-700 shadow-inner relative group">
+                            <div className="absolute inset-0 bg-primary/20 rounded-full blur-xl animate-pulse"></div>
+                            <span className="material-symbols-outlined text-6xl text-primary relative z-10 group-hover:scale-110 transition-transform">nfc</span>
+                        </div>
 
-                <form onSubmit={handleScan} className="flex gap-2">
-                    <input
-                        ref={inputRef}
-                        type="text"
-                        className="flex-1 bg-slate-900 border-slate-600 rounded-lg p-3 text-white focus:ring-2 focus:ring-primary outline-none"
-                        placeholder="Card UID or Student ID..."
-                        value={scanInput}
-                        onChange={(e) => setScanInput(e.target.value)}
-                        autoFocus
-                    />
-                    <button
-                        type="submit"
-                        disabled={loading}
-                        className="bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-lg font-bold"
-                    >
-                        {loading ? '...' : 'GO'}
-                    </button>
-                </form>
+                        <h1 className="text-3xl font-bold text-white mb-2">Scan Attendance</h1>
+                        <p className="text-gray-400 mb-8 max-w-sm mx-auto">Ready to scan. Tap a student ID card or enter the UID manually.</p>
 
-                {message && (
-                    <div className={`mt-6 p-4 rounded-lg font-medium ${message.startsWith('✅') ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'}`}>
-                        {message}
-                    </div>
-                )}
+                        <form onSubmit={handleScan} className="relative max-w-md mx-auto mb-8">
+                            <input
+                                ref={inputRef}
+                                type="text"
+                                className="w-full bg-[#0f172a] border border-slate-600 rounded-xl py-4 pl-6 pr-14 text-white text-lg placeholder-gray-600 focus:border-primary focus:ring-2 focus:ring-primary/50 outline-none transition-all shadow-inner"
+                                placeholder="Scanning..."
+                                value={scanInput}
+                                onChange={(e) => setScanInput(e.target.value)}
+                                autoFocus
+                            />
+                            <button
+                                type="submit"
+                                disabled={loading}
+                                className="absolute right-2 top-2 bottom-2 aspect-square bg-primary hover:bg-primary/90 text-white rounded-lg flex items-center justify-center transition-all disabled:opacity-50"
+                            >
+                                {loading ? <div className="size-5 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <span className="material-symbols-outlined">arrow_forward</span>}
+                            </button>
+                        </form>
 
-                {lastScanned && (
-                    <div className="mt-6 border-t border-slate-700 pt-6">
-                        <p className="text-sm text-gray-400">Last Scanned:</p>
-                        <div className="mt-2 text-white text-lg font-semibold">
-                            {lastScanned.firstName} {lastScanned.lastName}
+                        <div className="h-24 flex items-center justify-center">
+                            {message && (
+                                <div className={`px-6 py-3 rounded-xl font-medium flex items-center gap-2 animate-in fade-in slide-in-from-bottom-2 ${message.startsWith('✅') ? 'bg-green-500/10 text-green-400 border border-green-500/20' : 'bg-red-500/10 text-red-400 border border-red-500/20'}`}>
+                                    <span className="material-symbols-outlined text-xl">{message.startsWith('✅') ? 'check_circle' : 'error'}</span>
+                                    {message.replace(/^[✅❌]\s*/, '')}
+                                </div>
+                            )}
                         </div>
                     </div>
-                )}
+
+                    {lastScanned && (
+                        <div className="bg-[#0f172a] border-t border-slate-700/50 p-6 animate-in slide-in-from-bottom-4">
+                            <div className="flex items-center gap-4">
+                                <div className="size-12 rounded-full bg-slate-800 flex items-center justify-center border border-slate-700 text-lg font-bold text-gray-400">
+                                    {lastScanned.firstName[0]}{lastScanned.lastName[0]}
+                                </div>
+                                <div className="text-left">
+                                    <p className="text-xs text-gray-500 uppercase font-semibold tracking-wider">Last Scanned</p>
+                                    <p className="text-white font-bold text-lg">{lastScanned.firstName} {lastScanned.lastName}</p>
+                                </div>
+                                <div className="ml-auto">
+                                    <span className="bg-green-500/10 text-green-400 text-xs px-2 py-1 rounded border border-green-500/20 font-mono">
+                                        {new Date().toLocaleTimeString()}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                </div>
             </div>
         </div>
     );

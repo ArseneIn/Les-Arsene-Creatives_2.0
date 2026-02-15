@@ -1,49 +1,60 @@
-import { IsEnum, IsNotEmpty, IsOptional, IsString, IsBoolean, IsArray } from 'class-validator';
+import {
+  IsEnum,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  IsBoolean,
+  IsArray,
+} from 'class-validator';
 import { EventType, TargetAudience } from '../entities/school-event.entity';
 
 export class CreateEventDto {
-    @IsNotEmpty()
-    @IsString()
-    title: string;
+  @IsNotEmpty()
+  @IsString()
+  title: string;
 
-    @IsOptional()
-    @IsString()
-    description: string;
+  @IsOptional()
+  @IsString()
+  description: string;
 
-    @IsEnum(EventType)
-    eventType: EventType;
+  @IsEnum(EventType)
+  eventType: EventType;
 
-    @IsOptional()
-    @IsString()
-    location: string;
+  @IsOptional()
+  @IsString()
+  location: string;
 
-    @IsOptional()
-    @IsString()
-    startTime: string;
+  @IsOptional()
+  @IsString()
+  startTime: string;
 
-    @IsOptional()
-    @IsString()
-    endTime: string;
+  @IsOptional()
+  @IsString()
+  endTime: string;
 
-    @IsBoolean()
-    isRecurring: boolean;
+  @IsBoolean()
+  isRecurring: boolean;
 
-    @IsOptional()
-    recurrencePattern: any;
+  @IsOptional()
+  recurrencePattern: any;
 
-    @IsNotEmpty()
-    startDate: string;
+  @IsNotEmpty()
+  startDate: string;
 
-    @IsOptional()
-    endDate: string;
+  @IsOptional()
+  endDate: string;
 
-    @IsBoolean()
-    isMandatory: boolean;
+  @IsBoolean()
+  isMandatory: boolean;
 
-    @IsEnum(TargetAudience)
-    targetAudience: TargetAudience;
+  @IsEnum(TargetAudience)
+  targetAudience: TargetAudience;
 
-    @IsOptional()
-    @IsArray()
-    targetIds: string[];
+  @IsOptional()
+  @IsArray()
+  targetIds: string[];
+
+  @IsOptional()
+  @IsString()
+  schoolId: string;
 }

@@ -12,7 +12,7 @@ import { CreatePaymentDto } from './dto/create-payment.dto';
 
 @Controller('finance/payments')
 export class FinanceController {
-  constructor(private readonly financeService: FinanceService) { }
+  constructor(private readonly financeService: FinanceService) {}
 
   @Post()
   create(@Body() createPaymentDto: CreatePaymentDto) {

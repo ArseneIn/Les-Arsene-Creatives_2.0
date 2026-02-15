@@ -9,7 +9,7 @@ export class FinanceService {
   constructor(
     @InjectRepository(Payment)
     private paymentsRepository: Repository<Payment>,
-  ) { }
+  ) {}
 
   create(createPaymentDto: CreatePaymentDto) {
     const payment = this.paymentsRepository.create(createPaymentDto);
@@ -35,8 +35,12 @@ export class FinanceService {
     const payments = await this.paymentsRepository
       .createQueryBuilder('payment')
       .where('payment.schoolId = :schoolId', { schoolId })
-      .andWhere('payment.date >= :start', { start: startOfMonth.toISOString().split('T')[0] })
-      .andWhere('payment.date <= :end', { end: endOfMonth.toISOString().split('T')[0] })
+      .andWhere('payment.date >= :start', {
+        start: startOfMonth.toISOString().split('T')[0],
+      })
+      .andWhere('payment.date <= :end', {
+        end: endOfMonth.toISOString().split('T')[0],
+      })
       .getMany();
 
     const revenue = payments
@@ -49,7 +53,7 @@ export class FinanceService {
     return {
       revenue,
       expenses: 0, // Placeholder
-      net: revenue
+      net: revenue,
     };
   }
 

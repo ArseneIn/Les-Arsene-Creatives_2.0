@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { AttendanceRecord } from './entities/attendance.entity';
 import { CreateAttendanceDto } from './dto/create-attendance.dto';
+import { CreateBulkAttendanceDto } from './dto/create-bulk-attendance.dto';
 import { AcademicYearsService } from '../academic-years/academic-years.service';
 
 @Injectable()
@@ -29,6 +30,52 @@ export class AttendanceService {
       termId: activeTerm.id,
     });
     return this.attendanceRepository.save(record);
+  }
+
+  async createBulk(createBulkAttendanceDto: CreateBulkAttendanceDto) {
+    const { records, schoolId, classId, date } = createBulkAttendanceDto;
+
+    // 1. Find Active Term
+    const activeTerm = await this.academicYearsService.findActiveTerm(schoolId);
+    if (!activeTerm) {
+      throw new BadRequestException(
+        'No Active Term found. Please activate a term in System Settings.',
+      );
+    }
+
+    const savedRecords: AttendanceRecord[] = [];
+
+    for (const recordDto of records) {
+      // Check if record exists for this student and date
+      const existingRecord = await this.attendanceRepository.findOne({
+        where: {
+          studentId: recordDto.studentId,
+          date: date,
+          schoolId: schoolId,
+        },
+      });
+
+      if (existingRecord) {
+        // Update
+        existingRecord.status = recordDto.status;
+        existingRecord.remarks = recordDto.remarks;
+        existingRecord.classId = classId;
+        existingRecord.teacherId = recordDto.teacherId;
+        savedRecords.push(await this.attendanceRepository.save(existingRecord));
+      } else {
+        // Create
+        const newRecord = this.attendanceRepository.create({
+          ...recordDto,
+          date: date,
+          schoolId: schoolId,
+          classId: classId,
+          termId: activeTerm.id,
+        });
+        savedRecords.push(await this.attendanceRepository.save(newRecord));
+      }
+    }
+
+    return savedRecords;
   }
 
   async findAll(schoolId: string, date?: string) {
@@ -73,7 +120,9 @@ export class AttendanceService {
     const records = await this.attendanceRepository
       .createQueryBuilder('attendance')
       .where('attendance.schoolId = :schoolId', { schoolId })
-      .andWhere('attendance.date >= :start', { start: sevenDaysAgo.toISOString().split('T')[0] })
+      .andWhere('attendance.date >= :start', {
+        start: sevenDaysAgo.toISOString().split('T')[0],
+      })
       .orderBy('attendance.date', 'ASC')
       .getMany();
 
@@ -86,9 +135,11 @@ export class AttendanceService {
       // Ideally we distinguish type, assuming these are students for now as per entity
       // If entity has 'userType' or similar, filter here.
       // Assuming Student Attendance for now on this repo
-      if (curr.studentId) acc[date].students += (curr.status === 'Present' || curr.status === 'Late') ? 1 : 0;
+      if (curr.studentId)
+        acc[date].students +=
+          curr.status === 'Present' || curr.status === 'Late' ? 1 : 0;
       return acc;
-    }, {});
+    }, {} as Record<string, { date: string; students: number; teachers: number }>);
 
     return Object.values(grouped);
   }

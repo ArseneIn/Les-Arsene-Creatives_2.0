@@ -1,24 +1,34 @@
+"use client";
 import SchoolAdminDashboard from "@/components/dashboards/SchoolAdminDashboard";
+import { useAuthContext } from "@/context/AuthContext";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 
-export default function DashboardPage() {
+export default function DashboardPage({ params }: { params: Promise<{ id: string }> }) {
+    const { user, isLoading } = useAuthContext();
+    const router = useRouter();
+
+    useEffect(() => {
+        if (!isLoading && user && user.role) {
+            const roleId = user.role.id;
+            const roleName = user.role.name;
+            const schoolId = user.schoolId;
+
+            // Check for specific roles and redirect
+            if (roleName === 'Teacher' || roleId === 'teacher') {
+                router.replace(`/school/${schoolId}/teacher/dashboard`);
+            } else if (roleName === 'Student' || roleId === 'student') {
+                router.replace(`/school/${schoolId}/student/dashboard`);
+            } else if (roleName === 'Parent' || roleId === 'parent') {
+                router.replace(`/school/${schoolId}/parent/dashboard`);
+            }
+        }
+    }, [user, isLoading, router]);
+
+
+    if (isLoading) return null;
+
     return (
-        <>
-            {/* Top Bar */}
-            <header className="h-16 border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-[#151b2b] flex items-center justify-between px-8 sticky top-0 z-10">
-                <h2 className="text-lg font-semibold text-gray-800 dark:text-white">Dashboard Overview</h2>
-                <div className="flex items-center gap-4">
-                    <button className="p-2 text-gray-500 hover:text-primary transition-colors">
-                        <span className="material-symbols-outlined">search</span>
-                    </button>
-                    <button className="p-2 text-gray-500 hover:text-primary transition-colors relative">
-                        <span className="material-symbols-outlined">notifications</span>
-                        <span className="absolute top-2 right-2 size-2 bg-red-500 rounded-full"></span>
-                    </button>
-                </div>
-            </header>
-
-            {/* Content Body */}
-            <SchoolAdminDashboard />
-        </>
+        <SchoolAdminDashboard />
     );
 }

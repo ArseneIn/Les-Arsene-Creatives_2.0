@@ -1,176 +1,277 @@
 "use client";
 
-import { useState } from "react";
+import { motion, AnimatePresence, Variants } from "framer-motion";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
-import { useAuthContext } from "@/context/AuthContext";
+import { useState } from "react";
 
-export default function LoginPage() {
-    const router = useRouter();
-    const { login } = useAuthContext();
-    const [isLoading, setIsLoading] = useState(false);
-    const [formData, setFormData] = useState({
-        email: "admin@ishurihub.rw",
-        password: "password123"
-    });
-    const [error, setError] = useState("");
+// Define the role types and their configurations
+type Role = 'student' | 'teacher' | 'parent' | 'admin';
 
-    const handleLogin = async (e: React.FormEvent) => {
-        e.preventDefault();
-        setIsLoading(true);
-        setError("");
+interface RoleConfig {
+    id: Role;
+    title: string;
+    description: string;
+    icon: string;
+    color: string;      // Tailwind class for text
+    gradient: string;   // Tailwind gradient for active state
+    bgColor: string;    // Hex for page background
+    path: string;
+    animation: Variants;     // Framer motion variants for the icon
+}
 
-        try {
-            const redirectPath = await login(formData.email, formData.password);
-            if (redirectPath) {
-                router.push(redirectPath);
-            } else {
-                setError("Invalid email or password. Please try again.");
-                setIsLoading(false);
-            }
-        } catch (err) {
-            console.error(err);
-            setError("An unexpected error occurred.");
-            setIsLoading(false);
+const roles: RoleConfig[] = [
+    {
+        id: 'student',
+        title: 'Student',
+        description: 'Access courses & grades',
+        icon: 'backpack',
+        color: 'text-cyan-600',
+        gradient: 'from-cyan-500/40 to-blue-500/10',
+        bgColor: '#ecfeff',
+        path: '/portal/student/login',
+        animation: {
+            hover: { y: [0, -5, 0], transition: { repeat: Infinity, duration: 2, ease: "easeInOut" } }
         }
+    },
+    {
+        id: 'parent',
+        title: 'Parent',
+        description: 'Monitor progress',
+        icon: 'family_restroom',
+        color: 'text-emerald-600',
+        gradient: 'from-emerald-500/40 to-green-500/10',
+        bgColor: '#ecfdf5',
+        path: '/portal/parent/login',
+        animation: {
+            hover: { scale: [1, 1.1, 1], transition: { repeat: Infinity, duration: 1.5, ease: "easeInOut" } }
+        }
+    },
+    {
+        id: 'teacher',
+        title: 'Teacher',
+        description: 'Manage classes & grading',
+        icon: 'cast_for_education',
+        color: 'text-violet-600',
+        gradient: 'from-violet-500/40 to-purple-500/10',
+        bgColor: '#f5f3ff',
+        path: '/portal/teacher/login',
+        animation: {
+            hover: { rotate: [0, -5, 5, 0], transition: { repeat: Infinity, duration: 2, ease: "easeInOut" } }
+        }
+    },
+    {
+        id: 'admin',
+        title: 'Admin',
+        description: 'System administration',
+        icon: 'admin_panel_settings',
+        color: 'text-slate-700',
+        gradient: 'from-slate-500/40 to-gray-500/10',
+        bgColor: '#f1f5f9',
+        path: '/admin/portal/login',
+        animation: {
+            hover: { rotate: 360, transition: { duration: 3, ease: "linear", repeat: Infinity } }
+        }
+    }
+];
+
+export default function PortalSelectionPage() {
+    const router = useRouter();
+    const [hoveredRole, setHoveredRole] = useState<Role | null>(null);
+    const [selectedRole, setSelectedRole] = useState<Role | null>(null);
+
+    const handleRoleSelect = (role: RoleConfig) => {
+        setSelectedRole(role.id);
+        setTimeout(() => {
+            router.push(role.path);
+        }, 600);
     };
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setFormData(prev => ({
-            ...prev,
-            [e.target.type]: e.target.value
-        }));
-    };
+    // Determine current accent color for the top-right gradient
+    const currentAccentColor = (selectedRole
+        ? roles.find(r => r.id === selectedRole)?.color.replace('text-', '')
+        : hoveredRole
+            ? roles.find(r => r.id === hoveredRole)?.color.replace('text-', '')
+            : 'slate-400') ?? 'slate-400';
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-[#f8f9fc] dark:bg-[#0f172a] p-4 relative overflow-hidden">
+        <div
+            className="min-h-screen w-full flex flex-col items-center justify-center p-4 relative overflow-hidden bg-slate-50/50"
+        >
+            {/* Dynamic Page Background Gradient - Top Right */}
+            <motion.div
+                className="absolute inset-0 z-0 pointer-events-none"
+                animate={{
+                    background: `radial-gradient(circle at 100% 0%, var(--tw-color-${currentAccentColor.replace('-600', '-500')}) 0%, transparent 60%)`,
+                    opacity: hoveredRole || selectedRole ? 0.5 : 0
+                }}
+                transition={{ duration: 0.8, ease: "easeInOut" }}
+                style={{ mixBlendMode: 'normal' }}
+            />
 
-            {/* Background Decorations */}
-            <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
-                <div className="absolute top-[-10%] right-[-5%] w-[500px] h-[500px] bg-primary/5 rounded-full blur-3xl"></div>
-                <div className="absolute bottom-[-10%] left-[-5%] w-[500px] h-[500px] bg-blue-500/5 rounded-full blur-3xl"></div>
+            {/* Hardcoded gradients for tailwind color resolution since css vars might be tricky dynamically in verify */}
+            <motion.div
+                className="absolute inset-0 z-0 pointer-events-none transition-opacity duration-700 ease-in-out"
+                style={{
+                    opacity: hoveredRole || selectedRole ? 0.4 : 0,
+                    background: `radial-gradient(circle at 100% 0%, ${(selectedRole || hoveredRole) === 'student' ? '#06b6d4' :
+                        (selectedRole || hoveredRole) === 'parent' ? '#10b981' :
+                            (selectedRole || hoveredRole) === 'teacher' ? '#8b5cf6' :
+                                (selectedRole || hoveredRole) === 'admin' ? '#64748b' : 'transparent'
+                        } 0%, transparent 60%)`
+                }}
+            />
+
+            {/* Secondary Bottom Left Gradient for balance */}
+            <motion.div
+                className="absolute inset-0 z-0 pointer-events-none"
+                animate={{
+                    background: `radial-gradient(circle at 0% 100%, var(--tw-color-${currentAccentColor.replace('-600', '-500')}) 0%, transparent 50%)`,
+                    opacity: hoveredRole || selectedRole ? 0.25 : 0
+                }}
+                transition={{ duration: 1, ease: "easeInOut" }}
+            />
+
+            <div className="z-10 w-full max-w-5xl flex flex-col md:flex-row items-center gap-12 md:gap-20">
+
+                {/* Left Side: Branding & Info */}
+                <motion.div
+                    className="flex flex-col items-center md:items-start text-center md:text-left space-y-6 md:w-1/2"
+                    initial={{ x: -50, opacity: 0 }}
+                    animate={{ x: 0, opacity: 1 }}
+                    transition={{ delay: 0.2 }}
+                >
+                    <div className="inline-flex items-center justify-center p-4 rounded-3xl bg-white shadow-xl shadow-black/5 mb-2">
+                        <span className="material-symbols-outlined text-5xl text-primary">school</span>
+                    </div>
+                    <div>
+                        <h1 className="text-5xl md:text-7xl font-black text-gray-900 tracking-tight leading-tight">
+                            Ishuri<span className="text-primary">Hub</span>
+                        </h1>
+                        <p className="text-xl text-gray-500 font-medium mt-4 max-w-md leading-relaxed">
+                            Welcome back. Please select your portal to access the dashboard.
+                        </p>
+                    </div>
+
+                    <div className="hidden md:flex gap-3 mt-4">
+                        <div className="h-2 w-12 rounded-full bg-primary/20"></div>
+                        <div className="h-2 w-2 rounded-full bg-primary/20"></div>
+                        <div className="h-2 w-2 rounded-full bg-primary/20"></div>
+                    </div>
+                </motion.div>
+
+                {/* Right Side: Compact Cards Grid */}
+                <div className="w-full md:w-1/2 flex flex-col gap-4">
+                    <AnimatePresence>
+                        {roles.map((role, index) => (
+                            <motion.button
+                                key={role.id}
+                                onClick={() => handleRoleSelect(role)}
+                                onMouseEnter={() => setHoveredRole(role.id)}
+                                onMouseLeave={() => setHoveredRole(null)}
+                                className={`
+                                    relative flex items-center p-4 rounded-2xl bg-white/60 backdrop-blur-xl
+                                    border border-white/50 hover:border-gray-200/50 hover:bg-white/80
+                                    shadow-sm hover:shadow-lg transition-all duration-300 group w-full text-left
+                                    overflow-hidden
+                                    ${selectedRole && selectedRole !== role.id ? 'opacity-40 blur-[2px]' : 'opacity-100'}
+                                    ${selectedRole === role.id ? 'scale-105 !bg-white ring-2 ring-primary/20 z-20' : ''}
+                                `}
+                                initial={{ opacity: 0, x: 50 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                transition={{ delay: index * 0.1 }}
+                                whileHover={{ scale: 1.02, x: 5 }}
+                                whileTap={{ scale: 0.98 }}
+                            >
+                                {/* Active Gradient Background */}
+                                <div className={`absolute inset-0 bg-gradient-to-bl ${role.gradient} opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-2xl`} />
+
+                                {/* Icon Container */}
+                                <motion.div
+                                    className={`
+                                        relative z-10 size-12 rounded-xl flex items-center justify-center 
+                                        bg-white shadow-sm border border-gray-100 group-hover:border-transparent transition-colors
+                                        shrink-0 mr-4
+                                    `}
+                                    variants={{ hover: role.animation.hover }}
+                                    animate={hoveredRole === role.id ? "hover" : "initial"}
+                                >
+                                    <span className={`material-symbols-outlined text-2xl ${role.color}`}>
+                                        {role.icon}
+                                    </span>
+                                </motion.div>
+
+                                {/* Text Content */}
+                                <div className="relative z-10 flex-1 min-w-0">
+                                    <h3 className="text-lg font-bold text-gray-900 group-hover:text-black transition-colors">
+                                        {role.title}
+                                    </h3>
+                                    <p className="text-sm text-gray-500 font-medium truncate group-hover:text-gray-600 transition-colors">
+                                        {role.description}
+                                    </p>
+                                </div>
+
+                                {/* Arrow Icon */}
+                                <div className="relative z-10 opacity-0 group-hover:opacity-100 -translate-x-2 group-hover:translate-x-0 transition-all duration-300 text-gray-400">
+                                    <span className="material-symbols-outlined">arrow_forward_ios</span>
+                                </div>
+                            </motion.button>
+                        ))}
+                    </AnimatePresence>
+                </div>
             </div>
 
-            <div className="w-full max-w-[1000px] grid md:grid-cols-2 bg-white dark:bg-[#1e2536] rounded-3xl shadow-2xl overflow-hidden border border-gray-100 dark:border-gray-800 relative z-10">
+            {/* Ambient Background Elements */}
+            <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
+                {/* Dot Grid Pattern */}
+                <div
+                    className="absolute inset-0 opacity-[0.4]"
+                    style={{
+                        backgroundImage: `radial-gradient(${selectedRole || hoveredRole ? (roles.find(r => r.id === (selectedRole || hoveredRole))?.color.replace('text-', 'bg-') === 'text-cyan-600' ? '#0891b2' : roles.find(r => r.id === (selectedRole || hoveredRole))?.color.replace('text-', 'bg-') === 'text-emerald-600' ? '#059669' : roles.find(r => r.id === (selectedRole || hoveredRole))?.color.replace('text-', 'bg-') === 'text-violet-600' ? '#7c3aed' : '#334155') : '#94a3b8'} 1px, transparent 1px)`,
+                        backgroundSize: '32px 32px',
+                        transition: 'background-image 0.5s ease-in-out'
+                    }}
+                />
 
-                {/* Left Side - Form */}
-                <div className="p-10 flex flex-col justify-center">
-                    <div className="mb-8">
-                        <div className="flex items-center gap-2 mb-6">
-                            <div className="size-10 bg-primary/10 rounded-xl flex items-center justify-center text-primary">
-                                <span className="material-symbols-outlined text-[24px]">school</span>
-                            </div>
-                            <span className="text-xl font-bold tracking-tight text-gray-900 dark:text-white">Ishuri<span className="text-primary">Hub</span></span>
-                        </div>
-                        <h1 className="text-3xl font-bold text-gray-900 dark:text-white leading-tight">Welcome Back!</h1>
-                        <p className="text-gray-500 dark:text-gray-400 mt-2">Please enter your details to access the portal.</p>
-                    </div>
-
-                    {error && (
-                        <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/10 text-red-600 dark:text-red-400 text-sm rounded-xl font-medium border border-red-100 dark:border-red-900/20 flex items-center gap-3">
-                            <span className="material-symbols-outlined text-[20px]">error</span>
-                            {error}
-                        </div>
-                    )}
-
-                    <form onSubmit={handleLogin} className="space-y-5">
-                        <div className="space-y-1.5">
-                            <label className="text-sm font-semibold text-gray-700 dark:text-gray-300 ml-1">
-                                Email Address
-                            </label>
-                            <div className="relative group">
-                                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-gray-400 group-focus-within:text-primary transition-colors">
-                                    <span className="material-symbols-outlined text-[20px]">mail</span>
-                                </div>
-                                <input
-                                    type="email"
-                                    required
-                                    value={formData.email}
-                                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                                    className="w-full pl-11 pr-4 py-3 border border-gray-200 dark:border-gray-700 rounded-xl bg-gray-50 dark:bg-[#151b2b] text-gray-900 dark:text-white font-medium focus:ring-2 focus:ring-primary/20 focus:border-primary focus:bg-white dark:focus:bg-[#1e2536] outline-none transition-all placeholder:text-gray-400"
-                                    placeholder="Enter your email"
-                                />
-                            </div>
-                        </div>
-
-                        <div className="space-y-1.5">
-                            <div className="flex justify-between items-center ml-1">
-                                <label className="text-sm font-semibold text-gray-700 dark:text-gray-300">
-                                    Password
-                                </label>
-                                <Link href="/forgot-password" className="text-sm font-semibold text-primary hover:text-primary/80 transition-colors">Forgot Password?</Link>
-                            </div>
-                            <div className="relative group">
-                                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-gray-400 group-focus-within:text-primary transition-colors">
-                                    <span className="material-symbols-outlined text-[20px]">lock_key</span>
-                                </div>
-                                <input
-                                    type="password"
-                                    required
-                                    value={formData.password}
-                                    onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                                    className="w-full pl-11 pr-4 py-3 border border-gray-200 dark:border-gray-700 rounded-xl bg-gray-50 dark:bg-[#151b2b] text-gray-900 dark:text-white font-medium focus:ring-2 focus:ring-primary/20 focus:border-primary focus:bg-white dark:focus:bg-[#1e2536] outline-none transition-all placeholder:text-gray-400"
-                                    placeholder="Enter your password"
-                                />
-                            </div>
-                        </div>
-
-                        <div className="pt-2">
-                            <button
-                                type="submit"
-                                disabled={isLoading}
-                                className="w-full py-3.5 px-4 bg-primary text-white font-bold rounded-xl shadow-lg shadow-primary/25 hover:bg-primary/90 hover:shadow-primary/40 hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] transition-all flex items-center justify-center gap-2"
-                            >
-                                {isLoading ? (
-                                    <span className="size-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
-                                ) : (
-                                    <>
-                                        <span>Sign In to Dashboard</span>
-                                        <span className="material-symbols-outlined text-[20px]">arrow_forward</span>
-                                    </>
-                                )}
-                            </button>
-                        </div>
-                    </form>
-
-                    <div className="mt-8 text-center">
-                        <p className="text-xs text-gray-400 dark:text-gray-500">
-                            By signing in, you agree to our <a href="#" className="underline hover:text-gray-600 dark:hover:text-gray-300">Terms of Service</a> and <a href="#" className="underline hover:text-gray-600 dark:hover:text-gray-300">Privacy Policy</a>
-                        </p>
-                    </div>
+                {/* Noise Overlay */}
+                <div className="absolute inset-0 opacity-[0.03] mix-blend-overlay" style={{ filter: 'contrast(320%) brightness(100%)' }}>
+                    <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+                        <filter id="noiseFilter">
+                            <feTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch" />
+                        </filter>
+                        <rect width="100%" height="100%" filter="url(#noiseFilter)" />
+                    </svg>
                 </div>
 
-                {/* Right Side - Visual / Info */}
-                <div className="hidden md:flex flex-col relative bg-primary text-white p-10 justify-between overflow-hidden">
-                    <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-white/10 rounded-full blur-[80px] -translate-y-1/2 translate-x-1/2"></div>
-                    <div className="absolute bottom-0 left-0 w-[300px] h-[300px] bg-black/10 rounded-full blur-[60px] translate-y-1/3 -translate-x-1/3"></div>
+                {/* Animated Floating Shapes */}
+                <motion.div
+                    className="absolute top-[15%] right-[10%] w-64 h-64 rounded-full border border-gray-900/5 bg-white/5 backdrop-blur-3xl"
+                    animate={{
+                        y: [0, -40, 0],
+                        rotate: [0, 10, -10, 0],
+                        scale: [1, 1.1, 1]
+                    }}
+                    transition={{
+                        duration: 15,
+                        repeat: Infinity,
+                        ease: "easeInOut"
+                    }}
+                />
 
-                    <div className="relative z-10">
-                        <div className="inline-flex py-1 px-3 rounded-full bg-white/20 backdrop-blur-md border border-white/20 text-xs font-bold mb-6">
-                            New v2.0 Released
-                        </div>
-                        <h2 className="text-4xl font-bold leading-tight mb-4">Manage your school with ease.</h2>
-                        <p className="text-white/80 text-lg leading-relaxed">
-                            Complete digital transformation for modern education. Track students, manage finances, and streamline operations in one place.
-                        </p>
-                    </div>
+                <motion.div
+                    className="absolute bottom-[20%] left-[5%] w-48 h-48 rounded-[2rem] border border-gray-900/5 bg-white/5 backdrop-blur-3xl"
+                    animate={{
+                        y: [0, 60, 0],
+                        rotate: [0, -15, 15, 0],
+                    }}
+                    transition={{
+                        duration: 18,
+                        repeat: Infinity,
+                        ease: "easeInOut",
+                        delay: 2
+                    }}
+                />
 
-                    <div className="relative z-10 mt-auto">
-                        <div className="p-4 rounded-xl bg-white/10 backdrop-blur-md border border-white/10 flex items-center gap-4">
-                            <div className="flex -space-x-2">
-                                {[1, 2, 3, 4].map(i => (
-                                    <div key={i} className="size-8 rounded-full border-2 border-primary bg-gray-300" style={{ backgroundImage: `url('https://i.pravatar.cc/100?img=${i + 10}')`, backgroundSize: 'cover' }}></div>
-                                ))}
-                            </div>
-                            <div>
-                                <p className="font-bold text-sm">Trusted by 500+ Schools</p>
-                                <p className="text-xs text-white/70">Join the education revolution</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
             </div>
         </div>
     );
 }
-

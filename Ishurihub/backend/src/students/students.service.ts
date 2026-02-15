@@ -10,7 +10,7 @@ export class StudentsService {
   constructor(
     @InjectRepository(Student)
     private studentsRepository: Repository<Student>,
-  ) { }
+  ) {}
 
   create(createStudentDto: CreateStudentDto) {
     const student = this.studentsRepository.create(createStudentDto);
@@ -42,15 +42,15 @@ export class StudentsService {
       return this.studentsRepository.find({
         where: [
           { schoolId, name: Like(`%${search}%`) },
-          { schoolId, studentId: Like(`%${search}%`) }
-        ]
+          { schoolId, studentId: Like(`%${search}%`) },
+        ],
       });
     } else if (search) {
       return this.studentsRepository.find({
         where: [
           { name: Like(`%${search}%`) },
-          { studentId: Like(`%${search}%`) }
-        ]
+          { studentId: Like(`%${search}%`) },
+        ],
       });
     }
 

@@ -14,7 +14,7 @@ import { RandomizeStudentsDto } from './dto/randomize-students.dto';
 
 @Controller('classes')
 export class ClassesController {
-  constructor(private readonly classesService: ClassesService) { }
+  constructor(private readonly classesService: ClassesService) {}
 
   @Post()
   create(@Body() createClassDto: CreateClassDto) {
@@ -22,7 +22,10 @@ export class ClassesController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateClassDto: Partial<CreateClassDto>) {
+  update(
+    @Param('id') id: string,
+    @Body() updateClassDto: Partial<CreateClassDto>,
+  ) {
     return this.classesService.update(id, updateClassDto);
   }
 
@@ -42,7 +45,10 @@ export class ClassesController {
   }
 
   @Post(':id/students')
-  addStudents(@Param('id') id: string, @Body('studentIds') studentIds: string[]) {
+  addStudents(
+    @Param('id') id: string,
+    @Body('studentIds') studentIds: string[],
+  ) {
     return this.classesService.addStudents(id, studentIds);
   }
 

@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Poppins, Outfit } from "next/font/google";
-import "material-symbols";
+import 'material-symbols/outlined.css';
 import "./globals.css";
 import { AuthProvider } from "@/context/AuthContext";
 

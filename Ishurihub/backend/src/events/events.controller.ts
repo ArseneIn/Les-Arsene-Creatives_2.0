@@ -6,6 +6,8 @@ import {
   Param,
   UseGuards,
   Request,
+  Query,
+  BadRequestException,
 } from '@nestjs/common';
 import { EventsService } from './events.service';
 import { CreateEventDto } from './dto/create-event.dto';
@@ -18,20 +20,52 @@ import type { AuthenticatedRequest } from '../auth/interfaces/authenticated-requ
 @Controller('events')
 @UseGuards(JwtAuthGuard, RolesGuard)
 export class EventsController {
-  constructor(private readonly eventsService: EventsService) { }
+  constructor(private readonly eventsService: EventsService) {}
 
   @Post()
   @Roles('ADMIN', 'SUPER_ADMIN')
-  create(@Request() req: AuthenticatedRequest, @Body() createEventDto: CreateEventDto) {
-    // Assuming user has schoolId, or we pass it in body. 
-    // Usually admin user belongs to a school.
-    const schoolId = req.user.schoolId;
+  create(
+    @Request() req: AuthenticatedRequest,
+    @Body() createEventDto: CreateEventDto,
+  ) {
+    // If Super Admin provides a schoolId in the body, use it.
+    // Otherwise, fallback to the user's assigned schoolId.
+    const userRole = req.user.role;
+    const isSuperAdmin =
+      userRole === 'super_admin' ||
+      (typeof userRole === 'object' && userRole.id === 'super_admin');
+
+    const schoolId =
+      isSuperAdmin && createEventDto.schoolId
+        ? createEventDto.schoolId
+        : req.user.schoolId;
+
     return this.eventsService.create(createEventDto, schoolId);
   }
 
   @Get()
-  findAll(@Request() req: AuthenticatedRequest) {
-    const schoolId = req.user.schoolId;
+  findAll(
+    @Request() req: AuthenticatedRequest,
+    @Query('schoolId') querySchoolId?: string,
+  ) {
+    console.log('EventsController.findAll called');
+    console.log('User:', req.user);
+    console.log('Query SchoolId:', querySchoolId);
+
+    // If Super Admin provides a schoolId, use it.
+    // Otherwise, fallback to the user's assigned schoolId.
+    const userRole = req.user.role;
+    const isSuperAdmin =
+      userRole === 'super_admin' ||
+      (typeof userRole === 'object' && userRole.id === 'super_admin');
+
+    const schoolId =
+      isSuperAdmin && querySchoolId ? querySchoolId : req.user.schoolId;
+
+    if (!schoolId || schoolId === 'undefined') {
+      throw new BadRequestException('Invalid or missing School ID');
+    }
+
     return this.eventsService.findAll(schoolId);
   }
 

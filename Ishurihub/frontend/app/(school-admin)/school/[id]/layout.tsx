@@ -14,6 +14,36 @@ export default function DashboardLayout({
     const { id } = React.use(params);
     const { user, isLoading } = useAuthContext();
     const router = useRouter();
+    const [logoUrl, setLogoUrl] = React.useState<string | undefined>(undefined);
+
+    // Fetch school details to get the logo
+    useEffect(() => {
+        const fetchSchool = async () => {
+            // Avoid fetching if system (super admin view)
+            if (id === 'system') return;
+            try {
+                // We need a simple fetch here. 
+                // Assuming 'api' is available or we use fetch. 
+                // Let's import 'api' from lib/api
+                const token = localStorage.getItem('ishurihub_token');
+                if (token) {
+                    const res = await fetch(`http://localhost:4000/schools/${id}`, {
+                        headers: { Authorization: `Bearer ${token}` }
+                    });
+                    if (res.ok) {
+                        const data = await res.json();
+                        setLogoUrl(data.logoUrl);
+                    }
+                }
+            } catch (err) {
+                console.error("Failed to fetch school logo", err);
+            }
+        };
+
+        if (id) {
+            fetchSchool();
+        }
+    }, [id]);
 
     useEffect(() => {
         if (!isLoading) {
@@ -56,7 +86,7 @@ export default function DashboardLayout({
 
     return (
         <div className="relative flex h-screen w-full overflow-hidden bg-background-light dark:bg-background-dark text-[#0d111b] dark:text-white font-sans">
-            <Sidebar schoolId={id} />
+            <Sidebar schoolId={id} logoUrl={logoUrl} />
             <main className="flex-1 flex flex-col min-w-0 overflow-y-auto">
                 {children}
             </main>

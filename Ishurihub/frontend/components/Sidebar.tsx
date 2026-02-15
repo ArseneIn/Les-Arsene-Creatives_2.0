@@ -10,16 +10,14 @@ interface SidebarProps {
     schoolId: string;
 }
 
-interface SidebarItem {
-    label: string;
-    icon: string;
-    href: string;
-    permission?: Permission;
-    subItems?: SidebarItem[];
-    feature?: string; // Feature key for plan gating
+import { getSidebarItems, getPortalName, SidebarItem } from './SidebarConfig';
+
+interface SidebarProps {
+    schoolId: string;
+    logoUrl?: string;
 }
 
-export default function Sidebar({ schoolId }: SidebarProps) {
+export default function Sidebar({ schoolId, logoUrl }: SidebarProps) {
     const baseUrl = `/school/${schoolId}`;
     const pathname = usePathname();
     const { user, logout } = useAuth();
@@ -35,66 +33,11 @@ export default function Sidebar({ schoolId }: SidebarProps) {
         permissions: user?.role?.permissions
     });
 
-    const sidebarItems: SidebarItem[] = [
-        {
-            label: 'Dashboard',
-            icon: 'dashboard',
-            href: `${baseUrl}/dashboard`
-        },
-        {
-            label: 'Academic Admin',
-            icon: 'school',
-            href: '#',
-            permission: 'academic.view_grades', // Base permission to see the group
-            subItems: [
-                { label: 'Classes', icon: 'meeting_room', href: `${baseUrl}/classes`, permission: 'academic.view_grades' },
-                { label: 'Timetable', icon: 'calendar_month', href: `${baseUrl}/timetable`, permission: 'academic.manage_timetable' },
-                { label: 'Teachers', icon: 'person_apron', href: `${baseUrl}/teachers`, permission: 'academic.manage_timetable' },
-                { label: 'Students', icon: 'groups', href: `${baseUrl}/students`, permission: 'student.view' },
-            ]
-        },
-        {
-            label: 'Attendance Scan',
-            icon: 'co_present',
-            href: `${baseUrl}/attendance`,
-            permission: 'student.edit', // Proxy for staff access
-            feature: 'attendance'
-        },
-        {
-            label: 'Events',
-            icon: 'event', // Material symbol for events
-            href: `${baseUrl}/dashboard/events`,
-            permission: 'event.view', // Assuming a generic permission, or reuse existing
-            feature: 'attendance' // Or maybe 'events' if we add a new feature flag
-        },
-        {
-            label: 'Discipline',
-            icon: 'gavel',
-            href: `${baseUrl}/discipline`,
-            permission: 'discipline.view',
-            feature: 'discipline'
-        },
-        {
-            label: 'Finance',
-            icon: 'payments',
-            href: `${baseUrl}/finance`,
-            permission: 'finance.view',
-            feature: 'finance'
-        },
-        {
-            label: 'Library',
-            icon: 'local_library',
-            href: `${baseUrl}/library`,
-            permission: 'library.view',
-            feature: 'library'
-        },
-        {
-            label: 'System & Compliance',
-            icon: 'verified_user',
-            href: `${baseUrl}/system`,
-            permission: 'system.view_logs'
-        }
-    ];
+    // Get items based on role
+    // user.role.name might be 'Teacher' in readable format.
+    const roleKey = user?.role?.name || 'Admin';
+    const sidebarItems = getSidebarItems(roleKey, baseUrl);
+    const portalName = getPortalName(roleKey);
 
     const isActive = (href: string) => {
         if (href === '#' || href === baseUrl) return false;
@@ -103,19 +46,27 @@ export default function Sidebar({ schoolId }: SidebarProps) {
 
     const isGroupActive = (item: SidebarItem) => {
         if (!item.subItems) return false;
-        return item.subItems.some(sub => isActive(sub.href));
+        return item.subItems.some((sub: SidebarItem) => isActive(sub.href));
     };
 
     return (
         <aside className="flex w-72 flex-col bg-[#1e293b] dark:bg-[#0f172a] h-full shadow-xl z-20 transition-all flex-shrink-0 relative overflow-hidden border-r border-gray-800">
             {/* Header / Logo */}
             <div className="relative flex items-center gap-3 px-6 py-8 z-10 border-b border-gray-800">
-                <div className="flex items-center justify-center bg-primary rounded-xl size-10 shadow-lg shadow-primary/20">
-                    <span className="material-symbols-outlined text-white" style={{ fontSize: '24px' }}>school</span>
+                <div className="flex items-center justify-center bg-primary rounded-xl size-10 shadow-lg shadow-primary/20 overflow-hidden">
+                    {logoUrl ? (
+                        <img
+                            src={`http://localhost:4000${logoUrl}`}
+                            alt="School Logo"
+                            className="w-full h-full object-cover"
+                        />
+                    ) : (
+                        <span className="material-symbols-outlined text-white" style={{ fontSize: '24px' }}>school</span>
+                    )}
                 </div>
                 <div className="flex flex-col">
                     <h1 className="text-white text-lg font-heading font-bold leading-tight tracking-tight">IshuriHub</h1>
-                    <p className="text-gray-400 text-xs font-medium uppercase tracking-wider">Admin Portal</p>
+                    <p className="text-gray-400 text-xs font-medium uppercase tracking-wider">{portalName}</p>
                 </div>
             </div>
 

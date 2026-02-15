@@ -9,7 +9,7 @@ export class UsersService implements OnModuleInit {
   constructor(
     @InjectRepository(User)
     private usersRepository: Repository<User>,
-  ) { }
+  ) {}
 
   async onModuleInit() {
     const adminEmail = 'admin@ishurihub.rw';

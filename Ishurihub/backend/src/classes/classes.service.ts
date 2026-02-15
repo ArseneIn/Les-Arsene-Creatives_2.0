@@ -13,7 +13,7 @@ export class ClassesService {
     private classroomsRepository: Repository<Classroom>,
     @InjectRepository(Student)
     private studentsRepository: Repository<Student>,
-  ) { }
+  ) {}
 
   async create(createClassDto: CreateClassDto): Promise<Classroom> {
     const { year, stream, schoolId, name } = createClassDto;
@@ -24,11 +24,13 @@ export class ClassesService {
     });
     // Check by name as well to handle "S1 A" vs "S1" cases if stream is optional/empty
     const existingName = await this.classroomsRepository.findOne({
-      where: { name, schoolId }
+      where: { name, schoolId },
     });
 
     if (existing || existingName) {
-      throw new Error('Class with this Name or Stream already exists for this Year.');
+      throw new Error(
+        'Class with this Name or Stream already exists for this Year.',
+      );
     }
 
     const newClass = this.classroomsRepository.create(createClassDto);
@@ -41,20 +43,31 @@ export class ClassesService {
   }
 
   async syncClassStudents(classId: string) {
-    const classroom = await this.classroomsRepository.findOne({ where: { id: classId } });
+    const classroom = await this.classroomsRepository.findOne({
+      where: { id: classId },
+    });
     if (!classroom) return;
 
     // Find students who have the class name as their grade but might have missing year/section
     // or just to ensure consistency
     const students = await this.studentsRepository.find({
-      where: { grade: classroom.name, schoolId: classroom.schoolId }
+      where: { grade: classroom.name, schoolId: classroom.schoolId },
     });
 
     for (const student of students) {
       let modified = false;
-      if (student.year !== classroom.year) { student.year = classroom.year; modified = true; }
-      if (student.section !== classroom.stream) { student.section = classroom.stream; modified = true; }
-      if (student.level !== classroom.level) { student.level = classroom.level; modified = true; }
+      if (student.year !== classroom.year) {
+        student.year = classroom.year;
+        modified = true;
+      }
+      if (student.section !== classroom.stream) {
+        student.section = classroom.stream;
+        modified = true;
+      }
+      if (student.level !== classroom.level) {
+        student.level = classroom.level;
+        modified = true;
+      }
       if (classroom.level === 'A-Level' && !student.combination) {
         // Try to extract combination if missing
         // Re-use logic or just trust stream if stream is the combo
@@ -70,14 +83,19 @@ export class ClassesService {
     }
   }
 
-  async update(id: string, updateClassDto: Partial<CreateClassDto>): Promise<Classroom> {
-    const classroom = await this.classroomsRepository.findOne({ where: { id } });
+  async update(
+    id: string,
+    updateClassDto: Partial<CreateClassDto>,
+  ): Promise<Classroom> {
+    const classroom = await this.classroomsRepository.findOne({
+      where: { id },
+    });
     if (!classroom) throw new NotFoundException('Class not found');
 
     // Check duplicates if name/stream changes
     if (updateClassDto.name && updateClassDto.name !== classroom.name) {
       const existing = await this.classroomsRepository.findOne({
-        where: { name: updateClassDto.name, schoolId: classroom.schoolId }
+        where: { name: updateClassDto.name, schoolId: classroom.schoolId },
       });
       if (existing) throw new Error('Class name already exists');
     }
@@ -88,7 +106,7 @@ export class ClassesService {
     // If name, year, or stream changed, we should update linked students to reflect new details
     if (updateClassDto.name || updateClassDto.year || updateClassDto.stream) {
       // Note: query using NEW values might fail if we just changed them and students act on OLD values.
-      // Actually, wait. 'findStudents' relies on year/section matching. 
+      // Actually, wait. 'findStudents' relies on year/section matching.
       // If we changed Class.year from S1 to S2. Students are S1. They are now unlinked in the eyes of 'findStudents'.
       // We need to fetch students BEFORE saving the class, or we need to handle this relationship better.
       // Since we don't have a direct 'classId' on Student (we rely on logic), this is tricky.
@@ -107,11 +125,11 @@ export class ClassesService {
   async findAll(schoolId: string): Promise<any[]> {
     const classes = await this.classroomsRepository.find({
       where: { schoolId },
-      order: { year: 'ASC', name: 'ASC' }
+      order: { year: 'ASC', name: 'ASC' },
     });
 
     // Since we don't have a direct relation, we must count manually or use a smarter query.
-    // For performance, we could use a single query builder, but let's iterate for now if dataset is small, 
+    // For performance, we could use a single query builder, but let's iterate for now if dataset is small,
     // OR better: use a specialized query.
 
     // Let's attach the count.
@@ -121,8 +139,8 @@ export class ClassesService {
         where: {
           schoolId,
           year: cls.year,
-          section: cls.stream // Matches logic in findStudents
-        }
+          section: cls.stream, // Matches logic in findStudents
+        },
       });
       result.push({ ...cls, _count: { students: count } });
     }
@@ -136,7 +154,8 @@ export class ClassesService {
   ): Promise<{ message: string; updatedCount: number }> {
     const { year, streams, schoolId } = dto;
     this.logger.log(
-      `Randomizing students for Year: ${year}, Streams: ${Array.isArray(streams) ? streams.join(', ') : streams
+      `Randomizing students for Year: ${year}, Streams: ${
+        Array.isArray(streams) ? streams.join(', ') : streams
       }, School: ${schoolId}`,
     );
 
@@ -247,8 +266,13 @@ export class ClassesService {
     }
   }
 
-  async addStudents(classId: string, studentIds: string[]): Promise<{ message: string; updatedCount: number }> {
-    const classroom = await this.classroomsRepository.findOne({ where: { id: classId } });
+  async addStudents(
+    classId: string,
+    studentIds: string[],
+  ): Promise<{ message: string; updatedCount: number }> {
+    const classroom = await this.classroomsRepository.findOne({
+      where: { id: classId },
+    });
     if (!classroom) throw new NotFoundException('Class not found');
 
     if (!studentIds || studentIds.length === 0) {
@@ -269,9 +293,12 @@ export class ClassesService {
       if (classroom.level === 'A-Level' && classroom.stream) {
         // Extract combination from stream (e.g., "MCE A" -> "MCE")
         const parts = classroom.stream.split(' ');
-        const combo = parts.find(p => /^[A-Z]{3}$/.test(p) && !['III', 'IV'].includes(p));
+        const combo = parts.find(
+          (p) => /^[A-Z]{3}$/.test(p) && !['III', 'IV'].includes(p),
+        );
         if (combo) student.combination = combo;
-        else if (/^[A-Z]{3}$/.test(classroom.stream)) student.combination = classroom.stream;
+        else if (/^[A-Z]{3}$/.test(classroom.stream))
+          student.combination = classroom.stream;
       }
 
       await this.studentsRepository.save(student);
@@ -280,7 +307,7 @@ export class ClassesService {
 
     return {
       message: `Successfully added ${updatedCount} students to ${classroom.name}`,
-      updatedCount
+      updatedCount,
     };
   }
 

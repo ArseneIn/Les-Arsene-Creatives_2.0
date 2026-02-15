@@ -1,6 +1,7 @@
 import { Controller, Get, Post, Body, Param, Query } from '@nestjs/common';
 import { AttendanceService } from './attendance.service';
 import { CreateAttendanceDto } from './dto/create-attendance.dto';
+import { CreateBulkAttendanceDto } from './dto/create-bulk-attendance.dto';
 
 @Controller('attendance')
 export class AttendanceController {
@@ -9,6 +10,11 @@ export class AttendanceController {
   @Post()
   create(@Body() createAttendanceDto: CreateAttendanceDto) {
     return this.attendanceService.create(createAttendanceDto);
+  }
+
+  @Post('bulk')
+  createBulk(@Body() createBulkAttendanceDto: CreateBulkAttendanceDto) {
+    return this.attendanceService.createBulk(createBulkAttendanceDto);
   }
 
   @Get()
