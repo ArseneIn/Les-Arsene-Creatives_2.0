@@ -9,7 +9,7 @@ export default function TeacherLoginPage() {
             role="teacher"
             themeColor="bg-purple-600" // A distinctive purple for teachers
             description="Manage classes, attendance, and grading."
-            illustration="/images/auth/teacher_3d.png"
+            illustration="/images/auth/teacher_real.png"
         />
     );
 }

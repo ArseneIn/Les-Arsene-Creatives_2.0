@@ -4,13 +4,14 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { useAuthContext } from "@/context/AuthContext";
 
 interface LoginLayoutProps {
     title: string;
     role?: string; // e.g. 'student', 'parent', 'teacher', 'super_admin'
     themeColor: string; // e.g. 'bg-blue-600', 'bg-green-600'
-    illustration?: string; // URL or material icon name
+    illustration?: string; // URLor path to image
     description?: string;
     allowSuperAdmin?: boolean;
 }
@@ -31,13 +32,9 @@ export default function LoginLayout({ title, role, themeColor, description, allo
         setError("");
 
         try {
-            // TODO: We might want to pass the expected 'role' to the login function 
-            // to verify it on the server or client side before redirecting.
-            // For now, let's login and then check the role.
             const redirectPath = await login(formData.email, formData.password);
 
             if (redirectPath) {
-                // Check if the user is a super admin trying to login via a public portal
                 const storedUser = localStorage.getItem("ishurihub_user");
                 if (storedUser) {
                     const user = JSON.parse(storedUser);
@@ -45,16 +42,10 @@ export default function LoginLayout({ title, role, themeColor, description, allo
                     if (user.roleId === 'super_admin' && !allowSuperAdmin) {
                         setError("Access Denied. Super Admins must use the Admin Portal.");
                         setIsLoading(false);
-                        // Ideally logout immediately
                         return;
                     }
 
-                    // Optional: Check if the user's role matches the portal
-                    // This depends on strictness. A parent logging into student portal might be weird but maybe allowed?
-                    // Let's enforce strictness if role is provided.
                     if (role && user.roleId !== role && user.role?.name?.toLowerCase() !== role.toLowerCase()) {
-                        // Allow if user is admin/teacher logging into student view? Maybe not for login.
-                        // Let's just warn for now or be strict.
                         if (role === 'student' && user.roleId !== 'student') {
                             setError(`Access Denied. This portal is for Students only.`);
                             setIsLoading(false);
@@ -86,6 +77,8 @@ export default function LoginLayout({ title, role, themeColor, description, allo
     };
 
     const bgColorClass = themeColor.startsWith('bg-') ? themeColor : `bg-${themeColor}`;
+    // Extract color name for gradient construction if needed, but using standard tailwind classes is easier.
+    // We'll use the themeColor for the gradient bottom.
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-[#f8f9fc] dark:bg-[#0f172a] p-4 relative overflow-hidden">
@@ -103,7 +96,7 @@ export default function LoginLayout({ title, role, themeColor, description, allo
                     {/* Back Button */}
                     <Link
                         href="/login"
-                        className="absolute top-6 left-6 flex items-center gap-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors text-sm font-medium"
+                        className="absolute top-6 left-6 flex items-center gap-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors text-sm font-medium z-20"
                     >
                         <span className="material-symbols-outlined text-[18px]">arrow_back</span>
                         <span>Back</span>
@@ -194,43 +187,51 @@ export default function LoginLayout({ title, role, themeColor, description, allo
                     </div>
                 </div>
 
-                {/* Right Side - Visual / Info */}
-                <div className={`hidden md:flex flex-col relative ${bgColorClass} text-white p-10 justify-between overflow-hidden isolate`}>
-                    <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-white/10 rounded-full blur-[80px] -translate-y-1/2 translate-x-1/2 pointer-events-none"></div>
-                    <div className="absolute bottom-0 left-0 w-[300px] h-[300px] bg-black/10 rounded-full blur-[60px] translate-y-1/3 -translate-x-1/3 pointer-events-none"></div>
+                {/* Right Side - Realistic Layout */}
+                <div className={`hidden md:flex flex-col relative text-white p-10 justify-between overflow-hidden isolate`}>
+
+                    {/* Background Image */}
+                    {illustration && (
+                        <div className="absolute inset-0 z-0">
+                            <Image
+                                src={illustration}
+                                alt="Background"
+                                fill
+                                className="object-cover"
+                                priority
+                            />
+                            {/* Gradient Overlay: Bottom Color -> Top Transparent */}
+                            <div className={`absolute inset-0 bg-gradient-to-t from-${themeColor.replace('bg-', '')}/90 via-${themeColor.replace('bg-', '')}/40 to-transparent mix-blend-multiply transition-colors duration-500`}></div>
+                            {/* A second gradient to ensure text readability at the bottom */}
+                            <div className={`absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent`}></div>
+                        </div>
+                    )}
+
+                    {!illustration && (
+                        <div className={`absolute inset-0 z-0 ${bgColorClass}`}></div>
+                    )}
 
                     <div className="relative z-20">
                         <div className="inline-flex py-1 px-3 rounded-full bg-white/20 backdrop-blur-md border border-white/20 text-xs font-bold mb-6">
                             Secure Portal
                         </div>
+                        {/* We hide the title/desc here because they are redundant with the form side? 
+                            The previous design had them. If we keep them, they go over the image. */}
+                        {/* 
                         <h2 className="text-4xl font-bold leading-tight mb-4">{title}</h2>
                         <p className="text-white/80 text-lg leading-relaxed">
+                            {description || "Complete digital transformation."}
+                        </p> 
+                        */}
+                        {/* Actually, user didn't say remove text, just change background strategy. We keep text. */}
+                        <h2 className="text-4xl font-bold leading-tight mb-4 drop-shadow-md">{title}</h2>
+                        <p className="text-white/90 text-lg leading-relaxed drop-shadow-md">
                             {description || "Complete digital transformation for modern education. Track students, manage finances, and streamline operations in one place."}
                         </p>
                     </div>
 
-                    {/* 3D Illustration */}
-                    {illustration && (
-                        <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10 overflow-hidden mix-blend-multiply">
-                            <motion.img
-                                src={illustration}
-                                alt="3D Illustration"
-                                className="w-[85%] max-w-[400px] object-contain drop-shadow-2xl opacity-90"
-                                animate={{
-                                    y: [0, -15, 0],
-                                    rotate: [0, 1, -1, 0]
-                                }}
-                                transition={{
-                                    duration: 8,
-                                    repeat: Infinity,
-                                    ease: "easeInOut"
-                                }}
-                            />
-                        </div>
-                    )}
-
                     <div className="relative z-20 mt-auto">
-                        <div className="p-4 rounded-xl bg-white/10 backdrop-blur-md border border-white/10 flex items-center gap-4">
+                        <div className="p-4 rounded-xl bg-black/30 backdrop-blur-md border border-white/10 flex items-center gap-4 hover:bg-black/40 transition-colors">
                             <div className="flex -space-x-2">
                                 {[1, 2, 3, 4].map(i => (
                                     <div key={i} className="size-8 rounded-full border-2 border-white/50 bg-gray-300" style={{ backgroundImage: `url('https://i.pravatar.cc/100?img=${i + 10}')`, backgroundSize: 'cover' }}></div>

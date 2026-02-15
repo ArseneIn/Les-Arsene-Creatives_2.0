@@ -9,7 +9,7 @@ export default function StudentLoginPage() {
             role="student"
             themeColor="bg-blue-600"
             description="Access your courses, grades, and assignments."
-            illustration="/images/auth/student_3d.png"
+            illustration="/images/auth/student_real.png"
         />
     );
 }

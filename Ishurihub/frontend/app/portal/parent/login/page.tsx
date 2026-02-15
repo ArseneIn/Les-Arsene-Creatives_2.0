@@ -7,8 +7,9 @@ export default function ParentLoginPage() {
         <LoginLayout
             title="Parent Portal"
             role="parent"
-            themeColor="bg-green-600" // A nice trusted green for parents
-            description="Monitor your child's progress and manage school fees."
+            themeColor="bg-emerald-600"
+            description="Monitor your child's progress and attendance."
+            illustration="/images/auth/parent_real.png"
         />
     );
 }

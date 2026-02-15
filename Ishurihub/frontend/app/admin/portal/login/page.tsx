@@ -10,7 +10,7 @@ export default function SuperAdminLoginPage() {
             themeColor="bg-slate-900" // Dark and serious for admin
             description="Restricted access for System Administrators."
             allowSuperAdmin={true}
-            illustration="/images/auth/admin_3d.png"
+            illustration="/images/auth/admin_real.png"
         />
     );
 }
