@@ -1,9 +1,5 @@
 {
+  "/not-found": "app/not-found.js",
   "/[locale]/login/page": "app/[locale]/login/page.js",
-  "/[locale]/(dashboard)/page": "app/[locale]/(dashboard)/page.js",
-  "/[locale]/(dashboard)/merchant/page": "app/[locale]/(dashboard)/merchant/page.js",
-  "/[locale]/(dashboard)/merchant/settings/page": "app/[locale]/(dashboard)/merchant/settings/page.js",
-  "/[locale]/(dashboard)/admin/page": "app/[locale]/(dashboard)/admin/page.js",
-  "/[locale]/(dashboard)/admin/merchants/page": "app/[locale]/(dashboard)/admin/merchants/page.js",
-  "/[locale]/(dashboard)/admin/merchants/[id]/page": "app/[locale]/(dashboard)/admin/merchants/[id]/page.js"
+  "/[locale]/(dashboard)/page": "app/[locale]/(dashboard)/page.js"
 }
