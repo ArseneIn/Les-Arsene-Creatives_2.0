@@ -1,8 +1,3 @@
-/**
- * @license
- * SPDX-License-Identifier: Apache-2.0
- */
-
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
@@ -12,22 +7,29 @@ import Programs from './pages/Programs';
 import GetInvolved from './pages/GetInvolved';
 import Contact from './pages/Contact';
 
+import CustomCursor from './components/CustomCursor';
+import SmoothScroll from './components/SmoothScroll';
+
 export default function App() {
   return (
     <Router>
-      <div className="flex flex-col min-h-screen bg-gray-50 font-sans">
-        <Navbar />
-        <main className="flex-grow">
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/about" element={<About />} />
-            <Route path="/programs" element={<Programs />} />
-            <Route path="/get-involved" element={<GetInvolved />} />
-            <Route path="/contact" element={<Contact />} />
-          </Routes>
-        </main>
-        <Footer />
-      </div>
+      <SmoothScroll>
+        <CustomCursor />
+        <div className="flex flex-col min-h-screen font-sans selection:bg-accent selection:text-black">
+          <Navbar />
+          <main className="flex-grow">
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/about" element={<About />} />
+              <Route path="/programs" element={<Programs />} />
+              <Route path="/get-involved" element={<GetInvolved />} />
+              <Route path="/contact" element={<Contact />} />
+            </Routes>
+          </main>
+          <Footer />
+        </div>
+      </SmoothScroll>
     </Router>
   );
 }
+

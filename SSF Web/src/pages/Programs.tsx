@@ -53,28 +53,28 @@ const Programs = () => {
     }
   ];
 
-  const filteredPrograms = activeFilter === 'All' 
-    ? programs 
+  const filteredPrograms = activeFilter === 'All'
+    ? programs
     : programs.filter(p => p.category === activeFilter);
 
   return (
-    <div className="flex flex-col min-h-screen pt-20">
+    <div className="flex flex-col min-h-screen pt-20 bg-background text-text-primary">
       {/* Header */}
-      <section className="bg-primary text-white py-20 relative overflow-hidden">
-        <div className="absolute inset-0 bg-wave opacity-10"></div>
+      <section className="bg-primary-light py-24 relative overflow-hidden border-b border-border">
+        <div className="absolute inset-0 bg-background opacity-50 mix-blend-multiply"></div>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
-          <motion.h1 
-            initial={{ opacity: 0, y: 20 }}
+          <motion.h1
+            initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            className="text-5xl md:text-6xl font-display font-bold mb-6"
+            className="text-6xl md:text-7xl font-display font-medium mb-6 text-white tracking-tight"
           >
-            Our Programs
+            Our <span className="italic text-text-secondary">Programs</span>
           </motion.h1>
-          <motion.p 
+          <motion.p
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="text-xl text-gray-200 max-w-2xl mx-auto"
+            className="text-xl text-text-secondary max-w-2xl mx-auto font-light"
           >
             Discover how we're making a difference in communities across the country through sports.
           </motion.p>
@@ -82,23 +82,22 @@ const Programs = () => {
       </section>
 
       {/* Filter Bar */}
-      <section className="bg-white border-b border-gray-200 sticky top-20 z-30 shadow-sm">
+      <section className="bg-primary/80 backdrop-blur-xl border-b border-border sticky top-20 z-30 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-            <div className="flex items-center gap-2 text-gray-500">
+            <div className="flex items-center gap-2 text-text-secondary">
               <Filter size={18} />
-              <span className="font-semibold uppercase tracking-wider text-xs">Filter by Category:</span>
+              <span className="font-bold uppercase tracking-widest text-xs">Filter by Category:</span>
             </div>
-            <div className="flex flex-wrap justify-center gap-2">
+            <div className="flex flex-wrap justify-center gap-3">
               {categories.map((cat) => (
                 <button
                   key={cat}
                   onClick={() => setActiveFilter(cat)}
-                  className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
-                    activeFilter === cat
-                      ? 'bg-accent text-white shadow-md'
-                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                  }`}
+                  className={`px-5 py-2 rounded-full text-sm font-bold transition-all ${activeFilter === cat
+                      ? 'bg-accent text-primary shadow-md shadow-accent/20'
+                      : 'bg-white/5 border border-white/10 text-text-secondary hover:bg-white/10 hover:text-white'
+                    }`}
                 >
                   {cat}
                 </button>
@@ -109,74 +108,77 @@ const Programs = () => {
       </section>
 
       {/* Programs List */}
-      <section className="py-20 bg-gray-50 min-h-[60vh]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="py-24 relative min-h-[60vh] overflow-hidden">
+        <div className="absolute top-1/2 left-0 -translate-y-1/2 w-[500px] h-[500px] bg-secondary/10 blur-[150px] rounded-full pointer-events-none"></div>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <AnimatePresence mode="wait">
-            <motion.div 
+            <motion.div
               key={activeFilter}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.3 }}
-              className="space-y-24"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.4 }}
+              className="space-y-32"
             >
               {filteredPrograms.length > 0 ? (
                 filteredPrograms.map((program, index) => (
                   <motion.div
                     key={program.title}
-                    initial={{ opacity: 0, y: 30 }}
+                    initial={{ opacity: 0, y: 50 }}
                     whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 0.6 }}
-                    className={`flex flex-col ${index % 2 === 0 ? 'lg:flex-row' : 'lg:flex-row-reverse'} gap-12 items-center`}
+                    viewport={{ once: true, margin: "-100px" }}
+                    transition={{ duration: 0.8, delay: index * 0.1 }}
+                    className={`flex flex-col ${index % 2 === 0 ? 'lg:flex-row' : 'lg:flex-row-reverse'} gap-16 items-center`}
                   >
                     <div className="w-full lg:w-1/2">
-                      <div className="relative rounded-lg overflow-hidden shadow-lg group">
-                        <img 
-                          src={program.image} 
-                          alt={program.title} 
-                          className="w-full h-[400px] object-cover transition-transform duration-700 group-hover:scale-105"
+                      <div className="relative rounded-3xl overflow-hidden glass-card group">
+                        <img
+                          src={program.image}
+                          alt={program.title}
+                          className="w-full h-[500px] object-cover transition-transform duration-1000 group-hover:scale-105 filter grayscale hover:grayscale-0"
                           referrerPolicy="no-referrer"
                         />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                        <div className="absolute top-4 left-4">
-                          <span className="bg-accent text-white px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">
+                        <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/20 to-transparent"></div>
+                        <div className="absolute top-6 left-6">
+                          <span className="glass border border-white/20 text-white px-4 py-2 rounded-full text-xs font-bold uppercase tracking-widest backdrop-blur-md">
                             {program.category}
                           </span>
                         </div>
                       </div>
                     </div>
-                    
-                    <div className="w-full lg:w-1/2 space-y-6">
-                      <h2 className="text-3xl md:text-4xl font-display font-bold text-gray-900">{program.title}</h2>
-                      <p className="text-lg text-gray-600 leading-relaxed">{program.description}</p>
-                      
-                      <ul className="space-y-3 pt-4">
+
+                    <div className="w-full lg:w-1/2 space-y-8">
+                      <h2 className="text-4xl md:text-5xl font-display font-medium text-white">{program.title}</h2>
+                      <p className="text-xl text-text-secondary font-light leading-relaxed">{program.description}</p>
+
+                      <ul className="space-y-4 pt-4">
                         {program.features.map((feature, fIndex) => (
-                          <li key={fIndex} className="flex items-center gap-3">
-                            <CheckCircle2 className="text-accent shrink-0" size={20} />
-                            <span className="text-gray-700 font-medium">{feature}</span>
+                          <li key={fIndex} className="flex items-center gap-4">
+                            <div className="bg-accent/10 border border-accent/20 p-2 rounded-full shrink-0">
+                              <CheckCircle2 className="text-accent" size={18} />
+                            </div>
+                            <span className="text-white font-light text-lg">{feature}</span>
                           </li>
                         ))}
                       </ul>
-                      
-                      <div className="pt-6">
+
+                      <div className="pt-8">
                         <Link
                           to="/get-involved"
-                          className="inline-flex items-center gap-2 bg-primary hover:bg-primary/90 text-white px-6 py-3 rounded-full font-semibold transition-colors shadow-md hover:shadow-lg"
+                          className="inline-flex items-center gap-3 bg-white text-primary hover:bg-white/90 px-8 py-4 rounded-full font-bold text-lg transition-transform hover:scale-105"
                         >
-                          Support this Program <ArrowRight size={18} />
+                          Support this Program <ArrowRight size={20} />
                         </Link>
                       </div>
                     </div>
                   </motion.div>
                 ))
               ) : (
-                <div className="text-center py-20">
-                  <p className="text-gray-500 text-xl">No programs found in this category.</p>
-                  <button 
+                <div className="text-center py-32 glass-card rounded-3xl">
+                  <p className="text-text-secondary text-xl font-light">No programs found in this category.</p>
+                  <button
                     onClick={() => setActiveFilter('All')}
-                    className="mt-4 text-primary font-bold hover:underline"
+                    className="mt-6 text-accent font-bold hover:text-white transition-colors"
                   >
                     View all programs
                   </button>
