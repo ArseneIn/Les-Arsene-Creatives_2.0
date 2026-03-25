@@ -26,80 +26,142 @@ const RevealText = ({ text, delay = 0, className = "" }: { text: string, delay?:
 const Home = () => {
   const heroRef = useRef(null);
   const { scrollYProgress } = useScroll({ target: heroRef, offset: ["start start", "end start"] });
-  const yImage = useSpring(useTransform(scrollYProgress, [0, 1], ["0%", "30%"]), { stiffness: 100, damping: 30 });
   const opacityHero = useTransform(scrollYProgress, [0, 0.8], [1, 0]);
 
   return (
     <div className="flex flex-col min-h-screen bg-background text-text-primary overflow-hidden">
-      {/* Hero Section */}
-      <section ref={heroRef} style={{ position: "relative" }} className="relative min-h-screen flex items-center pt-28 pb-20 justify-center overflow-hidden">
+      {/* Hero Section - Redesigned for Density and Asymmetry */}
+      <section ref={heroRef} style={{ position: "relative" }} className="relative min-h-screen flex items-center pt-32 pb-20 overflow-hidden">
         {/* Deep animated background spots elements */}
-        <div className="absolute top-1/4 left-1/4 w-[40vw] h-[40vw] bg-secondary/20 rounded-full blur-[120px] mix-blend-screen opacity-50 animate-pulse"></div>
-        <div className="absolute top-1/3 right-1/4 w-[30vw] h-[30vw] bg-accent/20 rounded-full blur-[100px] mix-blend-screen opacity-40 animate-pulse animation-delay-2000"></div>
+        <div className="absolute top-1/4 left-0 w-[50vw] h-[50vw] bg-primary-light/40 rounded-full blur-[120px] mix-blend-screen opacity-50 animate-pulse"></div>
+        <div className="absolute bottom-0 right-1/4 w-[40vw] h-[40vw] bg-accent/20 rounded-full blur-[100px] mix-blend-screen opacity-40 animate-pulse" style={{ animationDelay: '2s' }}></div>
 
-        {/* Parallax Image Background (darkened heavily) */}
-        <motion.div style={{ y: yImage, opacity: 0.6 }} className="absolute inset-0 z-0">
-          <img
-            src="https://images.unsplash.com/photo-1518605368461-1e1252220a77?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80"
-            alt="Youth playing basketball"
-            className="w-full h-full object-cover grayscale opacity-30 mix-blend-overlay"
-            referrerPolicy="no-referrer"
-          />
-          <div className="absolute inset-0 bg-gradient-to-b from-background/90 via-background/60 to-background"></div>
-        </motion.div>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full">
+          <div className="flex flex-col lg:flex-row items-center gap-16 lg:gap-8 pt-10">
 
-        <motion.div style={{ opacity: opacityHero }} className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full flex flex-col items-center text-center mt-20">
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 1, delay: 0.2 }}
-            className="inline-flex items-center gap-3 px-5 py-2.5 rounded-full border border-white/10 glass mb-10"
-          >
-            <span className="relative flex h-2.5 w-2.5">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-accent"></span>
-            </span>
-            <span className="text-xs font-bold tracking-widest uppercase text-text-secondary">Empowering 15+ Cities Globally</span>
-          </motion.div>
+            {/* Left Content */}
+            <motion.div style={{ opacity: opacityHero }} className="lg:w-[55%] flex flex-col items-start text-left">
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 1, delay: 0.2 }}
+                className="inline-flex items-center gap-3 px-5 py-2.5 rounded-full border border-white/10 bg-white/5 backdrop-blur-md mb-8"
+              >
+                <span className="relative flex h-2.5 w-2.5">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-accent"></span>
+                </span>
+                <span className="text-xs font-bold tracking-widest uppercase text-text-secondary">Empowering 15+ Cities Globally</span>
+              </motion.div>
 
-          <h1 className="text-7xl sm:text-8xl lg:text-[110px] font-display font-medium leading-[0.9] text-white mb-8 tracking-tighter">
-            <RevealText text="Leveling" delay={0.1} />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-accent to-secondary italic pr-4">
-              <RevealText text="The Playing" delay={0.3} />
-            </span>
-            <RevealText text="Field." delay={0.6} />
-          </h1>
+              <h1 className="text-6xl sm:text-7xl lg:text-[85px] xl:text-[100px] font-display font-medium leading-[0.95] text-white mb-8 tracking-tighter">
+                <RevealText text="Leveling" delay={0.1} />
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-accent to-secondary italic block pr-4 py-2">
+                  <RevealText text="The Playing" delay={0.3} />
+                </span>
+                <RevealText text="Field." delay={0.6} />
+              </h1>
 
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 1 }}
-            className="text-xl md:text-2xl text-text-secondary mb-12 max-w-2xl font-light"
-          >
-            Every child deserves the opportunity to play, learn, and grow. We provide the equipment and coaching to make it happen.
-          </motion.p>
+              <motion.p
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, delay: 1 }}
+                className="text-xl md:text-2xl text-text-secondary mb-12 max-w-xl font-light leading-relaxed"
+              >
+                Every child deserves the opportunity to play, learn, and grow. We provide the equipment and coaching to make it happen.
+              </motion.p>
 
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 1.2 }}
-            className="flex flex-col sm:flex-row gap-6 justify-center w-full sm:w-auto"
-          >
-            <Link
-              to="/get-involved"
-              className="relative group px-10 py-5 bg-white text-primary rounded-full overflow-hidden w-full sm:w-auto text-center"
-            >
-              <div className="absolute inset-0 bg-accent translate-y-[100%] group-hover:translate-y-[0%] transition-transform duration-500 ease-out"></div>
-              <span className="relative font-bold text-lg group-hover:text-white transition-colors duration-300">Donate Now</span>
-            </Link>
-            <Link
-              to="/programs"
-              className="px-10 py-5 glass-card rounded-full text-white hover:bg-white/5 transition-all w-full sm:w-auto border border-white/10 hover:border-white/30 text-center font-bold text-lg flex items-center justify-center gap-2 group"
-            >
-              Explore Programs <ArrowRight className="group-hover:translate-x-1 transition-transform" />
-            </Link>
-          </motion.div>
-        </motion.div>
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, delay: 1.2 }}
+                className="flex flex-col sm:flex-row gap-5 w-full sm:w-auto z-20"
+              >
+                <Link
+                  to="/get-involved"
+                  className="relative group px-10 py-5 bg-white text-primary rounded-full overflow-hidden w-full sm:w-auto text-center"
+                >
+                  <div className="absolute inset-0 bg-accent translate-y-[100%] group-hover:translate-y-[0%] transition-transform duration-500 ease-out"></div>
+                  <span className="relative font-bold text-lg group-hover:text-white transition-colors duration-300">Donate Now</span>
+                </Link>
+                <Link
+                  to="/programs"
+                  className="px-10 py-5 glass-card rounded-full text-white hover:bg-white/5 transition-all w-full sm:w-auto border border-white/10 hover:border-white/30 text-center font-bold text-lg flex items-center justify-center gap-3 group"
+                >
+                  Explore Programs <ArrowRight className="group-hover:translate-x-1 transition-transform" />
+                </Link>
+              </motion.div>
+            </motion.div>
+
+            {/* Right Visuals - Dynamic Stacked Layout */}
+            <div className="lg:w-[45%] relative w-full h-[600px] lg:h-[700px] hidden lg:block">
+              {/* Main Image */}
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9, rotate: -3 }}
+                animate={{ opacity: 1, scale: 1, rotate: 0 }}
+                transition={{ duration: 1.2, delay: 0.5, ease: [0.25, 1, 0.5, 1] }}
+                className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[85%] h-[80%] rounded-[40px] overflow-hidden border border-white/10 shadow-[0_0_50px_rgba(255,154,18,0.1)] z-10"
+              >
+                <div className="absolute inset-0 bg-primary/30 mix-blend-overlay z-10 pointer-events-none"></div>
+                <img
+                  src="https://images.unsplash.com/photo-1518605368461-1e1252220a77?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80"
+                  alt="Youth playing basketball"
+                  className="w-full h-full object-cover grayscale opacity-90 hover:grayscale-0 transition-all duration-1000 scale-105 hover:scale-100"
+                  referrerPolicy="no-referrer"
+                />
+              </motion.div>
+
+              {/* Floating Card 1: Impact */}
+              <motion.div
+                initial={{ opacity: 0, x: 50, y: -20 }}
+                animate={{ opacity: 1, x: 0, y: [0, -10, 0] }}
+                transition={{
+                  opacity: { duration: 1, delay: 1 },
+                  x: { duration: 1, delay: 1 },
+                  y: { duration: 4, repeat: Infinity, ease: "easeInOut", delay: 1 }
+                }}
+                className="absolute top-24 right-0 z-20 glass-card p-6 rounded-3xl border border-white/20 shadow-2xl backdrop-blur-xl"
+              >
+                <div className="flex items-center gap-4">
+                  <div className="w-14 h-14 rounded-full bg-accent text-primary flex items-center justify-center shadow-lg shadow-accent/20">
+                    <Target size={28} />
+                  </div>
+                  <div>
+                    <p className="text-3xl font-display font-medium text-white mb-1">10k+</p>
+                    <p className="text-xs text-text-secondary uppercase tracking-widest font-bold">Youth Reached</p>
+                  </div>
+                </div>
+              </motion.div>
+
+              {/* Floating Card 2: Active Programs */}
+              <motion.div
+                initial={{ opacity: 0, x: -50, y: 20 }}
+                animate={{ opacity: 1, x: 0, y: [0, 10, 0] }}
+                transition={{
+                  opacity: { duration: 1, delay: 1.2 },
+                  x: { duration: 1, delay: 1.2 },
+                  y: { duration: 5, repeat: Infinity, ease: "easeInOut", delay: 1.2 }
+                }}
+                className="absolute bottom-32 left[-20px] z-20 glass-card p-6 rounded-3xl border border-white/20 shadow-2xl backdrop-blur-xl"
+              >
+                <div className="flex items-center gap-5">
+                  <div className="flex -space-x-4">
+                    <img src="https://images.unsplash.com/photo-1541534741688-6078c6bfb5c5?ixlib=rb-4.0.3&auto=format&fit=crop&w=100&q=80" className="w-14 h-14 rounded-full border-2 border-primary object-cover grayscale" referrerPolicy="no-referrer" />
+                    <img src="https://images.unsplash.com/photo-1526676037777-05a232554f77?ixlib=rb-4.0.3&auto=format&fit=crop&w=100&q=80" className="w-14 h-14 rounded-full border-2 border-primary object-cover grayscale" referrerPolicy="no-referrer" />
+                    <div className="w-14 h-14 rounded-full border-2 border-primary bg-primary-light flex items-center justify-center">
+                      <span className="text-white text-sm font-bold">+50</span>
+                    </div>
+                  </div>
+                  <div>
+                    <p className="text-white font-bold text-lg">Programs</p>
+                    <p className="text-text-secondary text-sm">Across 15 Cities</p>
+                  </div>
+                </div>
+              </motion.div>
+
+            </div>
+          </div>
+        </div>
       </section>
 
       {/* Bento Grid Stats Section */}
@@ -244,18 +306,18 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Modern Testimonials Carousel */}
-      <section className="py-32 relative bg-primary-light overflow-hidden border-y border-border">
+      {/* Modern Testimonials Carousel - Light Theme Inversion */}
+      <section className="py-32 relative bg-[#f8fafc] text-neutral-900 overflow-hidden border-y border-white/10">
         {/* Massive background text */}
-        <div className="absolute top-1/2 left-0 -translate-y-1/2 whitespace-nowrap opacity-5 pointer-events-none font-display text-[20vw] font-bold">
+        <div className="absolute top-1/2 left-0 -translate-y-1/2 whitespace-nowrap opacity-[0.03] pointer-events-none font-display text-[20vw] font-bold text-black">
           IMPACT VOICES
         </div>
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-6">
             <div>
-              <span className="text-secondary-bright font-bold tracking-widest uppercase text-xs mb-4 block">Testimonials</span>
-              <h2 className="text-5xl lg:text-6xl font-display font-medium">Voices of Our <br /><span className="italic text-text-secondary">Community</span></h2>
+              <span className="text-accent font-bold tracking-widest uppercase text-xs mb-4 block">Testimonials</span>
+              <h2 className="text-5xl lg:text-6xl font-display font-medium text-black">Voices of Our <br /><span className="italic text-neutral-400">Community</span></h2>
             </div>
           </div>
 
@@ -283,18 +345,18 @@ const Home = () => {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: index * 0.15 }}
-                className="min-w-[320px] md:min-w-[450px] p-10 glass-card rounded-3xl snap-center flex flex-col group hover:border-white/30 transition-colors"
+                className="min-w-[320px] md:min-w-[450px] p-10 bg-white rounded-3xl snap-center flex flex-col group border border-neutral-200 shadow-[0_10px_40px_rgba(0,0,0,0.05)] hover:shadow-[0_20px_60px_rgba(0,0,0,0.1)] transition-all duration-500"
               >
-                <div className="text-secondary-bright opacity-50 mb-8">
+                <div className="text-primary opacity-30 mb-8 group-hover:opacity-100 group-hover:text-accent transition-colors duration-500">
                   <svg width="48" height="48" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
                     <path d="M14.017 21L16.41 14.596C16.634 13.985 16.75 13.34 16.75 12.684V3H23V12.684C23 15.68 21.986 18.49 19.89 20.65L14.017 21ZM3.017 21L5.41 14.596C5.634 13.985 5.75 13.34 5.75 12.684V3H12V12.684C12 15.68 10.986 18.49 8.89 20.65L3.017 21Z" />
                   </svg>
                 </div>
-                <p className="text-xl md:text-2xl font-light mb-12 flex-grow leading-relaxed">"{testimonial.quote}"</p>
-                <div className="flex items-center gap-4 pt-6 border-t border-border">
+                <p className="text-xl md:text-2xl font-light mb-12 flex-grow leading-relaxed text-neutral-800">"{testimonial.quote}"</p>
+                <div className="flex items-center gap-4 pt-6 border-t border-neutral-100">
                   <div>
-                    <h4 className="font-bold text-white text-lg">{testimonial.author}</h4>
-                    <p className="text-sm text-text-secondary uppercase tracking-wider mt-1">{testimonial.role}</p>
+                    <h4 className="font-bold text-black text-lg">{testimonial.author}</h4>
+                    <p className="text-sm text-neutral-500 uppercase tracking-wider mt-1 font-bold">{testimonial.role}</p>
                   </div>
                 </div>
               </motion.div>

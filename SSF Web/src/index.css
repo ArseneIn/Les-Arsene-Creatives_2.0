@@ -1,27 +1,27 @@
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap');
 @import "tailwindcss";
 
 @theme {
-  --color-primary: #0f0a18;
-  --color-primary-light: #1a102e;
+  --color-primary: #432c7a;
+  --color-primary-light: #5a3eaa;
   --color-accent: #ff9a12;
   --color-accent-glow: rgba(255, 154, 18, 0.5);
-  --color-secondary: #432c7a;
-  /* Brand original purple */
-  --color-background: #050308;
-  --color-surface: rgba(255, 255, 255, 0.03);
-  --color-surface-hover: rgba(255, 255, 255, 0.06);
-  --color-border: rgba(255, 255, 255, 0.08);
+  --color-secondary: #ff9a12;
+  --color-secondary-bright: #d1b8ff;
+  --color-background: #170b2e;
+  --color-surface: rgba(255, 255, 255, 0.05);
+  --color-surface-hover: rgba(255, 255, 255, 0.08);
+  --color-border: rgba(255, 255, 255, 0.1);
   --color-text-primary: #ffffff;
-  --color-text-secondary: #a1a1aa;
+  --color-text-secondary: #d1c5e6;
 
   --font-display: "Playfair Display", serif;
-  --font-sans: "Outfit", sans-serif;
-  --font-body: "Outfit", sans-serif;
+  --font-sans: "Space Grotesk", sans-serif;
+  --font-body: "Space Grotesk", sans-serif;
 }
 
 body {
-  font-family: 'Outfit', sans-serif;
+  font-family: 'Space Grotesk', sans-serif;
   background-color: var(--color-background);
   color: var(--color-text-primary);
   overflow-x: hidden;

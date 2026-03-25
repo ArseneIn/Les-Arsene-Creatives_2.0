@@ -73,12 +73,12 @@ const About = () => {
         </div>
       </section>
 
-      {/* Values Section */}
-      <section className="py-24 bg-primary-light border-y border-border relative overflow-hidden">
+      {/* Values Section - Light Theme Inversion */}
+      <section className="py-24 bg-white border-y border-neutral-200 relative overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="text-center max-w-3xl mx-auto mb-16">
-            <h2 className="text-4xl md:text-5xl font-display font-medium text-white mb-4">Our Core Values</h2>
-            <p className="text-lg text-text-secondary font-light">These principles guide everything we do, from the programs we design to the partnerships we build.</p>
+            <h2 className="text-4xl md:text-5xl font-display font-medium text-neutral-900 mb-4">Our Core Values</h2>
+            <p className="text-lg text-neutral-600 font-light">These principles guide everything we do, from the programs we design to the partnerships we build.</p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -94,13 +94,13 @@ const About = () => {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: index * 0.1 }}
-                className="glass-card p-10 rounded-3xl text-center group hover:border-white/30 transition-all"
+                className="bg-[#f8fafc] p-10 rounded-3xl text-center group border border-neutral-100 hover:border-neutral-300 hover:shadow-xl transition-all duration-500"
               >
-                <div className="w-16 h-16 mx-auto bg-white/5 border border-white/10 text-white rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 group-hover:bg-accent/10 group-hover:text-accent transition-all duration-500">
+                <div className="w-16 h-16 mx-auto bg-white shadow-sm border border-neutral-100 text-primary rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 group-hover:bg-accent/10 group-hover:border-accent/20 group-hover:text-accent transition-all duration-500">
                   <value.icon size={32} strokeWidth={1.5} />
                 </div>
-                <h3 className="text-2xl font-display font-medium text-white mb-3">{value.title}</h3>
-                <p className="text-text-secondary font-light">{value.desc}</p>
+                <h3 className="text-2xl font-display font-medium text-neutral-900 mb-3">{value.title}</h3>
+                <p className="text-neutral-600 font-light">{value.desc}</p>
               </motion.div>
             ))}
           </div>
