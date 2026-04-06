@@ -248,14 +248,28 @@ const Home = () => {
           <div className="flex flex-col lg:flex-row gap-20">
             {/* Sticky Text Side */}
             <div className="lg:w-1/2 lg:sticky top-40 h-fit">
-              <span className="text-accent font-bold tracking-widest uppercase text-xs mb-4 block">Our Mission</span>
-              <h2 className="text-5xl md:text-7xl font-display font-medium leading-tight mb-8">
-                Building <br /><span className="italic text-text-secondary">Character</span><br /> Through <span className="text-accent">Competition</span>
+              <span className="text-accent font-bold tracking-widest uppercase text-xs mb-4 block">Who We Are</span>
+              <h2 className="text-5xl md:text-7xl font-display font-medium leading-[1.1] mb-10 text-white">
+                Our <span className="italic text-text-secondary">Mission</span> <br />& <span className="text-accent">Vision</span>
               </h2>
-              <p className="text-xl text-text-secondary font-light leading-relaxed mb-10 max-w-lg">
-                We believe that sports teach invaluable life lessons: teamwork, resilience, leadership, and discipline. Providing underprivileged youth with access is our core goal.
-              </p>
-              <Link to="/about" className="inline-flex items-center gap-3 text-white font-bold text-lg hover:text-accent transition-colors group">
+
+              <div className="space-y-10">
+                <div>
+                  <h3 className="text-2xl font-bold text-white mb-3">Our Mission</h3>
+                  <p className="text-xl text-text-secondary font-light leading-relaxed max-w-lg">
+                    To build stronger, peaceful and more inclusive communities by using sport to break down barriers, champion equality, and provide holistic support to vulnerable groups.
+                  </p>
+                </div>
+
+                <div>
+                  <h3 className="text-2xl font-bold text-white mb-3">Our Vision</h3>
+                  <p className="text-xl text-text-secondary font-light leading-relaxed max-w-lg">
+                    A society free from injustice, where sport has broken cycles of inequality and created a unified community built on mutual respect, health, and resilience.
+                  </p>
+                </div>
+              </div>
+
+              <Link to="/about" className="inline-flex items-center gap-3 text-white font-bold text-lg hover:text-accent transition-colors group mt-12">
                 Read Our Story
                 <span className="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center group-hover:border-accent group-hover:translate-x-2 transition-all">
                   <ArrowRight size={18} />
