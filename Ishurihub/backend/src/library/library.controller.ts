@@ -7,13 +7,20 @@ import {
   Param,
   Delete,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import { LibraryService } from './library.service';
 import { CreateBookDto } from './dto/create-book.dto';
 import { UpdateBookDto } from './dto/update-book.dto';
 import { IssueBookDto } from './dto/issue-book.dto';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { FeatureGuard } from '../auth/guards/feature.guard';
+import { RequireFeature } from '../auth/decorators/require-feature.decorator';
+import { Feature } from '../subscriptions/enums/feature.enum';
 
 @Controller('library')
+@UseGuards(JwtAuthGuard, FeatureGuard)
+@RequireFeature(Feature.LIBRARY)
 export class LibraryController {
   constructor(private readonly libraryService: LibraryService) {}
 

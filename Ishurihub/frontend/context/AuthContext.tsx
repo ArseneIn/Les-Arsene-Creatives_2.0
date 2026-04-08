@@ -28,31 +28,31 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 setToken(storedToken);
                 try {
                     // Verify token and get user details
-                    // For now, we decode or fetch profile. Let's assume we fetch profile.
-                    // const response = await api.get('/auth/profile'); 
-                    // setUser(response.data);
+                    const response = await api.get('/auth/profile'); 
+                    const fetchedUser = response.data;
 
-                    // Fallback: If we don't have a profile endpoint yet, we might store user in localstorage too (less secure but ok for v1 transition)
-                    const storedUser = localStorage.getItem("ishurihub_user");
-                    if (storedUser) {
-                        const parsedUser = JSON.parse(storedUser);
-                        // Hydrate role
-                        if (parsedUser.customRole) {
-                            parsedUser.role = {
-                                id: parsedUser.customRole.id,
-                                name: parsedUser.customRole.name,
-                                description: 'Custom Role',
-                                isSystem: false,
-                                permissions: parsedUser.customRole.permissions as Permission[]
-                            };
-                        } else if (!parsedUser.role && parsedUser.roleId) {
-                            parsedUser.role = SYSTEM_ROLES.find(r => r.id === parsedUser.roleId);
-                        }
-                        setUser(parsedUser);
+                    // Hydrate role
+                    if (fetchedUser.customRole) {
+                        fetchedUser.role = {
+                            id: fetchedUser.customRole.id,
+                            name: fetchedUser.customRole.name,
+                            description: 'Custom Role',
+                            isSystem: false,
+                            permissions: fetchedUser.customRole.permissions as Permission[]
+                        };
+                    } else if (fetchedUser.roleId) {
+                        fetchedUser.role = SYSTEM_ROLES.find(r => r.id === fetchedUser.roleId);
                     }
+                    setUser(fetchedUser);
+
+                    // Keep storage synced
+                    localStorage.setItem("ishurihub_user", JSON.stringify(fetchedUser));
+
                 } catch (error) {
                     console.error("Auth initialization failed", error);
                     localStorage.removeItem("ishurihub_token");
+                    localStorage.removeItem("ishurihub_user");
+                    setToken(null);
                 }
             }
             setIsLoading(false);
@@ -63,26 +63,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const login = async (email: string, password?: string): Promise<string | null> => {
         try {
-            // TODO: Update Login Component to pass password
-            const response = await api.post('/auth/login', { email, password: password || 'password123' }); // Default password for dev transition
-            const { access_token, user } = response.data;
+            const response = await api.post('/auth/login', { email, password }); 
+            const { access_token, user: loggedInUser } = response.data;
 
             // Hydrate role
             let role;
-            if (user.customRole) {
+            if (loggedInUser.customRole) {
                 role = {
-                    id: user.customRole.id,
-                    name: user.customRole.name,
+                    id: loggedInUser.customRole.id,
+                    name: loggedInUser.customRole.name,
                     description: 'Custom Role',
                     isSystem: false,
-                    permissions: user.customRole.permissions as Permission[]
+                    permissions: loggedInUser.customRole.permissions as Permission[]
                 };
             } else {
-                role = SYSTEM_ROLES.find((r) => r.id === user.roleId);
+                role = SYSTEM_ROLES.find((r) => r.id === loggedInUser.roleId);
             }
 
             const fullUser = {
-                ...user,
+                ...loggedInUser,
                 role
             };
 
@@ -92,10 +91,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             setUser(fullUser);
 
             // Determine redirect path
-            if (user.roleId === 'super_admin') {
+            if (loggedInUser.roleId === 'super_admin') {
                 return '/';
             } else {
-                return `/school/${user.schoolId}/dashboard`;
+                return `/school/${loggedInUser.schoolId}/dashboard`;
             }
         } catch (error) {
             console.error("Login failed", error);

@@ -18,7 +18,7 @@ import { CreateSchoolDto, UpdateSchoolDto } from './dto/update-school.dto';
 
 @Controller('schools')
 export class SchoolsController {
-  constructor(private readonly schoolsService: SchoolsService) { }
+  constructor(private readonly schoolsService: SchoolsService) {}
 
   @Post()
   create(@Body() createSchoolDto: CreateSchoolDto) {
@@ -46,16 +46,19 @@ export class SchoolsController {
   }
 
   @Post(':id/logo')
-  @UseInterceptors(FileInterceptor('file', {
-    storage: diskStorage({
-      destination: './uploads/schools',
-      filename: (req, file, cb) => {
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-        const ext = extname(file.originalname);
-        cb(null, `school-${uniqueSuffix}${ext}`);
-      },
+  @UseInterceptors(
+    FileInterceptor('file', {
+      storage: diskStorage({
+        destination: './uploads/schools',
+        filename: (req, file, cb) => {
+          const uniqueSuffix =
+            Date.now() + '-' + Math.round(Math.random() * 1e9);
+          const ext = extname(file.originalname);
+          cb(null, `school-${uniqueSuffix}${ext}`);
+        },
+      }),
     }),
-  }))
+  )
   async uploadLogo(
     @Param('id') id: string,
     @UploadedFile() file: Express.Multer.File,

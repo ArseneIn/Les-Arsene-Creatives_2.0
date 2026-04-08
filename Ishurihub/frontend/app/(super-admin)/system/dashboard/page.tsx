@@ -209,6 +209,7 @@ export default function InstitutionsPage() {
                                     <th className="px-6 py-4 text-slate-500 dark:text-slate-400 text-xs font-bold uppercase tracking-wider">Type</th>
                                     <th className="px-6 py-4 text-slate-500 dark:text-slate-400 text-xs font-bold uppercase tracking-wider">Location</th>
                                     <th className="px-6 py-4 text-slate-500 dark:text-slate-400 text-xs font-bold uppercase tracking-wider">Students</th>
+                                    <th className="px-6 py-4 text-slate-500 dark:text-slate-400 text-xs font-bold uppercase tracking-wider">Plan</th>
                                     <th className="px-6 py-4 text-slate-500 dark:text-slate-400 text-xs font-bold uppercase tracking-wider">Status</th>
                                     <th className="px-6 py-4 text-slate-500 dark:text-slate-400 text-xs font-bold uppercase tracking-wider text-right">Actions</th>
                                 </tr>
@@ -235,8 +236,17 @@ export default function InstitutionsPage() {
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             <span className="text-slate-600 dark:text-slate-300 text-sm">{inst.location || 'N/A'}</span>
                                         </td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-slate-900 dark:text-white text-sm font-bold">
+                                            {inst.studentCount?.toLocaleString() || 0}
+                                        </td>
                                         <td className="px-6 py-4 whitespace-nowrap">
-                                            <span className="text-slate-900 dark:text-white text-sm font-bold">{inst.studentCount?.toLocaleString() || 0}</span>
+                                            <span className={`px-2 py-0.5 rounded text-xs font-black uppercase tracking-wider ${inst.plan === 'Premium' ? 'bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-400' :
+                                                inst.plan === 'Standard' ? 'bg-indigo-100 text-indigo-700 dark:bg-indigo-500/20 dark:text-indigo-400' :
+                                                    inst.plan === 'Basic' ? 'bg-blue-100 text-blue-700 dark:bg-blue-500/20 dark:text-blue-400' :
+                                                        'bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400'
+                                                }`}>
+                                                {inst.plan || 'Free'}
+                                            </span>
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold ${inst.status === 'Active' ? 'bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-400' :

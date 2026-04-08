@@ -11,4 +11,4 @@ import { Classroom } from '../classes/entities/classroom.entity';
   providers: [TeachersService],
   exports: [TeachersService],
 })
-export class TeachersModule { }
+export class TeachersModule {}

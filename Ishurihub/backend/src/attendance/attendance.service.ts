@@ -12,7 +12,7 @@ export class AttendanceService {
     @InjectRepository(AttendanceRecord)
     private attendanceRepository: Repository<AttendanceRecord>,
     private academicYearsService: AcademicYearsService,
-  ) { }
+  ) {}
 
   async create(createAttendanceDto: CreateAttendanceDto) {
     // 1. Find Active Term
@@ -58,9 +58,9 @@ export class AttendanceService {
       if (existingRecord) {
         // Update
         existingRecord.status = recordDto.status;
-        existingRecord.remarks = recordDto.remarks;
+        existingRecord.remarks = recordDto.remarks as string;
         existingRecord.classId = classId;
-        existingRecord.teacherId = recordDto.teacherId;
+        existingRecord.teacherId = recordDto.teacherId as string;
         savedRecords.push(await this.attendanceRepository.save(existingRecord));
       } else {
         // Create
@@ -127,19 +127,25 @@ export class AttendanceService {
       .getMany();
 
     // Group by date
-    const grouped = records.reduce((acc, curr) => {
-      const date = curr.date; // string YYYY-MM-DD
-      if (!acc[date]) {
-        acc[date] = { date, students: 0, teachers: 0 };
-      }
-      // Ideally we distinguish type, assuming these are students for now as per entity
-      // If entity has 'userType' or similar, filter here.
-      // Assuming Student Attendance for now on this repo
-      if (curr.studentId)
-        acc[date].students +=
-          curr.status === 'Present' || curr.status === 'Late' ? 1 : 0;
-      return acc;
-    }, {} as Record<string, { date: string; students: number; teachers: number }>);
+    const grouped = records.reduce(
+      (acc, curr) => {
+        const date = curr.date; // string YYYY-MM-DD
+        if (!acc[date]) {
+          acc[date] = { date, students: 0, teachers: 0 };
+        }
+        // Ideally we distinguish type, assuming these are students for now as per entity
+        // If entity has 'userType' or similar, filter here.
+        // Assuming Student Attendance for now on this repo
+        if (curr.studentId)
+          acc[date].students +=
+            curr.status === 'Present' || curr.status === 'Late' ? 1 : 0;
+        return acc;
+      },
+      {} as Record<
+        string,
+        { date: string; students: number; teachers: number }
+      >,
+    );
 
     return Object.values(grouped);
   }

@@ -7,19 +7,25 @@ import DisciplineDashboard from "./DisciplineDashboard";
 import LibraryDashboard from "./LibraryDashboard";
 import ParentDashboard from "./ParentDashboard";
 
+import SchoolAdminDashboard from "./SchoolAdminDashboard";
+import StudentDashboard from "./StudentDashboard";
+
 export default function DashboardResolver() {
     const { user, isLoading } = useAuth();
 
     if (isLoading) {
-        return <div className="p-8 text-center text-gray-500">Loading dashboard...</div>;
+        return <div className="p-8 text-center text-gray-500 font-medium">Preparing your workspace...</div>;
     }
 
     if (!user) {
-        return <div className="p-8 text-center text-red-500">Access Denied. Please log in.</div>;
+        return <div className="p-8 text-center text-red-500 font-bold">Access Denied. Please log in.</div>;
     }
 
     // Role-based rendering
     switch (user.roleId) {
+        case 'super_admin':
+        case 'school_admin':
+            return <SchoolAdminDashboard />;
         case 'head_teacher':
             return <HeadTeacherDashboard />;
         case 'dean_studies':
@@ -30,12 +36,15 @@ export default function DashboardResolver() {
             return <LibraryDashboard />;
         case 'parent':
             return <ParentDashboard />;
+        case 'student':
+            return <StudentDashboard />;
         default:
             // Fallback for unknown roles or custom roles (for now)
             return (
-                <div className="p-8">
-                    <h2 className="text-xl font-bold mb-4">Welcome, {user.name}</h2>
-                    <p className="text-gray-500">Your role ({user.roleId}) does not have a specific dashboard yet.</p>
+                <div className="p-8 flex flex-col items-center justify-center min-h-[400px] text-center">
+                    <span className="material-symbols-outlined text-6xl text-gray-200 mb-4">account_circle</span>
+                    <h2 className="text-xl font-bold mb-2">Welcome, {user.name}</h2>
+                    <p className="text-gray-500 font-medium">Your role ({user.roleId}) does not have a specialized dashboard yet.</p>
                 </div>
             );
     }

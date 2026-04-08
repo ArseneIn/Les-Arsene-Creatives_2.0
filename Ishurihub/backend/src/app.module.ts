@@ -1,13 +1,17 @@
-﻿import { Module } from '@nestjs/common';
+import { Module } from '@nestjs/common';
+import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { MaintenanceGuard } from './auth/guards/maintenance.guard';
+import { MaintenanceInterceptor } from './system-settings/maintenance.interceptor';
 import { StudentsModule } from './students/students.module';
 import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
+import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
 import { TeachersModule } from './teachers/teachers.module';
 import { DisciplineModule } from './discipline/discipline.module';
 import { TimetableModule } from './timetable/timetable.module';
@@ -21,6 +25,8 @@ import { ClassesModule } from './classes/classes.module';
 import { AcademicYearsModule } from './academic-years/academic-years.module';
 import { RolesModule } from './roles/roles.module';
 import { EventsModule } from './events/events.module';
+import { HolidayLmsModule } from './holiday-lms/holiday-lms.module';
+import { SystemSettingsModule } from './system-settings/system-settings.module';
 
 @Module({
   imports: [
@@ -62,8 +68,24 @@ import { EventsModule } from './events/events.module';
     AcademicYearsModule,
     RolesModule,
     EventsModule,
+    HolidayLmsModule,
+    SystemSettingsModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    {
+      provide: APP_GUARD,
+      useClass: JwtAuthGuard,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: MaintenanceGuard,
+    },
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: MaintenanceInterceptor,
+    },
+  ],
 })
 export class AppModule {}

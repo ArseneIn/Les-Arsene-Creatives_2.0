@@ -4,6 +4,7 @@ import { Repository } from 'typeorm';
 import { School } from './entities/school.entity';
 import { UpdateSchoolDto, CreateSchoolDto } from './dto/update-school.dto';
 import { UsersService } from '../users/users.service';
+import { DEFAULT_PLAN, PLAN_FEATURES } from '../subscriptions/constants/plan-features.constant';
 
 @Injectable()
 export class SchoolsService {
@@ -15,7 +16,14 @@ export class SchoolsService {
 
   async create(createSchoolDto: CreateSchoolDto) {
     // 1. Create the School
-    const school = this.schoolsRepository.create(createSchoolDto);
+    const plan = createSchoolDto.plan || DEFAULT_PLAN;
+    const features = PLAN_FEATURES[plan] || PLAN_FEATURES[DEFAULT_PLAN];
+
+    const school = this.schoolsRepository.create({
+      ...createSchoolDto,
+      plan,
+      features,
+    });
     const savedSchool = await this.schoolsRepository.save(school);
 
     // 2. Create Admin User if provided
@@ -45,7 +53,20 @@ export class SchoolsService {
   }
 
   async update(id: string, updateSchoolDto: UpdateSchoolDto) {
-    await this.schoolsRepository.update(id, updateSchoolDto);
+    const school = await this.findOne(id);
+
+    // If plan is being updated, sync features
+    if (updateSchoolDto.plan && updateSchoolDto.plan !== school.plan) {
+      updateSchoolDto.features =
+        PLAN_FEATURES[updateSchoolDto.plan] || PLAN_FEATURES[DEFAULT_PLAN];
+    }
+
+    // Filter out fields that don't belong to the School entity
+    // Destructure out admin fields that are in the DTO but not the entity
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { adminName, adminEmail, adminPassword, ...schoolData } = updateSchoolDto;
+
+    await this.schoolsRepository.update(id, schoolData);
     return this.findOne(id);
   }
 

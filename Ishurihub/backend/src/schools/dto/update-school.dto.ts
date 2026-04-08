@@ -9,6 +9,8 @@ export class CreateSchoolDto {
   phone?: string;
   genderType?: string;
   logoUrl?: string;
+  plan?: string;
+  features?: string[];
   adminName?: string;
   adminEmail?: string;
   adminPassword?: string;

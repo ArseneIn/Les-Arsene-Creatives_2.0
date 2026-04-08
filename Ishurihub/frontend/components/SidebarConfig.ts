@@ -22,7 +22,7 @@ const ADMIN_SIDEBAR: SidebarItem[] = [
         permission: 'academic.view_grades',
         subItems: [
             { label: 'Classes', icon: 'meeting_room', href: '/classes', permission: 'academic.view_grades' },
-            { label: 'Timetable', icon: 'calendar_month', href: '/timetable', permission: 'academic.manage_timetable' },
+            { label: 'Timetable', icon: 'calendar_month', href: '/timetable', permission: 'academic.manage_timetable', feature: 'timetable' },
             { label: 'Teachers', icon: 'person_apron', href: '/teachers', permission: 'academic.manage_timetable' },
             { label: 'Students', icon: 'groups', href: '/students', permission: 'student.view' },
         ]
@@ -39,7 +39,7 @@ const ADMIN_SIDEBAR: SidebarItem[] = [
         icon: 'event',
         href: '/dashboard/events',
         permission: 'event.view',
-        feature: 'attendance'
+        feature: 'events'
     },
     {
         label: 'Discipline',
@@ -86,12 +86,14 @@ const TEACHER_SIDEBAR: SidebarItem[] = [
         icon: 'event',
         href: '/dashboard/events',
         permission: 'event.view',
+        feature: 'events'
     },
     {
         label: 'Library',
         icon: 'local_library',
         href: '/library',
         permission: 'library.view',
+        feature: 'library'
     }
 ];
 
@@ -102,6 +104,12 @@ const STUDENT_SIDEBAR: SidebarItem[] = [
         href: '/student/dashboard'
     },
     {
+        label: 'Holiday Packages',
+        icon: 'local_library',
+        href: '/student/dashboard', // It's on the dashboard, but we can direct them there or to a specific list
+        feature: 'holiday-lms'
+    },
+    {
         label: 'My Grades',
         icon: 'grade',
         href: '/student/grades',
@@ -110,11 +118,13 @@ const STUDENT_SIDEBAR: SidebarItem[] = [
         label: 'Timetable',
         icon: 'calendar_month',
         href: '/student/timetable',
+        feature: 'timetable'
     },
     {
         label: 'Events',
         icon: 'event',
         href: '/dashboard/events',
+        feature: 'events'
     }
 ];
 
@@ -133,15 +143,17 @@ const PARENT_SIDEBAR: SidebarItem[] = [
         label: 'Finance',
         icon: 'payments',
         href: '/parent/finance',
+        feature: 'finance'
     },
     {
         label: 'Events',
         icon: 'event',
         href: '/dashboard/events',
+        feature: 'events'
     }
 ];
 
-export function getSidebarItems(roleId: string, baseUrl: string): SidebarItem[] {
+export function getSidebarItems(roleId: string, baseUrl: string, enabledFeatures: string[] = []): SidebarItem[] {
     let items: SidebarItem[] = [];
 
     switch (roleId) {
@@ -162,8 +174,30 @@ export function getSidebarItems(roleId: string, baseUrl: string): SidebarItem[] 
             break;
     }
 
+    // Filter by features OR super_admin bypass
+    const filterByFeature = (item: SidebarItem) => {
+        if (roleId === 'super_admin') return true;
+        if (!item.feature) return true;
+        return enabledFeatures.includes(item.feature);
+    };
+
+    const filteredItems = items
+        .filter(filterByFeature)
+        .map(item => ({
+            ...item,
+            subItems: item.subItems?.filter(filterByFeature)
+        }))
+        .filter(item => {
+            // If item has subItems, but all were filtered out, should we hide it?
+            // Only if it's a placeholder (href='#')
+            if (item.subItems && item.subItems.length === 0 && item.href === '#') {
+                return false;
+            }
+            return true;
+        });
+
     // Prefix URLs with baseUrl
-    return items.map(item => ({
+    return filteredItems.map(item => ({
         ...item,
         href: item.href.startsWith('#') ? '#' : `${baseUrl}${item.href}`,
         subItems: item.subItems?.map(sub => ({

@@ -22,7 +22,7 @@ export interface AddSchoolFormData {
     adminPassword: string;
 
     // Subscription
-    plan: 'Free' | 'Basic' | 'Premium';
+    plan: 'Free' | 'Basic' | 'Standard' | 'Premium';
     billingCycle: 'Monthly' | 'Yearly';
 }
 
@@ -295,7 +295,7 @@ export default function AddSchoolForm({ initialData, isEditing = false, onSubmit
                             <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-4">Subscription Plan</h3>
 
                             <div className="grid grid-cols-1 gap-4">
-                                {['Free', 'Basic', 'Premium'].map((plan) => (
+                                {['Free', 'Basic', 'Standard', 'Premium'].map((plan) => (
                                     <label key={plan} className={`relative flex items-center p-4 rounded-2xl border-2 cursor-pointer transition-all ${formData.plan === plan ? 'border-primary bg-primary/5' : 'border-slate-200 dark:border-slate-700 hover:border-primary/30'
                                         }`}>
                                         <div className="flex-1">
@@ -310,13 +310,14 @@ export default function AddSchoolForm({ initialData, isEditing = false, onSubmit
                                             </div>
                                             <p className="text-xs text-slate-500 ml-8">
                                                 {plan === 'Free' ? 'Essential features for small schools.' :
-                                                    plan === 'Basic' ? 'Advanced reporting and finance.' :
-                                                        'Unimited access to all modules.'}
+                                                    plan === 'Basic' ? 'Advanced reporting and attendance.' :
+                                                        plan === 'Standard' ? 'Full operational suite (Timetable, Discipline, Library).' :
+                                                            'Unlimited access with Finance and Holiday LMS.'}
                                             </p>
                                         </div>
                                         <div className="text-right">
                                             <span className="block font-bold text-slate-900 dark:text-white">
-                                                {plan === 'Free' ? '0 RWF' : plan === 'Basic' ? '50k RWF' : '100k RWF'}
+                                                {plan === 'Free' ? '0 RWF' : plan === 'Basic' ? '50k RWF' : plan === 'Standard' ? '150k RWF' : '300k RWF'}
                                             </span>
                                             <span className="text-xs text-slate-500">/month</span>
                                         </div>

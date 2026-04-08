@@ -13,6 +13,12 @@ export interface User {
     };
     role?: Role; // Populated at runtime or via helper
     schoolId: string;
+    school?: {
+        id: string;
+        name: string;
+        plan: string;
+        features: string[];
+    };
 }
 
 export const mockUsers: User[] = [

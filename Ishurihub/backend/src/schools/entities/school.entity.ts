@@ -35,6 +35,9 @@ export class School {
   @Column({ default: 'Free' })
   plan: string;
 
+  @Column({ type: 'simple-array', nullable: true })
+  features: string[];
+
   @Column({ default: 'Active' })
   subscriptionStatus: string;
 

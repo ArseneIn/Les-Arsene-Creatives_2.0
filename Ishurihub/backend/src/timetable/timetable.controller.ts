@@ -6,11 +6,18 @@ import {
   Param,
   Delete,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import { TimetableService } from './timetable.service';
 import { CreateTimetableEventDto } from './dto/create-timetable-event.dto';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { FeatureGuard } from '../auth/guards/feature.guard';
+import { RequireFeature } from '../auth/decorators/require-feature.decorator';
+import { Feature } from '../subscriptions/enums/feature.enum';
 
 @Controller('timetable')
+@UseGuards(JwtAuthGuard, FeatureGuard)
+@RequireFeature(Feature.TIMETABLE)
 export class TimetableController {
   constructor(private readonly timetableService: TimetableService) {}
 

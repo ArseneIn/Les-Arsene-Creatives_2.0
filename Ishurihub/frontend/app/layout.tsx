@@ -3,6 +3,7 @@ import { Poppins, Outfit } from "next/font/google";
 import 'material-symbols/outlined.css';
 import "./globals.css";
 import { AuthProvider } from "@/context/AuthContext";
+import { MaintenanceProvider } from "@/components/system/MaintenanceProvider";
 
 const poppins = Poppins({
   variable: "--font-poppins",
@@ -33,7 +34,9 @@ export default function RootLayout({
       </head>
       <body className={`${poppins.variable} ${outfit.variable} antialiased font-sans bg-slate-50 dark:bg-[#0f172a]`}>
         <AuthProvider>
-          {children}
+          <MaintenanceProvider>
+            {children}
+          </MaintenanceProvider>
         </AuthProvider>
       </body>
     </html>

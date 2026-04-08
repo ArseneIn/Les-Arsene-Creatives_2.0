@@ -14,7 +14,7 @@
     "axios": "^1.13.4",
     "framer-motion": "^12.34.0",
     "material-symbols": "^0.40.2",
-    "next": "16.1.6",
+    "next": "^16.2.2",
     "papaparse": "^5.5.3",
     "react": "19.2.3",
     "react-dom": "19.2.3",

@@ -15,7 +15,7 @@ export class TeachersService {
     private teachersRepository: Repository<Teacher>,
     @InjectRepository(Classroom)
     private classroomRepository: Repository<Classroom>,
-  ) { }
+  ) {}
 
   async findByEmail(email: string) {
     return this.teachersRepository.findOne({ where: { email } });

@@ -105,5 +105,16 @@ export const SYSTEM_ROLES: Role[] = [
             'discipline.view',
             'finance.view'
         ]
+    },
+    {
+        id: 'student',
+        name: 'Student',
+        description: 'Access to holiday packages and personal academic metrics.',
+        isSystem: true,
+        permissions: [
+            'student.view',
+            'academic.view_grades',
+            'event.view'
+        ]
     }
 ];

@@ -7,12 +7,19 @@ import {
   Param,
   Delete,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import { DisciplineService } from './discipline.service';
 import { CreateDisciplineDto } from './dto/create-discipline.dto';
 import { UpdateDisciplineDto } from './dto/update-discipline.dto';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { FeatureGuard } from '../auth/guards/feature.guard';
+import { RequireFeature } from '../auth/decorators/require-feature.decorator';
+import { Feature } from '../subscriptions/enums/feature.enum';
 
 @Controller('discipline')
+@UseGuards(JwtAuthGuard, FeatureGuard)
+@RequireFeature(Feature.DISCIPLINE)
 export class DisciplineController {
   constructor(private readonly disciplineService: DisciplineService) {}
 

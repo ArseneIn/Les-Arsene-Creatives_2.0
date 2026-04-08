@@ -23,20 +23,11 @@ export default function Sidebar({ schoolId, logoUrl }: SidebarProps) {
     const { user, logout } = useAuth();
     const { hasPermission } = usePermission();
 
-    // TODO: Fetch this from School/Subscription context
-    const enabledFeatures = ['discipline', 'attendance', 'finance', 'library'];
-
-    console.log('Sidebar Debug:', {
-        user,
-        role: user?.role,
-        roleId: user?.roleId,
-        permissions: user?.role?.permissions
-    });
+    const enabledFeatures = user?.school?.features || [];
 
     // Get items based on role
-    // user.role.name might be 'Teacher' in readable format.
-    const roleKey = user?.role?.name || 'Admin';
-    const sidebarItems = getSidebarItems(roleKey, baseUrl);
+    const roleKey = user?.roleId || 'school_admin';
+    const sidebarItems = getSidebarItems(roleKey, baseUrl, enabledFeatures);
     const portalName = getPortalName(roleKey);
 
     const isActive = (href: string) => {
