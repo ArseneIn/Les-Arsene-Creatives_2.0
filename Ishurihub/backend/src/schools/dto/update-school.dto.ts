@@ -3,7 +3,11 @@ import { PartialType } from '@nestjs/mapped-types';
 export class CreateSchoolDto {
   name: string;
   motto?: string;
-  address?: string;
+  location?: string;
+  latitude?: number;
+  longitude?: number;
+  levels?: string[];
+  category?: string;
   website?: string;
   email?: string;
   phone?: string;

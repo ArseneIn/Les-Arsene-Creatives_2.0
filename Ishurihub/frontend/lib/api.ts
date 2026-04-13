@@ -28,10 +28,13 @@ api.interceptors.response.use(
     (response) => {
         // Detect maintenance headers
         if (typeof window !== 'undefined') {
+            const onAuthPage = window.location.pathname === '/login' ||
+                window.location.pathname.startsWith('/portal') ||
+                window.location.pathname.startsWith('/forgot-password');
             const isMaintenance = response.headers['x-maintenance-mode'] === 'true';
             const startsAt = response.headers['x-maintenance-starts-at'];
             
-            if (isMaintenance || startsAt) {
+            if (!onAuthPage && (isMaintenance || startsAt)) {
                 window.dispatchEvent(new CustomEvent('maintenance-status-changed', {
                     detail: { isMaintenance, startsAt }
                 }));
@@ -50,9 +53,14 @@ api.interceptors.response.use(
             // Handle maintenance-specific error (503 Service Unavailable)
             if (error.response.status === 503) {
                 if (typeof window !== 'undefined') {
-                    window.dispatchEvent(new CustomEvent('maintenance-status-changed', {
-                        detail: { isMaintenance: true }
-                    }));
+                    const onAuthPage = window.location.pathname === '/login' ||
+                        window.location.pathname.startsWith('/portal') ||
+                        window.location.pathname.startsWith('/forgot-password');
+                    if (!onAuthPage) {
+                        window.dispatchEvent(new CustomEvent('maintenance-status-changed', {
+                            detail: { isMaintenance: true }
+                        }));
+                    }
                 }
             }
         }

@@ -42,14 +42,14 @@ export default function Modal({ isOpen, onClose, title, children, size = 'md' }:
         '3xl': 'max-w-3xl',
         '4xl': 'max-w-4xl',
         '5xl': 'max-w-5xl',
-        'full': 'max-w-full m-4'
+        'full': 'max-w-none w-screen h-screen m-0 rounded-none max-h-none'
     };
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-8 bg-black/50 backdrop-blur-sm">
             <div
                 ref={modalRef}
-                className={`bg-white dark:bg-space-indigo-900 rounded-xl shadow-2xl w-full ${sizeClasses[size]} overflow-hidden animate-in fade-in zoom-in-95 duration-200 max-h-[90vh] flex flex-col`}
+                className={`bg-white dark:bg-space-indigo-900 shadow-2xl w-full ${sizeClasses[size]} overflow-hidden animate-in fade-in zoom-in-95 duration-200 flex flex-col ${size !== 'full' ? 'rounded-xl max-h-[90vh]' : ''}`}
             >
                 <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 dark:border-gray-700">
                     <h3 className="text-lg font-bold text-gray-900 dark:text-white">{title}</h3>
@@ -60,7 +60,7 @@ export default function Modal({ isOpen, onClose, title, children, size = 'md' }:
                         <span className="material-symbols-outlined">close</span>
                     </button>
                 </div>
-                <div className="p-6 overflow-y-auto custom-scrollbar">{children}</div>
+                <div className={`overflow-y-auto custom-scrollbar ${size !== 'full' ? 'p-6' : ''}`}>{children}</div>
             </div>
         </div>
     );

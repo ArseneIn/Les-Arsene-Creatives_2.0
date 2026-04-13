@@ -4,9 +4,8 @@ import { Product, CreateSaleDto } from './types';
 
 // Android emulator uses 10.0.2.2 to access host localhost
 // Real device would need the actual LAN IP of the computer
-const BASE_URL = Platform.OS === 'android'
-    ? 'http://10.10.6.80:3001' // Use LAN IP for both Emulator and Physical Device
-    : 'http://localhost:3001';
+// Use LAN IP for physical devices (both iOS and Android) to reach the backend
+const BASE_URL = 'http://192.168.1.70:3001';
 
 async function getHeaders() {
     const token = await SecureStore.getItemAsync('auth_token');
@@ -139,10 +138,10 @@ export const ApiClient = {
         }
     },
 
-    async getDashboardStats(): Promise<any> {
+    async getDashboardStats(period: string = 'today'): Promise<any> {
         try {
             const headers = await getHeaders();
-            const response = await fetch(`${BASE_URL}/dashboard/stats`, {
+            const response = await fetch(`${BASE_URL}/dashboard/stats?period=${period}`, {
                 headers: headers as any,
             });
             if (!response.ok) {

@@ -22,14 +22,23 @@ export class FeatureGuard implements CanActivate {
       return true;
     }
 
-    const { user } = context.switchToHttp().getRequest();
+    const request = context.switchToHttp().getRequest<{
+      user: { role?: string; roleId?: string; features?: string[] };
+    }>();
+    const { user } = request;
 
     // Super Admin has access to everything
     if (user.role === 'super_admin' || user.roleId === 'super_admin') {
       return true;
     }
 
-    const schoolFeatures = user.features || [];
+    const schoolFeatures: string[] = user.features || [];
+
+    // If no features are configured in the token (empty/null), grant full access.
+    // This handles: old tokens, newly created schools, dev environments.
+    if (schoolFeatures.length === 0) {
+      return true;
+    }
 
     const hasAllFeatures = requiredFeatures.every((feature) =>
       schoolFeatures.includes(feature),

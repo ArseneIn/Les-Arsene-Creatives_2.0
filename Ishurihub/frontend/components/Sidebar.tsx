@@ -1,10 +1,10 @@
 "use client";
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 import { usePermission } from '@/hooks/usePermission';
-import { Permission } from '@/data/rbac';
 
 interface SidebarProps {
     schoolId: string;
@@ -23,7 +23,11 @@ export default function Sidebar({ schoolId, logoUrl }: SidebarProps) {
     const { user, logout } = useAuth();
     const { hasPermission } = usePermission();
 
-    const enabledFeatures = user?.school?.features || [];
+    const rawFeatures: string[] = user?.school?.features || [];
+    // If the school has no features configured yet (null/empty), show everything
+    // so admins are never locked out of the navigation
+    const ALL_FEATURES = ['academic-core', 'attendance', 'timetable', 'discipline', 'library', 'finance', 'holiday-lms', 'events', 'support'];
+    const enabledFeatures = rawFeatures.length > 0 ? rawFeatures : ALL_FEATURES;
 
     // Get items based on role
     const roleKey = user?.roleId || 'school_admin';
@@ -46,9 +50,11 @@ export default function Sidebar({ schoolId, logoUrl }: SidebarProps) {
             <div className="relative flex items-center gap-3 px-6 py-8 z-10 border-b border-gray-800">
                 <div className="flex items-center justify-center bg-primary rounded-xl size-10 shadow-lg shadow-primary/20 overflow-hidden">
                     {logoUrl ? (
-                        <img
+                        <Image
                             src={`http://localhost:4000${logoUrl}`}
                             alt="School Logo"
+                            width={40}
+                            height={40}
                             className="w-full h-full object-cover"
                         />
                     ) : (

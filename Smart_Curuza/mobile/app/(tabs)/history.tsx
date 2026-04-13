@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, TextInput, RefreshControl, ActivityIndicator, ScrollView } from 'react-native';
-import { Search, Filter, Download, Calendar, ArrowRight, Check, Clock, AlertTriangle, CreditCard, Banknote, Smartphone } from 'lucide-react-native';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, TextInput, RefreshControl, ActivityIndicator, ScrollView, Modal, Platform } from 'react-native';
+import { Search, Filter, Download, Calendar, ArrowRight, Check, Clock, AlertTriangle, CreditCard, Banknote, Smartphone, X } from 'lucide-react-native';
 import ScreenWrapper from '../../components/ScreenWrapper';
 import { ApiClient } from '../../lib/api_client';
 import SaleDetailsModal from '../../components/SaleDetailsModal';
@@ -19,13 +19,19 @@ interface SaleRecord {
     profit?: number;
 }
 
+const STATUS_OPTIONS = ['Completed', 'Pending', 'Failed'];
+const PAYMENT_OPTIONS = ['Cash', 'Mobile Money', 'Credit'];
+
 export default function History() {
     const [sales, setSales] = useState<SaleRecord[]>([]);
     const [loading, setLoading] = useState(true);
     const [refreshing, setRefreshing] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
-    const [statusFilter, setStatusFilter] = useState<string | null>(null);
-    const [paymentFilter, setPaymentFilter] = useState<string | null>(null);
+    
+    // Advanced Filters State
+    const [selectedStatuses, setSelectedStatuses] = useState<string[]>([]);
+    const [selectedPayments, setSelectedPayments] = useState<string[]>([]);
+    const [showFilters, setShowFilters] = useState(false);
 
     const [selectedSale, setSelectedSale] = useState<SaleRecord | null>(null);
     const [showExportModal, setShowExportModal] = useState(false);
@@ -53,13 +59,35 @@ export default function History() {
         fetchSales();
     };
 
+    const toggleStatus = (status: string) => {
+        setSelectedStatuses(current => 
+            current.includes(status) 
+                ? current.filter(s => s !== status) 
+                : [...current, status]
+        );
+    };
+
+    const togglePayment = (method: string) => {
+        setSelectedPayments(current => 
+            current.includes(method) 
+                ? current.filter(m => m !== method) 
+                : [...current, method]
+        );
+    };
+
+    const clearFilters = () => {
+        setSelectedStatuses([]);
+        setSelectedPayments([]);
+        setSearchQuery('');
+    };
+
     const filteredSales = sales.filter(sale => {
         const matchesSearch =
             sale.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
             (sale.customer?.name || '').toLowerCase().includes(searchQuery.toLowerCase());
 
-        const matchesStatus = statusFilter ? sale.sync_status === statusFilter : true;
-        const matchesPayment = paymentFilter ? sale.payment_method === paymentFilter : true;
+        const matchesStatus = selectedStatuses.length === 0 || selectedStatuses.includes(sale.sync_status);
+        const matchesPayment = selectedPayments.length === 0 || selectedPayments.includes(sale.payment_method);
 
         return matchesSearch && matchesStatus && matchesPayment;
     });
@@ -82,9 +110,6 @@ export default function History() {
                     item.sync_status === 'Completed' ? styles.bgGreen :
                         item.sync_status === 'Pending' ? styles.bgOrange : styles.bgRed
                 ]}>
-                    {item.sync_status === 'Completed' && <Check size={12} color="#15803D" />}
-                    {item.sync_status === 'Pending' && <Clock size={12} color="#C2410C" />}
-                    {item.sync_status === 'Failed' && <AlertTriangle size={12} color="#B91C1C" />}
                     <Text style={[
                         styles.statusText,
                         item.sync_status === 'Completed' ? styles.textGreen :
@@ -97,41 +122,32 @@ export default function History() {
                 <View style={styles.customerInfo}>
                     <Text style={styles.customerName}>{item.customer?.name || 'Walk-in Customer'}</Text>
                     <Text style={styles.itemsSummary}>
-                        {item.items.length} items • {item.items.slice(0, 2).map(i => i.name).join(', ')}
-                        {item.items.length > 2 ? '...' : ''}
+                        {item.items.length} items • {item.items.slice(0, 1).map(i => i.name).join(', ')}
+                        {item.items.length > 1 ? '...' : ''}
                     </Text>
                 </View>
                 <View style={styles.amountContainer}>
-                    <Text style={styles.amountText}>{Number(item.total).toLocaleString()} RWF</Text>
+                    <Text style={styles.amountText}>{Number(item.total).toLocaleString()} <Text style={{fontSize: 10, color: '#6B7280', fontFamily: 'Montserrat_500Medium'}}>RWF</Text></Text>
                 </View>
             </View>
 
             <View style={styles.cardFooter}>
-                <View style={[
-                    styles.paymentBadge,
-                    item.payment_method === 'Mobile Money' ? styles.bgYellow :
-                        item.payment_method === 'Credit' ? styles.bgRedLight : styles.bgBlueLight
-                ]}>
-                    {item.payment_method === 'Cash' && <Banknote size={12} color="#1E40AF" />}
-                    {item.payment_method === 'Mobile Money' && <Smartphone size={12} color="#854D0E" />}
-                    {item.payment_method === 'Credit' && <CreditCard size={12} color="#991B1B" />}
-                    <Text style={[
-                        styles.paymentText,
-                        item.payment_method === 'Mobile Money' ? styles.textYellow :
-                            item.payment_method === 'Credit' ? styles.textRedDark : styles.textBlue
-                    ]}>{item.payment_method}</Text>
+                <View style={styles.paymentBadge}>
+                    <Text style={styles.paymentText}>{item.payment_method}</Text>
                 </View>
-                <ArrowRight size={16} color="#9CA3AF" />
+                <ArrowRight size={14} color="rgba(0, 0, 0, 0.15)" />
             </View>
         </TouchableOpacity>
     );
 
     return (
-
         <ScreenWrapper>
-            {/* Header */}
+            {/* Header Area */}
             <View style={styles.header}>
-                <Text style={styles.headerTitle}>Sales History</Text>
+                <View>
+                    <Text style={styles.headerTitle}>Sales Ledger</Text>
+                    <Text style={styles.headerSub}>Analyzing {filteredSales.length} Transactions</Text>
+                </View>
                 <TouchableOpacity
                     style={styles.exportButton}
                     onPress={() => setShowExportModal(true)}
@@ -140,57 +156,27 @@ export default function History() {
                 </TouchableOpacity>
             </View>
 
-            {/* Search & Filter */}
-            <View style={styles.filterSection}>
+            {/* Unified Command Bar (V5) */}
+            <View style={styles.actionRow}>
                 <View style={styles.searchBar}>
-                    <Search size={20} color="#9CA3AF" />
+                    <Search size={18} color="#6B7280" />
                     <TextInput
                         style={styles.searchInput}
-                        placeholder="Search by ID or Customer..."
+                        placeholder="Search ID or Customer..."
                         placeholderTextColor="#9CA3AF"
                         value={searchQuery}
                         onChangeText={setSearchQuery}
                     />
                 </View>
-
-                <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.chipsContainer}>
-                    <TouchableOpacity
-                        style={[styles.chip, !statusFilter && !paymentFilter && styles.activeChip]}
-                        onPress={() => { setStatusFilter(null); setPaymentFilter(null); }}
-                    >
-                        <Text style={[styles.chipText, !statusFilter && !paymentFilter && styles.activeChipText]}>All</Text>
-                    </TouchableOpacity>
-
-                    <TouchableOpacity
-                        style={[styles.chip, statusFilter === 'Completed' && styles.activeChip]}
-                        onPress={() => setStatusFilter(statusFilter === 'Completed' ? null : 'Completed')}
-                    >
-                        <Text style={[styles.chipText, statusFilter === 'Completed' && styles.activeChipText]}>Completed</Text>
-                    </TouchableOpacity>
-
-                    <TouchableOpacity
-                        style={[styles.chip, statusFilter === 'Pending' && styles.activeChip]}
-                        onPress={() => setStatusFilter(statusFilter === 'Pending' ? null : 'Pending')}
-                    >
-                        <Text style={[styles.chipText, statusFilter === 'Pending' && styles.activeChipText]}>Pending</Text>
-                    </TouchableOpacity>
-
-                    <View style={styles.divider} />
-
-                    <TouchableOpacity
-                        style={[styles.chip, paymentFilter === 'Mobile Money' && styles.activeChip]}
-                        onPress={() => setPaymentFilter(paymentFilter === 'Mobile Money' ? null : 'Mobile Money')}
-                    >
-                        <Text style={[styles.chipText, paymentFilter === 'Mobile Money' && styles.activeChipText]}>Momo</Text>
-                    </TouchableOpacity>
-
-                    <TouchableOpacity
-                        style={[styles.chip, paymentFilter === 'Cash' && styles.activeChip]}
-                        onPress={() => setPaymentFilter(paymentFilter === 'Cash' ? null : 'Cash')}
-                    >
-                        <Text style={[styles.chipText, paymentFilter === 'Cash' && styles.activeChipText]}>Cash</Text>
-                    </TouchableOpacity>
-                </ScrollView>
+                <TouchableOpacity 
+                    style={[styles.filterIconButton, (selectedStatuses.length > 0 || selectedPayments.length > 0) && styles.filterIconButtonActive]}
+                    onPress={() => setShowFilters(true)}
+                >
+                    <Filter size={20} color={(selectedStatuses.length > 0 || selectedPayments.length > 0) ? "#000000" : "#2a2e34"} />
+                    {(selectedStatuses.length > 0 || selectedPayments.length > 0) && (
+                        <View style={styles.filterDot} />
+                    )}
+                </TouchableOpacity>
             </View>
 
             {/* List */}
@@ -209,13 +195,71 @@ export default function History() {
                     }
                     ListEmptyComponent={
                         <View style={styles.emptyContainer}>
-                            <Filter size={48} color="#D1D5DB" />
-                            <Text style={styles.emptyText}>No sales found</Text>
-                            <Text style={styles.emptySubtext}>Try adjusting your filters</Text>
+                            <AlertTriangle size={48} color="rgba(255, 255, 255, 0.1)" />
+                            <Text style={styles.emptyText}>No matching records</Text>
+                            <TouchableOpacity onPress={clearFilters}>
+                                <Text style={styles.clearFiltersText}>Reset All Filters</Text>
+                            </TouchableOpacity>
                         </View>
                     }
                 />
             )}
+
+            {/* Advanced Filters Modal */}
+            <Modal
+                visible={showFilters}
+                animationType="slide"
+                transparent={true}
+                onRequestClose={() => setShowFilters(false)}
+            >
+                <View style={styles.modalOverlay}>
+                    <View style={styles.modalContent}>
+                        <View style={styles.modalHeader}>
+                            <Text style={styles.modalTitle}>Advanced Search</Text>
+                            <TouchableOpacity onPress={() => setShowFilters(false)}>
+                                <X size={24} color="#FFFFFF" />
+                            </TouchableOpacity>
+                        </View>
+
+                        <ScrollView style={styles.modalBody}>
+                            <Text style={styles.filterLabel}>Transaction Status</Text>
+                            <View style={styles.filterGrid}>
+                                {STATUS_OPTIONS.map(status => (
+                                    <TouchableOpacity 
+                                        key={status} 
+                                        style={[styles.filterChip, selectedStatuses.includes(status) && styles.filterChipActive]}
+                                        onPress={() => toggleStatus(status)}
+                                    >
+                                        <Text style={[styles.filterChipText, selectedStatuses.includes(status) && styles.filterChipTextActive]}>{status}</Text>
+                                    </TouchableOpacity>
+                                ))}
+                            </View>
+
+                            <Text style={styles.filterLabel}>Payment Method</Text>
+                            <View style={styles.filterGrid}>
+                                {PAYMENT_OPTIONS.map(method => (
+                                    <TouchableOpacity 
+                                        key={method} 
+                                        style={[styles.filterChip, selectedPayments.includes(method) && styles.filterChipActive]}
+                                        onPress={() => togglePayment(method)}
+                                    >
+                                        <Text style={[styles.filterChipText, selectedPayments.includes(method) && styles.filterChipTextActive]}>{method}</Text>
+                                    </TouchableOpacity>
+                                ))}
+                            </View>
+                        </ScrollView>
+
+                        <View style={styles.modalFooter}>
+                            <TouchableOpacity style={styles.resetButton} onPress={clearFilters}>
+                                <Text style={styles.resetButtonText}>Reset Selection</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity style={styles.applyButton} onPress={() => setShowFilters(false)}>
+                                <Text style={styles.applyButtonText}>Apply Combinations</Text>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                </View>
+            </Modal>
 
             <SaleDetailsModal
                 visible={!!selectedSale}
@@ -230,137 +274,137 @@ export default function History() {
             />
         </ScreenWrapper>
     );
-
 }
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        // backgroundColor: '#F3F4F6', // Removed to show background
+        backgroundColor: '#1a1d21', 
     },
     header: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
+        backgroundColor: '#2a2e34', 
         paddingHorizontal: 24,
-        paddingVertical: 16,
-        backgroundColor: '#FFFFFF',
+        paddingTop: 60,
+        paddingBottom: 24,
+        borderBottomLeftRadius: 32,
+        borderBottomRightRadius: 32,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 8 },
+        shadowOpacity: 0.25,
+        shadowRadius: 16,
+        elevation: 12,
+        zIndex: 50,
     },
     headerTitle: {
-        fontSize: 24,
+        fontSize: 28,
         fontFamily: 'Poppins_700Bold',
-        color: '#111827',
+        color: '#FFFFFF',
+    },
+    headerSub: {
+        fontSize: 12,
+        fontFamily: 'Montserrat_600SemiBold',
+        color: 'rgba(255, 255, 255, 0.5)',
+        marginTop: -4,
     },
     exportButton: {
-        width: 40,
-        height: 40,
-        borderRadius: 12,
-        backgroundColor: '#fbe134', // Gold
+        position: 'absolute',
+        right: 24,
+        top: 64,
+        width: 44,
+        height: 44,
+        borderRadius: 14,
+        backgroundColor: '#fbe134',
         alignItems: 'center',
         justifyContent: 'center',
+        shadowColor: '#fbe134',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.3,
+        shadowRadius: 10,
+        elevation: 6,
     },
-    filterSection: {
-        backgroundColor: '#FFFFFF',
-        paddingBottom: 16,
-        borderBottomLeftRadius: 24,
-        borderBottomRightRadius: 24,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.05,
-        shadowRadius: 4,
-        elevation: 2,
-        zIndex: 10,
-    },
-    searchBar: {
+    actionRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        backgroundColor: '#F9FAFB',
-        marginHorizontal: 24,
+        paddingHorizontal: 24,
+        marginTop: 20,
+        marginBottom: 20,
+        gap: 12,
+    },
+    searchBar: {
+        flex: 1,
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: '#f3f4f6', // Unified Light Grey
         paddingHorizontal: 16,
-        height: 48,
-        borderRadius: 12,
-        marginBottom: 16,
-        borderWidth: 1,
-        borderColor: '#E5E7EB',
+        height: 54,
+        borderRadius: 14,
+        borderTopWidth: 3,
+        borderTopColor: '#fbe134', // Gold Handle
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+        elevation: 3,
     },
     searchInput: {
         flex: 1,
         marginLeft: 12,
-        fontFamily: 'Montserrat_500Medium',
-        fontSize: 14,
-        color: '#111827',
-    },
-    chipsContainer: {
-        paddingHorizontal: 24,
-    },
-    chip: {
-        paddingHorizontal: 16,
-        paddingVertical: 8,
-        borderRadius: 20,
-        backgroundColor: '#F3F4F6',
-        marginRight: 8,
-        borderWidth: 1,
-        borderColor: 'transparent',
-    },
-    activeChip: {
-        backgroundColor: '#111827', // Jet
-        borderColor: '#111827',
-    },
-    chipText: {
-        fontSize: 12,
         fontFamily: 'Montserrat_600SemiBold',
-        color: '#6B7280',
-    },
-    activeChipText: {
-        color: '#FFFFFF',
-    },
-    divider: {
-        width: 1,
-        height: 24,
-        backgroundColor: '#E5E7EB',
-        marginHorizontal: 8,
-        alignSelf: 'center',
-    },
-    listContent: {
-        padding: 24,
-        gap: 16,
-    },
-    centerContainer: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    emptyContainer: {
-        alignItems: 'center',
-        justifyContent: 'center',
-        paddingTop: 64,
-        gap: 12,
-    },
-    emptyText: {
-        fontSize: 16,
-        fontFamily: 'Poppins_600SemiBold',
-        color: '#374151',
-    },
-    emptySubtext: {
         fontSize: 14,
-        fontFamily: 'Montserrat_500Medium',
-        color: '#9CA3AF',
+        color: '#2a2e34',
     },
-    saleCard: {
-        backgroundColor: '#FFFFFF',
-        borderRadius: 16,
-        padding: 16,
+    filterIconButton: {
+        width: 54,
+        height: 54,
+        backgroundColor: '#f3f4f6', // Unified Light Grey
+        borderRadius: 14,
+        alignItems: 'center',
+        justifyContent: 'center',
+        borderTopWidth: 3,
+        borderTopColor: '#fbe134', // Gold Handle
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.05,
-        shadowRadius: 8,
-        elevation: 2,
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+        elevation: 3,
+    },
+    filterIconButtonActive: {
+        backgroundColor: '#fbe134',
+        borderTopColor: '#000', // Inverse handle when active
+    },
+    filterDot: {
+        position: 'absolute',
+        top: 14,
+        right: 14,
+        width: 8,
+        height: 8,
+        backgroundColor: '#fbe134',
+        borderRadius: 4,
+        borderWidth: 2,
+        borderColor: '#f3f4f6', 
+    },
+    listContent: {
+        paddingHorizontal: 24,
+        paddingBottom: 100,
+        gap: 16,
+    },
+    saleCard: {
+        backgroundColor: '#f3f4f6', 
+        borderRadius: 20,
+        padding: 20,
+        borderTopWidth: 4,
+        borderTopColor: '#fbe134',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.1,
+        shadowRadius: 10,
+        elevation: 4,
     },
     cardHeader: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        marginBottom: 12,
+        marginBottom: 14,
     },
     dateContainer: {
         flexDirection: 'row',
@@ -368,17 +412,14 @@ const styles = StyleSheet.create({
         gap: 6,
     },
     dateText: {
-        fontSize: 12,
-        fontFamily: 'Montserrat_500Medium',
+        fontSize: 11,
+        fontFamily: 'Montserrat_700Bold',
         color: '#6B7280',
     },
     statusBadge: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 4,
-        paddingHorizontal: 8,
+        paddingHorizontal: 10,
         paddingVertical: 4,
-        borderRadius: 12,
+        borderRadius: 8,
     },
     bgGreen: { backgroundColor: '#DCFCE7' },
     bgOrange: { backgroundColor: '#FFEDD5' },
@@ -387,31 +428,32 @@ const styles = StyleSheet.create({
     textOrange: { color: '#C2410C' },
     textRed: { color: '#B91C1C' },
     statusText: {
-        fontSize: 10,
-        fontFamily: 'Montserrat_700Bold',
+        fontSize: 9,
+        fontFamily: 'Montserrat_800ExtraBold',
         textTransform: 'uppercase',
+        letterSpacing: 0.5,
     },
     cardBody: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        marginBottom: 12,
-        paddingBottom: 12,
+        marginBottom: 14,
+        paddingBottom: 14,
         borderBottomWidth: 1,
-        borderBottomColor: '#F3F4F6',
+        borderBottomColor: '#E5E7EB',
     },
     customerInfo: {
         flex: 1,
     },
     customerName: {
-        fontSize: 15,
-        fontFamily: 'Poppins_600SemiBold',
-        color: '#111827',
+        fontSize: 17,
+        fontFamily: 'Poppins_700Bold',
+        color: '#2a2e34', 
         marginBottom: 2,
     },
     itemsSummary: {
         fontSize: 12,
-        fontFamily: 'Montserrat_500Medium',
+        fontFamily: 'Montserrat_600SemiBold',
         color: '#6B7280',
     },
     amountContainer: {
@@ -420,7 +462,7 @@ const styles = StyleSheet.create({
     amountText: {
         fontSize: 16,
         fontFamily: 'Poppins_700Bold',
-        color: '#111827',
+        color: '#2a2e34', 
     },
     cardFooter: {
         flexDirection: 'row',
@@ -430,19 +472,129 @@ const styles = StyleSheet.create({
     paymentBadge: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 6,
-        paddingHorizontal: 10,
-        paddingVertical: 4,
-        borderRadius: 8,
+        gap: 8,
     },
-    bgYellow: { backgroundColor: '#FEF9C3' },
-    bgRedLight: { backgroundColor: '#FEE2E2' },
-    bgBlueLight: { backgroundColor: '#DBEAFE' },
-    textYellow: { color: '#854D0E' },
-    textRedDark: { color: '#991B1B' },
-    textBlue: { color: '#1E40AF' },
     paymentText: {
-        fontSize: 11,
+        fontSize: 12,
+        fontFamily: 'Montserrat_700Bold',
+        color: '#6B7280',
+    },
+    modalOverlay: {
+        flex: 1,
+        backgroundColor: 'rgba(0,0,0,0.85)',
+        justifyContent: 'flex-end',
+    },
+    modalContent: {
+        backgroundColor: '#2a2e34',
+        borderTopLeftRadius: 36,
+        borderTopRightRadius: 36,
+        paddingBottom: Platform.OS === 'ios' ? 44 : 24,
+        maxHeight: '85%',
+    },
+    modalHeader: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        padding: 24,
+        borderBottomWidth: 1,
+        borderBottomColor: 'rgba(255, 255, 255, 0.05)',
+    },
+    modalTitle: {
+        fontSize: 22,
+        fontFamily: 'Poppins_700Bold',
+        color: '#FFFFFF',
+    },
+    modalBody: {
+        padding: 24,
+    },
+    filterLabel: {
+        fontSize: 13,
+        fontFamily: 'Montserrat_700Bold',
+        color: 'rgba(255, 255, 255, 0.3)',
+        textTransform: 'uppercase',
+        letterSpacing: 1.5,
+        marginBottom: 16,
+    },
+    filterGrid: {
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        gap: 12,
+        marginBottom: 36,
+    },
+    filterChip: {
+        paddingHorizontal: 16,
+        paddingVertical: 12,
+        borderRadius: 14,
+        backgroundColor: 'rgba(255, 255, 255, 0.03)',
+        borderWidth: 1,
+        borderColor: 'rgba(255, 255, 255, 0.1)',
+    },
+    filterChipActive: {
+        backgroundColor: 'rgba(251, 225, 52, 0.15)',
+        borderColor: '#fbe134',
+    },
+    filterChipText: {
+        fontSize: 13,
         fontFamily: 'Montserrat_600SemiBold',
+        color: 'rgba(255, 255, 255, 0.5)',
+    },
+    filterChipTextActive: {
+        color: '#fbe134',
+    },
+    modalFooter: {
+        flexDirection: 'row',
+        paddingHorizontal: 24,
+        gap: 16,
+    },
+    resetButton: {
+        flex: 1,
+        height: 56,
+        borderRadius: 16,
+        borderWidth: 1,
+        borderColor: 'rgba(255, 255, 255, 0.1)',
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    resetButtonText: {
+        color: '#FFFFFF',
+        fontFamily: 'Montserrat_700Bold',
+        fontSize: 14,
+    },
+    applyButton: {
+        flex: 1.8,
+        height: 56,
+        borderRadius: 16,
+        backgroundColor: '#fbe134',
+        alignItems: 'center',
+        justifyContent: 'center',
+        shadowColor: '#fbe134',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.3,
+        shadowRadius: 10,
+    },
+    applyButtonText: {
+        color: '#0b0c0c',
+        fontFamily: 'Montserrat_700Bold',
+        fontSize: 14,
+    },
+    emptyContainer: {
+        alignItems: 'center',
+        paddingTop: 120,
+        gap: 16,
+    },
+    emptyText: {
+        fontSize: 18,
+        fontFamily: 'Poppins_700Bold',
+        color: '#FFFFFF',
+    },
+    clearFiltersText: {
+        color: '#fbe134',
+        fontFamily: 'Montserrat_700Bold',
+        fontSize: 14,
+    },
+    centerContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
     },
 });

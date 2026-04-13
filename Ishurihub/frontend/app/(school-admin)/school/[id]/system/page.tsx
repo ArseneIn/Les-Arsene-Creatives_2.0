@@ -19,7 +19,7 @@ const auditLogs = [
 interface SchoolProfile {
     name: string;
     motto: string;
-    address: string;
+    location: string;
     website?: string;
     email?: string;
     phone?: string;
@@ -34,7 +34,7 @@ export default function SystemPage() {
     const [profile, setProfile] = useState<SchoolProfile>({
         name: '',
         motto: '',
-        address: ''
+        location: ''
     });
     const [isLoading, setIsLoading] = useState(true);
 
@@ -417,11 +417,11 @@ export default function SystemPage() {
                                                 />
                                             </div>
                                             <div className="space-y-1 md:col-span-2">
-                                                <label className="text-xs font-bold text-gray-500 uppercase">Address</label>
+                                                <label className="text-xs font-bold text-gray-500 uppercase">Location</label>
                                                 <input
                                                     type="text"
-                                                    value={profile.address || ''}
-                                                    onChange={(e) => setProfile({ ...profile, address: e.target.value })}
+                                                    value={profile.location || ''}
+                                                    onChange={(e) => setProfile({ ...profile, location: e.target.value })}
                                                     className="w-full h-10 px-3 rounded-lg border border-[#cfcfe7] dark:border-gray-600 bg-transparent text-sm active:border-primary focus:border-primary outline-none"
                                                 />
                                             </div>

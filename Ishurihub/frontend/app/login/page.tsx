@@ -1,8 +1,10 @@
 "use client";
 
+export const dynamic = 'force-dynamic';
+
 import { motion, AnimatePresence, Variants } from "framer-motion";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 // Define the role types and their configurations
 type Role = 'student' | 'teacher' | 'parent' | 'admin';
@@ -78,6 +80,11 @@ export default function PortalSelectionPage() {
     const router = useRouter();
     const [hoveredRole, setHoveredRole] = useState<Role | null>(null);
     const [selectedRole, setSelectedRole] = useState<Role | null>(null);
+    const [isMounted, setIsMounted] = useState(false);
+
+    useEffect(() => {
+        setIsMounted(true);
+    }, []);
 
     const handleRoleSelect = (role: RoleConfig) => {
         setSelectedRole(role.id);
@@ -95,7 +102,7 @@ export default function PortalSelectionPage() {
 
     return (
         <div
-            className="min-h-screen w-full flex flex-col items-center justify-center p-4 relative overflow-hidden bg-slate-50/50"
+            className={`min-h-screen w-full flex flex-col items-center justify-center p-4 relative overflow-hidden bg-slate-50/50 ${!isMounted ? 'opacity-0' : 'opacity-100 transition-opacity duration-500'}`}
         >
             {/* Dynamic Page Background Gradient - Top Right */}
             <motion.div

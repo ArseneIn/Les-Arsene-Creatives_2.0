@@ -64,6 +64,7 @@ export default function LoginScreen() {
             <KeyboardAvoidingView
                 behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
                 style={styles.keyboardView}
+                keyboardVerticalOffset={Platform.OS === 'ios' ? 60 : 0}
             >
                 <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
 
@@ -116,15 +117,18 @@ export default function LoginScreen() {
                                             <View style={styles.iconLeft}>
                                                 <Smartphone size={20} color="#9CA3AF" />
                                             </View>
-                                            <TextInput
-                                                style={styles.input}
-                                                placeholder="078X XXX XXX"
-                                                keyboardType="phone-pad"
-                                                value={phone}
-                                                onChangeText={setPhone}
-                                                autoCapitalize="none"
-                                                placeholderTextColor="#9CA3AF"
-                                            />
+                                             <TextInput
+                                                 style={styles.input}
+                                                 placeholder="078X XXX XXX"
+                                                 keyboardType="phone-pad"
+                                                 value={phone}
+                                                 onChangeText={setPhone}
+                                                 autoCapitalize="none"
+                                                 autoCorrect={false}
+                                                 placeholderTextColor="#9CA3AF"
+                                                 textContentType="username"
+                                                 autoComplete="username"
+                                             />
                                         </View>
                                     </View>
 
@@ -175,6 +179,8 @@ export default function LoginScreen() {
                                                 onChangeText={setEmail}
                                                 autoCapitalize="none"
                                                 placeholderTextColor="#9CA3AF"
+                                                textContentType="username"
+                                                autoComplete="username"
                                             />
                                         </View>
                                     </View>
@@ -187,16 +193,22 @@ export default function LoginScreen() {
                                                 <Lock size={20} color="#9CA3AF" />
                                             </View>
                                             <TextInput
-                                                style={styles.input}
-                                                placeholder="••••••••"
+                                                style={[styles.input, styles.passwordInput, { paddingRight: 48, zIndex: 1 }]}
+                                                placeholder="Password"
                                                 secureTextEntry={!showPassword}
                                                 value={password}
                                                 onChangeText={setPassword}
                                                 placeholderTextColor="#9CA3AF"
+                                                autoCapitalize="none"
+                                                autoCorrect={false}
+                                                textContentType="password"
+                                                autoComplete="password"
+                                                enablesReturnKeyAutomatically
                                             />
                                             <TouchableOpacity
-                                                style={styles.iconRight}
+                                                style={[styles.iconRight, { zIndex: 99 }]}
                                                 onPress={() => setShowPassword(!showPassword)}
+                                                hitSlop={{ top: 20, bottom: 20, left: 20, right: 20 }}
                                             >
                                                 {showPassword ? (
                                                     <EyeOff size={20} color="#9CA3AF" />
@@ -372,6 +384,9 @@ const styles = StyleSheet.create({
         fontSize: 16,
         color: '#0b0c0c',
         fontFamily: 'Montserrat_400Regular',
+    },
+    passwordInput: {
+        fontFamily: Platform.OS === 'ios' ? 'System' : 'Montserrat_400Regular',
     },
     pinInput: {
         fontFamily: 'Montserrat_700Bold',

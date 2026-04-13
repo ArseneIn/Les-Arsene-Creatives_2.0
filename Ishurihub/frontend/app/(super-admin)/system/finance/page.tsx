@@ -21,12 +21,19 @@ interface Transaction {
     createdAt: string;
 }
 
+interface TrendData {
+    name: string;
+    total: number;
+    [key: string]: string | number;
+}
+
 interface FinanceStats {
     totalRevenue: number;
     mrr: number;
     activeSubscriptions: number;
     churnRate: number;
     recentTransactions: Transaction[];
+    trends: TrendData[];
 }
 
 export default function SystemFinancePage() {
@@ -35,7 +42,8 @@ export default function SystemFinancePage() {
         mrr: 0,
         activeSubscriptions: 0,
         churnRate: 0,
-        recentTransactions: []
+        recentTransactions: [],
+        trends: []
     });
     const [isLoading, setIsLoading] = useState(true);
 
@@ -55,15 +63,18 @@ export default function SystemFinancePage() {
         fetchStats();
     }, []);
 
-    // Placeholder data for chart until we have historical data endpoint
-    const chartData = [
-        { name: 'Jan', revenue: 0 },
-        { name: 'Feb', revenue: 0 },
-        { name: 'Mar', revenue: 0 },
-        { name: 'Apr', revenue: stats.mrr * 0.8 }, // Simulated history
-        { name: 'May', revenue: stats.mrr * 0.9 },
-        { name: 'Jun', revenue: stats.mrr },
-    ];
+    // Extract unique plan names for the chart areas, excluding 'name' and 'total'
+    const planKeys = stats.trends.length > 0 
+        ? Object.keys(stats.trends[0]).filter(key => key !== 'name' && key !== 'total')
+        : [];
+
+    const planColors: Record<string, string> = {
+        'Professional': '#8884d8',
+        'Elite': '#82ca9d',
+        'Basic': '#ffc658',
+        'Premium': '#ff8042',
+        'Free': '#cbd5e1'
+    };
 
     return (
         <div className="flex-1 p-8 overflow-y-auto">
@@ -102,15 +113,27 @@ export default function SystemFinancePage() {
 
             {/* Revenue Chart */}
             <div className="mb-8 bg-white dark:bg-space-indigo-900 p-6 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700">
-                <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-4">Revenue Trends</h3>
+                <div className="flex items-center justify-between mb-6">
+                    <h3 className="text-lg font-bold text-slate-900 dark:text-white">Revenue Trends by Plan</h3>
+                    <div className="flex gap-4">
+                        {planKeys.map(key => (
+                            <div key={key} className="flex items-center gap-2">
+                                <div className="size-3 rounded-full" style={{ backgroundColor: planColors[key] || '#94a3b8' }}></div>
+                                <span className="text-xs font-medium text-slate-500">{key}</span>
+                            </div>
+                        ))}
+                    </div>
+                </div>
                 <div className="h-[300px] w-full">
                     <ResponsiveContainer width="100%" height="100%">
-                        <AreaChart data={chartData}>
+                        <AreaChart data={stats.trends}>
                             <defs>
-                                <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
-                                    <stop offset="5%" stopColor="#8884d8" stopOpacity={0.8} />
-                                    <stop offset="95%" stopColor="#8884d8" stopOpacity={0} />
-                                </linearGradient>
+                                {planKeys.map(key => (
+                                    <linearGradient key={`grad-${key}`} id={`color-${key}`} x1="0" y1="0" x2="0" y2="1">
+                                        <stop offset="5%" stopColor={planColors[key] || '#94a3b8'} stopOpacity={0.8} />
+                                        <stop offset="95%" stopColor={planColors[key] || '#94a3b8'} stopOpacity={0} />
+                                    </linearGradient>
+                                ))}
                             </defs>
                             <XAxis dataKey="name" stroke="#64748b" fontSize={12} tickLine={false} axisLine={false} />
                             <YAxis stroke="#64748b" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(value) => `${value / 1000}k`} />
@@ -118,8 +141,23 @@ export default function SystemFinancePage() {
                             <Tooltip
                                 contentStyle={{ backgroundColor: '#1e1e48', borderRadius: '8px', border: 'none', color: '#fff' }}
                                 itemStyle={{ color: '#fff' }}
+                                formatter={(value: number | undefined) => 
+                                    value !== undefined 
+                                        ? new Intl.NumberFormat('en-RW', { style: 'currency', currency: 'RWF' }).format(value)
+                                        : 'N/A'
+                                }
                             />
-                            <Area type="monotone" dataKey="revenue" stroke="#8884d8" fillOpacity={1} fill="url(#colorRevenue)" />
+                            {planKeys.map(key => (
+                                <Area 
+                                    key={key}
+                                    type="monotone" 
+                                    dataKey={key} 
+                                    stackId="1"
+                                    stroke={planColors[key] || '#94a3b8'} 
+                                    fillOpacity={1} 
+                                    fill={`url(#color-${key})`} 
+                                />
+                            ))}
                         </AreaChart>
                     </ResponsiveContainer>
                 </div>

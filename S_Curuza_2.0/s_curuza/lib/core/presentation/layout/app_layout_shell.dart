@@ -86,7 +86,7 @@ class AppLayoutShell extends StatelessWidget {
 
     return Container(
       height: 96, // h-24
-      padding: const EdgeInsets.only(bottom: 32, left: 16, right: 16), // pb-8 px-4
+      padding: const EdgeInsets.only(bottom: 16, left: 16, right: 16), // pb-4 px-4
       decoration: BoxDecoration(
         color: const Color(0xFF2A2E34),
         borderRadius: const BorderRadius.only(

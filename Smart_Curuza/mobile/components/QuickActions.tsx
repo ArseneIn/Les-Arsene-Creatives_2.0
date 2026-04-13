@@ -1,158 +1,186 @@
-import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-import { ShoppingCart, Package, Bell, Eye, ArrowRight } from 'lucide-react-native';
+import React, { useState } from 'react';
+import { View, Text, TouchableOpacity, StyleSheet, Dimensions, ScrollView, NativeSyntheticEvent, NativeScrollEvent } from 'react-native';
+import * as Haptics from 'expo-haptics';
+import { ShoppingCart, Package, Bell, Eye, Users, Settings, Smartphone, Headphones, FileText } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
+
+// Screen width minus padding
+const { width } = Dimensions.get('window');
+const ROW_WIDTH = width - 40; // Assuming 20px padding on each side of the Dashboard container
+
+interface QuickActionProps {
+    icon: React.ElementType;
+    label: string;
+    onPress: () => void;
+    color: string;
+    bgColor: string;
+}
+
+const QuickActionItem = ({ icon: Icon, label, onPress, color, bgColor }: QuickActionProps) => (
+    <TouchableOpacity 
+        style={styles.actionItem} 
+        onPress={() => {
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+            onPress();
+        }}
+        activeOpacity={0.7}
+    >
+        <View style={styles.iconContainer}>
+            <Icon size={26} color={color} />
+        </View>
+        <Text style={styles.actionLabel} numberOfLines={1}>{label}</Text>
+    </TouchableOpacity>
+);
 
 export default function QuickActions() {
     const router = useRouter();
+    const [activeIndex, setActiveIndex] = useState(0);
+
+    const actions = [
+        { icon: Package, label: 'Inventory', color: '#fbe134', bgColor: 'rgba(251, 225, 52, 0.1)', onPress: () => router.push('/inventory') },
+        { icon: Users, label: 'Contacts', color: '#8B5CF6', bgColor: '#EDE9FE', onPress: () => {} },
+        { icon: Bell, label: 'Expenses', color: '#EF4444', bgColor: '#FEE2E2', onPress: () => {} },
+        { icon: Smartphone, label: 'Activity', color: '#EC4899', bgColor: '#FCE7F3', onPress: () => {} },
+        { icon: Eye, label: 'Catalog', color: '#06B6D4', bgColor: '#CFFAFE', onPress: () => {} },
+        { icon: Settings, label: 'Settings', color: '#6B7280', bgColor: '#F3F4F6', onPress: () => {} },
+        { icon: Headphones, label: 'Support', color: '#F97316', bgColor: '#FFEDD5', onPress: () => {} },
+    ];
+
+    // Chunk actions into arrays of 3
+    const chunkedActions = [];
+    for (let i = 0; i < actions.length; i += 3) {
+        chunkedActions.push(actions.slice(i, i + 3));
+    }
+
+    const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
+        const slideSize = event.nativeEvent.layoutMeasurement.width;
+        const index = Math.round(event.nativeEvent.contentOffset.x / slideSize);
+        if (index !== activeIndex) {
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+            setActiveIndex(index);
+        }
+    };
 
     return (
-        <View>
+        <View style={styles.container}>
             <Text style={styles.sectionTitle}>Quick Actions</Text>
-            <View style={styles.grid}>
-                {/* Record Sale */}
-                <TouchableOpacity
-                    style={styles.card}
-                    onPress={() => router.push('/sales')}
-                    activeOpacity={0.7}
+            
+            {/* The Unified Rounded Row Wrapper */}
+            <View style={styles.roundedRowWrapper}>
+                <ScrollView 
+                    horizontal 
+                    pagingEnabled 
+                    showsHorizontalScrollIndicator={false}
+                    bounces={false}
+                    snapToInterval={ROW_WIDTH} // Snap to exactly the width of the row
+                    decelerationRate="fast"
+                    onMomentumScrollEnd={handleScroll}
                 >
-                    <View style={styles.cardHeader}>
-                        <View style={[styles.iconBox, styles.bgAmber]}>
-                            <ShoppingCart size={24} color="#F59E0B" />
+                    {chunkedActions.map((chunk, pageIndex) => (
+                        <View key={pageIndex} style={styles.slidePage}>
+                            {chunk.map((action, actionIndex) => (
+                                <View key={actionIndex} style={styles.itemWrapper}>
+                                    <QuickActionItem 
+                                        icon={action.icon}
+                                        label={action.label}
+                                        onPress={action.onPress}
+                                        color={action.color}
+                                        bgColor={action.bgColor}
+                                    />
+                                </View>
+                            ))}
+                            {/* Empty placeholders to keep spacing consistent on the last page if < 3 items */}
+                            {chunk.length < 3 && Array.from({ length: 3 - chunk.length }).map((_, i) => (
+                                <View key={`empty-${i}`} style={styles.itemWrapper} />
+                            ))}
                         </View>
-                        <View style={styles.arrowContainer}>
-                            <ArrowRight size={16} color="#D1D5DB" />
-                        </View>
-                    </View>
-                    <View style={styles.textContainer}>
-                        <Text style={styles.cardTitle}>Record Sale</Text>
-                        <Text style={styles.cardSubtitle}>New checkout</Text>
-                    </View>
-                </TouchableOpacity>
-
-                {/* Add Stock */}
-                <TouchableOpacity
-                    style={styles.card}
-                    activeOpacity={0.7}
-                    onPress={() => router.push('/inventory')}
-                >
-                    <View style={styles.cardHeader}>
-                        <View style={[styles.iconBox, styles.bgBlue]}>
-                            <Package size={24} color="#3B82F6" />
-                        </View>
-                        <View style={styles.arrowContainer}>
-                            <ArrowRight size={16} color="#D1D5DB" />
-                        </View>
-                    </View>
-                    <View style={styles.textContainer}>
-                        <Text style={styles.cardTitle}>Add Stock</Text>
-                        <Text style={styles.cardSubtitle}>Update inventory</Text>
-                    </View>
-                </TouchableOpacity>
-
-                {/* Send Reminder */}
-                <TouchableOpacity style={styles.card} activeOpacity={0.7}>
-                    <View style={styles.cardHeader}>
-                        <View style={[styles.iconBox, styles.bgPurple]}>
-                            <Bell size={24} color="#A855F7" />
-                        </View>
-                        <View style={styles.arrowContainer}>
-                            <ArrowRight size={16} color="#D1D5DB" />
-                        </View>
-                    </View>
-                    <View style={styles.textContainer}>
-                        <Text style={styles.cardTitle}>Send Reminder</Text>
-                        <Text style={styles.cardSubtitle}>Manage loyalty</Text>
-                    </View>
-                </TouchableOpacity>
-
-                {/* View Reports */}
-                <TouchableOpacity
-                    style={styles.card}
-                    activeOpacity={0.7}
-                    onPress={() => router.push('/reports')}
-                >
-                    <View style={styles.cardHeader}>
-                        <View style={[styles.iconBox, styles.bgEmerald]}>
-                            <Eye size={24} color="#10B981" />
-                        </View>
-                        <View style={styles.arrowContainer}>
-                            <ArrowRight size={16} color="#D1D5DB" />
-                        </View>
-                    </View>
-                    <View style={styles.textContainer}>
-                        <Text style={styles.cardTitle}>View Reports</Text>
-                        <Text style={styles.cardSubtitle}>Sales analytics</Text>
-                    </View>
-                </TouchableOpacity>
+                    ))}
+                </ScrollView>
+                
+                {/* Pagination Dots */}
+                <View style={styles.paginationContainer}>
+                    {chunkedActions.map((_, index) => (
+                        <View 
+                            key={index} 
+                            style={[
+                                styles.dot, 
+                                activeIndex === index && styles.dotActive
+                            ]} 
+                        />
+                    ))}
+                </View>
             </View>
         </View>
     );
 }
 
 const styles = StyleSheet.create({
+    container: {
+        marginBottom: 24,
+    },
     sectionTitle: {
         fontSize: 12,
-        fontWeight: 'bold',
-        color: '#9CA3AF', // gray-400
+        fontFamily: 'Montserrat_700Bold',
+        color: '#9CA3AF',
         textTransform: 'uppercase',
-        letterSpacing: 2,
+        letterSpacing: 1.5,
         marginBottom: 16,
-        marginLeft: 4,
+        paddingLeft: 4,
     },
-    grid: {
-        flexDirection: 'row',
-        flexWrap: 'wrap',
-        justifyContent: 'space-between',
-        gap: 16,
-    },
-    card: {
-        width: '47%',
-        backgroundColor: '#FFFFFF',
-        padding: 16,
-        borderRadius: 24,
-        justifyContent: 'space-between',
-        height: 140,
+    roundedRowWrapper: {
+        backgroundColor: '#2a2e34', // Executive Dark
+        borderRadius: 36, // Deep pill shape
+        overflow: 'hidden',
+        paddingTop: 8,
+        paddingBottom: 16, // Extra room for dots
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.05,
-        shadowRadius: 8,
-        elevation: 2,
+        shadowOpacity: 0.1,
+        shadowRadius: 10,
+        elevation: 3,
         borderWidth: 1,
-        borderColor: '#F3F4F6',
+        borderColor: 'rgba(255,255,255,0.05)',
     },
-    cardHeader: {
+    slidePage: {
+        width: ROW_WIDTH,
         flexDirection: 'row',
         justifyContent: 'space-between',
-        alignItems: 'flex-start',
+        paddingHorizontal: 8,
     },
-    iconBox: {
-        width: 48,
-        height: 48,
-        borderRadius: 14,
+    itemWrapper: {
+        width: '33.33%',
+        alignItems: 'center',
+    },
+    actionItem: {
         alignItems: 'center',
         justifyContent: 'center',
+        paddingVertical: 8,
     },
-    arrowContainer: {
-        padding: 4,
+    iconContainer: {
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginBottom: 4, // Tighter gap to label
     },
-    bgAmber: { backgroundColor: '#FFFBEB' },
-    bgBlue: { backgroundColor: '#EFF6FF' },
-    bgPurple: { backgroundColor: '#FAF5FF' },
-    bgEmerald: { backgroundColor: '#ECFDF5' },
-
-    textContainer: {
-        marginTop: 12,
-    },
-    cardTitle: {
-        fontSize: 15,
-        fontFamily: 'Poppins_700Bold',
-        color: '#0b0c0c', // onyx
-        marginBottom: 2,
-    },
-    cardSubtitle: {
+    actionLabel: {
         fontSize: 11,
-        fontFamily: 'Montserrat_500Medium',
-        color: '#9CA3AF', // gray-400
+        fontFamily: 'Montserrat_600SemiBold',
+        color: '#FFFFFF', // High contrast
+    },
+    paginationContainer: {
+        flexDirection: 'row',
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginTop: 6,
+        gap: 6,
+    },
+    dot: {
+        width: 5,
+        height: 5,
+        borderRadius: 2.5,
+        backgroundColor: 'rgba(255, 255, 255, 0.2)', // Inactive Grey
+    },
+    dotActive: {
+        width: 14,
+        backgroundColor: '#fbe134', // Active Gold
     },
 });

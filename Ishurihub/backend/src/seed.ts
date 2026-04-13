@@ -55,7 +55,7 @@ async function seed() {
     school = schoolRepository.create({
       name: 'Bright Future Academy',
       motto: 'Knowledge is Light',
-      address: 'Kigali, Rwanda',
+      location: 'Kigali, Rwanda',
       email: 'info@brightfuture.rw',
       phone: '+250788123456',
       plan: 'Professional',
@@ -105,7 +105,7 @@ async function seed() {
       email: 'admin@ishurihub.rw',
       name: 'Super Admin',
       roleId: 'super_admin',
-      schoolId: null,
+      schoolId: school.id,
     },
     {
       email: 'school@ishurihub.rw',
@@ -113,6 +113,7 @@ async function seed() {
       roleId: 'school_admin',
       schoolId: school.id,
     },
+
     {
       email: 'teacher@ishurihub.rw',
       name: 'Jean Teacher',

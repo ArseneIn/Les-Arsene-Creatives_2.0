@@ -1,11 +1,7 @@
 import { Feature } from '../enums/feature.enum';
 
 export const PLAN_FEATURES: Record<string, Feature[]> = {
-  Free: [
-    Feature.ACADEMIC_CORE,
-    Feature.EVENTS,
-    Feature.SUPPORT,
-  ],
+  Free: [Feature.ACADEMIC_CORE, Feature.EVENTS, Feature.SUPPORT],
   Basic: [
     Feature.ACADEMIC_CORE,
     Feature.ATTENDANCE,

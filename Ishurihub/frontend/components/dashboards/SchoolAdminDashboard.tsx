@@ -26,6 +26,8 @@ interface Teacher {
     name: string;
 }
 
+import LoadingScreen from "../system/LoadingScreen";
+
 export default function SchoolAdminDashboard() {
     const params = useParams();
     const schoolId = params.id as string;
@@ -103,14 +105,7 @@ export default function SchoolAdminDashboard() {
 
 
     if (isLoading) {
-        return (
-            <div className="flex items-center justify-center min-h-[400px]">
-                <div className="flex flex-col items-center gap-4">
-                    <span className="size-10 border-4 border-primary/30 border-t-primary rounded-full animate-spin"></span>
-                    <p className="text-gray-500 font-medium animate-pulse">Loading dashboard insights...</p>
-                </div>
-            </div>
-        );
+        return <LoadingScreen message="Aggregating school statistics..." fullScreen={false} />;
     }
 
     return (

@@ -4,7 +4,9 @@ import {
   PrimaryGeneratedColumn,
   CreateDateColumn,
   UpdateDateColumn,
+  ManyToOne,
 } from 'typeorm';
+import { Course } from '../../courses/entities/course.entity';
 
 @Entity('timetable_events')
 export class TimetableEvent {
@@ -22,6 +24,12 @@ export class TimetableEvent {
 
   @Column({ type: 'int' })
   periodId: number;
+
+  @Column({ nullable: true })
+  courseId: string;
+
+  @ManyToOne(() => Course)
+  course: Course;
 
   @Column()
   subject: string;

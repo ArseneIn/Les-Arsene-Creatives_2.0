@@ -175,7 +175,7 @@ export default function LoginLayout({ title, role, themeColor, description, allo
                             </div>
                             <div className="relative group">
                                 <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-gray-400 group-focus-within:text-primary transition-colors">
-                                    <span className="material-symbols-outlined text-[20px]">lock_key</span>
+                                    <span className="material-symbols-outlined text-[20px]">lock</span>
                                 </div>
                                 <input
                                     type="password"

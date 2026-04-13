@@ -4,7 +4,10 @@ import { Repository } from 'typeorm';
 import { School } from './entities/school.entity';
 import { UpdateSchoolDto, CreateSchoolDto } from './dto/update-school.dto';
 import { UsersService } from '../users/users.service';
-import { DEFAULT_PLAN, PLAN_FEATURES } from '../subscriptions/constants/plan-features.constant';
+import {
+  DEFAULT_PLAN,
+  PLAN_FEATURES,
+} from '../subscriptions/constants/plan-features.constant';
 
 @Injectable()
 export class SchoolsService {
@@ -61,12 +64,34 @@ export class SchoolsService {
         PLAN_FEATURES[updateSchoolDto.plan] || PLAN_FEATURES[DEFAULT_PLAN];
     }
 
-    // Filter out fields that don't belong to the School entity
-    // Destructure out admin fields that are in the DTO but not the entity
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { adminName, adminEmail, adminPassword, ...schoolData } = updateSchoolDto;
+    // Explicitly pick fields that belong to the School entity
+    const updateData: Partial<School> = {};
+    const schoolKeys: (keyof UpdateSchoolDto)[] = [
+      'name',
+      'motto',
+      'location',
+      'latitude',
+      'longitude',
+      'levels',
+      'category',
+      'website',
+      'email',
+      'phone',
+      'logoUrl',
+      'plan',
+      'features',
+      'genderType',
+      'combinations',
+    ];
 
-    await this.schoolsRepository.update(id, schoolData);
+    schoolKeys.forEach((key) => {
+      const value = updateSchoolDto[key];
+      if (value !== undefined) {
+        (updateData as any)[key] = value;
+      }
+    });
+
+    await this.schoolsRepository.update(id, updateData);
     return this.findOne(id);
   }
 

@@ -1,5 +1,7 @@
 "use client";
 
+export const dynamic = 'force-dynamic';
+
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import Modal from "@/components/Modal";
@@ -15,6 +17,8 @@ interface BackendSchool {
     category?: string;
     levels?: string[];
     location: string;
+    latitude?: number;
+    longitude?: number;
     students?: unknown[];
     subscriptionStatus?: string;
     logoUrl?: string;
@@ -30,6 +34,8 @@ interface Institution {
     category?: string;
     levels?: string[];
     location: string;
+    latitude?: number;
+    longitude?: number;
     studentCount: number; // This might need to be added to backend response or calculated
     status: string; // 'Active', 'Pending', etc.
     logoUrl?: string;
@@ -108,6 +114,8 @@ export default function InstitutionsPage() {
             genderType: 'Mixed', // Default or need to be in Institution interface
             category: (inst.category as AddSchoolFormData['category']) || 'Day',
             location: inst.location,
+            latitude: inst.latitude,
+            longitude: inst.longitude,
             phone: '', // Need to ensure backend sends this or fetch detail
             email: '', // Need to ensure backend sends this or fetch detail
             adminName: '', // Usually separate user entity
@@ -297,7 +305,7 @@ export default function InstitutionsPage() {
                 isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)}
                 title={editingSchool ? "Edit School" : "Register New School"}
-                size="5xl"
+                size="full"
             >
                 <AddSchoolForm
                     initialData={editingSchool || undefined}

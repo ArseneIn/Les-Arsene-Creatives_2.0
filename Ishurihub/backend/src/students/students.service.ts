@@ -23,21 +23,12 @@ export class StudentsService {
   }
 
   findAll(schoolId?: string, search?: string) {
-    const where: Record<string, any> = {};
+    const where: Record<string, unknown> = {};
     if (schoolId) {
       where.schoolId = schoolId;
     }
-    if (search) {
-      where.name = Like(`%${search}%`);
-      // You can also search by studentId if needed using OR, but simple FindOptions "where" is AND.
-      // For OR logic with TypeORM FindOptions, it's slightly more complex:
-      // where: [
-      //   { schoolId, name: Like(...) },
-      //   { schoolId, studentId: Like(...) }
-      // ]
-    }
 
-    // If search is present, let's allow searching by name OR studentId
+    // Allow searching by name OR studentId
     if (search && schoolId) {
       return this.studentsRepository.find({
         where: [
@@ -59,6 +50,14 @@ export class StudentsService {
 
   findOne(id: string) {
     return this.studentsRepository.findOne({ where: { id } });
+  }
+
+  findByEmail(email: string) {
+    return this.studentsRepository.findOne({ where: { email } });
+  }
+
+  findBySchoolAndName(schoolId: string, name: string) {
+    return this.studentsRepository.findOne({ where: { schoolId, name } });
   }
 
   findByCardUid(cardUid: string) {

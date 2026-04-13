@@ -61,12 +61,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     useEffect(() => {
         if (isLoading) return;
 
-        const inAuthGroup = segments[0] === '(auth)';
-
-        if (!user && !inAuthGroup) {
+        const isLoginPage = segments[0] === 'login';
+        
+        if (!user && !isLoginPage) {
             // Redirect to login if not authenticated
             router.replace('/login');
-        } else if (user && inAuthGroup) {
+        } else if (user && isLoginPage) {
             // Redirect to home if authenticated and trying to access login
             router.replace('/');
         }

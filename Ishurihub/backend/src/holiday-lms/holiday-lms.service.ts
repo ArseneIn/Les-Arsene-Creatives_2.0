@@ -112,6 +112,13 @@ export class HolidayLmsService {
     let score: number | null = null;
     const responses = dto.responses || {};
 
+    // Transform quizAnswers array to responses object if provided
+    if (dto.quizAnswers && dto.quizAnswers.length > 0) {
+      dto.quizAnswers.forEach((qa) => {
+        responses[qa.questionId] = qa.answer;
+      });
+    }
+
     if (activity.type === ActivityType.QUIZ) {
       // Auto-marking logic
       let totalPoints = 0;

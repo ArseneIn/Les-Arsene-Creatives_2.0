@@ -22,6 +22,8 @@ const ADMIN_SIDEBAR: SidebarItem[] = [
         permission: 'academic.view_grades',
         subItems: [
             { label: 'Classes', icon: 'meeting_room', href: '/classes', permission: 'academic.view_grades' },
+            { label: 'Subjects', icon: 'import_contacts', href: '/academic/subjects', permission: 'academic.manage_timetable' },
+            { label: 'Courses', icon: 'auto_stories', href: '/academic/courses', permission: 'academic.manage_timetable' },
             { label: 'Timetable', icon: 'calendar_month', href: '/timetable', permission: 'academic.manage_timetable', feature: 'timetable' },
             { label: 'Teachers', icon: 'person_apron', href: '/teachers', permission: 'academic.manage_timetable' },
             { label: 'Students', icon: 'groups', href: '/students', permission: 'student.view' },
@@ -51,9 +53,13 @@ const ADMIN_SIDEBAR: SidebarItem[] = [
     {
         label: 'Finance',
         icon: 'payments',
-        href: '/finance',
+        href: '#',
         permission: 'finance.view',
-        feature: 'finance'
+        feature: 'finance',
+        subItems: [
+            { label: 'School Fees', icon: 'receipt_long', href: '/finance', permission: 'finance.view', feature: 'finance' },
+            { label: 'Pocket Money', icon: 'account_balance_wallet', href: '/finance/pocket-money', permission: 'finance.view', feature: 'finance' },
+        ]
     },
     {
         label: 'Library',
@@ -125,6 +131,18 @@ const STUDENT_SIDEBAR: SidebarItem[] = [
         icon: 'event',
         href: '/dashboard/events',
         feature: 'events'
+    },
+    {
+        label: 'My Wallet',
+        icon: 'account_balance_wallet',
+        href: '/student/pocket-money',
+        feature: 'finance'
+    },
+    {
+        label: 'Conduct Record',
+        icon: 'shield_person',
+        href: '/student/discipline',
+        feature: 'discipline'
     }
 ];
 
@@ -143,6 +161,12 @@ const PARENT_SIDEBAR: SidebarItem[] = [
         label: 'Finance',
         icon: 'payments',
         href: '/parent/finance',
+        feature: 'finance'
+    },
+    {
+        label: 'Pocket Money',
+        icon: 'account_balance_wallet',
+        href: '/finance/pocket-money',
         feature: 'finance'
     },
     {

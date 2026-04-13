@@ -33,6 +33,17 @@ export class DisciplineController {
     return this.disciplineService.findAll(schoolId);
   }
 
+  // Must come before :id to avoid routing conflict
+  @Get('analytics')
+  getAnalytics(@Query('schoolId') schoolId: string) {
+    return this.disciplineService.getAnalytics(schoolId);
+  }
+
+  @Get('student/:studentId')
+  findByStudent(@Param('studentId') studentId: string) {
+    return this.disciplineService.findByStudent(studentId);
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.disciplineService.findOne(id);
@@ -49,10 +60,5 @@ export class DisciplineController {
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.disciplineService.remove(id);
-  }
-
-  @Get('student/:studentId')
-  findByStudent(@Param('studentId') studentId: string) {
-    return this.disciplineService.findByStudent(studentId);
   }
 }

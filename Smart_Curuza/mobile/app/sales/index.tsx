@@ -181,7 +181,10 @@ export default function SalesScreen() {
                             cart={cart}
                             onUpdateQuantity={updateQuantity}
                             onRemoveItem={removeItem}
-                            onCheckout={() => setCheckoutVisible(true)}
+                            onCheckout={() => {
+                                setCartVisible(false);
+                                setTimeout(() => setCheckoutVisible(true), 300);
+                            }}
                             onClose={() => setCartVisible(false)}
                         />
                     </View>
@@ -204,7 +207,7 @@ export default function SalesScreen() {
         </View>
     );
 }
-
+ 
 const styles = StyleSheet.create({
     container: {
         flex: 1,

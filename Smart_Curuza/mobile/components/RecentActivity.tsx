@@ -52,32 +52,32 @@ const styles = StyleSheet.create({
     },
     title: {
         fontSize: 12,
-        fontFamily: 'Poppins_700Bold',
-        color: '#9CA3AF', // gray-400
+        fontFamily: 'Montserrat_700Bold',
+        color: '#9CA3AF',
         textTransform: 'uppercase',
         letterSpacing: 2,
     },
     showMore: {
         fontSize: 11,
-        fontWeight: 'bold',
-        color: '#fbe134', // gold
+        fontFamily: 'Montserrat_700Bold',
+        color: '#fbe134', // Brand Gold
         textTransform: 'uppercase',
         letterSpacing: 1,
     },
     activityCard: {
-        backgroundColor: '#FFFFFF',
+        backgroundColor: '#2a2e34', // Brand Jet
         padding: 16,
         borderRadius: 24,
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
         shadowColor: '#000',
-        shadowOffset: { width: 0, height: 1 },
-        shadowOpacity: 0.05,
-        shadowRadius: 2,
-        elevation: 1,
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.2,
+        shadowRadius: 8,
+        elevation: 3,
         borderWidth: 1,
-        borderColor: '#F9FAFB', // gray-50
+        borderColor: 'rgba(255, 255, 255, 0.05)',
         marginBottom: 12,
     },
     activityLeft: {
@@ -88,24 +88,24 @@ const styles = StyleSheet.create({
     iconBox: {
         width: 40,
         height: 40,
-        backgroundColor: '#F3F4F6', // gray-100
+        backgroundColor: 'rgba(255, 255, 255, 0.05)', 
         borderRadius: 16,
         alignItems: 'center',
         justifyContent: 'center',
     },
     saleId: {
         fontSize: 14,
-        fontWeight: 'bold',
-        color: '#0b0c0c', // onyx
+        fontFamily: 'Montserrat_700Bold',
+        color: '#FFFFFF',
     },
     saleDetails: {
         fontSize: 10,
-        fontWeight: '500',
-        color: '#9CA3AF', // gray-400
+        fontFamily: 'Montserrat_500Medium',
+        color: '#9CA3AF',
     },
     amount: {
         fontSize: 14,
-        fontWeight: 'bold',
-        color: '#16A34A', // green-600
+        fontFamily: 'Poppins_700Bold',
+        color: '#10B981', // Brighter green for dark mode
     },
 });

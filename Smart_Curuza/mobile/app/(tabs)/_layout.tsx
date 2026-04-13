@@ -1,6 +1,7 @@
 import React from 'react';
 import { Tabs, useRouter } from 'expo-router';
-import { Home, History, BarChart3, User, ShoppingCart, ScanLine } from 'lucide-react-native';
+import * as Haptics from 'expo-haptics';
+import { LayoutDashboard, History, BarChart3, User, ShoppingCart, ScanLine } from 'lucide-react-native';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 
 export default function TabLayout() {
@@ -10,32 +11,29 @@ export default function TabLayout() {
         <Tabs
             screenOptions={{
                 headerShown: false,
-                tabBarStyle: styles.tabBar,
                 tabBarActiveTintColor: '#fbe134', // Gold
                 tabBarInactiveTintColor: '#9CA3AF', // Gray-400
-                tabBarShowLabel: false,
+                tabBarShowLabel: true,
+                tabBarLabelStyle: styles.tabLabel,
+                tabBarStyle: styles.tabBar,
             }}
         >
             <Tabs.Screen
                 name="index"
                 options={{
-                    tabBarIcon: ({ color, focused }) => (
-                        <View style={styles.tabItem}>
-                            <Home size={24} color={color} />
-                            <Text style={[styles.tabLabel, { color: focused ? '#fbe134' : '#9CA3AF' }]}>Home</Text>
-                        </View>
+                    tabBarIcon: ({ color }) => (
+                        <LayoutDashboard size={24} color={color} />
                     ),
+                    tabBarLabel: 'Dashboard',
                 }}
             />
             <Tabs.Screen
                 name="history"
                 options={{
-                    tabBarIcon: ({ color, focused }) => (
-                        <View style={styles.tabItem}>
-                            <History size={24} color={color} />
-                            <Text style={[styles.tabLabel, { color: focused ? '#fbe134' : '#9CA3AF' }]}>History</Text>
-                        </View>
+                    tabBarIcon: ({ color }) => (
+                        <History size={24} color={color} />
                     ),
+                    tabBarLabel: 'History',
                 }}
             />
             <Tabs.Screen
@@ -45,10 +43,13 @@ export default function TabLayout() {
                         <View style={styles.quickSaleContainer}>
                             <TouchableOpacity
                                 style={styles.quickSaleButton}
-                                onPress={() => router.push('/sales')}
+                                onPress={() => {
+                                    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
+                                    router.push('/sales');
+                                }}
                                 activeOpacity={0.9}
                             >
-                                <ScanLine size={28} color="#0b0c0c" strokeWidth={2.5} />
+                                <ScanLine size={28} color="#FFFFFF" strokeWidth={2.5} />
                             </TouchableOpacity>
                             <Text style={styles.quickSaleLabel}>Quick Sale</Text>
                         </View>
@@ -57,6 +58,7 @@ export default function TabLayout() {
                 listeners={({ navigation }) => ({
                     tabPress: (e) => {
                         e.preventDefault();
+                        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
                         navigation.navigate('sales/index');
                     },
                 })}
@@ -64,23 +66,19 @@ export default function TabLayout() {
             <Tabs.Screen
                 name="reports"
                 options={{
-                    tabBarIcon: ({ color, focused }) => (
-                        <View style={styles.tabItem}>
-                            <BarChart3 size={24} color={color} />
-                            <Text style={[styles.tabLabel, { color: focused ? '#fbe134' : '#9CA3AF' }]}>Reports</Text>
-                        </View>
+                    tabBarIcon: ({ color }) => (
+                        <BarChart3 size={24} color={color} />
                     ),
+                    tabBarLabel: 'Reports',
                 }}
             />
             <Tabs.Screen
                 name="profile"
                 options={{
-                    tabBarIcon: ({ color, focused }) => (
-                        <View style={styles.tabItem}>
-                            <User size={24} color={color} />
-                            <Text style={[styles.tabLabel, { color: focused ? '#fbe134' : '#9CA3AF' }]}>Profile</Text>
-                        </View>
+                    tabBarIcon: ({ color }) => (
+                        <User size={24} color={color} />
                     ),
+                    tabBarLabel: 'Profile',
                 }}
             />
         </Tabs>
@@ -114,6 +112,7 @@ const styles = StyleSheet.create({
     tabLabel: {
         fontSize: 10,
         fontFamily: 'Montserrat_600SemiBold',
+        marginBottom: 8,
     },
     quickSaleContainer: {
         alignItems: 'center',
@@ -124,22 +123,22 @@ const styles = StyleSheet.create({
     quickSaleButton: {
         width: 64,
         height: 64,
-        backgroundColor: '#fbe134', // Gold
+        backgroundColor: '#10B981', // High-Conversion Bright Green
         borderRadius: 32,
         alignItems: 'center',
         justifyContent: 'center',
-        shadowColor: '#fbe134',
+        shadowColor: '#10B981',
         shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.4,
-        shadowRadius: 8,
+        shadowOpacity: 0.5,
+        shadowRadius: 10,
         elevation: 8,
         borderWidth: 6,
-        borderColor: '#e9eaec', // Platinum (Matches Screen Background for cutout effect)
+        borderColor: '#e9eaec', // Platinum 
     },
     quickSaleLabel: {
         fontSize: 10,
         fontFamily: 'Poppins_700Bold',
-        color: '#fbe134', // Gold text to pop against dark bg (or could be white)
+        color: '#10B981', // Match Green
         marginTop: 8,
         textTransform: 'uppercase',
         letterSpacing: 0.5,

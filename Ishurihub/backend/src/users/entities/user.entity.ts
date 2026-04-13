@@ -36,7 +36,11 @@ export class User {
   customRoleId: string;
 
   @Column({ type: 'text', nullable: true })
-  schoolId: string | null; // Null for super_admin
+  schoolId: string | null;
+
+  @ManyToOne('School', { nullable: true })
+  @JoinColumn({ name: 'schoolId' })
+  school: any;
 
   @CreateDateColumn()
   createdAt: Date;

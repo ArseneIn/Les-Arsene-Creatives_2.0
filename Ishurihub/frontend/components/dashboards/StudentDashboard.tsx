@@ -5,6 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import api from "@/lib/api";
 import { useAuthContext } from "@/context/AuthContext";
 import FeatureGate from "@/components/auth/FeatureGate";
+import LoadingScreen from "../system/LoadingScreen";
 
 interface StudentUser {
   id: string;
@@ -102,14 +103,7 @@ export default function StudentDashboard() {
   }, [schoolId, user]);
 
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <div className="flex flex-col items-center gap-4">
-          <span className="size-10 border-4 border-primary/30 border-t-primary rounded-full animate-spin"></span>
-          <p className="text-gray-500 font-medium">Preparing your learning portal...</p>
-        </div>
-      </div>
-    );
+    return <LoadingScreen message="Preparing your learning portal..." fullScreen={false} />;
   }
 
   return (

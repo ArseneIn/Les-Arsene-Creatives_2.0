@@ -1,6 +1,7 @@
 "use client";
 
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+
 import { useAuthContext } from '@/context/AuthContext';
 
 interface MaintenanceContextType {
@@ -32,11 +33,24 @@ export const MaintenanceProvider = ({ children }: { children: ReactNode }) => {
     const [maintenanceStartsAt, setMaintenanceStartsAt] = useState<string | null>(null);
     const [isBlocking, setIsBlocking] = useState(false);
     const [countdown, setCountdown] = useState<number | null>(null);
+    const [isMounted, setIsMounted] = useState(false);
+
+    useEffect(() => {
+        const timer = setTimeout(() => setIsMounted(true), 0);
+        return () => clearTimeout(timer);
+    }, []);
+
 
     useEffect(() => {
         const handleMaintenanceEvent = (event: Event) => {
             const maintenanceEvent = event as MaintenanceEvent;
             const { isMaintenance, startsAt } = maintenanceEvent.detail;
+
+            // Never block on login/portal pages
+            const onAuthPage = window.location.pathname === '/login' ||
+                window.location.pathname.startsWith('/portal') ||
+                window.location.pathname.startsWith('/forgot-password');
+            if (onAuthPage) return;
             
             if (isMaintenance) {
                 setIsMaintenanceMode(true);
@@ -85,10 +99,23 @@ export const MaintenanceProvider = ({ children }: { children: ReactNode }) => {
         }
     }, [countdown, user]);
 
+    if (!isMounted) return <>{children}</>;
+
+
+    // Allow bypassing maintenance on any login/portal page so users can authenticate
+    const isAuthPage = typeof window !== 'undefined' && (
+        window.location.pathname === '/login' ||
+        window.location.pathname.startsWith('/portal') ||
+        window.location.pathname.startsWith('/forgot-password')
+    );
+    if (isAuthPage) {
+        return <>{children}</>;
+    }
+
     return (
         <MaintenanceContext.Provider value={{ isMaintenanceMode, maintenanceStartsAt, isBlocking }}>
             {isBlocking ? (
-                <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-slate-900 overflow-hidden">
+                <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-slate-900 overflow-hidden select-none">
                     <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,_var(--tw-gradient-stops))] from-primary/20 via-transparent to-transparent opacity-50"></div>
                     <div className="relative max-w-lg w-full p-8 text-center">
                         <div className="w-24 h-24 bg-primary/10 rounded-3xl flex items-center justify-center mx-auto mb-8 animate-pulse">

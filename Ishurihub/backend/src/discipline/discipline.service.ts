@@ -18,16 +18,27 @@ export class DisciplineService {
   async create(createDisciplineDto: CreateDisciplineDto) {
     const record = this.disciplineRepository.create(createDisciplineDto);
 
-    // Deduct points if specified
     if (createDisciplineDto.points && createDisciplineDto.points > 0) {
       const student = await this.studentRepository.findOne({
         where: { id: createDisciplineDto.studentId },
       });
       if (student) {
-        student.disciplinePoints = Math.max(
-          0,
-          (student.disciplinePoints || 100) - createDisciplineDto.points,
-        );
+        const currentPoints = student.disciplinePoints ?? 100;
+
+        if (createDisciplineDto.type === 'Merit') {
+          // Awards add points, capped at 100
+          student.disciplinePoints = Math.min(
+            100,
+            currentPoints + createDisciplineDto.points,
+          );
+        } else {
+          // Sanctions/Reports deduct points, floored at 0
+          student.disciplinePoints = Math.max(
+            0,
+            currentPoints - createDisciplineDto.points,
+          );
+        }
+
         await this.studentRepository.save(student);
       }
     }
@@ -39,7 +50,7 @@ export class DisciplineService {
     if (schoolId) {
       return this.disciplineRepository.find({
         where: { schoolId },
-        relations: ['student'], // Explicitly load student relation if eager is false (it's true in entity but good practice)
+        relations: ['student'],
         order: { date: 'DESC' },
       });
     }
@@ -70,14 +81,78 @@ export class DisciplineService {
       order: { date: 'DESC' },
     });
 
-    // Also fetch current points directly from student
     const student = await this.studentRepository.findOne({
       where: { id: studentId },
     });
 
     return {
-      points: student?.disciplinePoints || 100,
+      points: student?.disciplinePoints ?? 100,
       records,
+    };
+  }
+
+  async getAnalytics(schoolId: string) {
+    const allRecords = await this.disciplineRepository.find({
+      where: { schoolId },
+      relations: ['student'],
+    });
+
+    const allStudents = await this.studentRepository.find({
+      where: { schoolId },
+    });
+
+    const total = allRecords.length;
+    const sanctions = allRecords.filter((r) => r.type === 'Sanction').length;
+    const merits = allRecords.filter((r) => r.type === 'Merit').length;
+    const pending = allRecords.filter((r) => r.status === 'Pending').length;
+    const resolved = allRecords.filter((r) => r.status === 'Resolved').length;
+
+    // Category breakdown
+    const categoryMap: Record<string, number> = {};
+    allRecords.forEach((r) => {
+      categoryMap[r.category] = (categoryMap[r.category] || 0) + 1;
+    });
+    const topCategories = Object.entries(categoryMap)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 5)
+      .map(([category, count]) => ({ category, count }));
+
+    // Students at risk (points < 40)
+    const atRiskStudents = allStudents
+      .filter((s) => (s.disciplinePoints ?? 100) < 40)
+      .map((s) => ({
+        id: s.id,
+        name: s.name,
+        grade: s.grade,
+        points: s.disciplinePoints ?? 100,
+      }));
+
+    // Monthly breakdown (last 6 months)
+    const now = new Date();
+    const monthlyData: { month: string; sanctions: number; merits: number }[] =
+      [];
+    for (let i = 5; i >= 0; i--) {
+      const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      const monthStr = d.toISOString().slice(0, 7); // "YYYY-MM"
+      const monthRecords = allRecords.filter((r) =>
+        r.date.startsWith(monthStr),
+      );
+      monthlyData.push({
+        month: d.toLocaleString('default', { month: 'short', year: 'numeric' }),
+        sanctions: monthRecords.filter((r) => r.type === 'Sanction').length,
+        merits: monthRecords.filter((r) => r.type === 'Merit').length,
+      });
+    }
+
+    return {
+      total,
+      sanctions,
+      merits,
+      pending,
+      resolved,
+      topCategories,
+      atRiskStudents,
+      monthlyData,
     };
   }
 }

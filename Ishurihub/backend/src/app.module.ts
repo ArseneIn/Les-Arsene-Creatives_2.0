@@ -23,10 +23,13 @@ import { TicketsModule } from './support/tickets.module';
 import { AttendanceModule } from './attendance/attendance.module';
 import { ClassesModule } from './classes/classes.module';
 import { AcademicYearsModule } from './academic-years/academic-years.module';
+import { SubjectsModule } from './subjects/subjects.module';
+import { CoursesModule } from './courses/courses.module';
 import { RolesModule } from './roles/roles.module';
 import { EventsModule } from './events/events.module';
 import { HolidayLmsModule } from './holiday-lms/holiday-lms.module';
 import { SystemSettingsModule } from './system-settings/system-settings.module';
+import { PocketMoneyModule } from './pocket-money/pocket-money.module';
 
 @Module({
   imports: [
@@ -66,10 +69,13 @@ import { SystemSettingsModule } from './system-settings/system-settings.module';
     AttendanceModule,
     ClassesModule,
     AcademicYearsModule,
+    SubjectsModule,
+    CoursesModule,
     RolesModule,
     EventsModule,
     HolidayLmsModule,
     SystemSettingsModule,
+    PocketMoneyModule,
   ],
   controllers: [AppController],
   providers: [

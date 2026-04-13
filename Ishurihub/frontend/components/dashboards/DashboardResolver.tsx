@@ -10,11 +10,13 @@ import ParentDashboard from "./ParentDashboard";
 import SchoolAdminDashboard from "./SchoolAdminDashboard";
 import StudentDashboard from "./StudentDashboard";
 
+import LoadingScreen from "../system/LoadingScreen";
+
 export default function DashboardResolver() {
     const { user, isLoading } = useAuth();
 
     if (isLoading) {
-        return <div className="p-8 text-center text-gray-500 font-medium">Preparing your workspace...</div>;
+        return <LoadingScreen message="Preparing your workspace..." fullScreen={false} />;
     }
 
     if (!user) {

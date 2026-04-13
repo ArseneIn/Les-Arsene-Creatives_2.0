@@ -178,23 +178,26 @@ class _SummaryBento extends ConsumerWidget {
     );
 
     if (isDesktop) {
-      return Row(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Expanded(flex: 8, child: mainSummaryCard),
-          const SizedBox(width: 24),
-          Expanded(
-            flex: 4,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Expanded(child: createBatchCard),
-                const SizedBox(height: 16),
-                Expanded(child: adjustStockCard),
-              ],
+      return SizedBox(
+        height: 260,
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Expanded(flex: 8, child: mainSummaryCard),
+            const SizedBox(width: 24),
+            Expanded(
+              flex: 4,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Expanded(child: createBatchCard),
+                  const SizedBox(height: 16),
+                  Expanded(child: adjustStockCard),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       );
     } else {
       return Column(
@@ -294,7 +297,7 @@ class _YieldTrackingSection extends ConsumerWidget {
             mainAxisSpacing: 24,
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
-            childAspectRatio: isDesktop ? 1.4 : 1.2,
+            childAspectRatio: isDesktop ? 1.5 : 1.4,
             children: gridItems,
           );
         }),

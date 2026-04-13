@@ -18,7 +18,19 @@ export class School {
   motto: string;
 
   @Column({ nullable: true })
-  address: string;
+  location: string;
+
+  @Column({ type: 'double precision', nullable: true })
+  latitude: number;
+
+  @Column({ type: 'double precision', nullable: true })
+  longitude: number;
+
+  @Column({ type: 'simple-array', nullable: true })
+  levels: string[];
+
+  @Column({ nullable: true })
+  category: string;
 
   @Column({ nullable: true })
   website: string;
