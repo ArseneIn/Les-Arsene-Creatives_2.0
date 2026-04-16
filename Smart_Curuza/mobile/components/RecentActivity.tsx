@@ -2,7 +2,28 @@ import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { History } from 'lucide-react-native';
 
-export default function RecentActivity() {
+interface RecentActivityProps {
+    data: any[];
+    loading: boolean;
+}
+
+export default function RecentActivity({ data, loading }: RecentActivityProps) {
+    if (loading) {
+        return (
+            <View style={styles.container}>
+                <View style={styles.header}>
+                    <Text style={styles.title}>Recent Activity</Text>
+                </View>
+                <View style={[styles.activityCard, { height: 74, backgroundColor: 'transparent', padding: 0 }]}>
+                     <View style={{ flex: 1, backgroundColor: 'rgba(255, 255, 255, 0.03)', borderRadius: 24 }} />
+                </View>
+                <View style={[styles.activityCard, { height: 74, backgroundColor: 'transparent', padding: 0 }]}>
+                     <View style={{ flex: 1, backgroundColor: 'rgba(255, 255, 255, 0.03)', borderRadius: 24 }} />
+                </View>
+            </View>
+        );
+    }
+
     return (
         <View style={styles.container}>
             <View style={styles.header}>

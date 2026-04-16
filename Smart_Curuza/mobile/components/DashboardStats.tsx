@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, ActivityIndicator, TouchableOpacity, Dimensions } from 'react-native';
 import { CreditCard, Package, Users, FileText, ChevronDown, TrendingUp, TrendingDown, DollarSign, ShoppingCart } from 'lucide-react-native';
+import Svg, { Path, Defs, LinearGradient, Stop } from 'react-native-svg';
 import { ApiClient } from '../lib/api_client';
+import SkeletonLoader from './SkeletonLoader';
 
 const { width } = Dimensions.get('window');
 
@@ -22,6 +24,8 @@ type Period = 'today' | 'week' | 'month';
 interface DashboardStatsProps {
     period: Period;
     setPeriod: (p: Period) => void;
+    data: DashboardStatsData | null;
+    loading: boolean;
 }
 
 const MiniSparkline = ({ data, color }: { data: number[], color: string }) => {
@@ -45,40 +49,54 @@ const MiniSparkline = ({ data, color }: { data: number[], color: string }) => {
     );
 };
 
-export default function DashboardStats({ period, setPeriod }: DashboardStatsProps) {
-    const [stats, setStats] = useState<DashboardStatsData | null>(null);
-    const [loading, setLoading] = useState(true);
-    const [refreshing, setRefreshing] = useState(false);
-
-    const fetchStats = async (p: Period) => {
-        setRefreshing(true);
-        try {
-            const data = await ApiClient.getDashboardStats(p);
-            // Mocking expenses and gross if not provided
-            const enhancedData = {
-                ...data,
-                expenses: data.todaySales * 0.4,
-                grossProfit: data.todaySales * 0.9,
-            };
-            setStats(enhancedData);
-        } catch (error) {
-            console.error('Error fetching stats:', error);
-        } finally {
-            setLoading(false);
-            setRefreshing(false);
-        }
-    };
-
-    useEffect(() => {
-        fetchStats(period);
-    }, [period]);
-
-    if (loading) {
-        return (
-            <View style={styles.loadingContainer}>
-                <ActivityIndicator color="#fbe134" size="large" />
+const DashboardSkeleton = () => {
+    return (
+        <View style={styles.container}>
+            {/* Header Skeleton */}
+            <View style={styles.headerRow}>
+                <SkeletonLoader width={100} height={20} />
+                <SkeletonLoader width={120} height={32} borderRadius={12} />
             </View>
-        );
+
+            {/* Main Insight Section Skeleton */}
+            <View style={styles.insightSection}>
+                <View style={{ width: width * 0.5, height: width * 0.25, alignItems: 'center', marginBottom: 20 }}>
+                     <SkeletonLoader 
+                          width={width * 0.5} 
+                          height={width * 0.25} 
+                          borderRadius={width * 0.25} 
+                          style={{ borderBottomLeftRadius: 0, borderBottomRightRadius: 0, overflow: 'hidden' }} 
+                     />
+                </View>
+                
+                <View style={styles.kpiRow}>
+                    <SkeletonLoader width={80} height={40} borderRadius={8} />
+                    <SkeletonLoader width={80} height={24} borderRadius={8} />
+                    <SkeletonLoader width={80} height={40} borderRadius={8} />
+                </View>
+
+                <View style={[styles.comparisonRow, { marginTop: 24 }]}>
+                    <SkeletonLoader width={120} height={40} borderRadius={8} />
+                    <View style={styles.comparisonDivider} />
+                    <SkeletonLoader width={120} height={40} borderRadius={8} />
+                </View>
+            </View>
+
+            {/* KPI Grid Skeleton */}
+            <View style={styles.kpiGrid}>
+                {[1, 2, 3, 4].map(key => (
+                    <View key={key} style={[styles.kpiCard, styles.kpiCardHalf, { padding: 0, borderWidth: 0, backgroundColor: 'transparent' }]}>
+                        <SkeletonLoader width="100%" height={90} borderRadius={20} />
+                    </View>
+                ))}
+            </View>
+        </View>
+    );
+};
+
+export default function DashboardStats({ period, setPeriod, data, loading }: DashboardStatsProps) {
+    if (loading || !data) {
+        return <DashboardSkeleton />;
     }
 
     const formatAmount = (val: any) => {
@@ -86,22 +104,34 @@ export default function DashboardStats({ period, setPeriod }: DashboardStatsProp
         return val.toLocaleString();
     };
 
-    const data = stats || {
-        todaySales: 0,
-        todayProfit: 0,
-        todayTransactionCount: 0,
-        todayVat: 0,
-        lowStockCount: 0,
-        totalDebt: 0,
-        yieldRate: 0,
-        expenses: 0,
-        grossProfit: 0,
+    const stats = data;
+
+    const calculateYieldOffset = (yieldRate: number) => {
+        const safeMargin = Math.min(Math.max(yieldRate || 0, 0), 100);
+        const strokeWidth = 12;
+        const glowWidth = 20;
+        const padding = glowWidth / 2; // 10
+        // radius = (width*0.5)/2 - padding
+        const radius = (width * 0.5) / 2 - padding;
+        const circumference = Math.PI * radius;
+        return circumference - (circumference * (safeMargin / 100));
     };
 
-    const calculateRotation = (yieldRate: number) => {
-        const safeMargin = Math.min(Math.max(yieldRate || 0, 0), 100);
-        return `${(safeMargin / 100) * 180 - 135}deg`;
-    };
+    const gaugeWidth = width * 0.5;
+    const gaugeHeight = gaugeWidth * 0.5; // Always half of width to maintain perfect semi-circle
+    const strokeWidth = 12;
+    const glowWidth = 20;
+    const padding = glowWidth / 2 + 2; // 12 for safety
+    
+    const cx = gaugeWidth / 2;
+    const cy = gaugeHeight;
+    const radius = gaugeWidth / 2 - padding;
+
+    // Start left, go up to center, come down right
+    const startX = cx - radius;
+    const endX = cx + radius;
+    const arcPath = `M ${startX} ${cy} A ${radius} ${radius} 0 0 1 ${endX} ${cy}`;
+    const circumference = Math.PI * radius;
 
     return (
         <View style={styles.container}>
@@ -127,36 +157,80 @@ export default function DashboardStats({ period, setPeriod }: DashboardStatsProp
 
             {/* Main Insight Section */}
             <View style={styles.insightSection}>
-                <View style={styles.gaugeContainer}>
-                    <View style={styles.gaugeBackground} />
-                    <View style={[styles.gaugeFill, { transform: [{ rotate: calculateRotation(data.yieldRate) }] }]} />
-                    
-                    {/* Anchor: Net Profit (Left) */}
-                    <View style={styles.leftAnchor}>
-                        <Text style={styles.anchorAmount}>{formatAmount(data.todayProfit)}</Text>
-                        <Text style={styles.anchorLabel}>NET</Text>
-                    </View>
-
-                    {/* Anchor: Gross Profit (Right) */}
-                    <View style={styles.rightAnchor}>
-                        <Text style={styles.anchorAmount}>{formatAmount(data.grossProfit)}</Text>
-                        <Text style={styles.anchorLabel}>GROSS</Text>
-                    </View>
+                <View style={styles.gaugeWrapper}>
+                    <Svg width={gaugeWidth} height={gaugeHeight} style={styles.svgGauge}>
+                        <Defs>
+                            <LinearGradient id="goldGlow" x1="0" y1="0" x2="1" y2="0">
+                                <Stop offset="0" stopColor="#B45309" stopOpacity="1" />
+                                <Stop offset="0.5" stopColor="#fbe134" stopOpacity="1" />
+                                <Stop offset="1" stopColor="#FDE047" stopOpacity="1" />
+                            </LinearGradient>
+                        </Defs>
+                        
+                        {/* Glowing backdrop path for 3D effect */}
+                        <Path 
+                            d={arcPath}
+                            stroke="#fbe134"
+                            strokeWidth={strokeWidth + 8}
+                            strokeOpacity={0.15}
+                            fill="none"
+                            strokeLinecap="round"
+                            strokeDasharray={`${circumference} ${circumference}`}
+                            strokeDashoffset={calculateYieldOffset(data.yieldRate)}
+                        />
+                        
+                        {/* Background track */}
+                        <Path 
+                            d={arcPath}
+                            stroke="rgba(255, 255, 255, 0.05)"
+                            strokeWidth={strokeWidth}
+                            fill="none"
+                            strokeLinecap="round"
+                        />
+                        
+                        {/* Fill track with gradient */}
+                        <Path 
+                            d={arcPath}
+                            stroke="url(#goldGlow)"
+                            strokeWidth={strokeWidth}
+                            fill="none"
+                            strokeLinecap="round"
+                            strokeDasharray={`${circumference} ${circumference}`}
+                            strokeDashoffset={calculateYieldOffset(data.yieldRate)}
+                        />
+                    </Svg>
 
                     <View style={styles.gaugeValueContainer}>
                         <Text style={styles.marginValue}>
                             {(data.yieldRate || 0).toFixed(1)}%
                         </Text>
-                        <Text style={styles.netProfitLabel}>Profit Margin</Text>
+                        <Text style={styles.netProfitLabel}>PROFIT MARGIN</Text>
                     </View>
                 </View>
 
-                <View style={styles.marginBadge}>
-                    <TrendingUp size={12} color="#fbe134" style={{ marginRight: 4 }} />
-                    <Text style={styles.marginBadgeText}>Efficiency Rating: High</Text>
+                {/* KPI Sub-row directly below graph */}
+                <View style={styles.kpiRow}>
+                    <View style={styles.kpiItem}>
+                        <Text style={styles.metricLabel}>NET PROFIT</Text>
+                        <Text style={styles.metricValueGreen} numberOfLines={1}>
+                            {formatAmount(data.todayProfit)}
+                        </Text>
+                    </View>
+                    
+                    <View style={styles.marginBadge}>
+                        <TrendingUp size={12} color="#0b0c0c" style={{ marginRight: 4 }} />
+                        <Text style={styles.marginBadgeText}>HIGH YIELD</Text>
+                    </View>
+                    
+                    <View style={styles.kpiItem}>
+                        <Text style={styles.metricLabel}>GROSS REV</Text>
+                        <Text style={styles.metricValueWhite} numberOfLines={1}>
+                            {formatAmount(data.grossProfit)}
+                        </Text>
+                    </View>
                 </View>
 
-                <View style={styles.comparisonRow}>
+                <View style={[styles.comparisonRow, { marginTop: 24 }]}>
                     <View style={styles.comparisonItem}>
                         <Text style={[styles.comparisonAmount, { color: '#EF4444' }]}>{formatAmount(data.totalDebt)}</Text>
                         <Text style={[styles.comparisonLabel, { color: '#9CA3AF' }]}>Outstanding Debt</Text>
@@ -287,49 +361,17 @@ const styles = StyleSheet.create({
     },
     insightSection: {
         alignItems: 'center',
-        marginTop: 120, // Keep the deep drop
+        marginTop: 40, // Reduced from 120
         marginBottom: 24,
     },
-    gaugeContainer: {
+    gaugeWrapper: {
         width: width * 0.5,
-        height: width * 0.25, 
         alignItems: 'center',
-        justifyContent: 'flex-end',
         position: 'relative',
-        marginBottom: 40,
+        marginBottom: 8, // Tighter gap
     },
-    gaugeBackground: {
-        position: 'absolute',
-        width: width * 0.5,
-        height: width * 0.5,
-        borderRadius: width * 0.25,
-        borderWidth: 12,
-        borderColor: 'rgba(255, 255, 255, 0.1)', // Subtle dark arc
-        borderBottomColor: 'transparent',
-        borderLeftColor: 'transparent',
-        transform: [{ rotate: '-45deg' }],
-    },
-    gaugeFill: {
-        position: 'absolute',
-        width: width * 0.5,
-        height: width * 0.5,
-        borderRadius: width * 0.25,
-        borderWidth: 12,
-        borderColor: '#fbe134', // Brand Gold
-        borderBottomColor: 'transparent',
-        borderLeftColor: 'transparent',
-    },
-    leftAnchor: {
-        position: 'absolute',
-        bottom: -20,
-        left: -45,
-        alignItems: 'center',
-    },
-    rightAnchor: {
-        position: 'absolute',
-        bottom: -20,
-        right: -45,
-        alignItems: 'center',
+    svgGauge: {
+        marginBottom: 0,
     },
     anchorAmount: {
         fontSize: 12,
@@ -344,34 +386,75 @@ const styles = StyleSheet.create({
     },
     gaugeValueContainer: {
         alignItems: 'center',
-        paddingTop: 10,
+        marginTop: -30, // Pull it up slightly into the empty space of the arc
+        zIndex: 10,
     },
     marginValue: {
-        fontSize: 32,
+        fontSize: 36,
         fontFamily: 'Poppins_700Bold',
-        color: '#fbe134', // Primary Gold
+        color: '#FFFFFF', 
+        textShadowColor: 'rgba(255, 255, 255, 0.1)',
+        textShadowOffset: { width: 0, height: 2 },
+        textShadowRadius: 8,
     },
     netProfitLabel: {
-        fontSize: 11,
+        fontSize: 10,
+        fontFamily: 'Montserrat_700Bold',
+        color: '#fbe134', // Gold label
+        marginTop: -4,
+        textTransform: 'uppercase',
+        letterSpacing: 1.5,
+    },
+    kpiRow: {
+        flexDirection: 'row',
+        alignItems: 'flex-end',
+        justifyContent: 'space-between',
+        width: '100%', // Increased width to prevent wrapping
+        paddingHorizontal: 12, // Add some padding since it's full width
+        marginTop: 6,
+    },
+    kpiItem: {
+        alignItems: 'center',
+        flex: 1,
+        overflow: 'hidden', // Contain the wrapped text
+    },
+    metricLabel: {
+        fontSize: 9,
         fontFamily: 'Montserrat_700Bold',
         color: '#9CA3AF',
-        marginTop: -6,
-        textTransform: 'uppercase',
         letterSpacing: 1,
+        marginBottom: 4,
+    },
+    metricValueGreen: {
+        fontSize: 14, // Lowered
+        fontFamily: 'Poppins_700Bold',
+        color: '#10B981', // Emerald
+    },
+    metricValueWhite: {
+        fontSize: 14, // Lowered
+        fontFamily: 'Poppins_700Bold',
+        color: '#FFFFFF',
     },
     marginBadge: {
         flexDirection: 'row',
         alignItems: 'center',
-        backgroundColor: 'rgba(251, 225, 52, 0.15)',
-        paddingHorizontal: 10,
+        backgroundColor: '#fbe134', // Solid Gold shield
+        paddingHorizontal: 6, // Slightly tighter
         paddingVertical: 4,
-        borderRadius: 999,
-        marginBottom: 20,
+        borderRadius: 8,
+        marginBottom: 4,
+        marginHorizontal: 4, // Tighter margin
+        shadowColor: '#fbe134',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.3,
+        shadowRadius: 8,
+        elevation: 4,
     },
     marginBadgeText: {
-        fontSize: 11,
+        fontSize: 9,
         fontFamily: 'Montserrat_700Bold',
-        color: '#fbe134',
+        color: '#0b0c0c',
+        letterSpacing: 0.5,
     },
     comparisonRow: {
         flexDirection: 'row',

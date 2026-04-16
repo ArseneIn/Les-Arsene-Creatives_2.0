@@ -6,40 +6,12 @@ const { width } = Dimensions.get('window');
 
 interface ProductSalesChartProps {
     period: 'today' | 'week' | 'month';
+    data: any[];
+    loading: boolean;
 }
 
-export default function ProductSalesChart({ period }: ProductSalesChartProps) {
-    const [stats, setStats] = useState<any[]>([]);
-    const [loading, setLoading] = useState(true);
-
-    useEffect(() => {
-        const fetchSales = async () => {
-            setLoading(true);
-            try {
-                const products = await ApiClient.getProducts();
-                
-                // Simulate period-based variance for the top 5
-                const mult = period === 'month' ? 100 : period === 'week' ? 25 : 8;
-                
-                const sorted = products
-                    .map(p => ({
-                        name: p.name,
-                        sales: Math.floor(Math.random() * mult) + 2,
-                        amount: (Math.floor(Math.random() * mult * 10000) + 50000).toLocaleString()
-                    }))
-                    .sort((a, b) => b.sales - a.sales)
-                    .slice(0, 5);
-                
-                setStats(sorted);
-            } catch (error) {
-                console.error('Error fetching product sales:', error);
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchSales();
-    }, [period]);
+export default function ProductSalesChart({ period, data, loading }: ProductSalesChartProps) {
+    const stats = data;
 
     if (loading) {
         return (

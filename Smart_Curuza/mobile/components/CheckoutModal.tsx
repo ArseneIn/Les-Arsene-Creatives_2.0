@@ -1,452 +1,385 @@
-import React, { useState } from 'react';
-import { View, Text, Modal, TouchableOpacity, StyleSheet, ActivityIndicator, TextInput, KeyboardAvoidingView, Platform, ScrollView, TouchableWithoutFeedback, Keyboard } from 'react-native';
-import { X, Banknote, Smartphone, CreditCard, Check, ArrowRight, ChevronLeft } from 'lucide-react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, TouchableOpacity, StyleSheet, Modal, TextInput, KeyboardAvoidingView, Platform, ScrollView, Animated } from 'react-native';
+import { X, Banknote, Smartphone, FileText, CheckCircle2, ArrowRight, User } from 'lucide-react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 interface CheckoutModalProps {
     visible: boolean;
     totalAmount: number;
     onClose: () => void;
-    onConfirm: (method: 'CASH' | 'MOBILE_MONEY' | 'CREDIT', phoneNumber?: string) => Promise<void>;
+    onConfirm: (method: 'CASH' | 'MOBILE_MONEY' | 'CREDIT', details?: { phone?: string, clientName?: string }) => void;
 }
 
 export default function CheckoutModal({ visible, totalAmount, onClose, onConfirm }: CheckoutModalProps) {
-    const [selectedMethod, setSelectedMethod] = useState<'CASH' | 'MOBILE_MONEY' | 'CREDIT'>('CASH');
-    const [phoneNumber, setPhoneNumber] = useState('');
-    const [processing, setProcessing] = useState(false);
-    const [step, setStep] = useState<'SELECT' | 'PHONE'>('SELECT');
+    const insets = useSafeAreaInsets();
+    const [method, setMethod] = useState<'CASH' | 'MOBILE_MONEY' | 'CREDIT'>('CASH');
+    const [phone, setPhone] = useState('');
+    const [clientName, setClientName] = useState('');
+    const [formHeight] = useState(new Animated.Value(0));
 
-    const handleClose = () => {
-        setStep('SELECT');
-        setPhoneNumber('');
-        onClose();
-    };
+    // Reset state when modal opens
+    useEffect(() => {
+        if (visible) {
+            setMethod('CASH');
+            setPhone('');
+            setClientName('');
+            Animated.timing(formHeight, {
+                toValue: 0,
+                duration: 250,
+                useNativeDriver: false
+            }).start();
+        }
+    }, [visible]);
 
-    const handleNext = () => {
-        if (selectedMethod === 'MOBILE_MONEY') {
-            setStep('PHONE');
+    const handleMethodSelect = (selected: 'CASH' | 'MOBILE_MONEY' | 'CREDIT') => {
+        setMethod(selected);
+        
+        if (selected === 'CREDIT') {
+            Animated.spring(formHeight, { toValue: 160, useNativeDriver: false, friction: 8 }).start();
+        } else if (selected === 'MOBILE_MONEY') {
+            Animated.spring(formHeight, { toValue: 80, useNativeDriver: false, friction: 8 }).start();
         } else {
-            handleConfirm();
+            Animated.spring(formHeight, { toValue: 0, useNativeDriver: false, friction: 8 }).start();
         }
     };
 
-    const handleConfirm = async () => {
-        if (selectedMethod === 'MOBILE_MONEY' && !phoneNumber) return;
+    const isConfirmDisabled = () => {
+        if (method === 'MOBILE_MONEY' && phone.length < 10) return true;
+        if (method === 'CREDIT' && (clientName.trim() === '' || phone.length < 10)) return true;
+        return false;
+    };
 
-        setProcessing(true);
-        try {
-            await onConfirm(selectedMethod, phoneNumber);
-            // Reset after successful confirmation (if modal doesn't unmount)
-            setTimeout(() => {
-                setStep('SELECT');
-                setPhoneNumber('');
-            }, 500);
-        } catch (error) {
-            // Handle error if needed
-        } finally {
-            setProcessing(false);
+    const handleProcess = () => {
+        if (isConfirmDisabled()) return;
+        
+        const details: any = {};
+        if (method === 'MOBILE_MONEY') details.phone = phone;
+        if (method === 'CREDIT') {
+            details.phone = phone;
+            details.clientName = clientName;
         }
+
+        onConfirm(method, details);
     };
 
     return (
         <Modal
             visible={visible}
-            transparent
             animationType="slide"
-            onRequestClose={handleClose}
+            transparent={true}
+            onRequestClose={onClose}
         >
-            <View style={{ flex: 1 }}>
-                <KeyboardAvoidingView
-                    behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-                    style={styles.container}
-                    enabled
-                >
-                    <View style={styles.modalContent}>
-                        {/* Handlebar for Bottom Sheet feel */}
-                        <View style={styles.handleContainer}>
-                            <View style={styles.handle} />
+            <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.overlay}>
+                <TouchableOpacity style={styles.backdrop} activeOpacity={1} onPress={onClose} />
+                
+                <View style={[styles.modalBody, { paddingBottom: insets.bottom > 0 ? insets.bottom : 24 }]}>
+                    <View style={styles.dragIndicator} />
+                    
+                    <View style={styles.header}>
+                        <Text style={styles.title}>Complete Sale</Text>
+                        <TouchableOpacity onPress={onClose} style={styles.closeBtn}>
+                            <X size={20} color="#9CA3AF" />
+                        </TouchableOpacity>
+                    </View>
+
+                    <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
+                        {/* Summary Header */}
+                        <View style={styles.summaryContainer}>
+                            <Text style={styles.summaryLabel}>Total Due</Text>
+                            <Text style={styles.summaryAmount}>{totalAmount.toLocaleString()} <Text style={styles.currencyCode}>RWF</Text></Text>
                         </View>
 
-                        <ScrollView 
-                            bounces={false}
-                            showsVerticalScrollIndicator={false}
-                            contentContainerStyle={styles.scrollContent}
+                        {/* Payment Type Selection */}
+                        <Text style={styles.sectionTitle}>Payment Method</Text>
+                        
+                        <View style={styles.methodGrid}>
+                            <TouchableOpacity 
+                                style={[styles.methodCard, method === 'CASH' && styles.methodCardActive]} 
+                                onPress={() => handleMethodSelect('CASH')}
+                                activeOpacity={0.7}
+                            >
+                                <View style={[styles.iconContainer, method === 'CASH' && styles.iconActiveContainer]}>
+                                    <Banknote size={24} color={method === 'CASH' ? "#fbe134" : "#6B7280"} />
+                                </View>
+                                <Text style={[styles.methodText, method === 'CASH' && styles.methodTextActive]}>Cash</Text>
+                                {method === 'CASH' && <CheckCircle2 size={20} color="#fbe134" />}
+                            </TouchableOpacity>
+
+                            <TouchableOpacity 
+                                style={[styles.methodCard, method === 'MOBILE_MONEY' && styles.methodCardActive]} 
+                                onPress={() => handleMethodSelect('MOBILE_MONEY')}
+                                activeOpacity={0.7}
+                            >
+                                <View style={[styles.iconContainer, method === 'MOBILE_MONEY' && styles.iconActiveContainer]}>
+                                    <Smartphone size={24} color={method === 'MOBILE_MONEY' ? "#fbe134" : "#6B7280"} />
+                                </View>
+                                <Text style={[styles.methodText, method === 'MOBILE_MONEY' && styles.methodTextActive]}>MoMo</Text>
+                                {method === 'MOBILE_MONEY' && <CheckCircle2 size={20} color="#fbe134" />}
+                            </TouchableOpacity>
+
+                            <TouchableOpacity 
+                                style={[styles.methodCard, method === 'CREDIT' && styles.methodCardActive]} 
+                                onPress={() => handleMethodSelect('CREDIT')}
+                                activeOpacity={0.7}
+                            >
+                                <View style={[styles.iconContainer, method === 'CREDIT' && styles.iconActiveContainer]}>
+                                    <FileText size={24} color={method === 'CREDIT' ? "#fbe134" : "#6B7280"} />
+                                </View>
+                                <Text style={[styles.methodText, method === 'CREDIT' && styles.methodTextActive]}>Ideni (Debt)</Text>
+                                {method === 'CREDIT' && <CheckCircle2 size={20} color="#fbe134" />}
+                            </TouchableOpacity>
+                        </View>
+
+                        {/* CRM Form */}
+                        <Animated.View style={[styles.formArea, { height: formHeight, opacity: formHeight.interpolate({ inputRange: [0, 80], outputRange: [0, 1] }) }]}>
+                            {method === 'CREDIT' && (
+                                <View style={styles.inputWrapper}>
+                                    <Text style={styles.inputLabel}>Client Name</Text>
+                                    <View style={styles.inputGroup}>
+                                        <User size={18} color="#9CA3AF" style={styles.inputIcon} />
+                                        <TextInput 
+                                            style={styles.input}
+                                            placeholder="Enter full name"
+                                            placeholderTextColor="#4B5563"
+                                            value={clientName}
+                                            onChangeText={setClientName}
+                                        />
+                                    </View>
+                                </View>
+                            )}
+
+                            {(method === 'MOBILE_MONEY' || method === 'CREDIT') && (
+                                <View style={[styles.inputWrapper, method === 'CREDIT' && { marginTop: 16 }]}>
+                                    <Text style={styles.inputLabel}>Phone Number</Text>
+                                    <View style={styles.inputGroup}>
+                                        <Smartphone size={18} color="#9CA3AF" style={styles.inputIcon} />
+                                        <TextInput 
+                                            style={styles.input}
+                                            placeholder="e.g. 078..."
+                                            placeholderTextColor="#4B5563"
+                                            keyboardType="phone-pad"
+                                            value={phone}
+                                            onChangeText={setPhone}
+                                            maxLength={10}
+                                        />
+                                    </View>
+                                </View>
+                            )}
+                        </Animated.View>
+                        
+                    </ScrollView>
+
+                    <View style={styles.footer}>
+                        <TouchableOpacity 
+                            style={[styles.confirmButton, isConfirmDisabled() && styles.confirmDisabled]} 
+                            onPress={handleProcess}
+                            disabled={isConfirmDisabled()}
+                            activeOpacity={0.8}
                         >
-                            {/* Header */}
-                            <View style={styles.headerSection}>
-                                <View style={styles.headerTop}>
-                                    <View>
-                                        <Text style={styles.title}>Checkout</Text>
-                                        <Text style={styles.subtitle}>Complete your purchase</Text>
-                                    </View>
-                                    <TouchableOpacity onPress={handleClose} style={styles.closeButton}>
-                                        <X size={20} color="#6B7280" />
-                                    </TouchableOpacity>
-                                </View>
-
-                                <View style={styles.totalCard}>
-                                    <Text style={styles.totalLabel}>Grand Total</Text>
-                                    <View style={styles.amountRow}>
-                                        <Text style={styles.amountSymbol}>RWF</Text>
-                                        <Text style={styles.totalAmount}>{totalAmount.toLocaleString()}</Text>
-                                    </View>
-                                </View>
+                            <Text style={styles.confirmText}>Proceed Checkout</Text>
+                            <View style={styles.confirmArrowBox}>
+                                <ArrowRight size={18} color="#0b0c0c" />
                             </View>
-
-                            {/* Content */}
-                            <View style={styles.contentSection}>
-                                {step === 'SELECT' ? (
-                                    <>
-                                        <Text style={styles.sectionTitle}>Payment Method</Text>
-                                        <View style={styles.methodsGrid}>
-                                            <TouchableOpacity
-                                                style={[
-                                                    styles.methodCard,
-                                                    selectedMethod === 'CASH' && styles.selectedCard
-                                                ]}
-                                                onPress={() => setSelectedMethod('CASH')}
-                                            >
-                                                <View style={[styles.iconCircle, styles.bgGray, selectedMethod === 'CASH' && styles.bgGold]}>
-                                                    <Banknote size={24} color={selectedMethod === 'CASH' ? "#0b0c0c" : "#6B7280"} />
-                                                </View>
-                                                <Text style={[styles.methodLabel, selectedMethod === 'CASH' && styles.selectedText]}>Cash</Text>
-                                            </TouchableOpacity>
-
-                                            <TouchableOpacity
-                                                style={[
-                                                    styles.methodCard,
-                                                    selectedMethod === 'MOBILE_MONEY' && styles.selectedCard
-                                                ]}
-                                                onPress={() => setSelectedMethod('MOBILE_MONEY')}
-                                            >
-                                                <View style={[styles.iconCircle, styles.bgGray, selectedMethod === 'MOBILE_MONEY' && styles.bgGold]}>
-                                                    <Smartphone size={24} color={selectedMethod === 'MOBILE_MONEY' ? "#0b0c0c" : "#6B7280"} />
-                                                </View>
-                                                <Text style={[styles.methodLabel, selectedMethod === 'MOBILE_MONEY' && styles.selectedText]}>MoMo</Text>
-                                            </TouchableOpacity>
-
-                                            <TouchableOpacity
-                                                style={[
-                                                    styles.methodCard,
-                                                    selectedMethod === 'CREDIT' && styles.selectedCard
-                                                ]}
-                                                onPress={() => setSelectedMethod('CREDIT')}
-                                            >
-                                                <View style={[styles.iconCircle, styles.bgGray, selectedMethod === 'CREDIT' && styles.bgGold]}>
-                                                    <CreditCard size={24} color={selectedMethod === 'CREDIT' ? "#0b0c0c" : "#6B7280"} />
-                                                </View>
-                                                <Text style={[styles.methodLabel, selectedMethod === 'CREDIT' && styles.selectedText]}>Credit</Text>
-                                            </TouchableOpacity>
-                                        </View>
-                                    </>
-                                ) : (
-                                    <View style={styles.phoneStepContainer}>
-                                        <View style={styles.phoneHeader}>
-                                            <TouchableOpacity onPress={() => setStep('SELECT')} style={styles.backLink}>
-                                                <ChevronLeft size={16} color="#4B5563" />
-                                                <Text style={styles.backText}>Change Method</Text>
-                                            </TouchableOpacity>
-                                            <Text style={styles.sectionTitle}>MoMo Details</Text>
-                                        </View>
-                                        
-                                        <View style={styles.inputCard}>
-                                            <Text style={styles.inputLabel}>Recipient Phone Number</Text>
-                                            <View style={styles.phoneInputWrapper}>
-                                                <View style={styles.countryCode}>
-                                                    <Text style={styles.flag}>🇷🇼</Text>
-                                                    <Text style={styles.codeText}>+250</Text>
-                                                </View>
-                                                <TextInput
-                                                    style={styles.input}
-                                                    placeholder="788 123 456"
-                                                    placeholderTextColor="#9CA3AF"
-                                                    keyboardType="phone-pad"
-                                                    value={phoneNumber}
-                                                    onChangeText={setPhoneNumber}
-                                                    autoFocus
-                                                />
-                                            </View>
-                                            <Text style={styles.helperText}>A payment prompt will be sent to this number.</Text>
-                                        </View>
-                                    </View>
-                                )}
-
-                                <TouchableOpacity
-                                    style={[
-                                        styles.confirmButton,
-                                        (processing || (step === 'PHONE' && !phoneNumber)) && styles.disabledButton
-                                    ]}
-                                    onPress={handleNext}
-                                    disabled={processing || (step === 'PHONE' && !phoneNumber)}
-                                >
-                                    {processing ? (
-                                        <ActivityIndicator color="#0b0c0c" />
-                                    ) : (
-                                        <>
-                                            <Text style={styles.confirmText}>
-                                                {step === 'SELECT' && selectedMethod === 'MOBILE_MONEY' ? 'Proceed to Phone' : 'Confirm & Pay'}
-                                            </Text>
-                                            {step === 'SELECT' && selectedMethod === 'MOBILE_MONEY' ? (
-                                                <ArrowRight size={20} color="#0b0c0c" />
-                                            ) : (
-                                                <Check size={20} color="#0b0c0c" />
-                                            )}
-                                        </>
-                                    )}
-                                </TouchableOpacity>
-                            </View>
-                        </ScrollView>
+                        </TouchableOpacity>
                     </View>
-                </KeyboardAvoidingView>
-            </View>
+
+                </View>
+            </KeyboardAvoidingView>
         </Modal>
     );
 }
 
 const styles = StyleSheet.create({
-    container: {
+    overlay: {
         flex: 1,
-        justifyContent: 'flex-end',
-        backgroundColor: 'rgba(0, 0, 0, 0.4)',
+        justifyContent: 'flex-end', // Aligns modal to the bottom
     },
-    modalContent: {
-        backgroundColor: '#FFFFFF',
+    backdrop: {
+        ...StyleSheet.absoluteFillObject,
+        backgroundColor: 'rgba(0, 0, 0, 0.65)',
+    },
+    modalBody: {
+        backgroundColor: '#1a1d21', // Dark UI background
         borderTopLeftRadius: 32,
         borderTopRightRadius: 32,
-        maxHeight: '92%',
-        paddingBottom: Platform.OS === 'ios' ? 20 : 0,
+        width: '100%',
+        maxHeight: '92%', // Prevents overflow on small screens
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: -10 },
+        shadowOpacity: 0.2,
+        shadowRadius: 20,
+        elevation: 20,
     },
-    handleContainer: {
-        alignItems: 'center',
-        paddingVertical: 12,
-    },
-    handle: {
+    dragIndicator: {
         width: 40,
-        height: 5,
-        borderRadius: 2.5,
-        backgroundColor: '#E5E7EB',
+        height: 4,
+        backgroundColor: 'rgba(255,255,255,0.1)',
+        borderRadius: 2,
+        alignSelf: 'center',
+        marginTop: 12,
+        marginBottom: 8,
     },
-    scrollContent: {
-        paddingBottom: 40,
-    },
-    headerSection: {
-        paddingHorizontal: 24,
-        paddingBottom: 24,
-    },
-    headerTop: {
+    header: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        marginBottom: 20,
+        paddingHorizontal: 24,
+        paddingBottom: 20,
+        borderBottomWidth: 1,
+        borderBottomColor: 'rgba(255,255,255,0.05)',
     },
     title: {
-        fontSize: 24,
+        fontSize: 18,
         fontFamily: 'Poppins_700Bold',
-        color: '#111827',
+        color: '#FFFFFF',
     },
-    subtitle: {
-        fontSize: 14,
-        fontFamily: 'Montserrat_400Regular',
-        color: '#6B7280',
-        marginTop: -4,
+    closeBtn: {
+        padding: 8,
+        backgroundColor: 'rgba(255,255,255,0.05)',
+        borderRadius: 16,
     },
-    closeButton: {
-        width: 40,
-        height: 40,
-        borderRadius: 20,
-        backgroundColor: '#F3F4F6',
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    totalCard: {
-        backgroundColor: '#fbe134', // Gold
-        borderRadius: 24,
+    scrollContent: {
         padding: 24,
-        alignItems: 'center',
-        shadowColor: '#fbe134',
-        shadowOffset: { width: 0, height: 8 },
-        shadowOpacity: 0.2,
-        shadowRadius: 12,
-        elevation: 6,
+        paddingBottom: 40,
     },
-    totalLabel: {
+    summaryContainer: {
+        alignItems: 'center',
+        marginBottom: 32,
+        paddingVertical: 16,
+    },
+    summaryLabel: {
         fontSize: 12,
         fontFamily: 'Montserrat_600SemiBold',
-        color: '#0b0c0c',
+        color: '#9CA3AF',
         textTransform: 'uppercase',
-        letterSpacing: 1.5,
+        letterSpacing: 2,
         marginBottom: 8,
-        opacity: 0.6,
     },
-    amountRow: {
-        flexDirection: 'row',
-        alignItems: 'baseline',
-    },
-    amountSymbol: {
-        fontSize: 20,
-        fontFamily: 'Poppins_600SemiBold',
-        color: '#0b0c0c',
-        marginRight: 6,
-    },
-    totalAmount: {
+    summaryAmount: {
         fontSize: 40,
         fontFamily: 'Poppins_700Bold',
-        color: '#0b0c0c',
+        color: '#FFFFFF',
     },
-    contentSection: {
-        paddingHorizontal: 24,
+    currencyCode: {
+        fontSize: 18,
+        color: '#fbe134',
+        fontFamily: 'Montserrat_600SemiBold',
     },
     sectionTitle: {
-        fontSize: 12,
-        fontFamily: 'Montserrat_700Bold',
+        fontSize: 14,
+        fontFamily: 'Montserrat_600SemiBold',
         color: '#9CA3AF',
         marginBottom: 16,
         textTransform: 'uppercase',
-        letterSpacing: 1.2,
+        letterSpacing: 1,
     },
-    methodsGrid: {
-        flexDirection: 'row',
+    methodGrid: {
+        flexDirection: 'column',
         gap: 12,
-        marginBottom: 24,
     },
     methodCard: {
-        flex: 1,
-        backgroundColor: '#F9FAFB',
-        borderRadius: 24,
-        padding: 16,
+        flexDirection: 'row',
         alignItems: 'center',
-        justifyContent: 'center',
-        borderWidth: 2,
-        borderColor: 'transparent',
-        height: 100,
+        backgroundColor: '#23262A',
+        padding: 16,
+        borderRadius: 20,
+        borderWidth: 1,
+        borderColor: 'rgba(255,255,255,0.05)',
     },
-    selectedCard: {
-        backgroundColor: '#FFFFFF',
-        borderColor: '#fbe134',
-        shadowColor: '#fbe134',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.1,
-        shadowRadius: 8,
-        elevation: 2,
+    methodCardActive: {
+        backgroundColor: 'rgba(251, 225, 52, 0.05)', // Faint gold tint
+        borderColor: 'rgba(251, 225, 52, 0.4)', // Faint gold border
     },
-    iconCircle: {
+    iconContainer: {
         width: 48,
         height: 48,
-        borderRadius: 24,
+        borderRadius: 14,
+        backgroundColor: 'rgba(255,255,255,0.03)',
         alignItems: 'center',
         justifyContent: 'center',
-        marginBottom: 8,
+        marginRight: 16,
     },
-    bgGray: { backgroundColor: '#F3F4F6' },
-    bgGold: { backgroundColor: '#fbe134' },
-
-    methodLabel: {
-        fontSize: 13,
-        fontFamily: 'Montserrat_600SemiBold',
-        color: '#6B7280',
+    iconActiveContainer: {
+        backgroundColor: 'rgba(251, 225, 52, 0.1)',
     },
-    selectedText: {
-        color: '#0b0c0c',
-    },
-    phoneStepContainer: {
-        marginBottom: 24,
-    },
-    phoneHeader: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: 16,
-    },
-    backLink: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 4,
-    },
-    backText: {
-        fontSize: 12,
-        fontFamily: 'Montserrat_600SemiBold',
-        color: '#4B5563',
-        textDecorationLine: 'underline',
-    },
-    inputCard: {
-        backgroundColor: '#F9FAFB',
-        borderRadius: 24,
-        padding: 20,
-        borderWidth: 1,
-        borderColor: '#E5E7EB',
-    },
-    inputLabel: {
-        fontSize: 11,
-        fontFamily: 'Montserrat_600SemiBold',
-        color: '#6B7280',
-        marginBottom: 12,
-        textTransform: 'uppercase',
-        letterSpacing: 0.5,
-    },
-    phoneInputWrapper: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        backgroundColor: '#FFFFFF',
-        borderWidth: 1,
-        borderColor: '#D1D5DB',
-        borderRadius: 16,
-        overflow: 'hidden',
-        height: 56,
-    },
-    countryCode: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        paddingHorizontal: 16,
-        backgroundColor: '#F3F4F6',
-        borderRightWidth: 1,
-        borderRightColor: '#E5E7EB',
-        gap: 8,
-        height: '100%',
-    },
-    flag: {
-        fontSize: 20,
-    },
-    codeText: {
+    methodText: {
+        flex: 1,
         fontSize: 16,
         fontFamily: 'Montserrat_600SemiBold',
-        color: '#111827',
+        color: '#D1D5DB',
+    },
+    methodTextActive: {
+        color: '#FFFFFF',
+        fontFamily: 'Poppins_700Bold',
+    },
+    formArea: {
+        overflow: 'hidden',
+        marginTop: 24,
+    },
+    inputWrapper: {
+        width: '100%',
+    },
+    inputLabel: {
+        fontSize: 13,
+        fontFamily: 'Montserrat_600SemiBold',
+        color: '#9CA3AF',
+        marginBottom: 8,
+        marginLeft: 4,
+    },
+    inputGroup: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: '#23262A',
+        borderRadius: 16,
+        borderWidth: 1,
+        borderColor: 'rgba(255,255,255,0.05)',
+        paddingHorizontal: 16,
+        height: 56,
+    },
+    inputIcon: {
+        marginRight: 12,
     },
     input: {
         flex: 1,
-        paddingHorizontal: 16,
-        fontSize: 18,
-        fontFamily: 'Montserrat_600SemiBold',
-        color: '#0b0c0c',
+        fontFamily: 'Montserrat_500Medium',
+        fontSize: 15,
+        color: '#FFFFFF',
     },
-    helperText: {
-        fontSize: 12,
-        fontFamily: 'Montserrat_400Regular',
-        color: '#9CA3AF',
-        marginTop: 12,
-        textAlign: 'center',
+    footer: {
+        paddingHorizontal: 24,
+        paddingTop: 16,
+        borderTopWidth: 1,
+        borderTopColor: 'rgba(255,255,255,0.05)',
+        backgroundColor: '#1a1d21',
     },
     confirmButton: {
-        backgroundColor: '#fbe134', // Primary Gold
+        backgroundColor: '#fbe134',
         flexDirection: 'row',
-        alignItems: 'center',
         justifyContent: 'center',
+        alignItems: 'center',
         paddingVertical: 18,
         borderRadius: 20,
         gap: 12,
         shadowColor: '#fbe134',
         shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.2,
-        shadowRadius: 8,
-        elevation: 4,
+        shadowRadius: 10,
+        elevation: 5,
     },
-    disabledButton: {
-        opacity: 0.6,
-        backgroundColor: '#E5E7EB',
+    confirmDisabled: {
+        opacity: 0.4,
+        shadowOpacity: 0,
+        elevation: 0,
     },
     confirmText: {
         fontSize: 16,
         fontFamily: 'Poppins_700Bold',
         color: '#0b0c0c',
-        textTransform: 'uppercase',
-        letterSpacing: 1,
+        letterSpacing: 0.5,
     },
+    confirmArrowBox: {
+        backgroundColor: 'rgba(0,0,0,0.1)',
+        borderRadius: 12,
+        padding: 4,
+    }
 });

@@ -8,6 +8,7 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, DataSource } from 'typeorm';
 import { Sale } from '../entities/sale.entity';
+import { Customer } from '../entities/customer.entity';
 import { Product } from '../entities/product.entity';
 import { ClientManagementService } from '../client-management/client-management.service';
 import { BatchesService } from '../batches/batches.service';
@@ -28,11 +29,19 @@ export class SalesService {
     private readonly batchesService: BatchesService,
     private readonly notificationsService: NotificationsService,
     private readonly dataSource: DataSource,
-  ) { }
+  ) {}
 
   async createSale(saleData: CreateSaleDto): Promise<Sale> {
-    const { total, paymentMethod, customerId, merchantId, userId } = saleData;
+    const { total, clientName, clientPhone, merchantId, userId } = saleData;
+    let { paymentMethod, customerId } = saleData;
     const items = saleData.items as SaleItem[];
+
+    if (!merchantId) {
+      throw new BadRequestException('Merchant ID is required');
+    }
+
+    // Normalize payment method casing
+    if (paymentMethod?.toUpperCase() === 'CREDIT') paymentMethod = 'Credit';
 
     this.logger.log(
       `Creating sale: ${items.length} items, Total: ${total}, Method: ${paymentMethod}, User: ${userId}`,
@@ -44,13 +53,27 @@ export class SalesService {
     await queryRunner.startTransaction();
 
     try {
+      // 0. Find or Create Customer if CRM details are provided
+      if (!customerId && clientPhone && clientName) {
+        this.logger.log(
+          `Attempting to find/create customer: ${clientName} (${clientPhone})`,
+        );
+        const customer: Customer = await this.clientService.getOrCreateCustomer(
+          merchantId,
+          clientPhone,
+          clientName,
+          queryRunner.manager,
+        );
+        customerId = customer.id;
+        this.logger.log(`Using customer: ${clientName} ID: ${customerId}`);
+      }
+
       // Calculate VAT (Inclusive 18%)
       const VAT_RATE = 0.18;
       const netAmount = Number(total) / (1 + VAT_RATE);
       const vatAmount = Number(total) - netAmount;
 
       // 1. Create Sale Record
-      // Explicitly cast to DeepPartial<Sale> to avoid overload confusion
       const saleInput = {
         merchant_id: merchantId,
         customer_id: customerId || undefined,
@@ -59,7 +82,7 @@ export class SalesService {
         vat_amount: Number(vatAmount.toFixed(2)),
         net_amount: Number(netAmount.toFixed(2)),
         payment_method: paymentMethod,
-        items: items, // items is jsonb in entity, so this is valid
+        items: items,
         created_at: new Date(),
         sync_status: 'Completed',
       };
@@ -71,38 +94,57 @@ export class SalesService {
       for (const item of items) {
         const product = await this.productRepository.findOne({
           where: { id: item.id },
+          relations: ['batches'],
         });
-        if (product) {
-          product.stock -= item.quantity;
 
-          // Auto-deactivate if stock reaches 0
-          if (product.stock <= 0) {
-            product.status = 'inactive';
-            this.logger.warn(
-              `STOCK OUT ALERT: Product ${product.name} is now out of stock.`,
-            );
-
-            // Push Notification
-            await this.notificationsService.create({
-              title: 'Stock Out Alert',
-              message: `Product "${product.name}" is out of stock and has been deactivated.`,
-              type: 'warning',
-              user_id: undefined,
-            });
-          }
-
-          await queryRunner.manager.save(product);
-
-          // Deduct from batches
-          const preferredBatchId = item.batchId || undefined;
-          const batchUsage = await this.batchesService.deductStock(
-            item.id,
-            item.quantity,
-            queryRunner.manager,
-            preferredBatchId,
+        if (!product) {
+          throw new BadRequestException(
+            `Product ${item.name || item.id} not found.`,
           );
-          item.batches = batchUsage;
         }
+
+        const activeBatches =
+          product.batches?.filter((b) => b.status === 'active') || [];
+        const availableStock = activeBatches.reduce(
+          (sum, b) => sum + Number(b.current_quantity),
+          0,
+        );
+
+        if (availableStock < item.quantity) {
+          throw new BadRequestException(
+            `Insufficient stock for ${product.name} (ID: ${product.id}). Available: ${availableStock.toFixed(2)}, Requested: ${item.quantity}`,
+          );
+        }
+
+        product.stock = availableStock - item.quantity;
+
+        // Auto-deactivate if stock reaches 0
+        if (product.stock <= 0) {
+          product.status = 'inactive';
+          this.logger.warn(
+            `STOCK OUT ALERT: Product ${product.name} is now out of stock.`,
+          );
+
+          // Push Notification
+          await this.notificationsService.create({
+            title: 'Stock Out Alert',
+            message: `Product "${product.name}" is out of stock and has been deactivated.`,
+            type: 'warning',
+            user_id: undefined,
+          });
+        }
+
+        await queryRunner.manager.save(product);
+
+        // Deduct from batches
+        const preferredBatchId = item.batchId || undefined;
+        const batchUsage = await this.batchesService.deductStock(
+          item.id,
+          item.quantity,
+          queryRunner.manager,
+          preferredBatchId,
+        );
+        item.batches = batchUsage;
       }
 
       // Update sale with new items info (containing batch details)
@@ -122,7 +164,7 @@ export class SalesService {
             customerId: customerId,
             saleId: savedSale.id,
             amountDue: total,
-            dueDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days default
+            dueDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
           },
           queryRunner.manager,
         );
@@ -422,9 +464,7 @@ export class SalesService {
         id: sale.id,
         date: sale.created_at,
         customer: sale.customer ? sale.customer.name : 'Walk-in',
-        items: sale.items
-          .map((i) => `${i.name} (x${i.quantity})`)
-          .join('; '),
+        items: sale.items.map((i) => `${i.name} (x${i.quantity})`).join('; '),
         total: Number(sale.total),
         cost: saleCost,
         profit: Number(sale.total) - saleCost - (Number(sale.vat_amount) || 0),

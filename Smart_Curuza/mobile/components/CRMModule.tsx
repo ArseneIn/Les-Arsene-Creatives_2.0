@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, TextInput, ActivityIndicator } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, TextInput } from 'react-native';
 import { Search, User, Users, Phone, PhoneCall, AlertTriangle, CheckCircle, ChevronRight, TrendingUp } from 'lucide-react-native';
+import SkeletonLoader from './SkeletonLoader';
 
 interface ClientRecord {
     id: string;
@@ -11,9 +12,29 @@ interface ClientRecord {
     lastActive: string;
 }
 
+const CRMSkeleton = () => (
+    <View style={{ gap: 16 }}>
+        <SkeletonLoader height={140} borderRadius={24} style={{ marginBottom: 16 }} />
+        <View style={styles.summaryCardSub}>
+            <SkeletonLoader width="45%" height={60} borderRadius={16} />
+            <SkeletonLoader width="45%" height={60} borderRadius={16} />
+        </View>
+        <SkeletonLoader height={54} borderRadius={16} style={{ marginTop: 12, marginBottom: 20 }} />
+        {[1, 2, 3].map(k => (
+            <SkeletonLoader key={k} height={100} borderRadius={24} style={{ marginBottom: 12 }} />
+        ))}
+    </View>
+);
+
 export default function CRMModule() {
     const [searchQuery, setSearchQuery] = useState('');
-    const [loading, setLoading] = useState(false);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        // Simulate a brief local load to show skeleton during tab switch
+        const timer = setTimeout(() => setLoading(false), 300);
+        return () => clearTimeout(timer);
+    }, []);
 
     // Simulated local client state (since backend CRM routes are pending)
     const [clients] = useState<ClientRecord[]>([

@@ -16,7 +16,7 @@ export class ClientManagementService {
     private readonly customerRepository: Repository<Customer>,
     @InjectRepository(DebtLedger)
     private readonly debtRepository: Repository<DebtLedger>,
-  ) { }
+  ) {}
 
   /**
    * Creates a new debt record and updates the customer's total debt.
@@ -203,5 +203,44 @@ export class ClientManagementService {
       await customerRepo.update(customer.id, { total_debt: newTotal });
       this.logger.log(`Customer ${customer.id} debt reduced to ${newTotal}`);
     }
+  }
+
+  /**
+   * Finds a customer by phone and merchant_id, or creates a new one.
+   *
+   * @param merchantId - The ID of the merchant
+   * @param phone - The customer's phone number
+   * @param name - The customer's name (used for creation)
+   * @param manager - Optional EntityManager for transactions
+   * @returns The existing or newly created customer
+   */
+  async getOrCreateCustomer(
+    merchantId: string,
+    phone: string,
+    name: string,
+    manager?: EntityManager,
+  ): Promise<Customer> {
+    const customerRepo = manager
+      ? manager.getRepository(Customer)
+      : this.customerRepository;
+
+    let customer = await customerRepo.findOne({
+      where: { merchant_id: merchantId, phone: phone },
+    });
+
+    if (!customer) {
+      this.logger.log(`Creating new customer: ${name} (${phone})`);
+      customer = customerRepo.create({
+        merchant_id: merchantId,
+        phone,
+        name,
+        total_debt: 0,
+        loyalty_points: 0,
+        created_at: new Date(),
+      });
+      customer = await customerRepo.save(customer);
+    }
+
+    return customer;
   }
 }

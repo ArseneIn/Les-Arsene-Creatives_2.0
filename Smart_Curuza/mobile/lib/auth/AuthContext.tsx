@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import * as SecureStore from 'expo-secure-store';
 import { useRouter, useSegments } from 'expo-router';
+import { ApiClient } from '../api_client';
 
 interface User {
     id: string;
@@ -56,6 +57,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         };
 
         loadSession();
+
+        // Register global 401 handler
+        ApiClient.onUnauthorized(() => {
+            console.log('AuthContext: Received 401, logging out...');
+            logout();
+        });
     }, []);
 
     useEffect(() => {
@@ -85,6 +92,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setUser(null);
         await SecureStore.deleteItemAsync('auth_token');
         await SecureStore.deleteItemAsync('auth_user');
+        ApiClient.clearCache(); // Clear API cache on logout for security
         router.replace('/login');
     };
 

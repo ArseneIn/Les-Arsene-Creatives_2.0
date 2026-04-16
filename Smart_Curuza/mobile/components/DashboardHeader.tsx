@@ -139,13 +139,6 @@ export default function DashboardHeader({ activeTab, onTabChange }: DashboardHea
 
                 {/* Right: Web Utilities */}
                 <View style={styles.utilityRow}>
-                    <TouchableOpacity style={styles.utilityButton}>
-                        <Globe size={22} color="#FFFFFF" />
-                    </TouchableOpacity>
-                    <TouchableOpacity style={styles.utilityButton}>
-                        <Search size={22} color="#FFFFFF" />
-                    </TouchableOpacity>
-                    
                     {/* Animated Bell Wrapper */}
                     <TouchableOpacity 
                         style={styles.utilityButton} 

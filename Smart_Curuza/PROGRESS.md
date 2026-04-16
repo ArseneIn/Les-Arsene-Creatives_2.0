@@ -6,61 +6,28 @@
 **Changes Made:**
 - ✅ **Directory Structure**: Reorganized project into `web` (Next.js), `mobile` (React Native/Expo), and `backend` (NestJS).
 - ✅ **Mobile App**: Created `mobile` directory for React Native application.
-- ✅ **Environment**: Verified Node.js & Expo environment.
+- ✅ **Environment**: Fixed network routing issues for local device testing over Wi-Fi.
 
 ### 2. Backend Architecture & Database
 **Status:** Configured & Ready
 - ✅ **PostgreSQL Integration**: `AppModule` configured with `TypeOrmModule` to read from `.env`.
 - ✅ **Entities**: Full schema implemented (`Merchant`, `Product`, `Batch`, `Customer`, `Sale`, `DebtLedger`, `DeviceHeartbeat`, `Shift`).
-- ✅ **Modules**: 
-  - `Auth`, `Sales`, `Inventory`, `Payments`, `ClientManagement`, `Shifts`, `Ebm`.
-- ✅ **Client Management**: Uses real TypeORM repositories for `Customer` and `DebtLedger`.
-- ✅ **SMS Gateway**: Currently using `MockSmsGateway` for development.
-- ✅ **API Utilities**: Fixed `FormData` handling in `api.ts` to support file uploads (Merchant Registration).
+- ✅ **Modules**: `Auth`, `Sales`, `Inventory`, `Payments`, `ClientManagement`, `Shifts`, `Ebm`.
 
-### 3. Web Frontend (Merchant & Admin)
-**Status:** Polished & Functional
-- ✅ **Merchant Management**: 
-  - **Clickable Rows**: Navigate to merchant details by clicking anywhere on the row.
-  - **Professional UI**: Updated stats cards, table styling, and badges to match the new design system.
-  - **Registration**: Fixed file upload issue for merchant registration documents.
-- ✅ **Merchant Dashboard**: 
-  - **UI Overhaul**: Switched to a cleaner `bg-platinum-50` layout with white cards and consistent typography.
-  - **Visuals**: Improved empty states, list items, and quick action cards.
-- ✅ **Language Switcher**: Replaced emoji flags with high-quality SVG images for better cross-platform visibility.
-- ✅ **POS System**: 
-  - Offline-first architecture (IndexedDB + Sync Queue).
-  - Batch selection for products.
-  - Hold/Resume sale functionality.
-  - Receipt printing integration.
-  - Shift management (Open/Close shift).
-  - **Refunds**: Full refund workflow with stock restoration and debt cancellation.
+### 3. Mobile App (React Native) - "Executive Dark" UI Phase
+**Status:** Core Dashboard Implemented
+- ✅ **Dashboard Refactor**: Implemented a professional, bank-ready "Executive Dark" interface across the application.
+- ✅ **Animated Notifications**: Built the `DashboardHeader` with an animated ringing bell for real-time system alerts and low-stock warnings.
+- ✅ **Sales Ledger (History)**: Built `history.tsx` with dynamic advanced filtering, status pills, and transaction tracking.
+- ✅ **Authentication Fixes**: Cleared caching issues in `SecureStore` that bypassed login workflows. 
+- 🚧 **KPI Prioritization**: Built `DashboardStats.tsx` and `CRMModule.tsx` to prioritize critical metrics like *Outstanding Debt* and *Net/Gross Profit*, but currently using mock simulated states.
+- 🚧 **Product Analytics**: Created `ProductSalesChart.tsx`, currently analyzing simulated top-selling products.
+
+### 4. Web Frontend (Merchant & Admin)
+**Status:** Functional Sub-platform
+- ✅ **Merchant Management**: Clickable rows, dynamic navigation, professional UI stats cards.
+- ✅ **POS System**: Offline-first architecture, batch selection, refund workflows, receipt printing.
 - ✅ **Admin Dashboard**: Control tower view with system health metrics.
-
-### 4. Mobile Money Integration
-**Status:** Simulated
-- ✅ **Backend**: `PaymentsModule` with `stk-push` endpoint (simulated delay).
-- ✅ **Frontend**: Integrated into POS payment flow with confirmation dialogs.
-
-### 5. Security & Auth
-- ✅ **JWT Authentication**: Implemented in backend `AuthModule`.
-- ✅ **Secure API Client**: Auto-injects tokens in frontend requests.
-- ✅ **CORS**: Configured for security.
-
-### 6. Mobile App (React Native)
-**Status:** In Development
-- ✅ **Project Setup**: Initialized with Expo.
-- ✅ **POS UI**: Implemented Product Grid, Cart, and Checkout flow.
-- ✅ **API Client**: Configured `api_client.ts` for backend communication.
-- 🚧 **Authentication**: Login screen and token handling pending.
-
----
-
-## 🔐 Login Credentials (Development)
-Use these credentials to access the system:
-- **Email**: `admin@smartcuruza.com`
-- **Password**: `admin123`
-- **Role**: `SUPERADMIN`
 
 ---
 
@@ -72,125 +39,27 @@ Use these credentials to access the system:
 ✅ Auth, Sales, Inventory, Payments modules active
 ✅ CORS secured
 ✅ Connected to PostgreSQL
-✅ File Uploads (FormData) supported
-```
-
-### Web Frontend (Next.js)
-```
-✅ Located in `web/`
-✅ Running on port 3000
-✅ Secure API Client (`lib/api.ts`)
-✅ Toast Notification System
-✅ POS & Dashboard fully functional
-✅ Professional Design System (Tailwind + Custom Colors)
 ```
 
 ### Mobile App (React Native)
 ```
 ✅ Located in `mobile/`
-✅ Project Initialized (smart_curuza_mobile)
-✅ Android/iOS/Web support enabled
-❌ API Integration Pending
+✅ Expo Dev environment configured with exact LAN routing
+✅ Executive Dark UI framework integrated
+❌ CRM and Stats heavily rely on mocked frontend data
+❌ Inventory and Expenses tabs are just placeholders
 ```
 
 ---
 
 ## 🎯 What's Missing (Gap Analysis)
 
-### Critical (Must Have)
-1. **Mobile App Development**
-   - Initialize React Native project
-   - Implement POS interface on mobile
-   - Connect to backend API
+### Critical Mobile Flow (Next Priorities)
+1. **Remove Dashboard Mock Data**
+   - Connect `DashboardStats` and `ProductSalesChart` to actual API statistics algorithms rather than frontend simulated variations.
+2. **True CRM Data Binding**
+   - Hook up the `CRMModule.tsx` to read outstanding customer debt dynamically from the backend PostgreSQL database.
+3. **Build Missing Mobile Tabs**
+   - Construct `InventoryModule.tsx` and `ExpensesModule.tsx` within the main `index.tsx` structure.
 
-2. **Infrastructure Deployment**
-   - Provision real PostgreSQL database
-   - Set up production environment variables
-   - Deploy backend and frontend
-
-3. **Real Mobile Money Integration**
-   - Replace simulation with actual MTN/Airtel API calls
-   - Webhook listeners for payment confirmation
-
-### Nice to Have
-4. **Device Security (MDM)**
-   - Heartbeat monitoring
-   - Lock/unlock logic
-   - MQTT integration
-
-5. **Loyalty Points**
-   - Points calculation on sales
-   - Redemption logic
-
----
-
-## 🚀 Recommended Next Steps
-
-### Option A: Complete the Backend (Recommended)
-1. Set up TypeORM and PostgreSQL
-2. Run the migration
-3. Create Entity classes
-4. Replace mock providers with real repositories
-5. Test the API with real database
-
-### Option B: Build the Checkout Page
-1. Create the POS interface in frontend
-2. Implement product selection
-3. Add payment method selection
-4. Build customer search/add modal
-5. Save to IndexedDB (offline-first)
-
-### Option C: Connect Frontend to Backend
-1. Create API service layer
-2. Replace mock data with API calls
-3. Add loading states
-4. Implement error handling
-
-**My Recommendation:** Start with **Option A** to establish a solid foundation with a real database, then move to Option B to build the core POS functionality.
-
----
-
-## 📝 Testing the Current Implementation
-
-### Test Backend Health
-```bash
-curl http://localhost:3001
-# Expected: "Smart-Curuza Backend API Running"
-```
-
-### Test Create Debt (with mock data)
-```bash
-curl -X POST http://localhost:3001/client-management/debt \
-  -H "Content-Type: application/json" \
-  -d '{
-    "customerId": "test-123",
-    "saleId": "sale-456",
-    "amountDue": 5000
-  }'
-```
-
-### Test Send SMS Reminder (with mock data)
-```bash
-curl -X POST http://localhost:3001/client-management/remind/test-123 \
-  -H "Content-Type: application/json" \
-  -d '{"shopName": "Test Shop"}'
-```
-
-### View Frontend
-Open browser: `http://localhost:3000`
-
----
-
-## 📦 Dependencies Installed
-- ✅ `class-validator` - DTO validation
-- ✅ `class-transformer` - Object transformation
-
-## 🔧 Configuration Changes
-- ✅ Global validation pipe enabled
-- ✅ Backend logging enhanced
-- ✅ Proper error handling with HTTP exceptions
-- ✅ `api.ts` updated to handle `FormData` automatically
-
----
-
-**Last Updated:** 2026-01-08 20:25 IST
+**Last Updated:** 2026-04-14 (Mobile UI Modernization Phase)

@@ -1,56 +1,60 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, Modal, TouchableOpacity, TextInput, ActivityIndicator, KeyboardAvoidingView, Platform, ScrollView, Alert } from 'react-native';
-import { X, Save, Package, Barcode, Tag, Scale, Briefcase, FileText } from 'lucide-react-native';
+import { X, Save, Layers, Briefcase, Calendar, ChevronDown, Package } from 'lucide-react-native';
 import { ApiClient } from '../lib/api_client';
 
-interface AddProductModalProps {
+interface RestockModalProps {
     visible: boolean;
     onClose: () => void;
     onSuccess: () => void;
+    availableProducts: { id: string; name: string; unit: string }[];
 }
 
-export default function AddProductModal({ visible, onClose, onSuccess }: AddProductModalProps) {
+export default function RestockModal({ visible, onClose, onSuccess, availableProducts }: RestockModalProps) {
     const [loading, setLoading] = useState(false);
-    const [product, setProduct] = useState({
-        name: '',
-        barcode: '',
-        price: '',
-        cost_price: '',
-        unit: 'pcs',
-        itemClsCd: '',
-        taxTyCd: ''
+    const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
+    const [showDropdown, setShowDropdown] = useState(false);
+    
+    const [batch, setBatch] = useState({
+        quantity: '',
+        buying_price_per_unit: '',
+        selling_price: '',
+        expiry_date: '', // Optional format YYYY-MM-DD
     });
 
     const handleSave = async () => {
-        if (!product.name || !product.price || !product.cost_price) {
-            Alert.alert('Error', 'Name, Price, and Cost Price are required');
+        if (!selectedProductId || !batch.quantity || !batch.buying_price_per_unit) {
+            Alert.alert('Error', 'Product, Quantity, and Buying Price are required');
             return;
         }
 
         setLoading(true);
         try {
             const payload = {
-                ...product,
-                price: parseFloat(product.price),
-                cost_price: parseFloat(product.cost_price),
-                stock: 0, // Stock is managed entirely via Batches now
-                conversion_factor: 1, // Default fallback
-                buying_unit: product.unit // Assuming buying and selling unit match initially
+                product_id: selectedProductId,
+                original_quantity: parseFloat(batch.quantity),
+                current_quantity: parseFloat(batch.quantity),
+                buying_price_per_unit: parseFloat(batch.buying_price_per_unit),
+                selling_price: batch.selling_price ? parseFloat(batch.selling_price) : undefined,
+                expiry_date: batch.expiry_date || null,
             };
             
-            await ApiClient.createProduct(payload);
+            await ApiClient.createBatch(payload);
             
-            Alert.alert('Success', 'Product catalog created successfully! Use the Restock tab to add inventory.');
-            setProduct({ name: '', barcode: '', price: '', cost_price: '', unit: 'pcs', itemClsCd: '', taxTyCd: '' });
+            Alert.alert('Restock Successful', 'New inventory batch added successfully!');
+            setBatch({ quantity: '', buying_price_per_unit: '', selling_price: '', expiry_date: '' });
+            setSelectedProductId(null);
             onSuccess();
             onClose();
         } catch (error) {
-            console.error('Failed to create product:', error);
-            Alert.alert('Error', 'Failed to create product');
+            console.error('Failed to restock product:', error);
+            Alert.alert('Error', 'Failed to create inventory batch');
         } finally {
             setLoading(false);
         }
     };
+
+    const selectedProduct = availableProducts.find(p => p.id === selectedProductId);
 
     return (
         <Modal
@@ -64,8 +68,8 @@ export default function AddProductModal({ visible, onClose, onSuccess }: AddProd
                     
                     <View style={styles.header}>
                         <View>
-                            <Text style={styles.title}>New Product</Text>
-                            <Text style={styles.subTitle}>Add item to catalog</Text>
+                            <Text style={styles.title}>Receive Stock</Text>
+                            <Text style={styles.subTitle}>Add new batch to inventory</Text>
                         </View>
                         <TouchableOpacity onPress={onClose} style={styles.closeButton}>
                             <X size={24} color="#FFFFFF" />
@@ -75,65 +79,86 @@ export default function AddProductModal({ visible, onClose, onSuccess }: AddProd
                     <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
                         
                         <View style={styles.sectionContainer}>
-                            <Text style={styles.sectionTitle}>Basic Info</Text>
+                            <Text style={styles.sectionTitle}>Product Selection</Text>
                             
                             <View style={styles.inputGroup}>
-                                <Text style={styles.label}>Product Name *</Text>
-                                <View style={styles.inputContainer}>
-                                    <Package size={18} color="#9CA3AF" style={styles.inputIcon} />
-                                    <TextInput
-                                        style={styles.input}
-                                        value={product.name}
-                                        onChangeText={(text) => setProduct(prev => ({ ...prev, name: text }))}
-                                        placeholder="e.g. Milk 1L"
-                                        placeholderTextColor="#6B7280"
-                                    />
-                                </View>
-                            </View>
-
-                            <View style={styles.row}>
-                                <View style={[styles.inputGroup, { flex: 1 }]}>
-                                    <Text style={styles.label}>Barcode (Optional)</Text>
-                                    <View style={styles.inputContainer}>
-                                        <Barcode size={18} color="#9CA3AF" style={styles.inputIcon} />
-                                        <TextInput
-                                            style={styles.input}
-                                            value={product.barcode}
-                                            onChangeText={(text) => setProduct(prev => ({ ...prev, barcode: text }))}
-                                            placeholder="Scan barcode"
-                                            placeholderTextColor="#6B7280"
-                                            keyboardType="numeric"
-                                        />
+                                <Text style={styles.label}>Select Product *</Text>
+                                <TouchableOpacity 
+                                    style={styles.dropdownSelector}
+                                    onPress={() => setShowDropdown(!showDropdown)}
+                                >
+                                    <View style={styles.dropdownRow}>
+                                        <Package size={18} color={selectedProductId ? "#fbe134" : "#9CA3AF"} style={styles.inputIcon} />
+                                        <Text style={[styles.dropdownText, !selectedProductId && { color: '#6B7280' }]}>
+                                            {selectedProduct ? selectedProduct.name : 'Choose a product from catalog'}
+                                        </Text>
                                     </View>
-                                </View>
+                                    <ChevronDown size={18} color="#9CA3AF" />
+                                </TouchableOpacity>
 
-                                <View style={[styles.inputGroup, { flex: 1 }]}>
-                                    <Text style={styles.label}>Base Unit</Text>
-                                    <View style={styles.inputContainer}>
-                                        <Scale size={18} color="#9CA3AF" style={styles.inputIcon} />
-                                        <TextInput
-                                            style={styles.input}
-                                            value={product.unit}
-                                            onChangeText={(text) => setProduct(prev => ({ ...prev, unit: text }))}
-                                            placeholder="e.g. pcs, kg"
-                                            placeholderTextColor="#6B7280"
-                                        />
+                                {showDropdown && (
+                                    <View style={styles.dropdownMenu}>
+                                        {availableProducts.map(prod => (
+                                            <TouchableOpacity 
+                                                key={prod.id} 
+                                                style={styles.dropdownMenuItem}
+                                                onPress={() => {
+                                                    setSelectedProductId(prod.id);
+                                                    setShowDropdown(false);
+                                                }}
+                                            >
+                                                <Text style={styles.dropdownMenuItemText}>{prod.name}</Text>
+                                            </TouchableOpacity>
+                                        ))}
                                     </View>
-                                </View>
+                                )}
                             </View>
                         </View>
 
                         <View style={styles.sectionContainer}>
-                            <Text style={styles.sectionTitle}>Financials</Text>
+                            <Text style={styles.sectionTitle}>Batch Details</Text>
+                            
                             <View style={styles.row}>
                                 <View style={[styles.inputGroup, { flex: 1 }]}>
-                                    <Text style={styles.label}>Cost Price *</Text>
+                                    <Text style={styles.label}>Quantity Received *</Text>
+                                    <View style={styles.inputContainer}>
+                                        <Layers size={18} color="#9CA3AF" style={styles.inputIcon} />
+                                        <TextInput
+                                            style={styles.input}
+                                            value={batch.quantity}
+                                            onChangeText={(text) => setBatch(prev => ({ ...prev, quantity: text }))}
+                                            placeholder="0"
+                                            placeholderTextColor="#6B7280"
+                                            keyboardType="numeric"
+                                        />
+                                        <Text style={styles.unitSuffix}>{selectedProduct?.unit || 'units'}</Text>
+                                    </View>
+                                </View>
+
+                                <View style={[styles.inputGroup, { flex: 1 }]}>
+                                    <Text style={styles.label}>Expiry (Optional)</Text>
+                                    <View style={styles.inputContainer}>
+                                        <Calendar size={18} color="#9CA3AF" style={styles.inputIcon} />
+                                        <TextInput
+                                            style={styles.input}
+                                            value={batch.expiry_date}
+                                            onChangeText={(text) => setBatch(prev => ({ ...prev, expiry_date: text }))}
+                                            placeholder="YYYY-MM-DD"
+                                            placeholderTextColor="#6B7280"
+                                        />
+                                    </View>
+                                </View>
+                            </View>
+
+                            <View style={styles.row}>
+                                <View style={[styles.inputGroup, { flex: 1 }]}>
+                                    <Text style={styles.label}>Buying Cost per Unit *</Text>
                                     <View style={styles.inputContainer}>
                                         <Briefcase size={18} color="#9CA3AF" style={styles.inputIcon} />
                                         <TextInput
                                             style={styles.input}
-                                            value={product.cost_price}
-                                            onChangeText={(text) => setProduct(prev => ({ ...prev, cost_price: text }))}
+                                            value={batch.buying_price_per_unit}
+                                            onChangeText={(text) => setBatch(prev => ({ ...prev, buying_price_per_unit: text }))}
                                             placeholder="0 RWF"
                                             placeholderTextColor="#6B7280"
                                             keyboardType="numeric"
@@ -142,13 +167,13 @@ export default function AddProductModal({ visible, onClose, onSuccess }: AddProd
                                 </View>
 
                                 <View style={[styles.inputGroup, { flex: 1 }]}>
-                                    <Text style={styles.label}>Retail Price *</Text>
+                                    <Text style={styles.label}>Retail Selling Price *</Text>
                                     <View style={styles.inputContainer}>
-                                        <Tag size={18} color="#9CA3AF" style={styles.inputIcon} />
+                                        <Briefcase size={18} color="#fbe134" style={styles.inputIcon} />
                                         <TextInput
                                             style={styles.input}
-                                            value={product.price}
-                                            onChangeText={(text) => setProduct(prev => ({ ...prev, price: text }))}
+                                            value={batch.selling_price}
+                                            onChangeText={(text) => setBatch(prev => ({ ...prev, selling_price: text }))}
                                             placeholder="0 RWF"
                                             placeholderTextColor="#6B7280"
                                             keyboardType="numeric"
@@ -156,39 +181,7 @@ export default function AddProductModal({ visible, onClose, onSuccess }: AddProd
                                     </View>
                                 </View>
                             </View>
-                        </View>
 
-                        <View style={styles.sectionContainer}>
-                            <Text style={styles.sectionTitle}>RRA Compliance (Optional)</Text>
-                            <View style={styles.row}>
-                                <View style={[styles.inputGroup, { flex: 1 }]}>
-                                    <Text style={styles.label}>Item Class Code</Text>
-                                    <View style={styles.inputContainer}>
-                                        <FileText size={18} color="#9CA3AF" style={styles.inputIcon} />
-                                        <TextInput
-                                            style={styles.input}
-                                            value={product.itemClsCd}
-                                            onChangeText={(text) => setProduct(prev => ({ ...prev, itemClsCd: text }))}
-                                            placeholder="Auto"
-                                            placeholderTextColor="#6B7280"
-                                        />
-                                    </View>
-                                </View>
-
-                                <View style={[styles.inputGroup, { flex: 1 }]}>
-                                    <Text style={styles.label}>Tax Type Code</Text>
-                                    <View style={styles.inputContainer}>
-                                        <FileText size={18} color="#9CA3AF" style={styles.inputIcon} />
-                                        <TextInput
-                                            style={styles.input}
-                                            value={product.taxTyCd}
-                                            onChangeText={(text) => setProduct(prev => ({ ...prev, taxTyCd: text }))}
-                                            placeholder="e.g. B"
-                                            placeholderTextColor="#6B7280"
-                                        />
-                                    </View>
-                                </View>
-                            </View>
                         </View>
                         
                     </ScrollView>
@@ -204,7 +197,7 @@ export default function AddProductModal({ visible, onClose, onSuccess }: AddProd
                             ) : (
                                 <>
                                     <Save size={20} color="#111827" />
-                                    <Text style={styles.saveButtonText}>Initialize Product</Text>
+                                    <Text style={styles.saveButtonText}>Confirm Restock</Text>
                                 </>
                             )}
                         </TouchableOpacity>
@@ -226,7 +219,7 @@ const styles = StyleSheet.create({
         backgroundColor: '#1a1d21', // Dark Theme
         borderTopLeftRadius: 36,
         borderTopRightRadius: 36,
-        maxHeight: '90%',
+        maxHeight: '85%',
         paddingBottom: Platform.OS === 'ios' ? 34 : 0,
     },
     header: {
@@ -240,7 +233,7 @@ const styles = StyleSheet.create({
     title: {
         fontSize: 22,
         fontFamily: 'Poppins_700Bold',
-        color: '#FFFFFF',
+        color: '#fbe134', // Restock gets gold primary
     },
     subTitle: {
         fontSize: 12,
@@ -263,12 +256,12 @@ const styles = StyleSheet.create({
         borderRadius: 20,
         borderWidth: 1,
         borderColor: 'rgba(255, 255, 255, 0.05)',
-        gap: 20, // spacing between inputs in section
+        gap: 20, 
     },
     sectionTitle: {
         fontSize: 12,
         fontFamily: 'Montserrat_700Bold',
-        color: '#fbe134', // Gold accent for section titles
+        color: '#FFFFFF',
         textTransform: 'uppercase',
         letterSpacing: 1,
         marginBottom: -4,
@@ -283,17 +276,56 @@ const styles = StyleSheet.create({
     label: {
         fontSize: 12,
         fontFamily: 'Montserrat_600SemiBold',
-        color: '#D1D5DB', // Lighter grey
+        color: '#D1D5DB', 
     },
     inputContainer: {
         flexDirection: 'row',
         alignItems: 'center',
-        backgroundColor: '#1a1d21', // Inner dark
+        backgroundColor: '#1a1d21', 
         borderWidth: 1,
         borderColor: 'rgba(255, 255, 255, 0.1)',
         borderRadius: 12,
         paddingHorizontal: 12,
         height: 48,
+    },
+    dropdownSelector: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        backgroundColor: '#1a1d21', 
+        borderWidth: 1,
+        borderColor: 'rgba(255, 255, 255, 0.1)',
+        borderRadius: 12,
+        paddingHorizontal: 12,
+        height: 54,
+    },
+    dropdownRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    dropdownText: {
+        fontFamily: 'Montserrat_600SemiBold',
+        fontSize: 14,
+        color: '#FFFFFF',
+    },
+    dropdownMenu: {
+        backgroundColor: '#1a1d21',
+        borderWidth: 1,
+        borderColor: 'rgba(255, 255, 255, 0.1)',
+        borderRadius: 12,
+        marginTop: 4,
+        maxHeight: 150,
+        overflow: 'hidden',
+    },
+    dropdownMenuItem: {
+        padding: 14,
+        borderBottomWidth: 1,
+        borderBottomColor: 'rgba(255, 255, 255, 0.05)',
+    },
+    dropdownMenuItemText: {
+        fontFamily: 'Montserrat_500Medium',
+        fontSize: 14,
+        color: '#FFFFFF',
     },
     inputIcon: {
         marginRight: 10,
@@ -303,6 +335,12 @@ const styles = StyleSheet.create({
         fontFamily: 'Montserrat_600SemiBold',
         fontSize: 14,
         color: '#FFFFFF',
+    },
+    unitSuffix: {
+        fontFamily: 'Montserrat_600SemiBold',
+        fontSize: 12,
+        color: '#9CA3AF',
+        marginLeft: 8,
     },
     footer: {
         padding: 24,
@@ -318,11 +356,6 @@ const styles = StyleSheet.create({
         backgroundColor: '#fbe134',
         paddingVertical: 16,
         borderRadius: 16,
-        shadowColor: '#fbe134',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.3,
-        shadowRadius: 10,
-        elevation: 6,
     },
     disabledButton: {
         opacity: 0.5,

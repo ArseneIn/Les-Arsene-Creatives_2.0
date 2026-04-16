@@ -15,14 +15,17 @@ export interface CartItem extends Product {
 }
 
 export interface SaleItem {
-    productId: string;
+    id: string;
+    name?: string;
     quantity: number;
     price: number;
 }
 
 export interface CreateSaleDto {
     items: SaleItem[];
-    totalAmount: number;
-    paymentMethod: 'CASH' | 'MOBILE_MONEY' | 'CREDIT';
+    total: number;
+    paymentMethod: 'CASH' | 'MOBILE_MONEY' | 'CREDIT' | 'Credit';
     customerId?: string;
+    clientName?: string;
+    clientPhone?: string;
 }

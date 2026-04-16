@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
 import { Trash2, Minus, Plus, ArrowRight, ChevronDown } from 'lucide-react-native';
 import { CartItem } from '../lib/types';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 interface CartSidebarProps {
     cart: CartItem[];
@@ -10,8 +11,6 @@ interface CartSidebarProps {
     onCheckout: () => void;
     onClose: () => void;
 }
-
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export default function CartSidebar({ cart, onUpdateQuantity, onRemoveItem, onCheckout, onClose }: CartSidebarProps) {
     const insets = useSafeAreaInsets();
@@ -56,7 +55,7 @@ export default function CartSidebar({ cart, onUpdateQuantity, onRemoveItem, onCh
                                 style={styles.iconButton}
                                 onPress={() => onUpdateQuantity(item.id, -1)}
                             >
-                                <Minus size={16} color="#0b0c0c" />
+                                <Minus size={16} color="#FFFFFF" />
                             </TouchableOpacity>
 
                             <Text style={styles.quantity}>{item.quantity}</Text>
@@ -65,7 +64,7 @@ export default function CartSidebar({ cart, onUpdateQuantity, onRemoveItem, onCh
                                 style={styles.iconButton}
                                 onPress={() => onUpdateQuantity(item.id, 1)}
                             >
-                                <Plus size={16} color="#0b0c0c" />
+                                <Plus size={16} color="#FFFFFF" />
                             </TouchableOpacity>
 
                             <TouchableOpacity
@@ -86,7 +85,7 @@ export default function CartSidebar({ cart, onUpdateQuantity, onRemoveItem, onCh
                 </View>
 
                 <TouchableOpacity style={styles.checkoutButton} onPress={onCheckout}>
-                    <Text style={styles.checkoutText}>Checkout</Text>
+                    <Text style={styles.checkoutText}>Proceed to Checkout</Text>
                     <ArrowRight size={20} color="#0b0c0c" />
                 </TouchableOpacity>
             </View>
@@ -97,7 +96,7 @@ export default function CartSidebar({ cart, onUpdateQuantity, onRemoveItem, onCh
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#FFFFFF',
+        backgroundColor: '#1a1d21', 
         borderTopLeftRadius: 32,
         borderTopRightRadius: 32,
         shadowColor: '#000',
@@ -109,7 +108,7 @@ const styles = StyleSheet.create({
     },
     emptyContainer: {
         flex: 1,
-        backgroundColor: '#FFFFFF',
+        backgroundColor: '#1a1d21',
         borderTopLeftRadius: 32,
         borderTopRightRadius: 32,
         overflow: 'hidden',
@@ -132,7 +131,7 @@ const styles = StyleSheet.create({
         marginTop: 8,
     },
     header: {
-        backgroundColor: '#2a2e34', // Jet (Consistent with Dashboard Header)
+        backgroundColor: '#2a2e34', 
         padding: 24,
         paddingBottom: 32,
         flexDirection: 'row',
@@ -150,7 +149,7 @@ const styles = StyleSheet.create({
     itemList: {
         flex: 1,
         marginTop: -20,
-        backgroundColor: '#FFFFFF',
+        backgroundColor: '#1a1d21',
         borderTopLeftRadius: 24,
         borderTopRightRadius: 24,
         paddingHorizontal: 24,
@@ -162,7 +161,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         paddingVertical: 12,
         borderBottomWidth: 1,
-        borderBottomColor: '#F3F4F6',
+        borderBottomColor: 'rgba(255, 255, 255, 0.05)',
     },
     itemInfo: {
         flex: 1,
@@ -171,12 +170,12 @@ const styles = StyleSheet.create({
     itemName: {
         fontSize: 14,
         fontFamily: 'Montserrat_600SemiBold',
-        color: '#0b0c0c',
+        color: '#FFFFFF',
     },
     itemPrice: {
         fontSize: 12,
         fontFamily: 'Montserrat_500Medium',
-        color: '#9CA3AF',
+        color: '#fbe134',
         marginTop: 2,
     },
     controls: {
@@ -188,27 +187,27 @@ const styles = StyleSheet.create({
         width: 28,
         height: 28,
         borderRadius: 14,
-        backgroundColor: '#F3F4F6',
+        backgroundColor: '#2a2e34',
         alignItems: 'center',
         justifyContent: 'center',
     },
     deleteButton: {
-        backgroundColor: '#FEF2F2',
+        backgroundColor: 'rgba(239, 68, 68, 0.1)',
         marginLeft: 8,
     },
     quantity: {
         fontSize: 14,
         fontFamily: 'Poppins_700Bold',
-        color: '#0b0c0c',
+        color: '#FFFFFF',
         minWidth: 20,
         textAlign: 'center',
     },
     footer: {
         borderTopWidth: 1,
-        borderTopColor: '#F3F4F6',
+        borderTopColor: 'rgba(255, 255, 255, 0.05)',
         paddingTop: 16,
         paddingHorizontal: 24,
-        backgroundColor: '#FFFFFF',
+        backgroundColor: '#1a1d21',
     },
     totalRow: {
         flexDirection: 'row',
@@ -225,10 +224,10 @@ const styles = StyleSheet.create({
     totalAmount: {
         fontSize: 24,
         fontFamily: 'Poppins_700Bold',
-        color: '#0b0c0c',
+        color: '#FFFFFF',
     },
     checkoutButton: {
-        backgroundColor: '#fbe134', // Gold
+        backgroundColor: '#fbe134',
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',

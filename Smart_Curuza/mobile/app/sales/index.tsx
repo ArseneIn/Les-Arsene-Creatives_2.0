@@ -8,6 +8,7 @@ import ProductGrid from '../../components/ProductGrid';
 import CartSidebar from '../../components/CartSidebar';
 import CheckoutModal from '../../components/CheckoutModal';
 import POSHeader from '../../components/POSHeader';
+import SkeletonLoader from '../../components/SkeletonLoader';
 import { ShoppingCart } from 'lucide-react-native';
 
 export default function SalesScreen() {
@@ -15,8 +16,8 @@ export default function SalesScreen() {
     const [products, setProducts] = useState<Product[]>([]);
     const [cart, setCart] = useState<CartItem[]>([]);
     const [loading, setLoading] = useState(true);
-    const [checkoutVisible, setCheckoutVisible] = useState(false);
     const [cartVisible, setCartVisible] = useState(false);
+    const [checkoutVisible, setCheckoutVisible] = useState(false);
     const [toast, setToast] = useState<{ message: string; visible: boolean }>({ message: '', visible: false });
 
     useEffect(() => {
@@ -48,13 +49,25 @@ export default function SalesScreen() {
     };
 
     const addToCart = (product: Product) => {
+        if (product.stock <= 0) {
+            Alert.alert('Out of Stock', `${product.name} is currently out of stock.`);
+            return;
+        }
+
         setCart(currentCart => {
-            const existingItem = currentCart.find(item => item.id === product.id);
+            const currentItem = currentCart.find(item => item.id === product.id);
+            
+            // Check stock using the most up-to-date cart state
+            if (currentItem && currentItem.quantity >= product.stock) {
+                showToast(`Limit reached. Only ${product.stock} in stock.`);
+                return currentCart;
+            }
+
             let newQuantity = 1;
             let newCart;
 
-            if (existingItem) {
-                newQuantity = existingItem.quantity + 1;
+            if (currentItem) {
+                newQuantity = currentItem.quantity + 1;
                 newCart = currentCart.map(item =>
                     item.id === product.id
                         ? { ...item, quantity: newQuantity }
@@ -72,6 +85,15 @@ export default function SalesScreen() {
 
     const updateQuantity = (productId: string, delta: number) => {
         setCart(currentCart => {
+            const itemInCart = currentCart.find(item => item.id === productId);
+            if (!itemInCart) return currentCart;
+
+            // Check stock limit for increase
+            if (delta > 0 && itemInCart.quantity + delta > itemInCart.stock) {
+                showToast(`Limit reached. Only ${itemInCart.stock} in stock.`);
+                return currentCart;
+            }
+
             return currentCart.map(item => {
                 if (item.id === productId) {
                     const newQuantity = Math.max(0, item.quantity + delta);
@@ -86,37 +108,60 @@ export default function SalesScreen() {
         setCart(currentCart => currentCart.filter(item => item.id !== productId));
     };
 
-    const handleCheckout = async (method: 'CASH' | 'MOBILE_MONEY' | 'CREDIT', phoneNumber?: string) => {
+    const handleCheckout = async (method: 'CASH' | 'MOBILE_MONEY' | 'CREDIT', details?: { phone?: string, clientName?: string }) => {
         try {
             const totalAmount = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
 
-            // In a real app, we would pass phoneNumber to the API for STK push
-            console.log('Processing payment:', method, phoneNumber);
+            console.log('Processing payment:', method, details);
 
             await ApiClient.createSale({
                 items: cart.map(item => ({
-                    productId: item.id,
+                    id: item.id,
+                    name: item.name,
                     quantity: item.quantity,
                     price: item.price
                 })),
-                totalAmount,
-                paymentMethod: method,
-                // phoneNumber, // Add this to API client later
+                total: totalAmount,
+                paymentMethod: method === 'CREDIT' ? 'Credit' : method,
+                // Appending CRM details for Debt/MoMo hooking on backend
+                clientName: details?.clientName,
+                clientPhone: details?.phone,
             });
 
             setCheckoutVisible(false);
-            setCartVisible(false); // Close cart after successful checkout
             setCart([]);
 
             const successMessage = method === 'MOBILE_MONEY'
                 ? 'Payment request sent to your phone!'
-                : 'Sale completed successfully';
+                : method === 'CREDIT' 
+                    ? `Ideni recorded for ${details?.clientName}`
+                    : 'Sale completed successfully';
 
             Alert.alert('Success', successMessage, [
                 { text: 'OK', onPress: () => router.back() }
             ]);
-        } catch (error) {
-            Alert.alert('Error', 'Failed to process sale');
+        } catch (error: any) {
+            console.error('Checkout error:', error);
+            
+            let errorMessage = 'Failed to process sale';
+            if (error.message && error.message.includes('{')) {
+                try {
+                    const jsonPart = error.message.substring(error.message.indexOf('{'));
+                    const errorObj = JSON.parse(jsonPart);
+                    errorMessage = errorObj.message || errorMessage;
+                } catch (e) {
+                    errorMessage = error.message;
+                }
+            } else {
+                errorMessage = error.message || errorMessage;
+            }
+
+            // If it's a stock error, refresh products to sync UI with backend
+            if (errorMessage.toLowerCase().includes('stock')) {
+                loadProducts();
+            }
+
+            Alert.alert('Error', Array.isArray(errorMessage) ? errorMessage[0] : errorMessage);
         }
     };
 
@@ -124,8 +169,26 @@ export default function SalesScreen() {
 
     if (loading) {
         return (
-            <View style={styles.loadingContainer}>
-                <ActivityIndicator size="large" color="#fbe134" />
+            <View style={styles.container}>
+                <Stack.Screen options={{ headerShown: false }} />
+                <StatusBar style="light" />
+                <POSHeader />
+                <ImageBackground source={require('../../assets/doodle-bg.png')} style={styles.backgroundImage} resizeMode="cover">
+                    <View style={styles.gridContainer}>
+                        <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between' }}>
+                            {[1, 2, 3, 4, 5, 6].map(key => (
+                                <View key={key} style={{ width: '48%', marginBottom: 16, height: 180, backgroundColor: '#2a2e34', borderRadius: 20, padding: 16, justifyContent: 'space-between', borderWidth: 1, borderColor: 'rgba(255,255,255,0.05)' }}>
+                                    <SkeletonLoader width={40} height={40} borderRadius={12} />
+                                    <View style={{ gap: 8 }}>
+                                        <SkeletonLoader width="90%" height={14} />
+                                        <SkeletonLoader width="60%" height={14} />
+                                    </View>
+                                    <SkeletonLoader width="100%" height={36} borderRadius={12} />
+                                </View>
+                            ))}
+                        </View>
+                    </View>
+                </ImageBackground>
             </View>
         );
     }
@@ -168,7 +231,7 @@ export default function SalesScreen() {
                 </TouchableOpacity>
             </ImageBackground>
 
-            {/* Cart Modal */}
+            {/* Unified Cart & Checkout Modal */}
             <Modal
                 visible={cartVisible}
                 animationType="slide"
@@ -184,7 +247,7 @@ export default function SalesScreen() {
                             onCheckout={() => {
                                 setCartVisible(false);
                                 setTimeout(() => setCheckoutVisible(true), 300);
-                            }}
+                            }} 
                             onClose={() => setCartVisible(false)}
                         />
                     </View>
@@ -207,11 +270,11 @@ export default function SalesScreen() {
         </View>
     );
 }
- 
+
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#2a2e34', // Match header bg for overscroll
+        backgroundColor: '#1a1d21', // Match true dark bg
     },
     backgroundImage: {
         flex: 1,
@@ -220,7 +283,7 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: '#2a2e34',
+        backgroundColor: '#1a1d21',
     },
     content: {
         flex: 1,
@@ -228,8 +291,8 @@ const styles = StyleSheet.create({
     },
     gridContainer: {
         flex: 1,
-        padding: 16,
-        paddingBottom: 80, // Add padding for FAB
+        paddingHorizontal: 16,
+        paddingTop: 16,
     },
     fab: {
         position: 'absolute',
@@ -276,8 +339,8 @@ const styles = StyleSheet.create({
         justifyContent: 'flex-end',
     },
     modalContent: {
-        height: '80%', // Takes up 80% of the screen
-        backgroundColor: '#FFFFFF',
+        height: '80%', 
+        backgroundColor: '#1a1d21',
         borderTopLeftRadius: 32,
         borderTopRightRadius: 32,
         overflow: 'hidden',

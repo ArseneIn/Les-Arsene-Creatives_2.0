@@ -6,22 +6,31 @@ import { useRouter } from 'expo-router';
 export default function POSHeader() {
     const router = useRouter();
 
+    const handleBack = () => {
+        if (router.canGoBack()) {
+            router.back();
+        } else {
+            router.replace('/(tabs)');
+        }
+    };
+
     return (
         <View style={styles.container}>
             <View style={styles.mainRow}>
-                {/* Left: Back Button */}
-                <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-                    <ArrowLeft size={24} color="#0b0c0c" />
-                </TouchableOpacity>
+                <View style={styles.leftSection}>
+                    <TouchableOpacity style={styles.backButton} onPress={handleBack}>
+                        <ArrowLeft size={22} color="#fbe134" />
+                    </TouchableOpacity>
 
-                {/* Middle: Title */}
-                <View style={styles.titleSection}>
-                    <Text style={styles.title}>New Sale</Text>
-                    <Text style={styles.subtitle}>Process Transaction</Text>
+                    <View style={styles.titleSection}>
+                        <Text style={styles.title}>New Sale</Text>
+                        <Text style={styles.subtitle}>Process Transaction</Text>
+                    </View>
                 </View>
 
-                {/* Right: Placeholder to balance layout (or could be a clear cart button later) */}
-                <View style={styles.placeholder} />
+                <View style={styles.rightSection}>
+                    {/* Placeholder for future icon, e.g. barcode scanner */}
+                </View>
             </View>
         </View>
     );
@@ -30,16 +39,9 @@ export default function POSHeader() {
 const styles = StyleSheet.create({
     container: {
         paddingHorizontal: 24,
-        paddingTop: 48, // Status bar space
-        paddingBottom: 28,
-        backgroundColor: '#2a2e34', // Jet (Dark Theme)
-        borderBottomLeftRadius: 32,
-        borderBottomRightRadius: 32,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 8 },
-        shadowOpacity: 0.15,
-        shadowRadius: 12,
-        elevation: 10,
+        paddingTop: 56, // Slightly more top padding for safe area
+        paddingBottom: 20,
+        backgroundColor: '#1a1d21', // Match exact background of sales page
         zIndex: 10,
     },
     mainRow: {
@@ -47,34 +49,37 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'space-between',
     },
+    leftSection: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 16,
+    },
     backButton: {
-        width: 48,
-        height: 48,
-        backgroundColor: '#fbe134', // Gold
-        borderRadius: 16,
+        width: 44,
+        height: 44,
+        backgroundColor: 'rgba(255, 255, 255, 0.05)', // Subtle dark pill
+        borderRadius: 14,
         alignItems: 'center',
         justifyContent: 'center',
-        shadowColor: '#fbe134',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.4,
-        shadowRadius: 8,
-        elevation: 6,
+        borderWidth: 1,
+        borderColor: 'rgba(255, 255, 255, 0.05)',
     },
     titleSection: {
-        alignItems: 'center',
+        justifyContent: 'center',
     },
     title: {
-        fontSize: 20,
-        fontFamily: 'Poppins_700Bold',
+        fontSize: 22,
+        fontFamily: 'Montserrat_700Bold',
         color: '#FFFFFF',
-        lineHeight: 24,
+        lineHeight: 28,
     },
     subtitle: {
         fontSize: 12,
         fontFamily: 'Montserrat_500Medium',
-        color: 'rgba(255, 255, 255, 0.5)',
+        color: '#9CA3AF', // Softer grey
     },
-    placeholder: {
-        width: 48,
+    rightSection: {
+        // Space for future "Scan Barcode" or actions
     },
 });
+
