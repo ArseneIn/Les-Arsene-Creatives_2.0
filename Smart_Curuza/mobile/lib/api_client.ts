@@ -5,7 +5,7 @@ import { Product, CreateSaleDto } from './types';
 // Android emulator uses 10.0.2.2 to access host localhost
 // Real device would need the actual LAN IP of the computer
 // Use LAN IP for physical devices (both iOS and Android) to reach the backend
-const BASE_URL = 'http://192.168.1.69:3001';
+const BASE_URL = 'http://192.168.43.140:3001';
 
 // Caching system
 type CacheEntry = {
@@ -137,15 +137,26 @@ export const ApiClient = {
         }
     },
 
+    async changePin(oldPin: string, newPin: string): Promise<any> {
+        return this._request('/auth/change-pin', {
+            method: 'POST',
+            body: JSON.stringify({ oldPin, newPin }),
+        });
+    },
+
     async getProducts(bypassCache = false): Promise<Product[]> {
         return this._request('/products', {}, !bypassCache);
     },
 
     async createProduct(product: any): Promise<Product> {
-        return this._request('/products', {
+        const result = await this._request('/products', {
             method: 'POST',
             body: JSON.stringify(product),
         });
+        // Invalidate product list cache
+        const productsUrl = `${BASE_URL}/products`;
+        cache.delete(productsUrl);
+        return result;
     },
 
     async updateProduct(id: string, product: any): Promise<Product> {
@@ -201,10 +212,14 @@ export const ApiClient = {
     },
 
     async createBatch(batchData: any): Promise<any> {
-        return this._request('/batches', {
+        const result = await this._request('/batches', {
             method: 'POST',
             body: JSON.stringify(batchData),
         });
+        // Invalidate product list cache so stock levels update correctly
+        const productsUrl = `${BASE_URL}/products`;
+        cache.delete(productsUrl);
+        return result;
     },
 
     async createExpense(expenseData: any): Promise<any> {
@@ -232,5 +247,32 @@ export const ApiClient = {
         if (params.toString()) endpoint += `?${params.toString()}`;
 
         return this._request(endpoint, {}, !bypassCache);
+    },
+
+    // CRM / Client Management
+    async getCustomers(bypassCache = false): Promise<any[]> {
+        return this._request('/client-management/customers', {}, !bypassCache);
+    },
+
+    async createCustomer(customer: any): Promise<any> {
+        return this._request('/client-management/customers', {
+            method: 'POST',
+            body: JSON.stringify(customer),
+        });
+    },
+
+    async sendReminder(customerId: string, shopName: string): Promise<any> {
+        return this._request(`/client-management/remind/${customerId}`, {
+            method: 'POST',
+            body: JSON.stringify({ shopName }),
+        });
+    },
+
+    async getBatches(productId: string): Promise<any[]> {
+        return this._request(`/batches/${productId}`);
+    },
+    
+    async getCustomerSales(customerId: string): Promise<any[]> {
+        return this._request(`/sales/customer/${customerId}`);
     }
 };

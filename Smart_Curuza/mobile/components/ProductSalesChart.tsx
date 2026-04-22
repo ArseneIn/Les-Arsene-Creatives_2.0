@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { View, Text, StyleSheet, Dimensions, ActivityIndicator } from 'react-native';
-import { ApiClient } from '../lib/api_client';
+import { useTheme } from '../lib/theme/ThemeContext';
 
 const { width } = Dimensions.get('window');
 
@@ -10,42 +10,53 @@ interface ProductSalesChartProps {
     loading: boolean;
 }
 
-export default function ProductSalesChart({ period, data, loading }: ProductSalesChartProps) {
-    const stats = data;
+export default function ProductSalesChart({ data, loading }: ProductSalesChartProps) {
+    const { colors, isDarkMode } = useTheme();
 
     if (loading) {
         return (
-            <View style={styles.loadingContainer}>
-                <ActivityIndicator color="#fbe134" />
+            <View style={[styles.loadingContainer, { backgroundColor: colors.card }]}>
+                <ActivityIndicator color={colors.brandGold} />
             </View>
         );
     }
 
-    // Determine max sales for relative bar width
+    const stats = data || [];
     const maxSales = stats.length > 0 ? Math.max(...stats.map(s => s.sales)) : 1;
 
     return (
         <View style={styles.container}>
-            <Text style={styles.sectionTitle}>Top Peforming Products</Text>
+            <Text style={[styles.sectionTitle, { color: colors.textSecondary }]}>Top Performing Products</Text>
             
-            <View style={styles.chartBoard}>
-                {stats.map((product, index) => (
-                    <View key={index} style={styles.barRow}>
-                        <View style={styles.labelRow}>
-                            <Text style={styles.productName} numberOfLines={1}>{product.name}</Text>
-                            <Text style={styles.amountText}>{product.amount} <Text style={{fontSize: 9, color: '#9CA3AF'}}>RWF</Text></Text>
+            <View style={[styles.chartBoard, { backgroundColor: colors.card, shadowColor: isDarkMode ? '#000' : '#E5E7EB' }]}>
+                {stats.length > 0 ? (
+                    stats.map((product, index) => (
+                        <View key={index} style={styles.barRow}>
+                            <View style={styles.labelRow}>
+                                <Text style={[styles.productName, { color: colors.textPrimary }]} numberOfLines={1}>
+                                    {product.name}
+                                </Text>
+                                <Text style={[styles.amountText, { color: colors.brandGold }]}>
+                                    {product.amount} <Text style={{ fontSize: 9, color: colors.textSecondary }}>RWF</Text>
+                                </Text>
+                            </View>
+                            
+                            <View style={[styles.barTrack, { backgroundColor: colors.cardOverlay }]}>
+                                <View 
+                                    style={[
+                                        styles.barFill, 
+                                        { width: `${(product.sales / maxSales) * 100}%`, backgroundColor: colors.brandGold }
+                                    ]} 
+                                />
+                            </View>
                         </View>
-                        
-                        <View style={styles.barTrack}>
-                            <View 
-                                style={[
-                                    styles.barFill, 
-                                    { width: `${(product.sales / maxSales) * 100}%` }
-                                ]} 
-                            />
-                        </View>
+                    ))
+                ) : (
+                    <View style={styles.emptyContainer}>
+                        <View style={[styles.emptyDot, { backgroundColor: colors.border }]} />
+                        <Text style={[styles.emptyText, { color: colors.textSecondary }]}>No sales volume recorded in this period yet.</Text>
                     </View>
-                ))}
+                )}
             </View>
         </View>
     );
@@ -72,7 +83,6 @@ const styles = StyleSheet.create({
         paddingLeft: 4,
     },
     chartBoard: {
-        backgroundColor: '#2a2e34',
         borderRadius: 24,
         padding: 24,
         shadowColor: '#000',
@@ -113,4 +123,23 @@ const styles = StyleSheet.create({
         backgroundColor: '#fbe134',
         borderRadius: 3,
     },
+    emptyContainer: {
+        alignItems: 'center',
+        justifyContent: 'center',
+        paddingVertical: 20,
+        gap: 12,
+    },
+    emptyDot: {
+        width: 8,
+        height: 8,
+        borderRadius: 4,
+        backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    },
+    emptyText: {
+        fontSize: 12,
+        fontFamily: 'Montserrat_500Medium',
+        color: '#6B7280',
+        textAlign: 'center',
+        lineHeight: 18,
+    }
 });

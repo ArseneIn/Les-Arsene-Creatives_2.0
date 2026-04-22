@@ -3,19 +3,21 @@ import { Tabs, useRouter } from 'expo-router';
 import * as Haptics from 'expo-haptics';
 import { LayoutDashboard, History, BarChart3, User, ShoppingCart, ScanLine } from 'lucide-react-native';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { useTheme } from '../../lib/theme/ThemeContext';
 
 export default function TabLayout() {
     const router = useRouter();
+    const { isDarkMode, colors } = useTheme();
 
     return (
         <Tabs
             screenOptions={{
                 headerShown: false,
-                tabBarActiveTintColor: '#fbe134', // Gold
-                tabBarInactiveTintColor: '#9CA3AF', // Gray-400
+                tabBarActiveTintColor: isDarkMode ? colors.brandGold : '#111827', // Gold in dark, Black in light (for Gold BG)
+                tabBarInactiveTintColor: isDarkMode ? colors.textSecondary : 'rgba(0, 0, 0, 0.4)', 
                 tabBarShowLabel: true,
                 tabBarLabelStyle: styles.tabLabel,
-                tabBarStyle: styles.tabBar,
+                tabBarStyle: [styles.tabBar, { backgroundColor: isDarkMode ? colors.card : colors.brandGold, borderTopColor: colors.border, shadowColor: isDarkMode ? '#000' : '#E5E7EB' }],
             }}
         >
             <Tabs.Screen
@@ -39,29 +41,26 @@ export default function TabLayout() {
             <Tabs.Screen
                 name="sales_placeholder"
                 options={{
-                    tabBarButton: (props) => (
+                    tabBarButton: () => (
                         <View style={styles.quickSaleContainer}>
                             <TouchableOpacity
-                                style={styles.quickSaleButton}
+                                style={[styles.quickSaleButton, { 
+                                    backgroundColor: isDarkMode ? colors.brandGreen : '#111827', // Use dark button on Gold background
+                                    shadowColor: isDarkMode ? colors.brandGreen : '#000',
+                                    borderColor: isDarkMode ? colors.background : colors.brandGold // Halo matches surroundings
+                                }]}
                                 onPress={() => {
                                     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
-                                    router.push('/sales');
+                                    router.push('/sales' as any);
                                 }}
                                 activeOpacity={0.9}
                             >
-                                <ScanLine size={28} color="#FFFFFF" strokeWidth={2.5} />
+                                <ScanLine size={28} color={isDarkMode ? "#FFFFFF" : colors.brandGold} strokeWidth={2.5} />
                             </TouchableOpacity>
-                            <Text style={styles.quickSaleLabel}>Quick Sale</Text>
+                            <Text style={[styles.quickSaleLabel, { color: isDarkMode ? colors.brandGreen : '#111827' }]}>Quick Sale</Text>
                         </View>
                     ),
                 }}
-                listeners={({ navigation }) => ({
-                    tabPress: (e) => {
-                        e.preventDefault();
-                        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
-                        navigation.navigate('sales/index');
-                    },
-                })}
             />
             <Tabs.Screen
                 name="reports"
@@ -91,7 +90,6 @@ const styles = StyleSheet.create({
         bottom: 0,
         left: 0,
         right: 0,
-        backgroundColor: '#2a2e34', // Jet (Dark Theme)
         borderTopWidth: 0,
         height: 90,
         paddingTop: 10,
@@ -99,7 +97,6 @@ const styles = StyleSheet.create({
         borderTopLeftRadius: 32,
         borderTopRightRadius: 32,
         elevation: 20,
-        shadowColor: '#000',
         shadowOffset: { width: 0, height: -4 },
         shadowOpacity: 0.25,
         shadowRadius: 10,
@@ -123,22 +120,18 @@ const styles = StyleSheet.create({
     quickSaleButton: {
         width: 64,
         height: 64,
-        backgroundColor: '#10B981', // High-Conversion Bright Green
         borderRadius: 32,
         alignItems: 'center',
         justifyContent: 'center',
-        shadowColor: '#10B981',
         shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.5,
         shadowRadius: 10,
         elevation: 8,
         borderWidth: 6,
-        borderColor: '#e9eaec', // Platinum 
     },
     quickSaleLabel: {
         fontSize: 10,
         fontFamily: 'Poppins_700Bold',
-        color: '#10B981', // Match Green
         marginTop: 8,
         textTransform: 'uppercase',
         letterSpacing: 0.5,

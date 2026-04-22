@@ -342,7 +342,23 @@ export class SalesService {
       .orderBy('sale.created_at', 'ASC')
       .getMany();
 
-    // Aggregate data by day
+    // 1. Get all unique product IDs from the sales to fetch their default costs
+    const productIds = new Set<string>();
+    for (const sale of sales) {
+      if (sale.items && Array.isArray(sale.items)) {
+        sale.items.forEach((item) => {
+          if (item.id) productIds.add(item.id);
+        });
+      }
+    }
+
+    const products = await this.productRepository.findByIds(
+      Array.from(productIds),
+    );
+    const costMap = new Map<string, number>();
+    products.forEach((p) => costMap.set(p.id, Number(p.cost_price) || 0));
+
+    // 2. Aggregate data by day
     const dailyStats = new Map<
       string,
       {
@@ -361,14 +377,21 @@ export class SalesService {
       if (sale.items && Array.isArray(sale.items)) {
         const items = sale.items;
         items.forEach((item) => {
-          if (item.batches && Array.isArray(item.batches)) {
+          if (
+            item.batches &&
+            Array.isArray(item.batches) &&
+            item.batches.length > 0
+          ) {
             item.batches.forEach((batch) => {
               saleProfit +=
                 Number(item.price) * Number(batch.quantity) -
                 Number(batch.costPrice) * Number(batch.quantity);
             });
           } else {
-            saleProfit += Number(item.price) * Number(item.quantity);
+            // FALLBACK: Use default product cost price
+            const defaultCost = costMap.get(item.id) || 0;
+            saleProfit +=
+              (Number(item.price) - defaultCost) * Number(item.quantity);
           }
         });
       }
@@ -379,7 +402,6 @@ export class SalesService {
         profit: 0,
         count: 0,
         vat: 0,
-        transactions: 0,
       };
 
       dailyStats.set(dateKey, {
@@ -430,7 +452,7 @@ export class SalesService {
     return salesToDelete.length;
   }
   async getExportData(
-    period: 'weekly' | 'monthly' | 'yearly',
+    period: 'weekly' | 'monthly' | 'quarterly' | 'yearly',
     merchantId: string,
   ): Promise<any> {
     const sales = await this.saleRepository.find({
@@ -446,29 +468,53 @@ export class SalesService {
       type: 'info',
     });
 
+    // Get all products for cost fallback in detailed list
+    const productIdsSet = new Set<string>();
+    sales.forEach((s) =>
+      s.items?.forEach((i) => i.id && productIdsSet.add(i.id)),
+    );
+    const productsList = await this.productRepository.findByIds(
+      Array.from(productIdsSet),
+    );
+    const costLookup = new Map<string, number>();
+    productsList.forEach((p) =>
+      costLookup.set(p.id, Number(p.cost_price) || 0),
+    );
+
     // 1. Detailed Transactions List
     const detailedTransactions = sales.map((sale) => {
       let saleCost = 0;
       if (sale.items && Array.isArray(sale.items)) {
         const items = sale.items;
         items.forEach((item) => {
-          if (item.batches && Array.isArray(item.batches)) {
+          if (
+            item.batches &&
+            Array.isArray(item.batches) &&
+            item.batches.length > 0
+          ) {
             item.batches.forEach((batch) => {
               saleCost += Number(batch.costPrice) * Number(batch.quantity);
             });
+          } else {
+            // FALLBACK
+            const defaultCost = costLookup.get(item.id) || 0;
+            saleCost += defaultCost * Number(item.quantity);
           }
         });
       }
+
+      const totalRevenue = Number(sale.total);
+      const totalVat = Number(sale.vat_amount) || 0;
 
       return {
         id: sale.id,
         date: sale.created_at,
         customer: sale.customer ? sale.customer.name : 'Walk-in',
         items: sale.items.map((i) => `${i.name} (x${i.quantity})`).join('; '),
-        total: Number(sale.total),
+        total: totalRevenue,
         cost: saleCost,
-        profit: Number(sale.total) - saleCost - (Number(sale.vat_amount) || 0),
-        vat: Number(sale.vat_amount) || 0,
+        profit: totalRevenue - saleCost - totalVat,
+        vat: totalVat,
         paymentMethod: sale.payment_method,
         status: sale.sync_status,
       };
@@ -502,6 +548,11 @@ export class SalesService {
         const month = date.toLocaleString('default', { month: 'long' });
         key = `${year}-${date.getMonth()}`;
         periodLabel = `${month} ${year}`;
+      } else if (period === 'quarterly') {
+        const year = date.getFullYear();
+        const quarter = Math.floor(date.getMonth() / 3) + 1;
+        key = `${year}-Q${quarter}`;
+        periodLabel = `Q${quarter} ${year}`;
       } else if (period === 'yearly') {
         const year = date.getFullYear();
         key = `${year}`;
@@ -512,10 +563,18 @@ export class SalesService {
       if (sale.items && Array.isArray(sale.items)) {
         const items = sale.items;
         items.forEach((item) => {
-          if (item.batches && Array.isArray(item.batches)) {
+          if (
+            item.batches &&
+            Array.isArray(item.batches) &&
+            item.batches.length > 0
+          ) {
             item.batches.forEach((batch) => {
               saleCost += Number(batch.costPrice) * Number(batch.quantity);
             });
+          } else {
+            // FALLBACK
+            const defaultCost = costLookup.get(item.id) || 0;
+            saleCost += defaultCost * Number(item.quantity);
           }
         });
       }
@@ -529,14 +588,15 @@ export class SalesService {
         transactions: 0,
       };
 
+      const saleVat = Number(sale.vat_amount) || 0;
+      const saleRevenue = Number(sale.total);
+
       groupedData.set(key, {
         period: periodLabel,
-        revenue: current.revenue + Number(sale.total),
+        revenue: current.revenue + saleRevenue,
         cost: current.cost + saleCost,
-        profit:
-          current.profit +
-          (Number(sale.total) - saleCost - (Number(sale.vat_amount) || 0)),
-        vat: current.vat + (Number(sale.vat_amount) || 0),
+        profit: current.profit + (saleRevenue - saleCost - saleVat),
+        vat: current.vat + saleVat,
         transactions: current.transactions + 1,
       });
     }
@@ -545,6 +605,16 @@ export class SalesService {
       summary: Array.from(groupedData.values()),
       details: detailedTransactions,
     };
+  }
+
+  async getSalesByCustomer(customerId: string, merchantId: string) {
+    return this.saleRepository.find({
+      where: {
+        customer_id: customerId,
+        merchant_id: merchantId,
+      },
+      order: { created_at: 'DESC' },
+    });
   }
 
   private getWeekNumber(d: Date): number {
@@ -641,5 +711,9 @@ export class SalesService {
     }
 
     return Array.from(productStats.values()).sort((a, b) => b.total - a.total);
+  }
+
+  async getRawQuery(query: string, params: any[]): Promise<any[]> {
+    return this.saleRepository.query(query, params);
   }
 }

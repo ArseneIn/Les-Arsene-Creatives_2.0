@@ -6,6 +6,15 @@ import type { SmsGateway } from '../shared/interfaces/sms-gateway.interface';
 import { Customer } from '../entities/customer.entity';
 import { DebtLedger } from '../entities/debt-ledger.entity';
 
+interface CustomerLtvRaw {
+  id: string;
+  name: string;
+  phone: string;
+  total_debt: string | number;
+  created_at: Date;
+  lifetime_value: string | number;
+}
+
 @Injectable()
 export class ClientManagementService {
   private readonly logger = new Logger(ClientManagementService.name);
@@ -134,11 +143,31 @@ export class ClientManagementService {
    * @param merchantId - The ID of the merchant
    * @returns List of customers for the merchant
    */
-  async findAllCustomers(merchantId: string): Promise<Customer[]> {
-    return this.customerRepository.find({
-      where: { merchant_id: merchantId },
-      order: { name: 'ASC' },
-    });
+  async findAllCustomers(merchantId: string): Promise<any[]> {
+    const rawData = await this.customerRepository
+      .createQueryBuilder('customer')
+      .leftJoin('customer.sales', 'sale')
+      .select([
+        'customer.id AS id',
+        'customer.name AS name',
+        'customer.phone AS phone',
+        'customer.total_debt AS total_debt',
+        'customer.created_at AS created_at',
+      ])
+      .addSelect('SUM(COALESCE(sale.total, 0))', 'lifetime_value')
+      .where('customer.merchant_id = :merchantId', { merchantId })
+      .groupBy('customer.id')
+      .orderBy('customer.name', 'ASC')
+      .getRawMany<CustomerLtvRaw>();
+
+    return rawData.map((row) => ({
+      id: row.id,
+      name: row.name,
+      phone: row.phone,
+      total_debt: Number(row.total_debt) || 0,
+      lifetime_value: Number(row.lifetime_value) || 0,
+      created_at: row.created_at,
+    }));
   }
 
   /**

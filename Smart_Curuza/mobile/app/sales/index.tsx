@@ -1,272 +1,291 @@
-import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, Alert, SafeAreaView, ActivityIndicator, ImageBackground, Text, TouchableOpacity, Modal } from 'react-native';
-import { Stack, useRouter } from 'expo-router';
-import { StatusBar } from 'expo-status-bar';
+import React, { useState, useEffect, useCallback } from 'react';
+import {
+    View,
+    Text,
+    StyleSheet,
+    StatusBar,
+    TouchableOpacity,
+    Modal,
+    Alert,
+    ActivityIndicator,
+    SafeAreaView,
+} from 'react-native';
+import { ShoppingCart, X, ScanLine, Package, ArrowLeft } from 'lucide-react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useRouter } from 'expo-router';
+import { useTheme } from '../../lib/theme/ThemeContext';
+
 import { ApiClient } from '../../lib/api_client';
-import { Product, CartItem } from '../../lib/types';
+import { Product, CartItem, CreateSaleDto } from '../../lib/types';
 import ProductGrid from '../../components/ProductGrid';
 import CartSidebar from '../../components/CartSidebar';
 import CheckoutModal from '../../components/CheckoutModal';
-import POSHeader from '../../components/POSHeader';
 import SkeletonLoader from '../../components/SkeletonLoader';
-import { ShoppingCart } from 'lucide-react-native';
 
-export default function SalesScreen() {
+// ── Skeleton while products load ──────────────────────────────────────────────
+const POSSkeleton = () => (
+    <View style={{ flex: 1, paddingHorizontal: 16, paddingTop: 12, gap: 16 }}>
+        <SkeletonLoader height={44} borderRadius={12} />
+        <View style={{ flexDirection: 'row', gap: 12 }}>
+            <SkeletonLoader width="48%" height={140} borderRadius={16} />
+            <SkeletonLoader width="48%" height={140} borderRadius={16} />
+        </View>
+        <View style={{ flexDirection: 'row', gap: 12 }}>
+            <SkeletonLoader width="48%" height={140} borderRadius={16} />
+            <SkeletonLoader width="48%" height={140} borderRadius={16} />
+        </View>
+        <View style={{ flexDirection: 'row', gap: 12 }}>
+            <SkeletonLoader width="48%" height={140} borderRadius={16} />
+            <SkeletonLoader width="48%" height={140} borderRadius={16} />
+        </View>
+    </View>
+);
+
+// ── Main POS Screen ───────────────────────────────────────────────────────────
+export default function POSScreen() {
+    const insets = useSafeAreaInsets();
     const router = useRouter();
-    const [products, setProducts] = useState<Product[]>([]);
-    const [cart, setCart] = useState<CartItem[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [cartVisible, setCartVisible] = useState(false);
-    const [checkoutVisible, setCheckoutVisible] = useState(false);
-    const [toast, setToast] = useState<{ message: string; visible: boolean }>({ message: '', visible: false });
+    const { colors, isDarkMode } = useTheme();
 
-    useEffect(() => {
-        loadProducts();
+    // Data State
+    const [products, setProducts] = useState<Product[]>([]);
+    const [loadingProducts, setLoadingProducts] = useState(true);
+
+    // Cart State
+    const [cart, setCart] = useState<CartItem[]>([]);
+    const [showCart, setShowCart] = useState(false);
+    const [showCheckout, setShowCheckout] = useState(false);
+    const [processingCheckout, setProcessingCheckout] = useState(false);
+    const [saleSuccess, setSaleSuccess] = useState(false);
+
+    // ─── Fetch products ───────────────────────────────────────────────────────
+    const fetchProducts = useCallback(async (bypassCache = false) => {
+        try {
+            const data = await ApiClient.getProducts(bypassCache);
+            const mapped: Product[] = data.map((p: any) => ({
+                id: p.id,
+                name: p.name,
+                barcode: p.barcode ?? '',
+                price: Number(p.price) || 0,
+                stock: Number(p.stock) || 0,
+                category: p.parent?.name ?? p.category ?? undefined,
+                unit: p.unit ?? 'pcs',
+                status: p.status,
+            }));
+            setProducts(mapped);
+        } catch (err) {
+            console.error('POS: failed to fetch products', err);
+        } finally {
+            setLoadingProducts(false);
+        }
     }, []);
 
     useEffect(() => {
-        if (toast.visible) {
-            const timer = setTimeout(() => {
-                setToast(prev => ({ ...prev, visible: false }));
-            }, 2000);
-            return () => clearTimeout(timer);
-        }
-    }, [toast.visible]);
+        fetchProducts();
+    }, [fetchProducts]);
 
-    const showToast = (message: string) => {
-        setToast({ message, visible: true });
-    };
-
-    const loadProducts = async () => {
-        try {
-            const data = await ApiClient.getProducts();
-            setProducts(data);
-        } catch (error) {
-            Alert.alert('Error', 'Failed to load products');
-        } finally {
-            setLoading(false);
-        }
-    };
-
+    // ─── Cart helpers ─────────────────────────────────────────────────────────
     const addToCart = (product: Product) => {
         if (product.stock <= 0) {
             Alert.alert('Out of Stock', `${product.name} is currently out of stock.`);
             return;
         }
-
-        setCart(currentCart => {
-            const currentItem = currentCart.find(item => item.id === product.id);
-            
-            // Check stock using the most up-to-date cart state
-            if (currentItem && currentItem.quantity >= product.stock) {
-                showToast(`Limit reached. Only ${product.stock} in stock.`);
-                return currentCart;
-            }
-
-            let newQuantity = 1;
-            let newCart;
-
-            if (currentItem) {
-                newQuantity = currentItem.quantity + 1;
-                newCart = currentCart.map(item =>
-                    item.id === product.id
-                        ? { ...item, quantity: newQuantity }
-                        : item
+        setCart(prev => {
+            const existing = prev.find(i => i.id === product.id);
+            if (existing) {
+                if (existing.quantity >= product.stock) {
+                    Alert.alert('Stock Limit', `Only ${product.stock} ${product.unit ?? 'pcs'} available.`);
+                    return prev;
+                }
+                return prev.map(i =>
+                    i.id === product.id ? { ...i, quantity: i.quantity + 1 } : i,
                 );
-            } else {
-                newCart = [...currentCart, { ...product, quantity: 1 }];
             }
-
-            const unitLabel = product.unit ? ` ${product.unit}` : '';
-            showToast(`Added ${product.name} - Total: ${newQuantity}${unitLabel}`);
-            return newCart;
+            return [...prev, { ...product, quantity: 1 }];
         });
+
+        // Open cart drawer automatically on first add
+        setShowCart(true);
     };
 
     const updateQuantity = (productId: string, delta: number) => {
-        setCart(currentCart => {
-            const itemInCart = currentCart.find(item => item.id === productId);
-            if (!itemInCart) return currentCart;
-
-            // Check stock limit for increase
-            if (delta > 0 && itemInCart.quantity + delta > itemInCart.stock) {
-                showToast(`Limit reached. Only ${itemInCart.stock} in stock.`);
-                return currentCart;
-            }
-
-            return currentCart.map(item => {
-                if (item.id === productId) {
-                    const newQuantity = Math.max(0, item.quantity + delta);
-                    return { ...item, quantity: newQuantity };
-                }
-                return item;
-            }).filter(item => item.quantity > 0);
+        setCart(prev => {
+            return prev
+                .map(i => i.id === productId ? { ...i, quantity: i.quantity + delta } : i)
+                .filter(i => i.quantity > 0);
         });
     };
 
     const removeItem = (productId: string) => {
-        setCart(currentCart => currentCart.filter(item => item.id !== productId));
+        setCart(prev => prev.filter(i => i.id !== productId));
     };
 
-    const handleCheckout = async (method: 'CASH' | 'MOBILE_MONEY' | 'CREDIT', details?: { phone?: string, clientName?: string }) => {
+    const clearCart = () => setCart([]);
+
+    const cartTotal = cart.reduce((sum, i) => sum + i.price * i.quantity, 0);
+    const cartCount = cart.reduce((sum, i) => sum + i.quantity, 0);
+
+    // ─── Checkout ─────────────────────────────────────────────────────────────
+    const handleCheckoutConfirm = async (
+        method: 'CASH' | 'MOBILE_MONEY' | 'CREDIT',
+        details?: { phone?: string; clientName?: string },
+    ) => {
+        setProcessingCheckout(true);
         try {
-            const totalAmount = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-
-            console.log('Processing payment:', method, details);
-
-            await ApiClient.createSale({
-                items: cart.map(item => ({
-                    id: item.id,
-                    name: item.name,
-                    quantity: item.quantity,
-                    price: item.price
+            const saleDto: CreateSaleDto = {
+                items: cart.map(i => ({
+                    id: i.id,
+                    name: i.name,
+                    quantity: i.quantity,
+                    price: i.price,
                 })),
-                total: totalAmount,
-                paymentMethod: method === 'CREDIT' ? 'Credit' : method,
-                // Appending CRM details for Debt/MoMo hooking on backend
+                total: cartTotal,
+                paymentMethod: method,
                 clientName: details?.clientName,
                 clientPhone: details?.phone,
-            });
+            };
 
-            setCheckoutVisible(false);
-            setCart([]);
+            await ApiClient.createSale(saleDto);
 
-            const successMessage = method === 'MOBILE_MONEY'
-                ? 'Payment request sent to your phone!'
-                : method === 'CREDIT' 
-                    ? `Ideni recorded for ${details?.clientName}`
-                    : 'Sale completed successfully';
-
-            Alert.alert('Success', successMessage, [
-                { text: 'OK', onPress: () => router.back() }
-            ]);
-        } catch (error: any) {
-            console.error('Checkout error:', error);
+            // Transition to success screen instead of closing
+            setSaleSuccess(true);
             
-            let errorMessage = 'Failed to process sale';
-            if (error.message && error.message.includes('{')) {
-                try {
-                    const jsonPart = error.message.substring(error.message.indexOf('{'));
-                    const errorObj = JSON.parse(jsonPart);
-                    errorMessage = errorObj.message || errorMessage;
-                } catch (e) {
-                    errorMessage = error.message;
-                }
-            } else {
-                errorMessage = error.message || errorMessage;
-            }
-
-            // If it's a stock error, refresh products to sync UI with backend
-            if (errorMessage.toLowerCase().includes('stock')) {
-                loadProducts();
-            }
-
-            Alert.alert('Error', Array.isArray(errorMessage) ? errorMessage[0] : errorMessage);
+            // Invalidate product cache to reflect updated stock
+            fetchProducts(true);
+        } catch (err: any) {
+            console.error('POS: checkout failed', err);
+            Alert.alert('Sale Failed', err?.message ?? 'Could not process the sale. Please try again.');
+        } finally {
+            setProcessingCheckout(false);
         }
     };
 
-    const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+    const handleNewSale = () => {
+        setShowCheckout(false);
+        setShowCart(false);
+        setSaleSuccess(false);
+        clearCart();
+    };
 
-    if (loading) {
-        return (
-            <View style={styles.container}>
-                <Stack.Screen options={{ headerShown: false }} />
-                <StatusBar style="light" />
-                <POSHeader />
-                <ImageBackground source={require('../../assets/doodle-bg.png')} style={styles.backgroundImage} resizeMode="cover">
-                    <View style={styles.gridContainer}>
-                        <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between' }}>
-                            {[1, 2, 3, 4, 5, 6].map(key => (
-                                <View key={key} style={{ width: '48%', marginBottom: 16, height: 180, backgroundColor: '#2a2e34', borderRadius: 20, padding: 16, justifyContent: 'space-between', borderWidth: 1, borderColor: 'rgba(255,255,255,0.05)' }}>
-                                    <SkeletonLoader width={40} height={40} borderRadius={12} />
-                                    <View style={{ gap: 8 }}>
-                                        <SkeletonLoader width="90%" height={14} />
-                                        <SkeletonLoader width="60%" height={14} />
-                                    </View>
-                                    <SkeletonLoader width="100%" height={36} borderRadius={12} />
-                                </View>
-                            ))}
-                        </View>
-                    </View>
-                </ImageBackground>
-            </View>
-        );
-    }
+    const handleCloseCheckout = () => {
+        if (saleSuccess) {
+            handleNewSale();
+        } else {
+            setShowCheckout(false);
+        }
+    };
 
+    // ─── Render ───────────────────────────────────────────────────────────────
     return (
-        <View style={styles.container}>
-            <Stack.Screen options={{ headerShown: false }} />
-            <StatusBar style="light" />
+        <View style={[styles.container, { paddingTop: insets.top, backgroundColor: colors.background }]}>
+            <StatusBar barStyle={isDarkMode ? "light-content" : "dark-content"} backgroundColor={colors.background} />
 
-            <POSHeader />
-
-            <ImageBackground
-                source={require('../../assets/doodle-bg.png')}
-                style={styles.backgroundImage}
-                resizeMode="cover"
-            >
-                <View style={styles.content}>
-                    <View style={styles.gridContainer}>
-                        <ProductGrid
-                            products={products}
-                            onAddToCart={addToCart}
-                        />
+            {/* ── Header ─────────────────────────────────────────────────── */}
+            <View style={[styles.header, { backgroundColor: colors.card, borderBottomColor: colors.border }]}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 16 }}>
+                    <TouchableOpacity 
+                        onPress={() => router.back()} 
+                        style={[styles.backButton, { backgroundColor: colors.overlay, borderColor: colors.border }]}
+                    >
+                        <ArrowLeft size={22} color={colors.textPrimary} />
+                    </TouchableOpacity>
+                    <View>
+                        <Text style={[styles.headerTitle, { color: colors.textPrimary }]}>Quick Sale</Text>
+                        <Text style={[styles.headerSub, { color: colors.textSecondary }]}>Select products to build order</Text>
                     </View>
                 </View>
 
-                {/* Floating Cart Button */}
+                {/* Cart button */}
                 <TouchableOpacity
-                    style={styles.fab}
-                    onPress={() => setCartVisible(true)}
+                    style={styles.cartButton}
+                    onPress={() => setShowCart(true)}
                     activeOpacity={0.8}
                 >
-                    <View style={styles.fabContent}>
-                        <ShoppingCart size={24} color="#0b0c0c" />
-                        {totalItems > 0 && (
-                            <View style={styles.badge}>
-                                <Text style={styles.badgeText}>{totalItems}</Text>
-                            </View>
-                        )}
-                    </View>
+                    <ShoppingCart size={22} color="#0b0c0c" />
+                    {cartCount > 0 && (
+                        <View style={styles.cartBadge}>
+                            <Text style={styles.cartBadgeText}>{cartCount}</Text>
+                        </View>
+                    )}
                 </TouchableOpacity>
-            </ImageBackground>
+            </View>
 
-            {/* Unified Cart & Checkout Modal */}
+            {/* ── Product Grid ────────────────────────────────────────────── */}
+            <View style={styles.gridContainer}>
+                {loadingProducts ? (
+                    <POSSkeleton />
+                ) : products.length === 0 ? (
+                    <View style={styles.emptyState}>
+                        <Package size={48} color={colors.textSecondary} />
+                        <Text style={[styles.emptyTitle, { color: colors.textPrimary }]}>No Products Yet</Text>
+                        <Text style={[styles.emptyDesc, { color: colors.textSecondary }]}>Go to the Inventory tab to add your first product.</Text>
+                    </View>
+                ) : (
+                    <ProductGrid products={products} onAddToCart={addToCart} />
+                )}
+            </View>
+
+            {/* ── Cart Bottom Sheet ───────────────────────────────────────── */}
             <Modal
-                visible={cartVisible}
+                visible={showCart}
                 animationType="slide"
                 transparent={true}
-                onRequestClose={() => setCartVisible(false)}
+                onRequestClose={() => setShowCart(false)}
             >
-                <View style={styles.modalOverlay}>
-                    <View style={styles.modalContent}>
+                <View style={styles.cartOverlay}>
+                    <TouchableOpacity
+                        style={styles.cartBackdrop}
+                        activeOpacity={1}
+                        onPress={() => setShowCart(false)}
+                    />
+                    <View style={[styles.cartSheet, { paddingBottom: insets.bottom, backgroundColor: colors.background }]}>
                         <CartSidebar
                             cart={cart}
                             onUpdateQuantity={updateQuantity}
                             onRemoveItem={removeItem}
                             onCheckout={() => {
-                                setCartVisible(false);
-                                setTimeout(() => setCheckoutVisible(true), 300);
-                            }} 
-                            onClose={() => setCartVisible(false)}
+                                setShowCart(false);
+                                setShowCheckout(true);
+                            }}
+                            onClose={() => setShowCart(false)}
                         />
                     </View>
                 </View>
             </Modal>
 
-            {/* Toast Notification */}
-            {toast.visible && (
-                <View style={styles.toastContainer}>
-                    <Text style={styles.toastText}>{toast.message}</Text>
+            {/* ── Checkout Modal ──────────────────────────────────────────── */}
+            <CheckoutModal
+                visible={showCheckout}
+                totalAmount={cartTotal}
+                items={cart}
+                isSuccess={saleSuccess}
+                onClose={handleCloseCheckout}
+                onConfirm={handleCheckoutConfirm}
+                onNewSale={handleNewSale}
+            />
+
+            {/* ── Processing overlay ──────────────────────────────────────── */}
+            {processingCheckout && (
+                <View style={styles.processingOverlay}>
+                    <ActivityIndicator size="large" color="#fbe134" />
+                    <Text style={styles.processingText}>Processing Sale…</Text>
                 </View>
             )}
 
-            <CheckoutModal
-                visible={checkoutVisible}
-                totalAmount={cart.reduce((sum, item) => sum + (item.price * item.quantity), 0)}
-                onClose={() => setCheckoutVisible(false)}
-                onConfirm={handleCheckout}
-            />
+            {/* ── Floating Cart FAB (when cart has items & cart sheet closed) ── */}
+            {cartCount > 0 && !showCart && !showCheckout && (
+                <TouchableOpacity
+                    style={[styles.fab, { bottom: insets.bottom + 100 }]}
+                    onPress={() => setShowCart(true)}
+                    activeOpacity={0.9}
+                >
+                    <ShoppingCart size={20} color="#0b0c0c" />
+                    <Text style={styles.fabText}>{cartTotal.toLocaleString()} RWF</Text>
+                    <View style={styles.fabBadge}>
+                        <Text style={styles.fabBadgeText}>{cartCount}</Text>
+                    </View>
+                </TouchableOpacity>
+            )}
         </View>
     );
 }
@@ -274,95 +293,151 @@ export default function SalesScreen() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#1a1d21', // Match true dark bg
     },
-    backgroundImage: {
-        flex: 1,
-    },
-    loadingContainer: {
-        flex: 1,
-        justifyContent: 'center',
+    header: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
         alignItems: 'center',
-        backgroundColor: '#1a1d21',
+        paddingHorizontal: 20,
+        paddingVertical: 16,
+        borderBottomWidth: 1,
     },
-    content: {
-        flex: 1,
-        flexDirection: 'column',
-    },
-    gridContainer: {
-        flex: 1,
-        paddingHorizontal: 16,
-        paddingTop: 16,
-    },
-    fab: {
-        position: 'absolute',
-        bottom: 24,
-        right: 24,
-        width: 64,
-        height: 64,
-        borderRadius: 32,
-        backgroundColor: '#fbe134', // Gold
-        justifyContent: 'center',
+    backButton: {
+        width: 40,
+        height: 40,
+        borderRadius: 20,
         alignItems: 'center',
-        shadowColor: '#000',
+        justifyContent: 'center',
+        borderWidth: 1,
+    },
+    headerTitle: {
+        fontSize: 22,
+        fontFamily: 'Poppins_700Bold',
+        color: '#FFFFFF',
+    },
+    headerSub: {
+        fontSize: 12,
+        fontFamily: 'Montserrat_500Medium',
+        color: '#9CA3AF',
+        marginTop: 1,
+    },
+    cartButton: {
+        width: 48,
+        height: 48,
+        borderRadius: 16,
+        backgroundColor: '#fbe134',
+        alignItems: 'center',
+        justifyContent: 'center',
+        shadowColor: '#fbe134',
         shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.3,
+        shadowOpacity: 0.35,
         shadowRadius: 8,
-        elevation: 8,
-        zIndex: 50,
+        elevation: 6,
     },
-    fabContent: {
-        position: 'relative',
-    },
-    badge: {
+    cartBadge: {
         position: 'absolute',
-        top: -8,
-        right: -8,
-        backgroundColor: '#EF4444', // Red
+        top: -6,
+        right: -6,
+        backgroundColor: '#EF4444',
         borderRadius: 10,
         minWidth: 20,
         height: 20,
-        justifyContent: 'center',
         alignItems: 'center',
-        paddingHorizontal: 4,
+        justifyContent: 'center',
         borderWidth: 2,
-        borderColor: '#fbe134',
+        borderColor: '#2a2e34',
+        paddingHorizontal: 4,
     },
-    badgeText: {
-        color: '#FFFFFF',
+    cartBadgeText: {
         fontSize: 10,
-        fontWeight: 'bold',
+        fontFamily: 'Poppins_700Bold',
+        color: '#FFFFFF',
     },
-    modalOverlay: {
+    gridContainer: {
         flex: 1,
-        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+        paddingHorizontal: 12,
+        paddingTop: 12,
+    },
+    emptyState: {
+        flex: 1,
+        alignItems: 'center',
+        justifyContent: 'center',
+        paddingBottom: 80,
+    },
+    emptyTitle: {
+        fontSize: 20,
+        fontFamily: 'Poppins_700Bold',
+        marginTop: 16,
+        marginBottom: 8,
+    },
+    emptyDesc: {
+        fontSize: 13,
+        fontFamily: 'Montserrat_500Medium',
+        textAlign: 'center',
+        paddingHorizontal: 32,
+    },
+    // Cart bottom sheet
+    cartOverlay: {
+        flex: 1,
         justifyContent: 'flex-end',
     },
-    modalContent: {
-        height: '80%', 
-        backgroundColor: '#1a1d21',
+    cartBackdrop: {
+        ...StyleSheet.absoluteFillObject,
+        backgroundColor: 'rgba(0,0,0,0.7)',
+    },
+    cartSheet: {
+        height: '80%',
         borderTopLeftRadius: 32,
         borderTopRightRadius: 32,
         overflow: 'hidden',
     },
-    toastContainer: {
-        position: 'absolute',
-        top: 100, // Below header
-        alignSelf: 'center',
-        backgroundColor: '#10B981', // Success Green
-        paddingHorizontal: 20,
-        paddingVertical: 10,
-        borderRadius: 20,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.2,
-        shadowRadius: 4,
-        elevation: 5,
-        zIndex: 100,
+    // Processing overlay
+    processingOverlay: {
+        ...StyleSheet.absoluteFillObject,
+        backgroundColor: 'rgba(0,0,0,0.75)',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: 16,
     },
-    toastText: {
+    processingText: {
+        fontSize: 16,
+        fontFamily: 'Poppins_700Bold',
         color: '#FFFFFF',
-        fontFamily: 'Montserrat_600SemiBold',
-        fontSize: 14,
+    },
+    // Floating Action Button
+    fab: {
+        position: 'absolute',
+        left: 20,
+        right: 20,
+        backgroundColor: '#fbe134',
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        paddingVertical: 16,
+        borderRadius: 20,
+        gap: 10,
+        shadowColor: '#fbe134',
+        shadowOffset: { width: 0, height: 6 },
+        shadowOpacity: 0.4,
+        shadowRadius: 12,
+        elevation: 10,
+    },
+    fabText: {
+        fontSize: 15,
+        fontFamily: 'Poppins_700Bold',
+        color: '#0b0c0c',
+        flex: 1,
+        textAlign: 'center',
+    },
+    fabBadge: {
+        backgroundColor: '#0b0c0c',
+        borderRadius: 12,
+        paddingHorizontal: 8,
+        paddingVertical: 3,
+    },
+    fabBadgeText: {
+        fontSize: 12,
+        fontFamily: 'Poppins_700Bold',
+        color: '#fbe134',
     },
 });

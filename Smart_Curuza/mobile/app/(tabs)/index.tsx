@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { useFocusEffect } from 'expo-router';
 import { ScrollView, StyleSheet, View, Text, RefreshControl } from 'react-native';
 import DashboardHeader from '../../components/DashboardHeader';
 import DashboardStats from '../../components/DashboardStats';
 import ProductSalesChart from '../../components/ProductSalesChart';
 import QuickActions from '../../components/QuickActions';
-import RecentActivity from '../../components/RecentActivity';
+import RecentActivity, { RecentSale } from '../../components/RecentActivity';
 import ScreenWrapper from '../../components/ScreenWrapper';
 
 import CRMModule from '../../components/CRMModule';
@@ -44,47 +45,66 @@ export default function Dashboard() {
     // Overview Data State
     const [statsData, setStatsData] = useState<any>(null);
     const [chartData, setChartData] = useState<any[]>([]);
+    const [recentActivity, setRecentActivity] = useState<RecentSale[]>([]);
     const [loadingOverview, setLoadingOverview] = useState(true);
     const [refreshing, setRefreshing] = useState(false);
 
     const fetchOverviewData = useCallback(async (p: Period, bypassCache = false) => {
-        // Only show skeleton if we don't have data yet or we are refreshing
+        // Only show skeleton if we don't have data yet or we are force-refreshing
         if (!statsData || bypassCache) {
             setLoadingOverview(true);
         }
 
         try {
-            // Concurrent fetch for all required overview modules
-            const [stats, products] = await Promise.all([
+            // Concurrent fetch: stats (includes topSellingProducts) + recent transactions
+            const [stats, recent] = await Promise.all([
                 ApiClient.getDashboardStats(p, bypassCache),
-                ApiClient.getProducts(bypassCache)
+                ApiClient.getSalesHistory(5, bypassCache),
             ]);
             
-            // Enhance stats if needed
+            // Enhance stats with field aliases for DashboardStats component
             const enhancedStats = {
                 ...stats,
-                expenses: stats.todaySales * 0.4,
-                grossProfit: stats.todaySales * 0.9,
+                expenses: stats.todayExpenses,
+                grossProfit: stats.todayGrossProfit,
             };
 
-            // Process chart data - stabilize data logic (FIX: Use actual product sales if available, or deterministic mocks)
-            const sortedProducts = products
-                .slice(0, 5)
-                .map((prod: any, index: number) => ({
-                    name: prod.name,
-                    sales: 15 - index, // Deterministic mock sales
-                    amount: ((15 - index) * 45000).toLocaleString()
-                }));
+            // Build chart data from backend's topSellingProducts aggregate
+            const topProducts: any[] = stats.topSellingProducts ?? [];
+            const chartItems = topProducts.map((item: any) => ({
+                name: item.name ?? 'Unknown',
+                sales: Number(item.sold_quantity) || 0,
+                amount: (
+                    (Number(item.sold_quantity) || 0) * (Number(item.price) || 0)
+                ).toLocaleString(),
+            }));
+
+            // Map recent sales to RecentSale shape
+            const mappedRecent: RecentSale[] = recent.map((s: any) => ({
+                id: s.id,
+                total: Number(s.total) || 0,
+                payment_method: s.payment_method ?? 'CASH',
+                created_at: s.created_at,
+                items_count: Array.isArray(s.items) ? s.items.length : undefined,
+                customer: s.customer ?? null,
+            }));
 
             setStatsData(enhancedStats);
-            setChartData(sortedProducts);
+            setChartData(chartItems);
+            setRecentActivity(mappedRecent);
         } catch (error) {
             console.error('Failed to fetch dashboard data:', error);
         } finally {
             setLoadingOverview(false);
             setRefreshing(false);
         }
-    }, []); // Removed statsData to break the infinite loop
+    }, []); // stable — no deps that change on re-render
+
+    useFocusEffect(
+        useCallback(() => {
+            fetchOverviewData(period, true);
+        }, [period, fetchOverviewData])
+    );
 
     useEffect(() => {
         if (activeTab === 'overview') {
@@ -95,11 +115,9 @@ export default function Dashboard() {
     const handleTabChange = (tabId: string) => {
         if (activeTab === tabId) return;
         
-        // If switching TO overview, show the transition so loading works
         if (tabId === 'overview') {
-            setIsTransitioning(false); // Overview has its own loadingOverview logic
+            setIsTransitioning(false);
         } else {
-            // For other modules, a very fast "blink" to mount the component
             setIsTransitioning(true);
             setTimeout(() => setIsTransitioning(false), 50);
         }
@@ -110,12 +128,12 @@ export default function Dashboard() {
     const onRefresh = () => {
         setRefreshing(true);
         if (activeTab === 'overview') {
-            fetchOverviewData(period, true); // bypassCache = true on refresh
+            fetchOverviewData(period, true);
         }
     };
 
     return (
-        <ScreenWrapper backgroundImageStyle={styles.backgroundImage}>
+        <ScreenWrapper safeArea={false} backgroundImageStyle={styles.backgroundImage}>
             <DashboardHeader activeTab={activeTab} onTabChange={handleTabChange} />
 
             <ScrollView
@@ -149,7 +167,7 @@ export default function Dashboard() {
                                 />
                                 <QuickActions />
                                 <RecentActivity 
-                                    data={[]}
+                                    data={recentActivity}
                                     loading={loadingOverview}
                                 />
                             </>
@@ -171,10 +189,10 @@ const styles = StyleSheet.create({
     },
     scrollView: {
         flex: 1,
-        marginTop: -32,
-        paddingTop: 48,
+        marginTop: 0,
     },
     scrollContent: {
+        paddingTop: 24,
         paddingHorizontal: 20,
         paddingBottom: 120,
     },

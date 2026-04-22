@@ -1,191 +1,14 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, TextInput } from 'react-native';
-import { Search, User, Users, Phone, PhoneCall, AlertTriangle, CheckCircle, ChevronRight, TrendingUp } from 'lucide-react-native';
+import React, { useState, useEffect, useCallback } from 'react';
+import * as RN from 'react-native';
+const { View, Text, StyleSheet, FlatList, TouchableOpacity, TextInput, ActivityIndicator, Linking, Alert } = RN;
+import { Search, User, Users, Phone, PhoneCall, AlertTriangle, CheckCircle, ChevronRight, TrendingUp, RefreshCw, UserPlus } from 'lucide-react-native';
+import { ApiClient } from '../lib/api_client';
 import SkeletonLoader from './SkeletonLoader';
+import { useTheme } from '../lib/theme/ThemeContext';
+import CreateCustomerModal from './CreateCustomerModal';
+import ClientHistoryModal from './ClientHistoryModal';
 
-interface ClientRecord {
-    id: string;
-    name: string;
-    phone: string;
-    lifetimeValue: number;
-    outstandingDebt: number;
-    lastActive: string;
-}
-
-const CRMSkeleton = () => (
-    <View style={{ gap: 16 }}>
-        <SkeletonLoader height={140} borderRadius={24} style={{ marginBottom: 16 }} />
-        <View style={styles.summaryCardSub}>
-            <SkeletonLoader width="45%" height={60} borderRadius={16} />
-            <SkeletonLoader width="45%" height={60} borderRadius={16} />
-        </View>
-        <SkeletonLoader height={54} borderRadius={16} style={{ marginTop: 12, marginBottom: 20 }} />
-        {[1, 2, 3].map(k => (
-            <SkeletonLoader key={k} height={100} borderRadius={24} style={{ marginBottom: 12 }} />
-        ))}
-    </View>
-);
-
-export default function CRMModule() {
-    const [searchQuery, setSearchQuery] = useState('');
-    const [loading, setLoading] = useState(true);
-
-    useEffect(() => {
-        // Simulate a brief local load to show skeleton during tab switch
-        const timer = setTimeout(() => setLoading(false), 300);
-        return () => clearTimeout(timer);
-    }, []);
-
-    // Simulated local client state (since backend CRM routes are pending)
-    const [clients] = useState<ClientRecord[]>([
-        { id: 'c1', name: 'Alain Ndayishimiye', phone: '+250 788 123 456', lifetimeValue: 450000, outstandingDebt: 25000, lastActive: '2 days ago' },
-        { id: 'c2', name: 'Belyse Uwamahoro', phone: '+250 782 456 789', lifetimeValue: 1200000, outstandingDebt: 0, lastActive: 'Today' },
-        { id: 'c3', name: 'Patrick Kigali Store', phone: '+250 733 987 654', lifetimeValue: 890000, outstandingDebt: 150000, lastActive: '5 days ago' },
-        { id: 'c4', name: 'Jeanne D\'arc', phone: '+250 799 111 222', lifetimeValue: 50000, outstandingDebt: 0, lastActive: '1 week ago' },
-        { id: 'c5', name: 'Eric Construction', phone: '+250 788 555 444', lifetimeValue: 3100000, outstandingDebt: 450000, lastActive: 'Yesterday' },
-        { id: 'c6', name: 'Mama Sarah', phone: '+250 722 333 444', lifetimeValue: 15000, outstandingDebt: 2000, lastActive: 'Today' },
-    ]);
-
-    // Derived statistics
-    const totalClients = clients.length;
-    const totalDebt = clients.reduce((sum, client) => sum + client.outstandingDebt, 0);
-    const clientsWithDebt = clients.filter(c => c.outstandingDebt > 0).length;
-
-    const filteredClients = clients.filter(c => 
-        c.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
-        c.phone.includes(searchQuery)
-    );
-
-    const renderClientCard = ({ item }: { item: ClientRecord }) => (
-        <View style={styles.clientCard}>
-            {/* Top Info */}
-            <View style={styles.cardHeader}>
-                <View style={styles.avatarRow}>
-                    <View style={styles.avatarBox}>
-                        <User size={20} color="#fbe134" />
-                    </View>
-                    <View>
-                        <Text style={styles.clientName}>{item.name}</Text>
-                        <Text style={styles.clientPhone}>{item.phone}</Text>
-                    </View>
-                </View>
-                
-                {/* Debt Indicator Badge */}
-                {item.outstandingDebt > 0 ? (
-                    <View style={styles.debtBadge}>
-                         <AlertTriangle size={12} color="#EF4444" style={{marginRight: 4}} />
-                         <Text style={styles.debtBadgeText}>OWES MONEY</Text>
-                    </View>
-                ) : (
-                    <View style={styles.clearBadge}>
-                        <CheckCircle size={12} color="#10B981" style={{marginRight: 4}} />
-                        <Text style={styles.clearBadgeText}>CLEARED</Text>
-                    </View>
-                )}
-            </View>
-
-            {/* Financial Status */}
-            <View style={styles.financialRow}>
-                <View style={styles.finItem}>
-                    <Text style={styles.finLabel}>Lifetime Value</Text>
-                    <Text style={styles.finValue}>{item.lifetimeValue.toLocaleString()} <Text style={styles.currency}>RWF</Text></Text>
-                </View>
-                
-                <View style={styles.finItemRight}>
-                    <Text style={styles.finLabel}>Outstanding Debt</Text>
-                    <Text style={[
-                        styles.finValue, 
-                        item.outstandingDebt > 0 ? { color: '#EF4444' } : { color: '#10B981' }
-                    ]}>
-                        {item.outstandingDebt.toLocaleString()} <Text style={styles.currency}>RWF</Text>
-                    </Text>
-                </View>
-            </View>
-
-            {/* Action Row */}
-            <View style={styles.actionRow}>
-                <TouchableOpacity style={styles.actionButton}>
-                    <PhoneCall size={16} color="#2a2e34" />
-                    <Text style={styles.actionButtonText}>Call Client</Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity style={styles.actionButtonLight}>
-                    <Text style={styles.actionButtonLightText}>View History</Text>
-                    <ChevronRight size={16} color="#6B7280" />
-                </TouchableOpacity>
-            </View>
-        </View>
-    );
-
-    const renderEmptyState = () => (
-        <View style={styles.emptyStateContainer}>
-            <View style={styles.emptyStateIconBox}>
-                <Users size={32} color="#9CA3AF" />
-            </View>
-            <Text style={styles.emptyStateTitle}>No Clients Found</Text>
-            <Text style={styles.emptyStateDesc}>
-                {searchQuery 
-                    ? `We couldn't find any clients matching "${searchQuery}".` 
-                    : "Your CRM is currently empty. Start building your client roster to track debts and value."}
-            </Text>
-            {!searchQuery && (
-                <TouchableOpacity style={styles.emptyStateButton}>
-                    <Text style={styles.emptyStateButtonText}>Add First Client</Text>
-                </TouchableOpacity>
-            )}
-        </View>
-    );
-
-    return (
-        <View style={styles.container}>
-            {/* Macro Debt Summary Header */}
-            <View style={styles.summaryContainer}>
-                <View style={styles.summaryCardMain}>
-                    <Text style={styles.summaryLabel}>Total Outstanding Debt</Text>
-                    <Text style={styles.summaryValueMain}>{totalDebt.toLocaleString()} <Text style={{fontSize: 14, color: 'rgba(255,255,255,0.5)'}}>RWF</Text></Text>
-                </View>
-
-                <View style={styles.summaryCardSub}>
-                    <View style={styles.subItem}>
-                        <Text style={styles.subLabel}>Total Clients</Text>
-                        <Text style={styles.subValue}>{totalClients}</Text>
-                    </View>
-                    <View style={styles.subDivider} />
-                    <View style={styles.subItem}>
-                        <Text style={styles.subLabel}>In Debt</Text>
-                        <Text style={[styles.subValue, { color: '#EF4444' }]}>{clientsWithDebt}</Text>
-                    </View>
-                </View>
-            </View>
-
-            {/* Command Bar (Search) */}
-            <View style={styles.commandBar}>
-                <View style={styles.searchBox}>
-                    <Search size={18} color="#6B7280" />
-                    <TextInput 
-                        style={styles.searchInput}
-                        placeholder="Search clients by name or phone..."
-                        placeholderTextColor="#9CA3AF"
-                        value={searchQuery}
-                        onChangeText={setSearchQuery}
-                    />
-                </View>
-            </View>
-
-            {/* Client Roster list */}
-            <FlatList 
-                data={filteredClients}
-                renderItem={renderClientCard}
-                keyExtractor={item => item.id}
-                contentContainerStyle={styles.listContent}
-                showsVerticalScrollIndicator={false}
-                scrollEnabled={false} // Disable nested scrolling since index is scrolling
-                ListEmptyComponent={renderEmptyState}
-            />
-        </View>
-    );
-}
-
+// Styles moved up to prevent ReferenceErrors during module initialization
 const styles = StyleSheet.create({
     container: {
         flex: 1,
@@ -206,6 +29,19 @@ const styles = StyleSheet.create({
         marginBottom: 12,
         borderWidth: 1,
         borderColor: 'rgba(239, 68, 68, 0.2)', // Slight red hint for debt focus
+        position: 'relative',
+    },
+    addClientHeaderBtn: {
+        position: 'absolute',
+        top: 16,
+        right: 16,
+        width: 36,
+        height: 36,
+        backgroundColor: 'rgba(255, 255, 255, 0.05)',
+        borderRadius: 12,
+        alignItems: 'center',
+        justifyContent: 'center',
+        zIndex: 10,
     },
     summaryLabel: {
         fontSize: 12,
@@ -222,11 +58,13 @@ const styles = StyleSheet.create({
     },
     summaryCardSub: {
         flexDirection: 'row',
-        backgroundColor: '#f3f4f6', 
+        backgroundColor: '#2a2e34', 
         borderRadius: 16,
         padding: 16,
         alignItems: 'center',
         justifyContent: 'space-around',
+        borderWidth: 1,
+        borderColor: 'rgba(255, 255, 255, 0.05)',
     },
     subItem: {
         alignItems: 'center',
@@ -234,17 +72,17 @@ const styles = StyleSheet.create({
     subLabel: {
         fontSize: 11,
         fontFamily: 'Montserrat_600SemiBold',
-        color: '#6B7280',
+        color: '#9CA3AF',
     },
     subValue: {
         fontSize: 18,
         fontFamily: 'Poppins_700Bold',
-        color: '#111827',
+        color: '#f3f4f6',
     },
     subDivider: {
         width: 1,
         height: '100%',
-        backgroundColor: '#E5E7EB',
+        backgroundColor: 'rgba(255, 255, 255, 0.1)',
     },
     commandBar: {
         marginBottom: 20,
@@ -252,10 +90,12 @@ const styles = StyleSheet.create({
     searchBox: {
         flexDirection: 'row',
         alignItems: 'center',
-        backgroundColor: '#f3f4f6',
+        backgroundColor: '#2a2e34',
         paddingHorizontal: 16,
         height: 54,
         borderRadius: 16,
+        borderWidth: 1,
+        borderColor: 'rgba(255, 255, 255, 0.05)',
         borderTopWidth: 3,
         borderTopColor: '#fbe134', // Gold handle
     },
@@ -264,19 +104,21 @@ const styles = StyleSheet.create({
         marginLeft: 12,
         fontFamily: 'Montserrat_600SemiBold',
         fontSize: 14,
-        color: '#2a2e34',
+        color: '#f3f4f6',
     },
     listContent: {
         paddingBottom: 20,
         gap: 16,
     },
     clientCard: {
-        backgroundColor: '#f3f4f6', // Light grey receipt aesthetic
-        borderRadius: 20,
+        backgroundColor: '#2a2e34',
+        borderRadius: 24,
         padding: 20,
+        borderWidth: 1,
+        borderColor: 'rgba(255, 255, 255, 0.05)',
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.1,
+        shadowOpacity: 0.2,
         shadowRadius: 10,
         elevation: 4,
     },
@@ -293,55 +135,63 @@ const styles = StyleSheet.create({
     avatarBox: {
         width: 44,
         height: 44,
-        backgroundColor: '#2a2e34',
+        backgroundColor: '#1a1d21',
         borderRadius: 12,
         alignItems: 'center',
         justifyContent: 'center',
         marginRight: 12,
+        borderWidth: 1,
+        borderColor: 'rgba(251, 225, 52, 0.2)', // Gold hint
     },
     clientName: {
         fontSize: 16,
         fontFamily: 'Poppins_700Bold',
-        color: '#111827',
+        color: '#f3f4f6',
     },
     clientPhone: {
         fontSize: 12,
         fontFamily: 'Montserrat_600SemiBold',
-        color: '#6B7280',
+        color: '#9CA3AF',
     },
     debtBadge: {
         flexDirection: 'row',
         alignItems: 'center',
-        backgroundColor: '#FEE2E2',
+        backgroundColor: 'rgba(239, 68, 68, 0.15)',
         paddingHorizontal: 8,
         paddingVertical: 4,
         borderRadius: 8,
+        borderWidth: 1,
+        borderColor: 'rgba(239, 68, 68, 0.3)',
     },
     debtBadgeText: {
         fontSize: 9,
         fontFamily: 'Montserrat_800ExtraBold',
-        color: '#B91C1C',
+        color: '#EF4444',
     },
     clearBadge: {
         flexDirection: 'row',
         alignItems: 'center',
-        backgroundColor: '#DCFCE7',
+        backgroundColor: 'rgba(16, 185, 129, 0.1)',
         paddingHorizontal: 8,
         paddingVertical: 4,
         borderRadius: 8,
+        borderWidth: 1,
+        borderColor: 'rgba(16, 185, 129, 0.2)',
     },
     clearBadgeText: {
         fontSize: 9,
         fontFamily: 'Montserrat_800ExtraBold',
-        color: '#15803D',
+        color: '#10B981',
     },
     financialRow: {
         flexDirection: 'row',
         justifyContent: 'space-between',
-        backgroundColor: '#FFFFFF',
+        backgroundColor: '#1a1d21',
         padding: 16,
         borderRadius: 16,
         marginBottom: 16,
+        borderWidth: 1,
+        borderColor: 'rgba(255, 255, 255, 0.03)',
     },
     finItem: {
         flex: 1,
@@ -355,16 +205,17 @@ const styles = StyleSheet.create({
         fontFamily: 'Montserrat_600SemiBold',
         color: '#9CA3AF',
         marginBottom: 2,
+        textTransform: 'uppercase',
     },
     finValue: {
         fontSize: 15,
         fontFamily: 'Poppins_700Bold',
-        color: '#111827',
+        color: '#f3f4f6',
     },
     currency: {
         fontSize: 9,
         fontFamily: 'Montserrat_600SemiBold',
-        color: '#9CA3AF',
+        color: 'rgba(255, 255, 255, 0.3)',
     },
     actionRow: {
         flexDirection: 'row',
@@ -383,16 +234,16 @@ const styles = StyleSheet.create({
     actionButtonText: {
         fontSize: 13,
         fontFamily: 'Poppins_700Bold',
-        color: '#2a2e34',
+        color: '#1a1d21',
     },
     actionButtonLight: {
         flex: 1,
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        backgroundColor: 'transparent',
+        backgroundColor: 'rgba(255, 255, 255, 0.05)',
         borderWidth: 1,
-        borderColor: '#D1D5DB',
+        borderColor: 'rgba(255, 255, 255, 0.1)',
         paddingVertical: 12,
         borderRadius: 12,
         gap: 8,
@@ -400,24 +251,24 @@ const styles = StyleSheet.create({
     actionButtonLightText: {
         fontSize: 13,
         fontFamily: 'Montserrat_700Bold',
-        color: '#4B5563',
+        color: '#9CA3AF',
     },
     emptyStateContainer: {
         alignItems: 'center',
         justifyContent: 'center',
         paddingVertical: 40,
         paddingHorizontal: 20,
-        backgroundColor: '#f3f4f6',
+        backgroundColor: '#2a2e34',
         borderRadius: 24,
         marginTop: 10,
         borderWidth: 1,
-        borderColor: '#E5E7EB',
+        borderColor: 'rgba(251, 225, 52, 0.1)',
         borderStyle: 'dashed',
     },
     emptyStateIconBox: {
         width: 64,
         height: 64,
-        backgroundColor: '#E5E7EB',
+        backgroundColor: 'rgba(255, 255, 255, 0.05)',
         borderRadius: 32,
         alignItems: 'center',
         justifyContent: 'center',
@@ -426,19 +277,19 @@ const styles = StyleSheet.create({
     emptyStateTitle: {
         fontSize: 16,
         fontFamily: 'Poppins_700Bold',
-        color: '#111827',
+        color: '#f3f4f6',
         marginBottom: 8,
     },
     emptyStateDesc: {
         fontSize: 12,
         fontFamily: 'Montserrat_500Medium',
-        color: '#6B7280',
+        color: '#9CA3AF',
         textAlign: 'center',
         lineHeight: 18,
         marginBottom: 20,
     },
     emptyStateButton: {
-        backgroundColor: '#2a2e34', // Jet 
+        backgroundColor: '#fbe134', 
         paddingHorizontal: 24,
         paddingVertical: 12,
         borderRadius: 12,
@@ -446,6 +297,296 @@ const styles = StyleSheet.create({
     emptyStateButtonText: {
         fontSize: 13,
         fontFamily: 'Poppins_700Bold',
-        color: '#FFFFFF',
+        color: '#1a1d21',
     }
 });
+
+interface ClientRecord {
+    id: string;
+    name: string;
+    phone: string;
+    lifetimeValue: number;
+    outstandingDebt: number;
+    lastActive: string;
+}
+
+const CRMSkeleton = () => {
+    const { colors } = useTheme();
+    return (
+        <View style={{ gap: 16 }}>
+            <SkeletonLoader height={140} borderRadius={24} style={{ marginBottom: 16 }} />
+            <View style={[styles.summaryCardSub, { backgroundColor: colors.card, borderColor: colors.border }]}>
+                <SkeletonLoader width="45%" height={60} borderRadius={16} />
+                <SkeletonLoader width="45%" height={60} borderRadius={16} />
+            </View>
+            <SkeletonLoader height={54} borderRadius={16} style={{ marginTop: 12, marginBottom: 20 }} />
+            {[1, 2, 3].map(k => (
+                <SkeletonLoader key={k} height={100} borderRadius={24} style={{ marginBottom: 12 }} />
+            ))}
+        </View>
+    );
+};
+
+export default function CRMModule() {
+    const { colors, isDarkMode } = useTheme();
+    const [searchQuery, setSearchQuery] = useState('');
+    const [loading, setLoading] = useState(true);
+    const [refreshing, setRefreshing] = useState(false);
+    const [clients, setClients] = useState<ClientRecord[]>([]);
+    const [showCreateModal, setShowCreateModal] = useState(false);
+    const [selectedClient, setSelectedClient] = useState<{ id: string; name: string } | null>(null);
+    const [showHistoryModal, setShowHistoryModal] = useState(false);
+
+    const handleViewHistory = (client: ClientRecord) => {
+        setSelectedClient({ id: client.id, name: client.name });
+        setShowHistoryModal(true);
+    };
+
+    const fetchCustomers = async (showRefresh = false) => {
+        if (showRefresh) setRefreshing(true);
+        try {
+            const data = await ApiClient.getCustomers(showRefresh);
+            // Map backend Customer to frontend ClientRecord
+            const mappedClients: ClientRecord[] = data.map((c: any) => ({
+                id: c.id,
+                name: c.name,
+                phone: c.phone || 'No Phone',
+                lifetimeValue: Number(c.lifetime_value) || 0,
+                outstandingDebt: Number(c.total_debt) || 0,
+                lastActive: c.created_at ? new Date(c.created_at).toLocaleDateString() : 'New'
+            }));
+            setClients(mappedClients);
+        } catch (error) {
+            console.error('CRMModule: Error fetching customers:', error);
+        } finally {
+            setLoading(false);
+            setRefreshing(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchCustomers();
+    }, []);
+
+    const handleCall = (phone: string) => {
+        const url = `tel:${phone.replace(/\s/g, '')}`;
+        Linking.canOpenURL(url).then(supported => {
+            if (supported) {
+                Linking.openURL(url);
+            } else {
+                Alert.alert("Error", "Your device does not support phone calls");
+            }
+        });
+    };
+
+    const handleSendReminder = async (client: ClientRecord) => {
+        try {
+            setLoading(true);
+            const shopProfile = await ApiClient.getMerchantProfile();
+            const shopName = shopProfile.businessName || 'Smart Curuza Shop';
+            
+            await ApiClient.sendReminder(client.id, shopName);
+            Alert.alert("Success", `Reminder sent to ${client.name}`);
+        } catch (error) {
+            console.error('CRMModule: Reminder failed', error);
+            Alert.alert("Error", "Could not send reminder. Please check your SMS configuration.");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    // Derived statistics
+    const totalClients = clients.length;
+    const totalDebt = clients.reduce((sum, client) => sum + client.outstandingDebt, 0);
+    const clientsWithDebt = clients.filter(c => c.outstandingDebt > 0).length;
+
+    const filteredClients = clients.filter(c => 
+        c.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+        c.phone.includes(searchQuery)
+    );
+
+    const renderClientCard = ({ item }: { item: ClientRecord }) => (
+        <View style={[styles.clientCard, { backgroundColor: colors.card, borderColor: colors.border, shadowColor: isDarkMode ? '#000': '#E5E7EB' }]}>
+            {/* Top Info */}
+            <View style={styles.cardHeader}>
+                <View style={styles.avatarRow}>
+                    <View style={[styles.avatarBox, { backgroundColor: colors.overlay }]}>
+                        <User size={20} color={colors.brandGold} />
+                    </View>
+                    <View>
+                        <Text style={[styles.clientName, { color: colors.textPrimary }]}>{item.name}</Text>
+                        <Text style={[styles.clientPhone, { color: colors.textSecondary }]}>{item.phone}</Text>
+                    </View>
+                </View>
+                
+                {/* Debt Indicator Badge */}
+                {item.outstandingDebt > 0 ? (
+                    <View style={styles.debtBadge}>
+                         <AlertTriangle size={12} color="#EF4444" style={{marginRight: 4}} />
+                         <Text style={styles.debtBadgeText}>OWES MONEY</Text>
+                    </View>
+                ) : (
+                    <View style={styles.clearBadge}>
+                        <CheckCircle size={12} color="#10B981" style={{marginRight: 4}} />
+                        <Text style={styles.clearBadgeText}>CLEARED</Text>
+                    </View>
+                )}
+            </View>
+
+            {/* Financial Status */}
+            <View style={[styles.financialRow, { backgroundColor: colors.overlay, borderColor: colors.border }]}>
+                <View style={styles.finItem}>
+                    <Text style={[styles.finLabel, { color: colors.textSecondary }]}>Lifetime Value</Text>
+                    <Text style={[styles.finValue, { color: colors.textPrimary }]}>{item.lifetimeValue.toLocaleString()} <Text style={[styles.currency, { color: colors.textSecondary }]}>RWF</Text></Text>
+                </View>
+                
+                <View style={styles.finItemRight}>
+                    <Text style={[styles.finLabel, { color: colors.textSecondary }]}>Outstanding Debt</Text>
+                    <Text style={[
+                        styles.finValue, 
+                        item.outstandingDebt > 0 ? { color: '#EF4444' } : { color: '#10B981' }
+                    ]}>
+                        {item.outstandingDebt.toLocaleString()} <Text style={[styles.currency, { color: colors.textSecondary }]}>RWF</Text>
+                    </Text>
+                </View>
+            </View>
+
+            {/* Action Row */}
+            <View style={styles.actionRow}>
+                <TouchableOpacity 
+                    style={[styles.actionButton, { backgroundColor: colors.brandGold }]}
+                    onPress={() => handleCall(item.phone)}
+                >
+                    <PhoneCall size={16} color="#2a2e34" />
+                    <Text style={styles.actionButtonText}>Call Client</Text>
+                </TouchableOpacity>
+
+                {item.outstandingDebt > 0 ? (
+                    <TouchableOpacity 
+                        style={[styles.actionButtonLight, { borderColor: '#EF4444' }]}
+                        onPress={() => handleSendReminder(item)}
+                    >
+                        <Text style={[styles.actionButtonLightText, { color: '#EF4444' }]}>Send Reminder</Text>
+                        <AlertTriangle size={16} color="#EF4444" />
+                    </TouchableOpacity>
+                ) : (
+                    <TouchableOpacity 
+                        style={[styles.actionButtonLight, { backgroundColor: colors.overlay, borderColor: colors.border }]}
+                        onPress={() => handleViewHistory(item)}
+                    >
+                        <Text style={[styles.actionButtonLightText, { color: colors.textSecondary }]}>View History</Text>
+                        <ChevronRight size={16} color={colors.textSecondary} />
+                    </TouchableOpacity>
+                )}
+            </View>
+        </View>
+    );
+
+    const renderEmptyState = () => (
+        <View style={[styles.emptyStateContainer, { backgroundColor: colors.card, borderColor: colors.border }]}>
+            <View style={[styles.emptyStateIconBox, { backgroundColor: colors.overlay }]}>
+                <Users size={32} color={colors.textSecondary} />
+            </View>
+            <Text style={[styles.emptyStateTitle, { color: colors.textPrimary }]}>No Clients Found</Text>
+            <Text style={[styles.emptyStateDesc, { color: colors.textSecondary }]}>
+                {searchQuery 
+                    ? `We couldn't find any clients matching "${searchQuery}".` 
+                    : "Your CRM is currently empty. Start building your client roster to track debts and value."}
+            </Text>
+            {!searchQuery && (
+                <TouchableOpacity 
+                    style={styles.emptyStateButton}
+                    onPress={() => setShowCreateModal(true)}
+                >
+                    <Text style={styles.emptyStateButtonText}>Add First Client</Text>
+                </TouchableOpacity>
+            )}
+        </View>
+    );
+
+    if (loading && clients.length === 0) {
+        return (
+            <View style={styles.container}>
+                <CRMSkeleton />
+            </View>
+        );
+    }
+
+    return (
+        <View style={styles.container}>
+            {/* Macro Debt Summary Header */}
+            <View style={styles.summaryContainer}>
+                <View style={[styles.summaryCardMain, { backgroundColor: colors.card }]}>
+                    <TouchableOpacity 
+                        style={[styles.addClientHeaderBtn, { backgroundColor: colors.overlay }]}
+                        onPress={() => setShowCreateModal(true)}
+                    >
+                        <UserPlus size={18} color={colors.brandGold} />
+                    </TouchableOpacity>
+                    <Text style={[styles.summaryLabel, { color: colors.textSecondary }]}>Total Outstanding Debt</Text>
+                    <Text style={[styles.summaryValueMain, { color: colors.danger }]}>{totalDebt.toLocaleString()} <Text style={{fontSize: 14, color: colors.textSecondary}}>RWF</Text></Text>
+                </View>
+
+                <View style={[styles.summaryCardSub, { backgroundColor: colors.card, borderColor: colors.border }]}>
+                    <View style={styles.subItem}>
+                        <Text style={[styles.subLabel, { color: colors.textSecondary }]}>Total Clients</Text>
+                        <Text style={[styles.subValue, { color: colors.textPrimary }]}>{totalClients}</Text>
+                    </View>
+                    <View style={[styles.subDivider, { backgroundColor: colors.border }]} />
+                    <View style={styles.subItem}>
+                        <Text style={[styles.subLabel, { color: colors.textSecondary }]}>In Debt</Text>
+                        <Text style={[styles.subValue, { color: colors.danger }]}>{clientsWithDebt}</Text>
+                    </View>
+                </View>
+            </View>
+
+            {/* Command Bar (Search) */}
+            <View style={styles.commandBar}>
+                <View style={[styles.searchBox, { backgroundColor: colors.card, borderColor: colors.border, borderTopColor: colors.brandGold }]}>
+                    <Search size={18} color={colors.textSecondary} />
+                    <TextInput 
+                        style={[styles.searchInput, { color: colors.textPrimary }]}
+                        placeholder="Search clients by name or phone..."
+                        placeholderTextColor={colors.textSecondary}
+                        value={searchQuery}
+                        onChangeText={setSearchQuery}
+                    />
+                    {refreshing ? (
+                        <ActivityIndicator size="small" color={colors.brandGold} />
+                    ) : (
+                        <TouchableOpacity onPress={() => fetchCustomers(true)}>
+                            <RefreshCw size={18} color={colors.textSecondary} />
+                        </TouchableOpacity>
+                    )}
+                </View>
+            </View>
+
+            {/* Client Roster list */}
+            <FlatList 
+                data={filteredClients}
+                renderItem={renderClientCard}
+                keyExtractor={item => item.id}
+                contentContainerStyle={styles.listContent}
+                showsVerticalScrollIndicator={false}
+                scrollEnabled={false} // Disable nested scrolling since index is scrolling
+                ListEmptyComponent={renderEmptyState}
+            />
+
+            {/* Registration Modal */}
+            <CreateCustomerModal 
+                visible={showCreateModal}
+                onClose={() => setShowCreateModal(false)}
+                onCreated={() => {
+                    setShowCreateModal(false);
+                    fetchCustomers(true);
+                }}
+            />
+            {/* History Modal */}
+            <ClientHistoryModal 
+                visible={showHistoryModal}
+                client={selectedClient}
+                onClose={() => setShowHistoryModal(false)}
+            />
+        </View>
+    );
+}

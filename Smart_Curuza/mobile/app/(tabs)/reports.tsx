@@ -1,78 +1,162 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, Dimensions, ActivityIndicator } from 'react-native';
-import { FileText, Download, TrendingUp, Calendar as CalendarIcon, Briefcase } from 'lucide-react-native';
+import React, { useState, useEffect, useCallback } from 'react';
+import * as RN from 'react-native';
+const { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, Dimensions, ActivityIndicator, RefreshControl } = RN;
+import { FileText, Download, TrendingUp, Calendar as CalendarIcon, Briefcase, AlertTriangle } from 'lucide-react-native';
 import ScreenWrapper from '../../components/ScreenWrapper';
-import { LineChart, PieChart } from 'react-native-chart-kit';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { LineChart } from 'react-native-chart-kit';
+import { useFocusEffect } from 'expo-router';
 import * as FileSystem from 'expo-file-system';
 import * as Sharing from 'expo-sharing';
+import { ApiClient } from '../../lib/api_client';
+import { useTheme } from '../../lib/theme/ThemeContext';
 
 const { width } = Dimensions.get('window');
 
 type Period = 'Month' | 'Quarter' | 'Year';
 
 export default function Reports() {
+    const { colors, isDarkMode } = useTheme();
+    const insets = useSafeAreaInsets();
     const [period, setPeriod] = useState<Period>('Month');
-    const [loading, setLoading] = useState(false);
+    const [loading, setLoading] = useState(true);
+    const [refreshing, setRefreshing] = useState(false);
 
-    // Simulated Financial Data based on the selected period
-    // Real implementation would fetch this aggregated data from the backend
-    const getFinancialData = () => {
-        let multiplier = period === 'Month' ? 1 : period === 'Quarter' ? 3 : 12;
-        
-        return {
-            grossRevenue: 4500000 * multiplier,
-            cogs: 1800000 * multiplier, // Cost of Goods Sold
-            operatingExpenses: 1200000 * multiplier,
-            netIncome: 1500000 * multiplier,
-            taxEstimate: 450000 * multiplier,
-            labels: period === 'Month' ? ['Week 1', 'Week 2', 'Week 3', 'Week 4'] : 
-                    period === 'Quarter' ? ['Month 1', 'Month 2', 'Month 3'] : 
-                    ['Q1', 'Q2', 'Q3', 'Q4'],
-            revenueData: period === 'Month' ? [800000, 1200000, 950000, 1550000] :
-                         period === 'Quarter' ? [4000000, 4500000, 5000000] :
-                         [12000000, 15000000, 11000000, 16000000],
-        };
+    // Financial Data State
+    const [financialData, setFinancialData] = useState({
+        grossRevenue: 0,
+        cogs: 0,
+        operatingExpenses: 0,
+        netIncome: 0,
+        taxEstimate: 0,
+        vat: 0,
+        labels: [] as string[],
+        revenueData: [0],
+    });
+
+    const fetchReportData = async (bypassCache = false) => {
+        setLoading(true);
+        try {
+            // 1. Map frontend period to backend export period
+            const exportPeriod = period === 'Month' ? 'weekly' : period === 'Quarter' ? 'monthly' : 'quarterly';
+            
+            // 2. Calculate date range for Expenses Summary
+            const now = new Date();
+            let startDate = new Date();
+            if (period === 'Month') {
+                startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+            } else if (period === 'Quarter') {
+                const currentQuarter = Math.floor(now.getMonth() / 3);
+                startDate = new Date(now.getFullYear(), currentQuarter * 3, 1);
+            } else {
+                startDate = new Date(now.getFullYear(), 0, 1);
+            }
+            const startDateStr = startDate.toISOString().split('T')[0];
+            const endDateStr = now.toISOString().split('T')[0];
+
+            // 3. Concurrent fetch: Sales Export + Expenses Summary
+            const [salesExport, expensesSummary] = await Promise.all([
+                ApiClient.getSalesExport(exportPeriod),
+                ApiClient.getExpensesSummary(startDateStr, endDateStr, bypassCache)
+            ]);
+
+            // 4. Process Sales Data
+            // We slice the summary to get relevant segments for the chart (last 4-6 segments)
+            const summarySegments = salesExport.summary || [];
+            const sliceCount = period === 'Month' ? 4 : period === 'Quarter' ? 3 : 4;
+            const recentSegments = summarySegments.slice(-sliceCount);
+
+            // Calculate totals from ALL detail records within the selected date range
+            // (Note: getSalesExport historically returns all data, so we filter by startDate for the P&L statement)
+            const details = salesExport.details || [];
+            const filterDate = startDate.getTime();
+            
+            let totalRevenue = 0;
+            let totalCost = 0;
+            let totalVat = 0;
+
+            details.forEach((item: any) => {
+                const saleDate = new Date(item.date).getTime();
+                if (saleDate >= filterDate) {
+                    totalRevenue += Number(item.total) || 0;
+                    totalCost += Number(item.cost) || 0;
+                    totalVat += Number(item.vat) || 0;
+                }
+            });
+
+            const totalExpenses = Number(expensesSummary.total) || 0;
+            const netIncome = (totalRevenue - totalCost - totalVat) - totalExpenses;
+            const taxEstimate = netIncome > 0 ? netIncome * 0.15 : 0; // 15% estimated corporate tax
+
+            // 5. Update State
+            setFinancialData({
+                grossRevenue: totalRevenue,
+                cogs: totalCost,
+                operatingExpenses: totalExpenses,
+                netIncome: netIncome,
+                taxEstimate: taxEstimate,
+                vat: totalVat,
+                labels: recentSegments.length > 0 ? recentSegments.map((s: any) => s.period.split(',')[0]) : ['No Data'],
+                revenueData: recentSegments.length > 0 ? recentSegments.map((s: any) => Number(s.revenue)) : [0],
+            });
+
+        } catch (error) {
+            console.error('Reports: Failed to fetch data', error);
+            Alert.alert('Data Error', 'Could not load real financial records. Showing last known state.');
+        } finally {
+            setLoading(false);
+            setRefreshing(false);
+        }
     };
 
-    const data = getFinancialData();
+    useFocusEffect(
+        useCallback(() => {
+            fetchReportData();
+        }, [period])
+    );
+
+    const data = financialData;
 
     // Chart Configuration
     const chartConfig = {
-        backgroundColor: '#2a2e34',
-        backgroundGradientFrom: '#2a2e34',
-        backgroundGradientTo: '#1a1d21',
+        backgroundColor: colors.card,
+        backgroundGradientFrom: colors.card,
+        backgroundGradientTo: colors.card,
         decimalPlaces: 0,
         color: (opacity = 1) => `rgba(251, 225, 52, ${opacity})`, // Gold
-        labelColor: (opacity = 1) => `rgba(156, 163, 175, ${opacity})`, // Gray
+        labelColor: (opacity = 1) => isDarkMode ? `rgba(156, 163, 175, ${opacity})` : `rgba(75, 85, 99, ${opacity})`,
         style: {
             borderRadius: 16,
         },
         propsForDots: {
             r: "4",
             strokeWidth: "2",
-            stroke: "#0b0c0c"
+            stroke: isDarkMode ? "#0b0c0c" : colors.card
         }
     };
 
     const handleExport = async () => {
         setLoading(true);
         try {
-            // Generate a professional CSV Statement
+            // Generate a professional CSV Statement from live data
             let csvContent = `SMART CURUZA - FINANCIAL STATEMENT\n`;
             csvContent += `Period: ${period} ending ${new Date().toLocaleDateString()}\n\n`;
             csvContent += `Metric,Amount (RWF)\n`;
             csvContent += `Gross Revenue,${data.grossRevenue}\n`;
             csvContent += `Cost of Goods Sold (COGS),-${data.cogs}\n`;
-            csvContent += `Gross Profit,${data.grossRevenue - data.cogs}\n`;
+            csvContent += `VAT Paid,-${data.vat}\n`;
+            csvContent += `Gross Profit,${data.grossRevenue - data.cogs - data.vat}\n`;
             csvContent += `Operating Expenses,-${data.operatingExpenses}\n`;
-            csvContent += `EBITDA,${data.netIncome + data.taxEstimate}\n`;
+            csvContent += `Net Income Before Tax,${data.netIncome}\n`;
             csvContent += `Estimated Tax,-${data.taxEstimate}\n`;
-            csvContent += `NET INCOME,${data.netIncome}\n`;
+            csvContent += `FINAL NET INCOME,${data.netIncome - data.taxEstimate}\n`;
 
             const fileName = `Financial_Statement_${period}_${Date.now()}.csv`;
-            const fileUri = FileSystem.documentDirectory + fileName;
+            const fileUri = `${(FileSystem as any).documentDirectory}${fileName}`;
 
-            await FileSystem.writeAsStringAsync(fileUri, csvContent, { encoding: FileSystem.EncodingType.UTF8 });
+            await FileSystem.writeAsStringAsync(fileUri, csvContent, { 
+                encoding: (FileSystem as any).EncodingType.UTF8 
+            });
 
             if (!(await Sharing.isAvailableAsync())) {
                 Alert.alert('Error', 'Sharing is not available on this device');
@@ -94,120 +178,153 @@ export default function Reports() {
     };
 
     return (
-        <ScreenWrapper>
+        <ScreenWrapper safeArea={false} style={{ backgroundColor: colors.background }}>
             {/* Standardized Institutional Header */}
-            <View style={styles.header}>
+            <View style={[styles.header, { paddingTop: insets.top + 16, backgroundColor: isDarkMode ? colors.card : colors.brandGold }]}>
                 <View style={styles.headerTop}>
                     <View>
-                        <Text style={styles.headerTitle}>Financials</Text>
-                        <Text style={styles.headerSub}>Official Reporting & Accounting</Text>
+                        <Text style={[styles.headerTitle, { color: isDarkMode ? '#FFFFFF' : '#111827' }]}>Financials</Text>
+                        <Text style={[styles.headerSub, { color: isDarkMode ? 'rgba(255, 255, 255, 0.5)' : '#4B5563' }]}>Official Reporting & Accounting</Text>
                     </View>
-                    <View style={styles.iconBox}>
-                        <Briefcase size={24} color="#fbe134" />
+                    <View style={[styles.iconBox, { backgroundColor: isDarkMode ? 'rgba(251, 225, 52, 0.1)' : 'rgba(255, 255, 255, 0.2)' }]}>
+                        <Briefcase size={24} color={isDarkMode ? '#fbe134' : '#111827'} />
                     </View>
                 </View>
 
                 {/* Simplified Period Tab */}
-                <View style={styles.periodTabs}>
+                <View style={[styles.periodTabs, { backgroundColor: isDarkMode ? 'rgba(0,0,0,0.2)' : 'rgba(0,0,0,0.1)' }]}>
                     {(['Month', 'Quarter', 'Year'] as Period[]).map((p) => (
                         <TouchableOpacity 
                             key={p}
-                            style={[styles.tabBtn, period === p && styles.tabBtnActive]}
+                            style={[
+                                styles.tabBtn, 
+                                period === p && [styles.tabBtnActive, { backgroundColor: isDarkMode ? '#fbe134' : '#111827', shadowColor: isDarkMode ? '#fbe134' : '#000' }]
+                            ]}
                             onPress={() => setPeriod(p)}
                         >
-                            <Text style={[styles.tabText, period === p && styles.tabTextActive]}>{p}</Text>
+                            <Text style={[
+                                styles.tabText, 
+                                { color: isDarkMode ? '#9CA3AF' : 'rgba(17, 24, 39, 0.5)' },
+                                period === p && [styles.tabTextActive, { color: isDarkMode ? '#0b0c0c' : colors.brandGold }]
+                            ]}>{p}</Text>
                         </TouchableOpacity>
                     ))}
                 </View>
             </View>
 
-            <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
-                
-                {/* 1. The Macro-Financial Graph */}
-                <View style={styles.section}>
-                    <Text style={styles.sectionTitle}>Revenue Trajectory</Text>
-                    <View style={styles.chartCard}>
-                        <LineChart
-                            data={{
-                                labels: data.labels,
-                                datasets: [{ data: data.revenueData }]
-                            }}
-                            width={width - 48} // Padding included
-                            height={220}
-                            yAxisLabel=""
-                            yAxisSuffix="    " // Padding hack for y-axis
-                            chartConfig={chartConfig}
-                            bezier
-                            style={styles.chartStyle}
-                            formatYLabel={(y) => {
-                                const num = parseInt(y);
-                                if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
-                                if (num >= 1000) return (num / 1000).toFixed(0) + 'k';
-                                return y;
-                            }}
-                        />
+            <ScrollView 
+                style={styles.scrollView} 
+                contentContainerStyle={styles.scrollContent}
+                showsVerticalScrollIndicator={false}
+                refreshControl={
+                    <RefreshControl 
+                        refreshing={refreshing} 
+                        onRefresh={() => {
+                            setRefreshing(true);
+                            fetchReportData(true);
+                        }}
+                        tintColor={colors.brandGold}
+                    />
+                }
+            >
+                {loading && !refreshing ? (
+                    <View style={{ height: 400, justifyContent: 'center', alignItems: 'center' }}>
+                        <ActivityIndicator size="large" color={colors.brandGold} />
+                        <Text style={{ color: colors.textSecondary, marginTop: 16, fontFamily: 'Montserrat_500Medium' }}>Retrieving Global Ledger...</Text>
                     </View>
-                </View>
-
-                {/* 2. Strict Profit & Loss (P&L) Statement */}
-                <View style={styles.section}>
-                    <Text style={styles.sectionTitle}>Statement of P&L</Text>
-                    <View style={styles.sheetCard}>
-                        {/* GROSS */}
-                        <View style={styles.sheetRow}>
-                            <Text style={styles.sheetLabel}>Gross Revenue</Text>
-                            <Text style={styles.sheetValue}>{data.grossRevenue.toLocaleString()}</Text>
-                        </View>
-                        <View style={styles.sheetRow}>
-                            <Text style={styles.sheetLabel}>Cost of Goods (COGS)</Text>
-                            <Text style={[styles.sheetValue, { color: '#EF4444' }]}>- {data.cogs.toLocaleString()}</Text>
-                        </View>
-                        <View style={styles.sheetDivider} />
-                        
-                        {/* GROSS PROFIT */}
-                        <View style={styles.sheetRow}>
-                            <Text style={[styles.sheetLabel, { fontFamily: 'Montserrat_700Bold' }]}>Gross Profit</Text>
-                            <Text style={[styles.sheetValue, { fontFamily: 'Poppins_700Bold' }]}>{(data.grossRevenue - data.cogs).toLocaleString()}</Text>
-                        </View>
-
-                        {/* OPEX */}
-                        <View style={[styles.sheetRow, { marginTop: 16 }]}>
-                            <Text style={styles.sheetLabel}>Operating Expenses</Text>
-                            <Text style={[styles.sheetValue, { color: '#EF4444' }]}>- {data.operatingExpenses.toLocaleString()}</Text>
-                        </View>
-
-                        <View style={styles.sheetDivider} />
-
-                        {/* EBITDA */}
-                        <View style={styles.sheetRow}>
-                            <Text style={[styles.sheetLabel, { fontFamily: 'Montserrat_700Bold' }]}>EBITDA</Text>
-                            <Text style={[styles.sheetValue, { fontFamily: 'Poppins_700Bold' }]}>{(data.netIncome + data.taxEstimate).toLocaleString()}</Text>
-                        </View>
-                        
-                        <View style={styles.sheetRow}>
-                            <Text style={styles.sheetLabel}>Estimated Tax</Text>
-                            <Text style={[styles.sheetValue, { color: '#EF4444' }]}>- {data.taxEstimate.toLocaleString()}</Text>
+                ) : (
+                    <>
+                        {/* 1. The Macro-Financial Graph */}
+                        <View style={styles.section}>
+                            <Text style={[styles.sectionTitle, { color: colors.textSecondary }]}>Revenue Trajectory</Text>
+                            <View style={[styles.chartCard, { backgroundColor: colors.card, shadowColor: isDarkMode ? '#000': '#E5E7EB' }]}>
+                                <LineChart
+                                    data={{
+                                        labels: data.labels,
+                                        datasets: [{ data: data.revenueData }]
+                                    }}
+                                    width={width - 48} // Padding included
+                                    height={220}
+                                    yAxisLabel=""
+                                    yAxisSuffix="" 
+                                    chartConfig={chartConfig}
+                                    bezier
+                                    style={styles.chartStyle}
+                                    formatYLabel={(y) => {
+                                        const num = parseInt(y);
+                                        if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
+                                        if (num >= 1000) return (num / 1000).toFixed(0) + 'k';
+                                        return y;
+                                    }}
+                                />
+                            </View>
                         </View>
 
-                        <View style={styles.sheetDividerHeavy} />
+                        {/* 2. Strict Profit & Loss (P&L) Statement */}
+                        <View style={styles.section}>
+                            <Text style={[styles.sectionTitle, { color: colors.textSecondary }]}>Statement of P&L</Text>
+                            <View style={[styles.sheetCard, { backgroundColor: colors.card, shadowColor: isDarkMode ? '#000' : '#E5E7EB' }]}>
+                                {/* GROSS */}
+                                <View style={styles.sheetRow}>
+                                    <Text style={[styles.sheetLabel, { color: colors.textSecondary }]}>Gross Revenue</Text>
+                                    <Text style={[styles.sheetValue, { color: colors.textPrimary }]}>{data.grossRevenue.toLocaleString()}</Text>
+                                </View>
+                                <View style={styles.sheetRow}>
+                                    <Text style={[styles.sheetLabel, { color: colors.textSecondary }]}>Cost of Goods (COGS)</Text>
+                                    <Text style={[styles.sheetValue, { color: colors.danger }]}>- {data.cogs.toLocaleString()}</Text>
+                                </View>
+                                <View style={styles.sheetRow}>
+                                    <Text style={[styles.sheetLabel, { color: colors.textSecondary }]}>VAT Collected</Text>
+                                    <Text style={[styles.sheetValue, { color: colors.danger }]}>- {data.vat.toLocaleString()}</Text>
+                                </View>
+                                <View style={[styles.sheetDivider, { backgroundColor: colors.border }]} />
+                                
+                                {/* GROSS PROFIT */}
+                                <View style={styles.sheetRow}>
+                                    <Text style={[styles.sheetLabel, { fontFamily: 'Montserrat_700Bold', color: colors.textPrimary }]}>Gross Profit</Text>
+                                    <Text style={[styles.sheetValue, { fontFamily: 'Poppins_700Bold', color: colors.brandGold }]}>{(data.grossRevenue - data.cogs - data.vat).toLocaleString()}</Text>
+                                </View>
 
-                        {/* NET INCOME */}
-                        <View style={styles.sheetRow}>
-                            <Text style={styles.sheetTotalLabel}>NET INCOME</Text>
-                            <Text style={styles.sheetTotalValue}>{data.netIncome.toLocaleString()} <Text style={styles.currency}>RWF</Text></Text>
+                                {/* OPEX */}
+                                <View style={[styles.sheetRow, { marginTop: 16 }]}>
+                                    <Text style={[styles.sheetLabel, { color: colors.textSecondary }]}>Operating Expenses</Text>
+                                    <Text style={[styles.sheetValue, { color: colors.danger }]}>- {data.operatingExpenses.toLocaleString()}</Text>
+                                </View>
+
+                                <View style={[styles.sheetDivider, { backgroundColor: colors.border }]} />
+
+                                {/* EBITDA (Approximate) */}
+                                <View style={styles.sheetRow}>
+                                    <Text style={[styles.sheetLabel, { fontFamily: 'Montserrat_700Bold', color: colors.textPrimary }]}>Income Before Tax</Text>
+                                    <Text style={[styles.sheetValue, { fontFamily: 'Poppins_700Bold', color: colors.textPrimary }]}>{data.netIncome.toLocaleString()}</Text>
+                                </View>
+                                
+                                <View style={styles.sheetRow}>
+                                    <Text style={[styles.sheetLabel, { color: colors.textSecondary }]}>Estimated Corp. Tax</Text>
+                                    <Text style={[styles.sheetValue, { color: colors.danger }]}>- {Math.floor(data.taxEstimate).toLocaleString()}</Text>
+                                </View>
+
+                                <View style={[styles.sheetDividerHeavy, { backgroundColor: isDarkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)' }]} />
+
+                                {/* NET INCOME */}
+                                <View style={styles.sheetRow}>
+                                    <Text style={[styles.sheetTotalLabel, { color: colors.textPrimary }]}>FINAL NET INCOME</Text>
+                                    <Text style={styles.sheetTotalValue}>{(data.netIncome - data.taxEstimate).toLocaleString()} <Text style={styles.currency}>RWF</Text></Text>
+                                </View>
+                            </View>
                         </View>
-                    </View>
-                </View>
+                    </>
+                )}
 
                 {/* 3. Official Export Engine */}
-                <View style={styles.exportSection}>
+                <View style={[styles.exportSection, loading && { opacity: 0.5 }]}>
                     <TouchableOpacity 
                         style={styles.exportButton}
                         onPress={handleExport}
                         activeOpacity={0.8}
                         disabled={loading}
                     >
-                        {loading ? (
+                        {loading && !refreshing ? (
                             <ActivityIndicator color="#0b0c0c" />
                         ) : (
                             <>
@@ -216,7 +333,7 @@ export default function Reports() {
                             </>
                         )}
                     </TouchableOpacity>
-                    <Text style={styles.exportDisclaimer}>Generates a secure CSV compilation for external banking or accounting use.</Text>
+                    <Text style={[styles.exportDisclaimer, { color: colors.textSecondary }]}>Generates a secure CSV compilation for external banking or accounting use.</Text>
                 </View>
 
             </ScrollView>
@@ -224,25 +341,25 @@ export default function Reports() {
     );
 }
 
+
 const styles = StyleSheet.create({
     header: {
         backgroundColor: '#2a2e34', 
-        paddingTop: 60,
+        paddingHorizontal: 24,
         paddingBottom: 24,
-        borderBottomLeftRadius: 36,
-        borderBottomRightRadius: 36,
+        borderBottomLeftRadius: 32,
+        borderBottomRightRadius: 32,
         shadowColor: '#000',
-        shadowOffset: { width: 0, height: 10 },
-        shadowOpacity: 0.3,
-        shadowRadius: 20,
+        shadowOffset: { width: 0, height: 8 },
+        shadowOpacity: 0.25,
+        shadowRadius: 16,
         elevation: 12,
-        zIndex: 10,
+        zIndex: 100,
     },
     headerTop: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        paddingHorizontal: 24,
         marginBottom: 24,
     },
     headerTitle: {
@@ -293,8 +410,13 @@ const styles = StyleSheet.create({
     tabTextActive: {
         color: '#0b0c0c',
     },
-    container: {
+    scrollView: {
         flex: 1,
+        marginTop: -32,
+    },
+    scrollContent: {
+        paddingBottom: 100,
+        backgroundColor: '#1a1d21',
     },
     section: {
         paddingHorizontal: 24,
@@ -325,16 +447,16 @@ const styles = StyleSheet.create({
         borderRadius: 16,
     },
     sheetCard: {
-        backgroundColor: '#f3f4f6', // Light Grey "Statement" Look
+        backgroundColor: '#2a2e34', // Dark Card
         borderRadius: 24,
         padding: 24,
         borderTopWidth: 4,
         borderTopColor: '#fbe134', // Gold Seal
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.1,
+        shadowOpacity: 0.2,
         shadowRadius: 8,
-        elevation: 4,
+        elevation: 6,
     },
     sheetRow: {
         flexDirection: 'row',
@@ -345,32 +467,32 @@ const styles = StyleSheet.create({
     sheetLabel: {
         fontSize: 14,
         fontFamily: 'Montserrat_500Medium',
-        color: '#4B5563',
+        color: '#9CA3AF',
     },
     sheetValue: {
         fontSize: 15,
         fontFamily: 'Poppins_600SemiBold',
-        color: '#111827',
+        color: '#FFFFFF',
     },
     sheetDivider: {
         height: 1,
-        backgroundColor: '#D1D5DB',
+        backgroundColor: 'rgba(255,255,255,0.05)',
         marginVertical: 12,
     },
     sheetDividerHeavy: {
         height: 2,
-        backgroundColor: '#111827',
+        backgroundColor: 'rgba(255,255,255,0.1)',
         marginVertical: 12,
     },
     sheetTotalLabel: {
         fontSize: 16,
         fontFamily: 'Montserrat_800ExtraBold',
-        color: '#111827',
+        color: '#FFFFFF',
     },
     sheetTotalValue: {
         fontSize: 20,
         fontFamily: 'Poppins_700Bold',
-        color: '#2a2e34',
+        color: '#fbe134',
     },
     currency: {
         fontSize: 11,

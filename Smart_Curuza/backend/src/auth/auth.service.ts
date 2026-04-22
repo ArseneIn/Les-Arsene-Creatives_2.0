@@ -21,7 +21,7 @@ export class AuthService {
     @InjectRepository(Merchant)
     private merchantsRepository: Repository<Merchant>,
     private jwtService: JwtService,
-  ) { }
+  ) {}
 
   async register(
     registerDto: RegisterDto,
@@ -139,6 +139,7 @@ export class AuthService {
       access_token: this.jwtService.sign(payload),
       user: {
         id: user.id,
+        name: user.name,
         email: user.email,
         phone: user.phone,
         role: user.role,
@@ -146,5 +147,29 @@ export class AuthService {
         shopName: user.merchant?.business_name,
       },
     };
+  }
+
+  async changePin(userId: string, oldPin: string, newPin: string) {
+    const user = await this.usersRepository.findOne({ where: { id: userId } });
+    if (!user || (!user.pin_hash && !oldPin)) {
+      throw new UnauthorizedException('User not found or no PIN set');
+    }
+
+    // Verify old PIN
+    if (user.pin_hash) {
+      if (!oldPin) {
+        throw new UnauthorizedException('Old PIN is required');
+      }
+      const isValid = await bcrypt.compare(oldPin, user.pin_hash);
+      if (!isValid) {
+        throw new UnauthorizedException('Incorrect old PIN');
+      }
+    }
+
+    // Update to new PIN
+    user.pin_hash = await bcrypt.hash(newPin, 10);
+    await this.usersRepository.save(user);
+
+    return { success: true, message: 'PIN updated successfully' };
   }
 }

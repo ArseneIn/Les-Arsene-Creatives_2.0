@@ -3,21 +3,26 @@ import { View, Text, TouchableOpacity, StyleSheet, Switch, ScrollView, Alert } f
 import { useAuth } from '../../lib/auth/AuthContext';
 import { Bell, ChevronRight, User, Shield, CircleHelp, LogOut, Settings, Moon, Store, Users, FileText } from 'lucide-react-native';
 import ShopSettingsModal from '../../components/ShopSettingsModal';
+import PersonalInfoModal from '../../components/PersonalInfoModal';
+import SecurityModal from '../../components/SecurityModal';
 import ScreenWrapper from '../../components/ScreenWrapper';
+
+import { useTheme } from '../../lib/theme/ThemeContext';
 
 export default function Profile() {
     const { logout, user } = useAuth();
+    const { colors, isDarkMode, toggleDarkMode } = useTheme();
     const [notificationsEnabled, setNotificationsEnabled] = useState(true);
-    const [darkMode, setDarkMode] = useState(false);
     const [showShopSettings, setShowShopSettings] = useState(false);
+    const [showPersonalInfo, setShowPersonalInfo] = useState(false);
+    const [showSecurityModal, setShowSecurityModal] = useState(false);
 
     const toggleNotifications = () => setNotificationsEnabled(previousState => !previousState);
-    const toggleDarkMode = () => setDarkMode(previousState => !previousState);
 
     const MenuSection = ({ title, children }: { title: string, children: React.ReactNode }) => (
         <View style={styles.section}>
-            <Text style={styles.sectionTitle}>{title}</Text>
-            <View style={styles.sectionContent}>
+            <Text style={[styles.sectionTitle, { color: colors.textSecondary }]}>{title}</Text>
+            <View style={[styles.sectionContent, { backgroundColor: colors.card, shadowColor: isDarkMode ? '#000': '#E5E7EB' }]}>
                 {children}
             </View>
         </View>
@@ -25,46 +30,46 @@ export default function Profile() {
 
     const MenuItem = ({ icon: Icon, label, value, onPress, isSwitch = false, switchValue, onSwitchChange }: any) => (
         <TouchableOpacity
-            style={styles.menuItem}
+            style={[styles.menuItem, { borderBottomColor: colors.border }]}
             onPress={isSwitch ? undefined : onPress}
             activeOpacity={isSwitch ? 1 : 0.7}
         >
             <View style={styles.menuItemLeft}>
-                <View style={styles.iconContainer}>
-                    <Icon size={20} color="#4B5563" />
+                <View style={[styles.iconContainer, { backgroundColor: colors.overlay }]}>
+                    <Icon size={20} color={colors.textSecondary} />
                 </View>
-                <Text style={styles.menuItemLabel}>{label}</Text>
+                <Text style={[styles.menuItemLabel, { color: colors.textPrimary }]}>{label}</Text>
             </View>
             {isSwitch ? (
                 <Switch
-                    trackColor={{ false: "#E5E7EB", true: "#fbe134" }}
-                    thumbColor={switchValue ? "#FFFFFF" : "#F9FAFB"}
-                    ios_backgroundColor="#E5E7EB"
+                    trackColor={{ false: colors.overlay, true: "#fbe134" }}
+                    thumbColor={switchValue ? (isDarkMode ? "#0b0c0c" : "#FFFFFF") : colors.textSecondary}
+                    ios_backgroundColor={colors.overlay}
                     onValueChange={onSwitchChange}
                     value={switchValue}
                 />
             ) : (
                 <View style={styles.menuItemRight}>
-                    {value && <Text style={styles.menuItemValue}>{value}</Text>}
-                    <ChevronRight size={20} color="#9CA3AF" />
+                    {value && <Text style={[styles.menuItemValue, { color: colors.textSecondary }]}>{value}</Text>}
+                    <ChevronRight size={20} color={colors.textSecondary} />
                 </View>
             )}
         </TouchableOpacity>
     );
 
     return (
-        <ScreenWrapper>
+        <ScreenWrapper style={{ backgroundColor: colors.background }}>
             <ScrollView showsVerticalScrollIndicator={false}>
-                <View style={styles.header}>
-                    <View style={styles.avatar}>
+                <View style={[styles.header, { backgroundColor: colors.card, borderBottomColor: colors.border }]}>
+                    <View style={[styles.avatar, { shadowColor: isDarkMode ? '#000' : '#fbe134' }]}>
                         <Text style={styles.avatarText}>
                             {user?.name ? user.name.charAt(0).toUpperCase() : 'U'}
                         </Text>
                     </View>
-                    <Text style={styles.name}>{user?.name || 'User'}</Text>
-                    <Text style={styles.role}>{user?.role || 'Merchant'}</Text>
-                    <TouchableOpacity style={styles.editProfileButton}>
-                        <Text style={styles.editProfileText}>Edit Profile</Text>
+                    <Text style={[styles.name, { color: colors.textPrimary }]}>{user?.name || 'User'}</Text>
+                    <Text style={[styles.role, { color: colors.textSecondary }]}>{user?.role || 'Merchant'}</Text>
+                    <TouchableOpacity style={[styles.editProfileButton, { backgroundColor: colors.overlay, borderColor: colors.border }]}>
+                        <Text style={[styles.editProfileText, { color: colors.textSecondary }]}>Edit Profile</Text>
                     </TouchableOpacity>
                 </View>
 
@@ -99,7 +104,7 @@ export default function Profile() {
                             icon={Moon}
                             label="Dark Mode"
                             isSwitch
-                            switchValue={darkMode}
+                            switchValue={isDarkMode}
                             onSwitchChange={toggleDarkMode}
                         />
                     </MenuSection>
@@ -108,17 +113,17 @@ export default function Profile() {
                         <MenuItem
                             icon={User}
                             label="Personal Information"
-                            onPress={() => { }}
+                            onPress={() => setShowPersonalInfo(true)}
                         />
                         <MenuItem
                             icon={Shield}
                             label="Security"
-                            onPress={() => { }}
+                            onPress={() => setShowSecurityModal(true)}
                         />
                         <MenuItem
                             icon={Settings}
                             label="App Settings"
-                            onPress={() => { }}
+                            onPress={() => Alert.alert('App Settings', 'General application settings will be available soon.')}
                         />
                     </MenuSection>
 
@@ -126,22 +131,32 @@ export default function Profile() {
                         <MenuItem
                             icon={CircleHelp}
                             label="Help & Support"
-                            onPress={() => { }}
+                            onPress={() => Alert.alert('Support', 'Please contact support@smartcuruza.com or call +250 788 123 456 for assistance.')}
                         />
                     </MenuSection>
 
-                    <TouchableOpacity style={styles.logoutButton} onPress={logout}>
-                        <LogOut size={20} color="#DC2626" />
-                        <Text style={styles.logoutText}>Sign Out</Text>
+                    <TouchableOpacity style={[styles.logoutButton, { backgroundColor: isDarkMode ? 'rgba(220,38,38,0.1)' : '#FEF2F2', borderColor: isDarkMode ? 'rgba(220,38,38,0.3)' : '#FECACA' }]} onPress={logout}>
+                        <LogOut size={20} color={colors.danger} />
+                        <Text style={[styles.logoutText, { color: colors.danger }]}>Sign Out</Text>
                     </TouchableOpacity>
 
-                    <Text style={styles.versionText}>Version 1.0.0 (Build 100)</Text>
+                    <Text style={[styles.versionText, { color: colors.textSecondary }]}>Version 1.0.0 (Build 100)</Text>
                 </View>
             </ScrollView>
 
             <ShopSettingsModal
                 visible={showShopSettings}
                 onClose={() => setShowShopSettings(false)}
+            />
+            
+            <PersonalInfoModal
+                visible={showPersonalInfo}
+                onClose={() => setShowPersonalInfo(false)}
+            />
+
+            <SecurityModal
+                visible={showSecurityModal}
+                onClose={() => setShowSecurityModal(false)}
             />
         </ScreenWrapper>
     );
@@ -150,7 +165,6 @@ export default function Profile() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        // backgroundColor: '#F3F4F6', // Removed for background
     },
     header: {
         backgroundColor: '#FFFFFF',

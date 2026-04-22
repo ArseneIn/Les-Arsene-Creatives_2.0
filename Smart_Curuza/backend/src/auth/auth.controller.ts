@@ -14,6 +14,7 @@ import { extname } from 'path';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
+import { ChangePinDto } from './dto/change-pin.dto';
 import { AuthGuard } from '@nestjs/passport';
 
 @Controller('auth')
@@ -61,5 +62,15 @@ export class AuthController {
   @Get('profile')
   getProfile(@Request() req) {
     return req.user;
+  }
+
+  @UseGuards(AuthGuard('jwt'))
+  @Post('change-pin')
+  async changePin(@Request() req, @Body() changePinDto: ChangePinDto) {
+    return this.authService.changePin(
+      req.user.userId,
+      changePinDto.oldPin,
+      changePinDto.newPin,
+    );
   }
 }

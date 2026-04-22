@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, Modal, TouchableOpacity, ScrollView, ActivityIndicator, Alert } from 'react-native';
+import * as RN from 'react-native';
+const { View, Text, StyleSheet, Modal, TouchableOpacity, ScrollView, ActivityIndicator, Alert } = RN;
 import { X, Calendar, User, CreditCard, Check, Clock, AlertTriangle, Printer, Trash2 } from 'lucide-react-native';
 import { ApiClient } from '../lib/api_client';
 
@@ -215,9 +216,9 @@ const styles = StyleSheet.create({
         justifyContent: 'flex-end',
     },
     modalContent: {
-        backgroundColor: '#FFFFFF',
-        borderTopLeftRadius: 24,
-        borderTopRightRadius: 24,
+        backgroundColor: '#1a1d21',
+        borderTopLeftRadius: 36,
+        borderTopRightRadius: 36,
         height: '90%',
         paddingBottom: 30,
     },
@@ -227,22 +228,22 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         padding: 24,
         borderBottomWidth: 1,
-        borderBottomColor: '#F3F4F6',
+        borderBottomColor: 'rgba(255, 255, 255, 0.05)',
     },
     headerTitle: {
         fontSize: 20,
         fontFamily: 'Poppins_700Bold',
-        color: '#111827',
+        color: '#FFFFFF',
     },
     headerSubtitle: {
         fontSize: 14,
         fontFamily: 'Montserrat_500Medium',
-        color: '#6B7280',
+        color: '#9CA3AF',
         marginTop: 2,
     },
     closeButton: {
         padding: 8,
-        backgroundColor: '#F3F4F6',
+        backgroundColor: 'rgba(255, 255, 255, 0.05)',
         borderRadius: 20,
     },
     body: {
@@ -256,7 +257,7 @@ const styles = StyleSheet.create({
     },
     infoCard: {
         flex: 1,
-        backgroundColor: '#F9FAFB',
+        backgroundColor: '#2a2e34',
         padding: 16,
         borderRadius: 16,
         gap: 12,
@@ -269,11 +270,11 @@ const styles = StyleSheet.create({
     infoText: {
         fontSize: 12,
         fontFamily: 'Montserrat_500Medium',
-        color: '#4B5563',
+        color: '#D1D5DB',
     },
     statusCard: {
         flex: 1,
-        backgroundColor: '#F9FAFB',
+        backgroundColor: '#2a2e34',
         padding: 16,
         borderRadius: 16,
         alignItems: 'center',
@@ -310,42 +311,42 @@ const styles = StyleSheet.create({
     sectionTitle: {
         fontSize: 16,
         fontFamily: 'Poppins_600SemiBold',
-        color: '#111827',
+        color: '#FFFFFF',
         marginBottom: 12,
     },
     itemsTable: {
         borderWidth: 1,
-        borderColor: '#E5E7EB',
+        borderColor: 'rgba(255, 255, 255, 0.05)',
         borderRadius: 12,
         overflow: 'hidden',
     },
     tableHeader: {
         flexDirection: 'row',
-        backgroundColor: '#F9FAFB',
+        backgroundColor: 'rgba(255, 255, 255, 0.05)',
         padding: 12,
         borderBottomWidth: 1,
-        borderBottomColor: '#E5E7EB',
+        borderBottomColor: 'rgba(255, 255, 255, 0.1)',
     },
     tableHeaderText: {
         fontSize: 12,
         fontFamily: 'Montserrat_600SemiBold',
-        color: '#6B7280',
+        color: '#9CA3AF',
     },
     tableRow: {
         flexDirection: 'row',
         padding: 12,
         borderBottomWidth: 1,
-        borderBottomColor: '#E5E7EB',
+        borderBottomColor: 'rgba(255, 255, 255, 0.03)',
     },
     tableCell: {
         fontSize: 13,
         fontFamily: 'Montserrat_500Medium',
-        color: '#374151',
+        color: '#D1D5DB',
     },
     summarySection: {
-        backgroundColor: '#F9FAFB',
-        padding: 16,
-        borderRadius: 16,
+        backgroundColor: '#2a2e34',
+        padding: 20,
+        borderRadius: 20,
         gap: 12,
         marginBottom: 24,
     },
@@ -356,32 +357,32 @@ const styles = StyleSheet.create({
     summaryLabel: {
         fontSize: 13,
         fontFamily: 'Montserrat_500Medium',
-        color: '#6B7280',
+        color: '#9CA3AF',
     },
     summaryValue: {
         fontSize: 13,
         fontFamily: 'Montserrat_600SemiBold',
-        color: '#374151',
+        color: '#FFFFFF',
     },
     totalRow: {
         borderTopWidth: 1,
-        borderTopColor: '#E5E7EB',
+        borderTopColor: 'rgba(255, 255, 255, 0.1)',
         paddingTop: 12,
         marginTop: 4,
     },
     totalLabel: {
         fontSize: 16,
         fontFamily: 'Poppins_700Bold',
-        color: '#111827',
+        color: '#FFFFFF',
     },
     totalValue: {
         fontSize: 18,
         fontFamily: 'Poppins_700Bold',
-        color: '#111827',
+        color: '#fbe134',
     },
     profitRow: {
         borderTopWidth: 1,
-        borderTopColor: '#E5E7EB',
+        borderTopColor: 'rgba(255, 255, 255, 0.1)',
         borderStyle: 'dashed',
         paddingTop: 12,
     },
@@ -396,7 +397,7 @@ const styles = StyleSheet.create({
     footer: {
         padding: 24,
         borderTopWidth: 1,
-        borderTopColor: '#F3F4F6',
+        borderTopColor: 'rgba(255, 255, 255, 0.05)',
         flexDirection: 'row',
         gap: 12,
     },

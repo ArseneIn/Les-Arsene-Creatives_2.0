@@ -1,19 +1,20 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { View, Text, StyleSheet, Modal, TouchableOpacity, TextInput, ActivityIndicator, KeyboardAvoidingView, Platform, ScrollView, Alert } from 'react-native';
-import { X, Save, Layers, Briefcase, Calendar, ChevronDown, Package } from 'lucide-react-native';
+import { X, Save, Layers, Briefcase, Calendar, ChevronDown, Package, Search } from 'lucide-react-native';
 import { ApiClient } from '../lib/api_client';
 
 interface RestockModalProps {
     visible: boolean;
     onClose: () => void;
     onSuccess: () => void;
-    availableProducts: { id: string; name: string; unit: string }[];
+    availableProducts: { id: string; name: string; unit: string; barcode?: string | null }[];
 }
 
 export default function RestockModal({ visible, onClose, onSuccess, availableProducts }: RestockModalProps) {
     const [loading, setLoading] = useState(false);
     const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
     const [showDropdown, setShowDropdown] = useState(false);
+    const [searchQuery, setSearchQuery] = useState('');
     
     const [batch, setBatch] = useState({
         quantity: '',
@@ -21,6 +22,16 @@ export default function RestockModal({ visible, onClose, onSuccess, availablePro
         selling_price: '',
         expiry_date: '', // Optional format YYYY-MM-DD
     });
+
+    // Filter products based on search query (Name or Barcode)
+    const filteredProducts = useMemo(() => {
+        if (!searchQuery) return availableProducts;
+        const query = searchQuery.toLowerCase();
+        return availableProducts.filter(p => 
+            p.name.toLowerCase().includes(query) || 
+            (p.barcode && p.barcode.toLowerCase().includes(query))
+        );
+    }, [availableProducts, searchQuery]);
 
     const handleSave = async () => {
         if (!selectedProductId || !batch.quantity || !batch.buying_price_per_unit) {
@@ -44,6 +55,7 @@ export default function RestockModal({ visible, onClose, onSuccess, availablePro
             Alert.alert('Restock Successful', 'New inventory batch added successfully!');
             setBatch({ quantity: '', buying_price_per_unit: '', selling_price: '', expiry_date: '' });
             setSelectedProductId(null);
+            setSearchQuery('');
             onSuccess();
             onClose();
         } catch (error) {
@@ -98,18 +110,44 @@ export default function RestockModal({ visible, onClose, onSuccess, availablePro
 
                                 {showDropdown && (
                                     <View style={styles.dropdownMenu}>
-                                        {availableProducts.map(prod => (
-                                            <TouchableOpacity 
-                                                key={prod.id} 
-                                                style={styles.dropdownMenuItem}
-                                                onPress={() => {
-                                                    setSelectedProductId(prod.id);
-                                                    setShowDropdown(false);
-                                                }}
-                                            >
-                                                <Text style={styles.dropdownMenuItemText}>{prod.name}</Text>
-                                            </TouchableOpacity>
-                                        ))}
+                                        {/* Search Input inside Dropdown */}
+                                        <View style={styles.searchContainer}>
+                                            <Search size={16} color="#9CA3AF" />
+                                            <TextInput 
+                                                style={styles.searchInput}
+                                                placeholder="Search products..."
+                                                placeholderTextColor="#6B7280"
+                                                value={searchQuery}
+                                                onChangeText={setSearchQuery}
+                                                autoFocus={true}
+                                            />
+                                            {searchQuery !== '' && (
+                                                <TouchableOpacity onPress={() => setSearchQuery('')}>
+                                                    <X size={16} color="#9CA3AF" />
+                                                </TouchableOpacity>
+                                            )}
+                                        </View>
+
+                                        <ScrollView style={styles.dropdownScroll} nestedScrollEnabled={true}>
+                                            {filteredProducts.length === 0 ? (
+                                                <Text style={styles.noResultsText}>No products match "{searchQuery}"</Text>
+                                            ) : (
+                                                filteredProducts.map(prod => (
+                                                    <TouchableOpacity 
+                                                        key={prod.id} 
+                                                        style={styles.dropdownMenuItem}
+                                                        onPress={() => {
+                                                            setSelectedProductId(prod.id);
+                                                            setShowDropdown(false);
+                                                            setSearchQuery('');
+                                                        }}
+                                                    >
+                                                        <Text style={styles.dropdownMenuItemText}>{prod.name}</Text>
+                                                        <Text style={styles.dropdownMenuItemUnit}>{prod.unit}</Text>
+                                                    </TouchableOpacity>
+                                                ))
+                                            )}
+                                        </ScrollView>
                                     </View>
                                 )}
                             </View>
@@ -167,7 +205,7 @@ export default function RestockModal({ visible, onClose, onSuccess, availablePro
                                 </View>
 
                                 <View style={[styles.inputGroup, { flex: 1 }]}>
-                                    <Text style={styles.label}>Retail Selling Price *</Text>
+                                    <Text style={styles.label}>Retail Sale Price *</Text>
                                     <View style={styles.inputContainer}>
                                         <Briefcase size={18} color="#fbe134" style={styles.inputIcon} />
                                         <TextInput
@@ -216,10 +254,10 @@ const styles = StyleSheet.create({
         justifyContent: 'flex-end',
     },
     modalContent: {
-        backgroundColor: '#1a1d21', // Dark Theme
+        backgroundColor: '#1a1d21', 
         borderTopLeftRadius: 36,
         borderTopRightRadius: 36,
-        maxHeight: '85%',
+        maxHeight: '92%',
         paddingBottom: Platform.OS === 'ios' ? 34 : 0,
     },
     header: {
@@ -233,7 +271,7 @@ const styles = StyleSheet.create({
     title: {
         fontSize: 22,
         fontFamily: 'Poppins_700Bold',
-        color: '#fbe134', // Restock gets gold primary
+        color: '#fbe134', 
     },
     subTitle: {
         fontSize: 12,
@@ -311,14 +349,41 @@ const styles = StyleSheet.create({
     dropdownMenu: {
         backgroundColor: '#1a1d21',
         borderWidth: 1,
-        borderColor: 'rgba(255, 255, 255, 0.1)',
-        borderRadius: 12,
-        marginTop: 4,
-        maxHeight: 150,
-        overflow: 'hidden',
+        borderColor: 'rgba(251, 225, 52, 0.3)',
+        borderRadius: 16,
+        marginTop: 8,
+        padding: 8,
+        maxHeight: 320,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 10 },
+        shadowOpacity: 0.3,
+        shadowRadius: 20,
+        elevation: 10,
+    },
+    searchContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: '#2a2e34',
+        borderRadius: 10,
+        paddingHorizontal: 12,
+        height: 44,
+        marginBottom: 8,
+    },
+    searchInput: {
+        flex: 1,
+        marginLeft: 8,
+        color: '#FFFFFF',
+        fontFamily: 'Montserrat_500Medium',
+        fontSize: 13,
+    },
+    dropdownScroll: {
+        maxHeight: 250,
     },
     dropdownMenuItem: {
         padding: 14,
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
         borderBottomWidth: 1,
         borderBottomColor: 'rgba(255, 255, 255, 0.05)',
     },
@@ -326,6 +391,23 @@ const styles = StyleSheet.create({
         fontFamily: 'Montserrat_500Medium',
         fontSize: 14,
         color: '#FFFFFF',
+    },
+    dropdownMenuItemUnit: {
+        fontFamily: 'Montserrat_700Bold',
+        fontSize: 10,
+        color: '#fbe134',
+        backgroundColor: 'rgba(251, 225, 52, 0.1)',
+        paddingHorizontal: 6,
+        paddingVertical: 2,
+        borderRadius: 4,
+    },
+    noResultsText: {
+        fontFamily: 'Montserrat_500Medium',
+        fontSize: 12,
+        color: '#9CA3AF',
+        textAlign: 'center',
+        paddingVertical: 20,
+        fontStyle: 'italic',
     },
     inputIcon: {
         marginRight: 10,

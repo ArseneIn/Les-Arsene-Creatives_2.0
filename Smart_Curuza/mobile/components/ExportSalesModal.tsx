@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, Modal, TouchableOpacity, ActivityIndicator, Alert, Platform } from 'react-native';
+import * as RN from 'react-native';
+const { View, Text, StyleSheet, Modal, TouchableOpacity, ActivityIndicator, Alert, Platform } = RN;
 import { X, Calendar, Download } from 'lucide-react-native';
 import * as FileSystem from 'expo-file-system';
 import * as Sharing from 'expo-sharing';
@@ -40,10 +41,10 @@ export default function ExportSalesModal({ visible, onClose }: ExportSalesModalP
 
             // Save and Share
             const fileName = `sales_detailed_${period}_${new Date().toISOString().split('T')[0]}.csv`;
-            const fileUri = `${FileSystem.documentDirectory}${fileName}`;
+            const fileUri = `${(FileSystem as any).documentDirectory}${fileName}`;
 
             await FileSystem.writeAsStringAsync(fileUri, csvContent, {
-                encoding: FileSystem.EncodingType.UTF8,
+                encoding: (FileSystem as any).EncodingType.UTF8,
             });
 
             if (await Sharing.isAvailableAsync()) {
@@ -140,9 +141,11 @@ const styles = StyleSheet.create({
         padding: 24,
     },
     modalContent: {
-        backgroundColor: '#FFFFFF',
-        borderRadius: 24,
+        backgroundColor: '#2a2e34',
+        borderRadius: 32,
         overflow: 'hidden',
+        borderWidth: 1,
+        borderColor: 'rgba(255, 255, 255, 0.05)',
     },
     header: {
         flexDirection: 'row',
@@ -150,12 +153,12 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         padding: 24,
         borderBottomWidth: 1,
-        borderBottomColor: '#F3F4F6',
+        borderBottomColor: 'rgba(255, 255, 255, 0.05)',
     },
     headerTitle: {
         fontSize: 18,
         fontFamily: 'Poppins_700Bold',
-        color: '#111827',
+        color: '#FFFFFF',
     },
     closeButton: {
         padding: 4,
@@ -166,7 +169,7 @@ const styles = StyleSheet.create({
     description: {
         fontSize: 14,
         fontFamily: 'Montserrat_500Medium',
-        color: '#4B5563',
+        color: '#9CA3AF',
         marginBottom: 24,
     },
     optionsGrid: {
@@ -178,7 +181,8 @@ const styles = StyleSheet.create({
         padding: 16,
         borderRadius: 16,
         borderWidth: 2,
-        borderColor: '#E5E7EB',
+        borderColor: 'rgba(255, 255, 255, 0.05)',
+        backgroundColor: 'rgba(255, 255, 255, 0.02)',
         alignItems: 'center',
         gap: 12,
     },
@@ -193,20 +197,20 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
     },
-    bgGray: { backgroundColor: '#F3F4F6' },
+    bgGray: { backgroundColor: 'rgba(255, 255, 255, 0.05)' },
     bgGold: { backgroundColor: '#fbe134' },
     optionLabel: {
         fontSize: 12,
         fontFamily: 'Montserrat_600SemiBold',
-        color: '#6B7280',
+        color: '#9CA3AF',
     },
     selectedText: {
-        color: '#111827',
+        color: '#FFFFFF',
     },
     footer: {
         padding: 24,
         borderTopWidth: 1,
-        borderTopColor: '#F3F4F6',
+        borderTopColor: 'rgba(255, 255, 255, 0.05)',
         flexDirection: 'row',
         justifyContent: 'flex-end',
         gap: 12,
@@ -219,7 +223,7 @@ const styles = StyleSheet.create({
     cancelText: {
         fontSize: 14,
         fontFamily: 'Montserrat_600SemiBold',
-        color: '#6B7280',
+        color: '#9CA3AF',
     },
     exportButton: {
         flexDirection: 'row',

@@ -118,11 +118,13 @@ const styles = StyleSheet.create({
     searchContainer: {
         flexDirection: 'row',
         alignItems: 'center',
-        backgroundColor: '#F3F4F6', // Solid light color
-        borderRadius: 12, // Tighter radius
+        backgroundColor: '#2a2e34', // Dark surface
+        borderRadius: 12, 
         paddingHorizontal: 16,
-        height: 44, // Strict tight height
+        height: 44, 
         marginBottom: 16,
+        borderWidth: 1,
+        borderColor: 'rgba(255, 255, 255, 0.05)',
     },
     searchIcon: {
         marginRight: 10,
@@ -131,7 +133,7 @@ const styles = StyleSheet.create({
         flex: 1,
         fontSize: 14,
         fontFamily: 'Montserrat_500Medium',
-        color: '#111827', // Dark readable text
+        color: '#FFFFFF', // White text
     },
     categoriesSection: {
         marginBottom: 20,

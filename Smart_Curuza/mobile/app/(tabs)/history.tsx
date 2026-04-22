@@ -1,11 +1,14 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, TextInput, RefreshControl, ActivityIndicator, ScrollView, Modal, Platform } from 'react-native';
+import * as RN from 'react-native';
+const { View, Text, StyleSheet, FlatList, TouchableOpacity, TextInput, RefreshControl, ActivityIndicator, ScrollView, Modal, Platform } = RN;
 import { Search, Filter, Download, Calendar, ArrowRight, Check, Clock, AlertTriangle, CreditCard, Banknote, Smartphone, X } from 'lucide-react-native';
 import ScreenWrapper from '../../components/ScreenWrapper';
 import { ApiClient } from '../../lib/api_client';
 import SaleDetailsModal from '../../components/SaleDetailsModal';
 import ExportSalesModal from '../../components/ExportSalesModal';
 import { useFocusEffect } from 'expo-router';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useTheme } from '../../lib/theme/ThemeContext';
 
 interface SaleRecord {
     id: string;
@@ -23,6 +26,8 @@ const STATUS_OPTIONS = ['Completed', 'Pending', 'Failed'];
 const PAYMENT_OPTIONS = ['Cash', 'Mobile Money', 'Credit'];
 
 export default function History() {
+    const { colors, isDarkMode } = useTheme();
+    const insets = useSafeAreaInsets();
     const [sales, setSales] = useState<SaleRecord[]>([]);
     const [loading, setLoading] = useState(true);
     const [refreshing, setRefreshing] = useState(false);
@@ -94,7 +99,7 @@ export default function History() {
 
     const renderSaleItem = ({ item }: { item: SaleRecord }) => (
         <TouchableOpacity
-            style={styles.saleCard}
+            style={[styles.saleCard, { backgroundColor: colors.card, shadowColor: isDarkMode ? '#000': '#E5E7EB', borderColor: colors.border, borderWidth: 1 }]}
             onPress={() => setSelectedSale(item)}
             activeOpacity={0.7}
         >
@@ -118,16 +123,16 @@ export default function History() {
                 </View>
             </View>
 
-            <View style={styles.cardBody}>
+            <View style={[styles.cardBody, { borderBottomColor: colors.border }]}>
                 <View style={styles.customerInfo}>
-                    <Text style={styles.customerName}>{item.customer?.name || 'Walk-in Customer'}</Text>
+                    <Text style={[styles.customerName, { color: colors.textPrimary }]}>{item.customer?.name || 'Walk-in Customer'}</Text>
                     <Text style={styles.itemsSummary}>
                         {item.items.length} items • {item.items.slice(0, 1).map(i => i.name).join(', ')}
                         {item.items.length > 1 ? '...' : ''}
                     </Text>
                 </View>
                 <View style={styles.amountContainer}>
-                    <Text style={styles.amountText}>{Number(item.total).toLocaleString()} <Text style={{fontSize: 10, color: '#6B7280', fontFamily: 'Montserrat_500Medium'}}>RWF</Text></Text>
+                    <Text style={[styles.amountText, { color: colors.textPrimary }]}>{Number(item.total).toLocaleString()} <Text style={{fontSize: 10, color: '#6B7280', fontFamily: 'Montserrat_500Medium'}}>RWF</Text></Text>
                 </View>
             </View>
 
@@ -141,70 +146,73 @@ export default function History() {
     );
 
     return (
-        <ScreenWrapper>
+        <ScreenWrapper safeArea={false} style={{ backgroundColor: colors.background }}>
             {/* Header Area */}
-            <View style={styles.header}>
+            <View style={[styles.header, { paddingTop: insets.top + 16, backgroundColor: isDarkMode ? colors.card : colors.brandGold, shadowColor: isDarkMode ? '#000': '#E5E7EB' }]}>
                 <View>
-                    <Text style={styles.headerTitle}>Sales Ledger</Text>
-                    <Text style={styles.headerSub}>Analyzing {filteredSales.length} Transactions</Text>
+                    <Text style={[styles.headerTitle, { color: isDarkMode ? '#FFFFFF' : '#111827' }]}>Sales Ledger</Text>
+                    <Text style={[styles.headerSub, { color: isDarkMode ? 'rgba(255, 255, 255, 0.5)' : '#4B5563' }]}>Analyzing {filteredSales.length} Transactions</Text>
                 </View>
                 <TouchableOpacity
-                    style={styles.exportButton}
+                    style={[styles.exportButton, { backgroundColor: isDarkMode ? colors.brandGold : '#111827' }]}
                     onPress={() => setShowExportModal(true)}
                 >
-                    <Download size={20} color="#0b0c0c" />
+                    <Download size={20} color={isDarkMode ? '#0b0c0c' : colors.brandGold} />
                 </TouchableOpacity>
             </View>
 
-            {/* Unified Command Bar (V5) */}
+            <View style={styles.content}>
+                {/* Unified Command Bar (V5) */}
             <View style={styles.actionRow}>
-                <View style={styles.searchBar}>
-                    <Search size={18} color="#6B7280" />
+                <View style={[styles.searchBar, { backgroundColor: colors.card, borderColor: colors.border }]}>
+                    <Search size={18} color={colors.textSecondary} />
                     <TextInput
-                        style={styles.searchInput}
+                        style={[styles.searchInput, { color: colors.textPrimary }]}
                         placeholder="Search ID or Customer..."
-                        placeholderTextColor="#9CA3AF"
+                        placeholderTextColor={colors.textSecondary}
                         value={searchQuery}
                         onChangeText={setSearchQuery}
                     />
                 </View>
                 <TouchableOpacity 
-                    style={[styles.filterIconButton, (selectedStatuses.length > 0 || selectedPayments.length > 0) && styles.filterIconButtonActive]}
+                    style={[styles.filterIconButton, { backgroundColor: colors.card, borderColor: colors.border }, (selectedStatuses.length > 0 || selectedPayments.length > 0) && styles.filterIconButtonActive]}
                     onPress={() => setShowFilters(true)}
                 >
-                    <Filter size={20} color={(selectedStatuses.length > 0 || selectedPayments.length > 0) ? "#000000" : "#2a2e34"} />
+                    <Filter size={20} color={(selectedStatuses.length > 0 || selectedPayments.length > 0) ? "#000000" : colors.textPrimary} />
                     {(selectedStatuses.length > 0 || selectedPayments.length > 0) && (
                         <View style={styles.filterDot} />
                     )}
                 </TouchableOpacity>
             </View>
 
-            {/* List */}
-            {loading ? (
-                <View style={styles.centerContainer}>
-                    <ActivityIndicator size="large" color="#fbe134" />
-                </View>
-            ) : (
-                <FlatList
-                    data={filteredSales}
-                    renderItem={renderSaleItem}
-                    keyExtractor={item => item.id}
-                    contentContainerStyle={styles.listContent}
-                    refreshControl={
-                        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#fbe134" />
-                    }
-                    ListEmptyComponent={
-                        <View style={styles.emptyContainer}>
-                            <AlertTriangle size={48} color="rgba(255, 255, 255, 0.1)" />
-                            <Text style={styles.emptyText}>No matching records</Text>
-                            <TouchableOpacity onPress={clearFilters}>
-                                <Text style={styles.clearFiltersText}>Reset All Filters</Text>
-                            </TouchableOpacity>
-                        </View>
-                    }
-                />
-            )}
-
+                {/* List */}
+                {loading ? (
+                    <View style={styles.centerContainer}>
+                        <ActivityIndicator size="large" color="#fbe134" />
+                    </View>
+                ) : (
+                    <FlatList
+                        data={filteredSales}
+                        renderItem={renderSaleItem}
+                        keyExtractor={item => item.id}
+                        contentContainerStyle={styles.listContent}
+                        style={styles.flatList}
+                        refreshControl={
+                            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#fbe134" />
+                        }
+                        ListEmptyComponent={
+                            <View style={styles.emptyContainer}>
+                                <AlertTriangle size={48} color={colors.textSecondary} />
+                                <Text style={[styles.emptyText, { color: colors.textPrimary }]}>No matching records</Text>
+                                <TouchableOpacity onPress={clearFilters}>
+                                    <Text style={styles.clearFiltersText}>Reset All Filters</Text>
+                                </TouchableOpacity>
+                            </View>
+                        }
+                    />
+                )}
+            </View>
+            
             {/* Advanced Filters Modal */}
             <Modal
                 visible={showFilters}
@@ -213,45 +221,45 @@ export default function History() {
                 onRequestClose={() => setShowFilters(false)}
             >
                 <View style={styles.modalOverlay}>
-                    <View style={styles.modalContent}>
-                        <View style={styles.modalHeader}>
-                            <Text style={styles.modalTitle}>Advanced Search</Text>
+                    <View style={[styles.modalContent, { backgroundColor: colors.card }]}>
+                        <View style={[styles.modalHeader, { borderBottomColor: colors.border }]}>
+                            <Text style={[styles.modalTitle, { color: colors.textPrimary }]}>Advanced Search</Text>
                             <TouchableOpacity onPress={() => setShowFilters(false)}>
-                                <X size={24} color="#FFFFFF" />
+                                <X size={24} color={colors.textPrimary} />
                             </TouchableOpacity>
                         </View>
 
                         <ScrollView style={styles.modalBody}>
-                            <Text style={styles.filterLabel}>Transaction Status</Text>
+                            <Text style={[styles.filterLabel, { color: colors.textSecondary }]}>Transaction Status</Text>
                             <View style={styles.filterGrid}>
                                 {STATUS_OPTIONS.map(status => (
                                     <TouchableOpacity 
                                         key={status} 
-                                        style={[styles.filterChip, selectedStatuses.includes(status) && styles.filterChipActive]}
+                                        style={[styles.filterChip, { backgroundColor: colors.overlay, borderColor: colors.border }, selectedStatuses.includes(status) && styles.filterChipActive]}
                                         onPress={() => toggleStatus(status)}
                                     >
-                                        <Text style={[styles.filterChipText, selectedStatuses.includes(status) && styles.filterChipTextActive]}>{status}</Text>
+                                        <Text style={[styles.filterChipText, { color: colors.textSecondary }, selectedStatuses.includes(status) && styles.filterChipTextActive]}>{status}</Text>
                                     </TouchableOpacity>
                                 ))}
                             </View>
 
-                            <Text style={styles.filterLabel}>Payment Method</Text>
+                            <Text style={[styles.filterLabel, { color: colors.textSecondary }]}>Payment Method</Text>
                             <View style={styles.filterGrid}>
                                 {PAYMENT_OPTIONS.map(method => (
                                     <TouchableOpacity 
                                         key={method} 
-                                        style={[styles.filterChip, selectedPayments.includes(method) && styles.filterChipActive]}
+                                        style={[styles.filterChip, { backgroundColor: colors.overlay, borderColor: colors.border }, selectedPayments.includes(method) && styles.filterChipActive]}
                                         onPress={() => togglePayment(method)}
                                     >
-                                        <Text style={[styles.filterChipText, selectedPayments.includes(method) && styles.filterChipTextActive]}>{method}</Text>
+                                        <Text style={[styles.filterChipText, { color: colors.textSecondary }, selectedPayments.includes(method) && styles.filterChipTextActive]}>{method}</Text>
                                     </TouchableOpacity>
                                 ))}
                             </View>
                         </ScrollView>
 
                         <View style={styles.modalFooter}>
-                            <TouchableOpacity style={styles.resetButton} onPress={clearFilters}>
-                                <Text style={styles.resetButtonText}>Reset Selection</Text>
+                            <TouchableOpacity style={[styles.resetButton, { borderColor: colors.border }]} onPress={clearFilters}>
+                                <Text style={[styles.resetButtonText, { color: colors.textPrimary }]}>Reset Selection</Text>
                             </TouchableOpacity>
                             <TouchableOpacity style={styles.applyButton} onPress={() => setShowFilters(false)}>
                                 <Text style={styles.applyButtonText}>Apply Combinations</Text>
@@ -284,7 +292,6 @@ const styles = StyleSheet.create({
     header: {
         backgroundColor: '#2a2e34', 
         paddingHorizontal: 24,
-        paddingTop: 60,
         paddingBottom: 24,
         borderBottomLeftRadius: 32,
         borderBottomRightRadius: 32,
@@ -293,7 +300,14 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.25,
         shadowRadius: 16,
         elevation: 12,
-        zIndex: 50,
+        zIndex: 100,
+    },
+    content: {
+        flex: 1,
+    },
+    flatList: {
+        flex: 1,
+        marginTop: -32,
     },
     headerTitle: {
         fontSize: 28,
@@ -316,9 +330,9 @@ const styles = StyleSheet.create({
         backgroundColor: '#fbe134',
         alignItems: 'center',
         justifyContent: 'center',
-        shadowColor: '#fbe134',
+        shadowColor: 'rgba(251, 225, 52, 0.4)',
         shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.3,
+        shadowOpacity: 1,
         shadowRadius: 10,
         elevation: 6,
     },
@@ -334,15 +348,6 @@ const styles = StyleSheet.create({
         flex: 1,
         flexDirection: 'row',
         alignItems: 'center',
-        backgroundColor: '#f3f4f6', // Unified Light Grey
-        paddingHorizontal: 16,
-        height: 54,
-        borderRadius: 14,
-        borderTopWidth: 3,
-        borderTopColor: '#fbe134', // Gold Handle
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
         shadowRadius: 4,
         elevation: 3,
     },
@@ -351,12 +356,12 @@ const styles = StyleSheet.create({
         marginLeft: 12,
         fontFamily: 'Montserrat_600SemiBold',
         fontSize: 14,
-        color: '#2a2e34',
+        color: '#FFFFFF',
     },
     filterIconButton: {
         width: 54,
         height: 54,
-        backgroundColor: '#f3f4f6', // Unified Light Grey
+        backgroundColor: '#2a2e34', 
         borderRadius: 14,
         alignItems: 'center',
         justifyContent: 'center',
@@ -364,7 +369,7 @@ const styles = StyleSheet.create({
         borderTopColor: '#fbe134', // Gold Handle
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
+        shadowOpacity: 0.2,
         shadowRadius: 4,
         elevation: 3,
     },
@@ -381,7 +386,7 @@ const styles = StyleSheet.create({
         backgroundColor: '#fbe134',
         borderRadius: 4,
         borderWidth: 2,
-        borderColor: '#f3f4f6', 
+        borderColor: '#2a2e34', 
     },
     listContent: {
         paddingHorizontal: 24,
@@ -389,16 +394,16 @@ const styles = StyleSheet.create({
         gap: 16,
     },
     saleCard: {
-        backgroundColor: '#f3f4f6', 
+        backgroundColor: '#2a2e34', 
         borderRadius: 20,
         padding: 20,
         borderTopWidth: 4,
         borderTopColor: '#fbe134',
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.1,
+        shadowOpacity: 0.2,
         shadowRadius: 10,
-        elevation: 4,
+        elevation: 6,
     },
     cardHeader: {
         flexDirection: 'row',
@@ -414,7 +419,7 @@ const styles = StyleSheet.create({
     dateText: {
         fontSize: 11,
         fontFamily: 'Montserrat_700Bold',
-        color: '#6B7280',
+        color: '#9CA3AF',
     },
     statusBadge: {
         paddingHorizontal: 10,
@@ -440,7 +445,7 @@ const styles = StyleSheet.create({
         marginBottom: 14,
         paddingBottom: 14,
         borderBottomWidth: 1,
-        borderBottomColor: '#E5E7EB',
+        borderBottomColor: 'rgba(255, 255, 255, 0.05)',
     },
     customerInfo: {
         flex: 1,
@@ -448,13 +453,13 @@ const styles = StyleSheet.create({
     customerName: {
         fontSize: 17,
         fontFamily: 'Poppins_700Bold',
-        color: '#2a2e34', 
+        color: '#FFFFFF', 
         marginBottom: 2,
     },
     itemsSummary: {
         fontSize: 12,
         fontFamily: 'Montserrat_600SemiBold',
-        color: '#6B7280',
+        color: '#9CA3AF',
     },
     amountContainer: {
         alignItems: 'flex-end',
@@ -462,7 +467,7 @@ const styles = StyleSheet.create({
     amountText: {
         fontSize: 16,
         fontFamily: 'Poppins_700Bold',
-        color: '#2a2e34', 
+        color: '#FFFFFF', 
     },
     cardFooter: {
         flexDirection: 'row',
@@ -477,7 +482,7 @@ const styles = StyleSheet.create({
     paymentText: {
         fontSize: 12,
         fontFamily: 'Montserrat_700Bold',
-        color: '#6B7280',
+        color: '#9CA3AF',
     },
     modalOverlay: {
         flex: 1,

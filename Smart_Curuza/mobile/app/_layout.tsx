@@ -7,6 +7,7 @@ import * as SplashScreen from 'expo-splash-screen';
 
 
 import { AuthProvider } from '../lib/auth/AuthContext';
+import { ThemeProvider } from '../lib/theme/ThemeContext';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 SplashScreen.preventAutoHideAsync();
@@ -34,11 +35,14 @@ export default function RootLayout() {
     return (
         <SafeAreaProvider>
             <AuthProvider>
-                <Stack screenOptions={{ headerShown: false }}>
-                    <Stack.Screen name="index" />
-                    <Stack.Screen name="(tabs)" />
-                    <Stack.Screen name="login" />
-                </Stack>
+                <ThemeProvider>
+                    <Stack screenOptions={{ headerShown: false }}>
+                        <Stack.Screen name="index" />
+                        <Stack.Screen name="(tabs)" />
+                        <Stack.Screen name="login" />
+                        <Stack.Screen name="sales/index" />
+                    </Stack>
+                </ThemeProvider>
             </AuthProvider>
         </SafeAreaProvider>
     );

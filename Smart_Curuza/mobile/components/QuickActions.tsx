@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity, StyleSheet, Dimensions, ScrollView, Nativ
 import * as Haptics from 'expo-haptics';
 import { ShoppingCart, Package, Bell, Eye, Users, Settings, Smartphone, Headphones, FileText } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
+import { useTheme } from '../lib/theme/ThemeContext';
 
 // Screen width minus padding
 const { width } = Dimensions.get('window');
@@ -16,24 +17,28 @@ interface QuickActionProps {
     bgColor: string;
 }
 
-const QuickActionItem = ({ icon: Icon, label, onPress, color, bgColor }: QuickActionProps) => (
-    <TouchableOpacity 
-        style={styles.actionItem} 
-        onPress={() => {
-            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-            onPress();
-        }}
-        activeOpacity={0.7}
-    >
-        <View style={styles.iconContainer}>
-            <Icon size={26} color={color} />
-        </View>
-        <Text style={styles.actionLabel} numberOfLines={1}>{label}</Text>
-    </TouchableOpacity>
-);
+const QuickActionItem = ({ icon: Icon, label, onPress, color, bgColor }: QuickActionProps) => {
+    const { colors } = useTheme();
+    return (
+        <TouchableOpacity 
+            style={styles.actionItem} 
+            onPress={() => {
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                onPress();
+            }}
+            activeOpacity={0.7}
+        >
+            <View style={styles.iconContainer}>
+                <Icon size={26} color={color} />
+            </View>
+            <Text style={[styles.actionLabel, { color: colors.textPrimary }]} numberOfLines={1}>{label}</Text>
+        </TouchableOpacity>
+    );
+};
 
 export default function QuickActions() {
     const router = useRouter();
+    const { colors, isDarkMode } = useTheme();
     const [activeIndex, setActiveIndex] = useState(0);
 
     const actions = [
@@ -63,10 +68,10 @@ export default function QuickActions() {
 
     return (
         <View style={styles.container}>
-            <Text style={styles.sectionTitle}>Quick Actions</Text>
+            <Text style={[styles.sectionTitle, { color: colors.textSecondary }]}>Quick Actions</Text>
             
             {/* The Unified Rounded Row Wrapper */}
-            <View style={styles.roundedRowWrapper}>
+            <View style={[styles.roundedRowWrapper, { backgroundColor: colors.card, borderColor: colors.border, shadowColor: isDarkMode ? '#000': '#E5E7EB' }]}>
                 <ScrollView 
                     horizontal 
                     pagingEnabled 
@@ -104,7 +109,8 @@ export default function QuickActions() {
                             key={index} 
                             style={[
                                 styles.dot, 
-                                activeIndex === index && styles.dotActive
+                                { backgroundColor: colors.border },
+                                activeIndex === index && [styles.dotActive, { backgroundColor: colors.brandGold }]
                             ]} 
                         />
                     ))}
@@ -128,18 +134,15 @@ const styles = StyleSheet.create({
         paddingLeft: 4,
     },
     roundedRowWrapper: {
-        backgroundColor: '#2a2e34', // Executive Dark
         borderRadius: 36, // Deep pill shape
         overflow: 'hidden',
         paddingTop: 8,
         paddingBottom: 16, // Extra room for dots
-        shadowColor: '#000',
         shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.1,
         shadowRadius: 10,
         elevation: 3,
         borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.05)',
     },
     slidePage: {
         width: ROW_WIDTH,

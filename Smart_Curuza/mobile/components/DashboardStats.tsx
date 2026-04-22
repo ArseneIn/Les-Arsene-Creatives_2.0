@@ -4,19 +4,20 @@ import { CreditCard, Package, Users, FileText, ChevronDown, TrendingUp, Trending
 import Svg, { Path, Defs, LinearGradient, Stop } from 'react-native-svg';
 import { ApiClient } from '../lib/api_client';
 import SkeletonLoader from './SkeletonLoader';
+import { useTheme } from '../lib/theme/ThemeContext';
 
 const { width } = Dimensions.get('window');
 
 interface DashboardStatsData {
     todaySales: number;
-    todayProfit: number;
+    todayProfit: number; // This represents Net Profit (Gross - Expenses)
     todayTransactionCount: number;
     todayVat: number;
     lowStockCount: number;
     totalDebt: number;
     yieldRate: number;
-    expenses?: number; // Estimated for comparison
-    grossProfit?: number; 
+    expenses: number;
+    grossProfit: number;
 }
 
 type Period = 'today' | 'week' | 'month';
@@ -95,6 +96,8 @@ const DashboardSkeleton = () => {
 };
 
 export default function DashboardStats({ period, setPeriod, data, loading }: DashboardStatsProps) {
+    const { colors, isDarkMode } = useTheme();
+
     if (loading || !data) {
         return <DashboardSkeleton />;
     }
@@ -134,20 +137,20 @@ export default function DashboardStats({ period, setPeriod, data, loading }: Das
     const circumference = Math.PI * radius;
 
     return (
-        <View style={styles.container}>
+        <View style={[styles.container, { backgroundColor: colors.card, shadowColor: isDarkMode ? '#000' : '#E5E7EB' }]}>
             {/* Header / Filter Row */}
             <View style={styles.headerRow}>
-                <View style={styles.periodSelector}>
-                    <Text style={styles.periodText}>{period.charAt(0).toUpperCase() + period.slice(1)} View</Text>
+                <View style={[styles.periodSelector]}>
+                    <Text style={[styles.periodText, { color: colors.textPrimary }]}>{period.charAt(0).toUpperCase() + period.slice(1)} View</Text>
                 </View>
-                <View style={styles.periodToggle}>
+                <View style={[styles.periodToggle, { backgroundColor: colors.overlay }]}>
                     {(['today', 'week', 'month'] as Period[]).map((p) => (
                         <TouchableOpacity 
                             key={p} 
                             onPress={() => setPeriod(p)}
                             style={[styles.pill, period === p && styles.pillActive]}
                         >
-                            <Text style={[styles.pillText, period === p && styles.pillTextActive]}>
+                            <Text style={[styles.pillText, period === p && { color: '#0b0c0c' }]}>
                                 {p.charAt(0).toUpperCase()}
                             </Text>
                         </TouchableOpacity>
@@ -182,7 +185,7 @@ export default function DashboardStats({ period, setPeriod, data, loading }: Das
                         {/* Background track */}
                         <Path 
                             d={arcPath}
-                            stroke="rgba(255, 255, 255, 0.05)"
+                            stroke={colors.border}
                             strokeWidth={strokeWidth}
                             fill="none"
                             strokeLinecap="round"
@@ -201,7 +204,7 @@ export default function DashboardStats({ period, setPeriod, data, loading }: Das
                     </Svg>
 
                     <View style={styles.gaugeValueContainer}>
-                        <Text style={styles.marginValue}>
+                        <Text style={[styles.marginValue, { color: colors.textPrimary, textShadowColor: colors.overlay }]}>
                             {(data.yieldRate || 0).toFixed(1)}%
                         </Text>
                         <Text style={styles.netProfitLabel}>PROFIT MARGIN</Text>
@@ -212,33 +215,33 @@ export default function DashboardStats({ period, setPeriod, data, loading }: Das
                 <View style={styles.kpiRow}>
                     <View style={styles.kpiItem}>
                         <Text style={styles.metricLabel}>NET PROFIT</Text>
-                        <Text style={styles.metricValueGreen} numberOfLines={1}>
+                        <Text style={[styles.metricValueGreen, { color: colors.brandGreen }]} numberOfLines={1}>
                             {formatAmount(data.todayProfit)}
                         </Text>
                     </View>
                     
-                    <View style={styles.marginBadge}>
+                    <View style={[styles.marginBadge, { backgroundColor: colors.brandGold, shadowColor: colors.brandGold }]}>
                         <TrendingUp size={12} color="#0b0c0c" style={{ marginRight: 4 }} />
-                        <Text style={styles.marginBadgeText}>HIGH YIELD</Text>
+                        <Text style={[styles.marginBadgeText, { color: '#0b0c0c' }]}>HIGH YIELD</Text>
                     </View>
                     
                     <View style={styles.kpiItem}>
                         <Text style={styles.metricLabel}>GROSS REV</Text>
-                        <Text style={styles.metricValueWhite} numberOfLines={1}>
+                        <Text style={[styles.metricValueWhite, { color: colors.textPrimary }]} numberOfLines={1}>
                             {formatAmount(data.grossProfit)}
                         </Text>
                     </View>
                 </View>
 
-                <View style={[styles.comparisonRow, { marginTop: 24 }]}>
+                <View style={[styles.comparisonRow, { marginTop: 24, borderTopColor: colors.border }]}>
                     <View style={styles.comparisonItem}>
-                        <Text style={[styles.comparisonAmount, { color: '#EF4444' }]}>{formatAmount(data.totalDebt)}</Text>
-                        <Text style={[styles.comparisonLabel, { color: '#9CA3AF' }]}>Outstanding Debt</Text>
+                        <Text style={[styles.comparisonAmount, { color: colors.danger }]}>{formatAmount(data.totalDebt)}</Text>
+                        <Text style={[styles.comparisonLabel, { color: colors.textSecondary }]}>Outstanding Debt</Text>
                     </View>
-                    <View style={styles.comparisonDivider} />
+                    <View style={[styles.comparisonDivider, { backgroundColor: colors.border }]} />
                     <View style={styles.comparisonItem}>
-                        <Text style={styles.comparisonAmount}>{formatAmount(data.expenses)}</Text>
-                        <Text style={[styles.comparisonLabel, { color: '#9CA3AF' }]}>Op. Expenses</Text>
+                        <Text style={[styles.comparisonAmount, { color: colors.textPrimary }]}>{formatAmount(data.expenses)}</Text>
+                        <Text style={[styles.comparisonLabel, { color: colors.textSecondary }]}>Op. Expenses</Text>
                     </View>
                 </View>
             </View>
@@ -246,51 +249,51 @@ export default function DashboardStats({ period, setPeriod, data, loading }: Das
             {/* KPI Grid */}
             <View style={styles.kpiGrid}>
                 {/* Sales KPI */}
-                <View style={[styles.kpiCard, styles.kpiCardHalf]}>
+                <View style={[styles.kpiCard, styles.kpiCardHalf, { backgroundColor: colors.overlay, borderColor: colors.border }]}>
                     <View style={styles.kpiTopRow}>
                         <View style={[styles.iconBox, { backgroundColor: 'rgba(251, 225, 52, 0.1)' }]}>
                             <CreditCard size={18} color="#fbe134" />
                         </View>
                         <MiniSparkline data={[4, 6, 8, 5, 9, 12]} color="#fbe134" />
                     </View>
-                    <Text style={styles.kpiValue}>{formatAmount(data.todaySales)}</Text>
-                    <Text style={styles.kpiLabel}>Sales Volume</Text>
+                    <Text style={[styles.kpiValue, { color: colors.textPrimary }]}>{formatAmount(data.todaySales)}</Text>
+                    <Text style={[styles.kpiLabel, { color: colors.textSecondary }]}>Sales Volume</Text>
                 </View>
 
                 {/* Orders KPI */}
-                <View style={[styles.kpiCard, styles.kpiCardHalf]}>
+                <View style={[styles.kpiCard, styles.kpiCardHalf, { backgroundColor: colors.overlay, borderColor: colors.border }]}>
                     <View style={styles.kpiTopRow}>
                         <View style={[styles.iconBox, { backgroundColor: 'rgba(219, 39, 119, 0.1)' }]}>
                             <ShoppingCart size={18} color="#DB2777" />
                         </View>
                         <MiniSparkline data={[6, 9, 7, 12, 10, 15]} color="#DB2777" />
                     </View>
-                    <Text style={styles.kpiValue}>{data.todayTransactionCount || 0}</Text>
-                    <Text style={styles.kpiLabel}>Total Orders</Text>
+                    <Text style={[styles.kpiValue, { color: colors.textPrimary }]}>{data.todayTransactionCount || 0}</Text>
+                    <Text style={[styles.kpiLabel, { color: colors.textSecondary }]}>Total Orders</Text>
                 </View>
 
                 {/* Stock KPI */}
-                <View style={[styles.kpiCard, styles.kpiCardHalf]}>
+                <View style={[styles.kpiCard, styles.kpiCardHalf, { backgroundColor: colors.overlay, borderColor: colors.border }]}>
                     <View style={styles.kpiTopRow}>
                         <View style={[styles.iconBox, { backgroundColor: 'rgba(16, 185, 129, 0.1)' }]}>
                             <Package size={18} color="#10B981" />
                         </View>
                         <MiniSparkline data={[5, 7, 6, 8, 5, 9]} color="#10B981" />
                     </View>
-                    <Text style={styles.kpiValue}>{data.lowStockCount || 0}</Text>
-                    <Text style={styles.kpiLabel}>Low Stock</Text>
+                    <Text style={[styles.kpiValue, { color: colors.textPrimary }]}>{data.lowStockCount || 0}</Text>
+                    <Text style={[styles.kpiLabel, { color: colors.textSecondary }]}>Low Stock</Text>
                 </View>
 
                 {/* VAT KPI */}
-                <View style={[styles.kpiCard, styles.kpiCardHalf]}>
+                <View style={[styles.kpiCard, styles.kpiCardHalf, { backgroundColor: colors.overlay, borderColor: colors.border }]}>
                     <View style={styles.kpiTopRow}>
                         <View style={[styles.iconBox, { backgroundColor: 'rgba(59, 130, 246, 0.1)' }]}>
                             <FileText size={18} color="#3B82F6" />
                         </View>
                         <MiniSparkline data={[3, 5, 4, 6, 5, 7]} color="#3B82F6" />
                     </View>
-                    <Text style={styles.kpiValue}>{formatAmount(data.todayVat)}</Text>
-                    <Text style={styles.kpiLabel}>Estimated VAT</Text>
+                    <Text style={[styles.kpiValue, { color: colors.textPrimary }]}>{formatAmount(data.todayVat)}</Text>
+                    <Text style={[styles.kpiLabel, { color: colors.textSecondary }]}>Estimated VAT</Text>
                 </View>
 
 

@@ -5,6 +5,7 @@ import { ApiClient } from '../lib/api_client';
 import AddProductModal from './AddProductModal';
 import RestockModal from './RestockModal';
 import SkeletonLoader from './SkeletonLoader';
+import { useTheme } from '../lib/theme/ThemeContext';
 
 interface InventoryItem {
     id: string;
@@ -21,10 +22,11 @@ interface InventoryItem {
 }
 
 const InventorySkeleton = () => {
+    const { colors } = useTheme();
     return (
         <View style={{ gap: 16 }}>
             {[1, 2, 3, 4, 5].map((key) => (
-                <View key={key} style={styles.itemCard}>
+                <View key={key} style={[styles.itemCard, { backgroundColor: colors.card }]}>
                     <View style={styles.cardHeader}>
                         <View style={styles.iconRow}>
                             <View style={[styles.iconBox, { borderWidth: 0 }]}>
@@ -38,7 +40,7 @@ const InventorySkeleton = () => {
                         <SkeletonLoader width={40} height={20} borderRadius={8} />
                     </View>
                     
-                    <View style={[styles.financialRow, { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }]}>
+                    <View style={[styles.financialRow, { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', backgroundColor: colors.overlay }]}>
                         <View style={{ gap: 6 }}>
                             <SkeletonLoader width={50} height={10} />
                             <SkeletonLoader width={60} height={16} />
@@ -61,6 +63,7 @@ const InventorySkeleton = () => {
 };
 
 export default function InventoryModule() {
+    const { colors, isDarkMode } = useTheme();
     const [searchQuery, setSearchQuery] = useState('');
     const [showAddProduct, setShowAddProduct] = useState(false);
     const [showRestock, setShowRestock] = useState(false);
@@ -69,15 +72,35 @@ export default function InventoryModule() {
     const [loading, setLoading] = useState(true);
     const [refreshing, setRefreshing] = useState(false);
 
+    const [expandedProductId, setExpandedProductId] = useState<string | null>(null);
+    const [batches, setBatches] = useState<any[]>([]);
+    const [loadingBatches, setLoadingBatches] = useState(false);
+
+    const toggleExpand = async (productId: string) => {
+        if (expandedProductId === productId) {
+            setExpandedProductId(null);
+            setBatches([]);
+        } else {
+            setExpandedProductId(productId);
+            setLoadingBatches(true);
+            try {
+                const data = await ApiClient.getBatches(productId);
+                setBatches(data);
+            } catch (error) {
+                console.error('Error fetching batches:', error);
+            } finally {
+                setLoadingBatches(false);
+            }
+        }
+    };
+
     const fetchInventory = async (bypassCache = false) => {
-        // IMPROVED: Check cache synchronously to avoid skeleton flash
         const cachedData = ApiClient.getCached('/products');
         if ((!inventory.length && !cachedData) || bypassCache) {
             setLoading(true);
         }
         try {
             const data = await ApiClient.getProducts(bypassCache);
-            // Data mapping to UI interface
             const formatted = data.map((p: any) => ({
                 id: p.id,
                 barcode: p.barcode,
@@ -107,6 +130,7 @@ export default function InventoryModule() {
     const onRefresh = useCallback(() => {
         setRefreshing(true);
         fetchInventory(true);
+        setExpandedProductId(null);
     }, [inventory]);
 
     const totalItems = inventory.length;
@@ -121,15 +145,19 @@ export default function InventoryModule() {
     );
 
     const renderInventoryCard = ({ item }: { item: InventoryItem }) => (
-        <View style={styles.itemCard}>
+        <TouchableOpacity 
+            style={[styles.itemCard, { backgroundColor: colors.card, shadowColor: isDarkMode ? '#000' : '#E5E7EB' }]}
+            onPress={() => toggleExpand(item.id)}
+            activeOpacity={0.7}
+        >
             <View style={styles.cardHeader}>
                 <View style={styles.iconRow}>
-                    <View style={styles.iconBox}>
+                    <View style={[styles.iconBox, { backgroundColor: colors.overlay, borderColor: colors.border }]}>
                         <Package size={20} color="#fbe134" />
                     </View>
                     <View style={{ flex: 1 }}>
-                        <Text style={styles.itemName} numberOfLines={1}>{item.name}</Text>
-                        <Text style={styles.itemCategory}>{item.category} {item.barcode ? `• ${item.barcode}` : ''}</Text>
+                        <Text style={[styles.itemName, { color: colors.textPrimary }]} numberOfLines={1}>{item.name}</Text>
+                        <Text style={[styles.itemCategory, { color: colors.textSecondary }]}>{item.category} {item.barcode ? `• ${item.barcode}` : ''}</Text>
                     </View>
                 </View>
                 
@@ -150,88 +178,108 @@ export default function InventoryModule() {
                 )}
             </View>
 
-            <View style={styles.financialRow}>
+            <View style={[styles.financialRow, { backgroundColor: colors.overlay }]}>
                 <View style={styles.finItem}>
-                    <Text style={styles.finLabel}>Stock Level</Text>
-                    <Text style={[styles.finValue, item.stock <= 10 && { color: '#EF4444' }]}>{item.stock} <Text style={styles.currency}>{item.unit}</Text></Text>
+                    <Text style={[styles.finLabel, { color: colors.textSecondary }]}>Stock Level</Text>
+                    <Text style={[styles.finValue, { color: colors.textPrimary }, item.stock <= 10 && { color: colors.danger }]}>{item.stock} <Text style={[styles.currency, { color: colors.textSecondary }]}>{item.unit}</Text></Text>
                 </View>
-                <View style={styles.finItemDivider} />
+                <View style={[styles.finItemDivider, { backgroundColor: colors.border }]} />
                 <View style={styles.finItemMid}>
-                    <Text style={styles.finLabel}>Unit Cost</Text>
-                    <Text style={styles.finValue}>{item.cost_price.toLocaleString()} <Text style={styles.currency}>RWF</Text></Text>
+                    <Text style={[styles.finLabel, { color: colors.textSecondary }]}>Unit Cost</Text>
+                    <Text style={[styles.finValue, { color: colors.textPrimary }]}>{item.cost_price.toLocaleString()} <Text style={[styles.currency, { color: colors.textSecondary }]}>RWF</Text></Text>
                 </View>
-                <View style={styles.finItemDivider} />
+                <View style={[styles.finItemDivider, { backgroundColor: colors.border }]} />
                 <View style={styles.finItemRight}>
-                    <Text style={styles.finLabel}>Unit Price</Text>
-                    <Text style={[styles.finValue, { color: '#fbe134' }]}>{item.price.toLocaleString()} <Text style={styles.currency}>RWF</Text></Text>
+                    <Text style={[styles.finLabel, { color: colors.textSecondary }]}>Unit Price</Text>
+                    <Text style={[styles.finValue, { color: colors.brandGold }]}>{item.price.toLocaleString()} <Text style={[styles.currency, { color: colors.textSecondary }]}>RWF</Text></Text>
                 </View>
             </View>
             
-            {/* RRA / Advanced Info Bar */}
-            {(item.taxTyCd || item.itemClsCd) && (
-                <View style={styles.rraBar}>
-                    <Text style={styles.rraText}>RRA Tax: {item.taxTyCd || 'N/A'} • Class: {item.itemClsCd || 'Auto'}</Text>
+            {expandedProductId === item.id && (
+                <View style={[styles.expandedSection, { borderTopColor: colors.border }]}>
+                    <View style={styles.expandedTitleRow}>
+                        <Text style={[styles.expandedTitle, { color: colors.brandGold }]}>Active Batches</Text>
+                        {loadingBatches && <ActivityIndicator size="small" color={colors.brandGold} />}
+                    </View>
+                    
+                    {!loadingBatches && batches.length === 0 && (
+                        <Text style={[styles.noBatchesText, { color: colors.textSecondary }]}>No batch details available.</Text>
+                    )}
+                    
+                    {batches.map((batch, index) => (
+                        <View key={batch.id || index} style={[styles.batchItem, { backgroundColor: colors.overlay, borderColor: colors.border }]}>
+                            <View style={styles.batchMainInfo}>
+                                <Text style={[styles.batchNumber, { color: colors.textPrimary }]}>#{batch.batch_number || 'Batch ' + (index + 1)}</Text>
+                                <Text style={[styles.batchQty, { color: colors.brandGreen }]}>{batch.current_quantity} {item.unit} left</Text>
+                            </View>
+                            <View style={styles.batchSubInfo}>
+                                <Text style={[styles.batchDetail, { color: colors.textSecondary }]}>Cost: {Number(batch.buying_price_per_unit || 0).toLocaleString()} RWF</Text>
+                                <Text style={[styles.batchDetail, { color: colors.textSecondary }, batch.expiry_date && { color: '#F59E0B' }]}>
+                                    {batch.expiry_date ? `Exp: ${new Date(batch.expiry_date).toLocaleDateString()}` : 'No Expiry'}
+                                </Text>
+                            </View>
+                        </View>
+                    ))}
                 </View>
             )}
-        </View>
+
+            {(item.taxTyCd || item.itemClsCd) && (
+                <View style={[styles.rraBar, { borderTopColor: colors.border }]}>
+                    <Text style={[styles.rraText, { color: colors.textSecondary }]}>RRA Tax: {item.taxTyCd || 'N/A'} • Class: {item.itemClsCd || 'Auto'}</Text>
+                </View>
+            )}
+        </TouchableOpacity>
     );
 
     return (
         <View style={styles.container}>
             {/* Macro Summary */}
             <View style={styles.summaryContainer}>
-                <View style={styles.summaryCardMain}>
-                    <Text style={styles.summaryLabel}>Total Projected Revenue</Text>
-                    <Text style={styles.summaryValueMain}>{inventoryValue.toLocaleString()} <Text style={{fontSize: 14, color: 'rgba(255,255,255,0.5)'}}>RWF</Text></Text>
-                    <Text style={styles.summaryLabelSub}>Margin: {potentialProfit.toLocaleString()} RWF</Text>
+                <View style={[styles.summaryCardMain, { backgroundColor: colors.card, borderColor: colors.border }]}>
+                    <Text style={[styles.summaryLabel, { color: colors.textSecondary }]}>Total Projected Revenue</Text>
+                    <Text style={[styles.summaryValueMain, { color: colors.textPrimary }]}>{inventoryValue.toLocaleString()} <Text style={{fontSize: 14, color: colors.textSecondary}}>RWF</Text></Text>
+                    <Text style={[styles.summaryLabelSub, { color: colors.brandGreen }]}>Margin: {potentialProfit.toLocaleString()} RWF</Text>
                 </View>
 
-                <View style={styles.summaryCardSub}>
+                <View style={[styles.summaryCardSub, { backgroundColor: colors.card, borderColor: colors.border }]}>
                     <View style={styles.subItem}>
-                        <Text style={styles.subLabel}>Total SKUs</Text>
-                        <Text style={styles.subValue}>{totalItems}</Text>
+                        <Text style={[styles.subLabel, { color: colors.textSecondary }]}>Total SKUs</Text>
+                        <Text style={[styles.subValue, { color: colors.textPrimary }]}>{totalItems}</Text>
                     </View>
-                    <View style={styles.subDivider} />
+                    <View style={[styles.subDivider, { backgroundColor: colors.border }]} />
                     <View style={styles.subItem}>
-                        <Text style={styles.subLabel}>Alerts</Text>
-                        <Text style={[styles.subValue, { color: '#EF4444' }]}>{lowStockItems}</Text>
+                        <Text style={[styles.subLabel, { color: colors.textSecondary }]}>Alerts</Text>
+                        <Text style={[styles.subValue, { color: colors.danger }]}>{lowStockItems}</Text>
                     </View>
                 </View>
             </View>
 
             {/* Actions Bar */}
-            <View style={styles.actionsBar}>
-                <TouchableOpacity 
-                    style={styles.actionButton}
-                    onPress={() => setShowAddProduct(true)}
-                >
-                    <Plus size={16} color="#2a2e34" />
-                    <Text style={styles.actionButtonText}>Add Product</Text>
-                </TouchableOpacity>
-                <TouchableOpacity 
-                    style={styles.actionButtonLight}
-                    onPress={() => setShowRestock(true)}
-                >
-                    <Archive size={16} color="#FFFFFF" />
-                    <Text style={styles.actionButtonLightText}>Stock Batches</Text>
-                </TouchableOpacity>
-            </View>
-
-            {/* Command Bar (Search) */}
-            <View style={styles.commandBar}>
-                <View style={styles.searchBox}>
-                    <Search size={18} color="#6B7280" />
-                    <TextInput 
-                        style={styles.searchInput}
-                        placeholder="Search items, barcode, or categories..."
-                        placeholderTextColor="#9CA3AF"
+            <View style={styles.actionRow}>
+                <View style={[styles.searchBar, { backgroundColor: colors.card, borderColor: colors.border }]}>
+                    <Search size={18} color={colors.textSecondary} />
+                    <TextInput
+                        placeholder="Search Inventory..."
+                        placeholderTextColor={colors.textSecondary}
+                        style={[styles.searchInput, { color: colors.textPrimary }]}
                         value={searchQuery}
                         onChangeText={setSearchQuery}
                     />
-                    <TouchableOpacity>
-                        <Barcode size={24} color="#fbe134" />
-                    </TouchableOpacity>
                 </View>
+                <TouchableOpacity 
+                    style={[styles.filterIconButton, { backgroundColor: colors.card, borderColor: colors.border }]}
+                    onPress={() => setShowRestock(true)}
+                    activeOpacity={0.7}
+                >
+                    <Archive size={20} color={isDarkMode ? '#FFFFFF' : '#111827'} />
+                </TouchableOpacity>
+                <TouchableOpacity 
+                    style={[styles.filterIconButton, { backgroundColor: colors.card, borderColor: colors.border }]}
+                    onPress={() => setShowAddProduct(true)}
+                    activeOpacity={0.7}
+                >
+                    <Plus size={22} color={colors.brandGold} />
+                </TouchableOpacity>
             </View>
 
             {/* List */}
@@ -247,29 +295,28 @@ export default function InventoryModule() {
                     contentContainerStyle={styles.listContent}
                     showsVerticalScrollIndicator={false}
                     scrollEnabled={false}
-                    refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#fbe134" />}
+                    refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.brandGold} />}
                     ListEmptyComponent={
-                        <View style={styles.emptyStateContainer}>
-                            <Package size={32} color="#9CA3AF" />
-                            <Text style={styles.emptyStateTitle}>No Products Found</Text>
-                            <Text style={styles.emptyStateDesc}>Try adjusting your search or scan a barcode.</Text>
+                        <View style={[styles.emptyStateContainer, { backgroundColor: colors.card, borderColor: colors.border }]}>
+                            <Package size={32} color={colors.textSecondary} />
+                            <Text style={[styles.emptyStateTitle, { color: colors.textPrimary }]}>No Products Found</Text>
+                            <Text style={[styles.emptyStateDesc, { color: colors.textSecondary }]}>Try adjusting your search or scan a barcode.</Text>
                         </View>
                     }
                 />
             )}
 
-            {/* Modals */}
             <AddProductModal 
                 visible={showAddProduct}
                 onClose={() => setShowAddProduct(false)}
-                onSuccess={fetchInventory}
+                onSuccess={() => fetchInventory(true)}
             />
             
             <RestockModal 
                 visible={showRestock}
                 onClose={() => setShowRestock(false)}
-                onSuccess={fetchInventory}
-                availableProducts={inventory} // Mapping local interface to the modal prop matches exactly
+                onSuccess={() => fetchInventory(true)}
+                availableProducts={inventory} 
             />
         </View>
     );
@@ -297,33 +344,51 @@ const styles = StyleSheet.create({
     summaryLabelSub: { fontSize: 11, fontFamily: 'Montserrat_600SemiBold', color: '#10B981', marginTop: 4 },
     summaryCardSub: {
         flexDirection: 'row',
-        backgroundColor: '#f3f4f6', 
+        backgroundColor: '#2a2e34', 
         borderRadius: 16,
         padding: 16,
         alignItems: 'center',
         justifyContent: 'space-around',
+        borderWidth: 1,
+        borderColor: 'rgba(255, 255, 255, 0.05)',
     },
     subItem: { alignItems: 'center' },
-    subLabel: { fontSize: 11, fontFamily: 'Montserrat_600SemiBold', color: '#6B7280' },
-    subValue: { fontSize: 18, fontFamily: 'Poppins_700Bold', color: '#111827' },
-    subDivider: { width: 1, height: '100%', backgroundColor: '#E5E7EB' },
-    actionsBar: { flexDirection: 'row', gap: 12, marginBottom: 20 },
-    actionButton: {
-        flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
-        backgroundColor: '#fbe134', paddingVertical: 14, borderRadius: 14, gap: 8,
+    subLabel: { fontSize: 11, fontFamily: 'Montserrat_600SemiBold', color: '#9CA3AF' },
+    subValue: { fontSize: 18, fontFamily: 'Poppins_700Bold', color: '#FFFFFF' },
+    subDivider: { width: 1, height: '100%', backgroundColor: 'rgba(255, 255, 255, 0.05)' },
+    actionRow: {
+        flexDirection: 'row',
+        gap: 12,
+        marginBottom: 24,
     },
-    actionButtonText: { fontSize: 13, fontFamily: 'Poppins_700Bold', color: '#2a2e34' },
-    actionButtonLight: {
-        flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
-        backgroundColor: '#2a2e34', paddingVertical: 14, borderRadius: 14, gap: 8,
+    searchBar: {
+        flex: 1,
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: '#2a2e34', 
+        paddingHorizontal: 16,
+        height: 52,
+        borderRadius: 14,
+        borderWidth: 1,
+        borderColor: 'rgba(255,255,255,0.05)',
     },
-    actionButtonLightText: { fontSize: 13, fontFamily: 'Poppins_700Bold', color: '#FFFFFF' },
-    commandBar: { flexDirection: 'row', marginBottom: 20, gap: 12 },
-    searchBox: {
-        flex: 1, flexDirection: 'row', alignItems: 'center',
-        backgroundColor: '#f3f4f6', paddingHorizontal: 16, height: 54, borderRadius: 16, borderTopWidth: 3, borderTopColor: '#fbe134',
+    searchInput: {
+        flex: 1,
+        marginLeft: 12,
+        fontFamily: 'Montserrat_600SemiBold',
+        fontSize: 14,
+        color: '#FFFFFF',
     },
-    searchInput: { flex: 1, marginLeft: 12, fontFamily: 'Montserrat_600SemiBold', fontSize: 14, color: '#2a2e34' },
+    filterIconButton: {
+        width: 52,
+        height: 52,
+        backgroundColor: '#2a2e34', 
+        borderRadius: 14,
+        alignItems: 'center',
+        justifyContent: 'center',
+        borderWidth: 1,
+        borderColor: 'rgba(255,255,255,0.05)',
+    },
     listContent: { paddingBottom: 20, gap: 16 },
     itemCard: {
         backgroundColor: '#1a1d21', borderRadius: 20, padding: 20, shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.2, shadowRadius: 10, elevation: 6,
@@ -352,4 +417,65 @@ const styles = StyleSheet.create({
     emptyStateContainer: { alignItems: 'center', paddingVertical: 40, backgroundColor: '#1a1d21', borderRadius: 24, borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)', borderStyle: 'dashed' },
     emptyStateTitle: { fontSize: 16, fontFamily: 'Poppins_700Bold', color: '#FFFFFF', marginTop: 12, marginBottom: 8 },
     emptyStateDesc: { fontSize: 12, fontFamily: 'Montserrat_500Medium', color: '#9CA3AF', textAlign: 'center' },
+    expandedSection: {
+        marginTop: 16,
+        paddingTop: 16,
+        borderTopWidth: 1,
+        borderTopColor: 'rgba(255,255,255,0.05)',
+    },
+    expandedTitleRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: 12,
+    },
+    expandedTitle: {
+        fontSize: 12,
+        fontFamily: 'Montserrat_700Bold',
+        color: '#fbe134',
+        textTransform: 'uppercase',
+        letterSpacing: 1,
+    },
+    noBatchesText: {
+        fontSize: 12,
+        fontFamily: 'Montserrat_500Medium',
+        color: '#9CA3AF',
+        fontStyle: 'italic',
+        textAlign: 'center',
+        paddingVertical: 10,
+    },
+    batchItem: {
+        backgroundColor: 'rgba(255,255,255,0.03)',
+        borderRadius: 12,
+        padding: 12,
+        marginBottom: 8,
+        borderWidth: 1,
+        borderColor: 'rgba(255,255,255,0.05)',
+    },
+    batchMainInfo: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: 4,
+    },
+    batchNumber: {
+        fontSize: 13,
+        fontFamily: 'Poppins_700Bold',
+        color: '#FFFFFF',
+    },
+    batchQty: {
+        fontSize: 12,
+        fontFamily: 'Montserrat_700Bold',
+        color: '#10B981',
+    },
+    batchSubInfo: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+    },
+    batchDetail: {
+        fontSize: 11,
+        fontFamily: 'Montserrat_500Medium',
+        color: '#9CA3AF',
+    },
 });

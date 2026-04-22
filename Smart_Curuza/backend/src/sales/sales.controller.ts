@@ -20,12 +20,24 @@ import { CreateSaleDto } from './dto/create-sale.dto';
 export class SalesController {
   private readonly logger = new Logger(SalesController.name);
 
-  constructor(private readonly salesService: SalesService) { }
+  constructor(private readonly salesService: SalesService) {}
 
   @UseGuards(JwtAuthGuard)
   @Get()
   async findAll(@CurrentUser() user: AuthenticatedUser) {
     return this.salesService.findAll(user.merchantId);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('recent')
+  async getRecent(
+    @Query('limit') limit: string,
+    @CurrentUser() user: AuthenticatedUser,
+  ) {
+    return this.salesService.getRecentSales(
+      limit ? parseInt(limit, 10) : 5,
+      user.merchantId,
+    );
   }
 
   @UseGuards(JwtAuthGuard)
@@ -58,7 +70,7 @@ export class SalesController {
   @UseGuards(JwtAuthGuard)
   @Get('export')
   async exportSales(
-    @Query('period') period: 'weekly' | 'monthly' | 'yearly',
+    @Query('period') period: 'weekly' | 'monthly' | 'quarterly' | 'yearly',
     @CurrentUser() user: AuthenticatedUser,
   ) {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-return
@@ -91,6 +103,15 @@ export class SalesController {
       endDate,
       user.merchantId,
     );
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('customer/:id')
+  async getByCustomer(
+    @Param('id') customerId: string,
+    @CurrentUser() user: AuthenticatedUser,
+  ) {
+    return this.salesService.getSalesByCustomer(customerId, user.merchantId);
   }
 
   @Post('cleanup')

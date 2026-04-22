@@ -2,7 +2,9 @@ import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Image, Animated, Easing, Modal } from 'react-native';
 import * as Haptics from 'expo-haptics';
 import { Globe, Search, Bell, AlertTriangle, ChevronRight, X } from 'lucide-react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ApiClient } from '../lib/api_client';
+import { useTheme } from '../lib/theme/ThemeContext';
 
 const NAV_ITEMS = [
     { id: 'overview', label: 'Overview' },
@@ -17,6 +19,8 @@ interface DashboardHeaderProps {
 }
 
 export default function DashboardHeader({ activeTab, onTabChange }: DashboardHeaderProps) {
+    const insets = useSafeAreaInsets();
+    const { colors, isDarkMode } = useTheme();
     const [shopInfo, setShopInfo] = useState({ name: '...', logo: null, initials: '..' });
     const [alerts, setAlerts] = useState<any[]>([]);
     const [isDropdownVisible, setIsDropdownVisible] = useState(false);
@@ -118,22 +122,22 @@ export default function DashboardHeader({ activeTab, onTabChange }: DashboardHea
     });
 
     return (
-        <View style={styles.container}>
+        <View style={[styles.container, { paddingTop: insets.top + 16, backgroundColor: isDarkMode ? colors.card : colors.brandGold }]}>
             {/* Top Row: Brand & Utilities */}
             <View style={styles.topRow}>
                 {/* Left: Avatar & Info */}
                 <View style={styles.brandSection}>
-                    <View style={styles.avatar}>
+                    <View style={[styles.avatar, { backgroundColor: isDarkMode ? colors.brandGold : '#FFFFFF' }]}>
                         {shopInfo.logo ? (
                             <Image source={{ uri: shopInfo.logo }} style={styles.logoImage} />
                         ) : (
                             <Text style={styles.avatarText}>{shopInfo.initials}</Text>
                         )}
-                        <View style={styles.onlineBadge} />
+                        <View style={[styles.onlineBadge, { borderColor: isDarkMode ? colors.card : colors.brandGold }]} />
                     </View>
                     <View style={styles.infoSection}>
-                        <Text style={styles.greeting}>Good Morning,</Text>
-                        <Text style={styles.shopName} numberOfLines={1}>{shopInfo.name}</Text>
+                        <Text style={[styles.greeting, { color: isDarkMode ? 'rgba(255, 255, 255, 0.5)' : 'rgba(0, 0, 0, 0.5)' }]}>Good Morning,</Text>
+                        <Text style={[styles.shopName, { color: isDarkMode ? colors.textPrimary : '#111827' }]} numberOfLines={1}>{shopInfo.name}</Text>
                     </View>
                 </View>
 
@@ -141,16 +145,16 @@ export default function DashboardHeader({ activeTab, onTabChange }: DashboardHea
                 <View style={styles.utilityRow}>
                     {/* Animated Bell Wrapper */}
                     <TouchableOpacity 
-                        style={styles.utilityButton} 
+                        style={[styles.utilityButton, { backgroundColor: isDarkMode ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.08)' }]} 
                         onPress={() => {
                             Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
                             setIsDropdownVisible(true);
                         }}
                     >
                         <Animated.View style={{ transform: [{ rotate: spin }] }}>
-                            <Bell size={22} color="#FFFFFF" />
+                            <Bell size={22} color={isDarkMode ? '#FFFFFF' : '#111827'} />
                         </Animated.View>
-                        {alerts.length > 0 && <View style={styles.notifDot} />}
+                        {alerts.length > 0 && <View style={[styles.notifDot, { borderColor: isDarkMode ? colors.card : colors.brandGold }]} />}
                     </TouchableOpacity>
                 </View>
             </View>
@@ -170,11 +174,12 @@ export default function DashboardHeader({ activeTab, onTabChange }: DashboardHea
                         >
                             <Text style={[
                                 styles.navText,
-                                activeTab === item.id && styles.navTextActive
+                                { color: isDarkMode ? 'rgba(255, 255, 255, 0.4)' : 'rgba(0, 0, 0, 0.4)' },
+                                activeTab === item.id && [styles.navTextActive, { color: isDarkMode ? colors.brandGold : '#111827' }]
                             ]}>
                                 {item.label}
                             </Text>
-                            {activeTab === item.id && <View style={styles.activeIndicator} />}
+                            {activeTab === item.id && <View style={[styles.activeIndicator, { backgroundColor: isDarkMode ? colors.brandGold : '#111827' }]} />}
                         </TouchableOpacity>
                     ))}
                 </ScrollView>
@@ -192,31 +197,31 @@ export default function DashboardHeader({ activeTab, onTabChange }: DashboardHea
                     activeOpacity={1} 
                     onPress={() => setIsDropdownVisible(false)}
                 >
-                    <View style={styles.dropdownContainer}>
-                        <View style={styles.dropdownHeader}>
-                            <Text style={styles.dropdownTitle}>System Alerts</Text>
+                    <View style={[styles.dropdownContainer, { marginTop: insets.top + 70, backgroundColor: colors.card, borderColor: colors.border }]}>
+                        <View style={[styles.dropdownHeader, { borderBottomColor: colors.border }]}>
+                            <Text style={[styles.dropdownTitle, { color: colors.textPrimary }]}>System Alerts</Text>
                             <TouchableOpacity onPress={() => setIsDropdownVisible(false)}>
-                                <X size={20} color="#9CA3AF" />
+                                <X size={20} color={colors.textSecondary} />
                             </TouchableOpacity>
                         </View>
                         
                         {alerts.length > 0 ? (
                             <ScrollView style={styles.alertList} showsVerticalScrollIndicator={false}>
                                 {alerts.map(alert => (
-                                    <View key={alert.id} style={styles.alertCard}>
+                                    <View key={alert.id} style={[styles.alertCard, { backgroundColor: colors.overlay }]}>
                                         <View style={styles.alertIconBox}>
                                             <AlertTriangle size={20} color={alert.color} />
                                         </View>
                                         <View style={styles.alertContent}>
-                                            <Text style={styles.alertTitle}>{alert.title}</Text>
-                                            <Text style={styles.alertDesc}>{alert.description}</Text>
+                                            <Text style={[styles.alertTitle, { color: colors.textPrimary }]}>{alert.title}</Text>
+                                            <Text style={[styles.alertDesc, { color: colors.textSecondary }]}>{alert.description}</Text>
                                         </View>
                                     </View>
                                 ))}
                             </ScrollView>
                         ) : (
                             <View style={styles.emptyState}>
-                                <Text style={styles.emptyText}>All clear! No system warnings.</Text>
+                                <Text style={[styles.emptyText, { color: colors.textSecondary }]}>All clear! No system warnings.</Text>
                             </View>
                         )}
                     </View>
@@ -228,8 +233,7 @@ export default function DashboardHeader({ activeTab, onTabChange }: DashboardHea
 
 const styles = StyleSheet.create({
     container: {
-        paddingTop: 20,
-        backgroundColor: '#2a2e34', // Jet (Dark Theme)
+        // paddingTop handled dynamically
         borderBottomLeftRadius: 32,
         borderBottomRightRadius: 32,
         shadowColor: '#000',
@@ -282,7 +286,6 @@ const styles = StyleSheet.create({
         backgroundColor: '#22C55E',
         borderRadius: 5,
         borderWidth: 2,
-        borderColor: '#2a2e34',
         zIndex: 10,
     },
     infoSection: {
@@ -321,7 +324,6 @@ const styles = StyleSheet.create({
         backgroundColor: '#EF4444',
         borderRadius: 4,
         borderWidth: 1.5,
-        borderColor: '#2a2e34',
     },
     navContainer: {
         paddingBottom: 12,
@@ -361,7 +363,7 @@ const styles = StyleSheet.create({
         width: '85%',
         maxHeight: '60%',
         backgroundColor: '#2a2e34', // Executive Jet
-        marginTop: 90, // Places it directly beneath the header icons
+        // marginTop handled dynamically
         marginRight: 24,
         borderRadius: 20,
         padding: 20,
