@@ -1,0 +1,232 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+:root {
+  --primary-blue: #2889e9e6;
+  --primary-blue-hover: #0070E0;
+  --sidebar-active: #FFFFFF;
+  --sidebar-text: #E0F0FF;
+  --sidebar-active-text: #1E293B;
+
+  --bg-color: #ffffff;
+  --surface-color: #ffffff;
+  --text-main: #0F172A;
+  --kpi-card-bg: #F1F5F9;
+  --text-muted: #64748B;
+
+  --border-color: #d5d9de;
+  --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+
+  --danger-red: #FF3B30;
+  --warning-yellow: #FFCC00;
+  --success-green: #34C759;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: var(--bg-color);
+  color: var(--text-main);
+  font-family: 'Inter', sans-serif;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+.app-wrapper {
+  display: flex;
+  min-height: 100vh;
+}
+
+.sidebar {
+  width: 260px;
+  background-color: #018bf1;
+  /* Vibrant solid blue matching Ondeck */
+  color: white;
+  display: flex;
+  flex-direction: column;
+  padding: 32px 24px;
+}
+
+.sidebar-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 32px;
+}
+
+.brand-name {
+  font-size: 1.75rem;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+  color: white;
+}
+
+.sidebar-divider {
+  border: none;
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+  margin-bottom: 24px;
+}
+
+.mt-auto {
+  margin-top: auto;
+}
+
+.sidebar-header {
+  font-size: 0.85rem;
+  font-weight: 400;
+  letter-spacing: 0.5px;
+  color: white;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 16px;
+  border-radius: 12px;
+  color: white;
+  text-decoration: none;
+  font-weight: 400;
+  font-size: 1.05rem;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.nav-item:hover {
+  background-color: rgba(255, 255, 255, 0.15);
+  /* Match hovered 'My Tasks' lighter blue */
+  color: white;
+}
+
+.nav-item.active {
+  background-color: white;
+  color: #1E293B;
+  /* Dark text for Dashboard */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.main-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 20px 28px;
+  height: 100vh;
+  overflow-y: auto;
+}
+
+.card {
+  background: var(--surface-color);
+  border-radius: 24px;
+  box-shadow: var(--card-shadow);
+  border: 1px solid var(--border-color);
+  padding: 24px;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.4s ease-out forwards;
+}
+
+/* Top Header */
+.top-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 24px;
+  margin-bottom: 32px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.top-header-title {
+  font-size: 1.75rem;
+  font-weight: 500;
+  color: var(--text-main);
+  margin: 0;
+}
+
+.top-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.icon-btn {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background-color: #F1F5F9;
+  /* Distinctly darker than the background */
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-main);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.icon-btn:hover {
+  background-color: #E2E8F0;
+}
+
+.search-bar {
+  display: flex;
+  align-items: center;
+  background-color: #F1F5F9;
+  /* Distinctly darker than the background */
+  border-radius: 9999px;
+  padding: 0 16px;
+  height: 44px;
+  width: 260px;
+  transition: all 0.2s ease;
+}
+
+.search-bar:focus-within {
+  box-shadow: 0 0 0 2px var(--primary-blue);
+  background-color: #FFFFFF;
+}
+
+.search-icon {
+  color: #334155;
+  margin-right: 8px;
+}
+
+.search-input {
+  border: none;
+  background: transparent;
+  outline: none;
+  font-size: 0.95rem;
+  width: 100%;
+  color: var(--text-main);
+  font-weight: 400;
+}
+
+.search-input::placeholder {
+  color: #475569;
+  /* Darker placeholder text */
+}
