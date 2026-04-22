@@ -1,0 +1,451 @@
+/* ── Drawer Backdrop ─────────────────────────────────────────── */
+.drawer-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0);
+  z-index: 1000;
+  transition: background 0.3s ease;
+  pointer-events: none;
+}
+
+.drawer-backdrop.visible {
+  background: rgba(15, 23, 42, 0.4);
+  backdrop-filter: blur(4px);
+  pointer-events: auto;
+}
+
+/* ── Sliding Panel ───────────────────────────────────────────── */
+.task-drawer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 520px;
+  max-width: 95vw;
+  height: 100vh;
+  background: white;
+  border-left: 1px solid var(--border-color);
+  box-shadow: -15px 0 50px rgba(0, 0, 0, 0.15);
+  z-index: 1001;
+  display: flex;
+  flex-direction: column;
+  transform: translateX(100%);
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  overflow: hidden;
+}
+
+.task-drawer.open {
+  transform: translateX(0);
+}
+
+.drawer-scroll-area {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  scrollbar-width: none;
+}
+
+.drawer-scroll-area::-webkit-scrollbar { display: none; }
+
+/* ── Header ── */
+.drawer-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 24px 28px;
+  border-bottom: 1px solid var(--border-color);
+  background: white;
+}
+
+.drawer-header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.drawer-task-id {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  letter-spacing: 0.5px;
+}
+
+.drawer-header-divider {
+  width: 1px;
+  height: 20px;
+  background: var(--border-color);
+}
+
+.drawer-priority-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 4px 12px;
+  border-radius: 999px;
+}
+
+.dp-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+}
+
+.drawer-header-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.dh-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  border: 1px solid #F1F5F9;
+  background: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.dh-btn:hover {
+  background: #F8FAFC;
+  color: var(--text-main);
+  border-color: var(--border-color);
+}
+
+.dh-btn.close-btn:hover {
+  background: #FEF2F2;
+  color: var(--danger-red);
+  border-color: #FEE2E2;
+}
+
+/* ── Title Section ── */
+.drawer-title-section {
+  padding: 28px;
+  background: white;
+}
+
+.drawer-task-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-main);
+  line-height: 1.3;
+  margin-bottom: 16px;
+  letter-spacing: -0.5px;
+}
+
+.drawer-tags {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.drawer-tag {
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 4px 12px;
+  border-radius: 6px;
+  background: #F1F5F9;
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+
+.add-tag-btn {
+  background: none;
+  border: 1px dashed var(--border-color);
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  cursor: pointer;
+}
+
+/* ── Tabs ── */
+.drawer-tabs {
+  display: flex;
+  padding: 0 28px;
+  border-bottom: 1px solid var(--border-color);
+  background: white;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+.dtab {
+  padding: 16px 20px;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.dtab.active {
+  color: var(--primary-blue);
+  border-bottom-color: var(--primary-blue);
+}
+
+.dtab-badge {
+  margin-left: 8px;
+  padding: 2px 8px;
+  background: #F1F5F9;
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  border-radius: 999px;
+  font-weight: 700;
+}
+
+/* ── Body ── */
+.drawer-body {
+  padding: 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+/* Metadata Grid */
+.meta-grid {
+  background: #F8FAFC;
+  border-radius: 20px;
+  padding: 12px 20px;
+  display: flex;
+  flex-direction: column;
+}
+
+.meta-row {
+  display: flex;
+  align-items: center;
+  padding: 12px 0;
+}
+
+.meta-label {
+  width: 140px;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.meta-value {
+  flex: 1;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-main);
+  display: flex;
+  align-items: center;
+}
+
+.meta-status-pill {
+  background: white;
+  border: 1px solid var(--border-color);
+  padding: 4px 14px;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+}
+
+.assignee-list {
+  display: flex;
+  align-items: center;
+}
+
+.avatar-chip-sm {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 2px solid white;
+  margin-right: -8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.meta-add-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 1.5px dashed var(--border-color);
+  background: white;
+  margin-left: 16px;
+  cursor: pointer;
+}
+
+/* Sections */
+.drawer-section {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.ds-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.ds-label {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text-main);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.ds-edit-btn, .ds-count {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  cursor: pointer;
+}
+
+.ds-description {
+  font-size: 1rem;
+  color: var(--text-muted);
+  line-height: 1.6;
+  background: #F8FAFC;
+  padding: 20px;
+  border-radius: 16px;
+  border: 1px solid var(--border-color);
+}
+
+/* Subtasks */
+.subtask-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.subtask-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 16px;
+  background: white;
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  transition: background 0.2s;
+}
+
+.subtask-item.done {
+  background: #F8FAFC;
+  border-color: #E2E8F0;
+  opacity: 0.8;
+}
+
+.subtask-item.done .subtask-text {
+  text-decoration: line-through;
+  color: var(--text-muted);
+}
+
+.subtask-checkbox {
+  width: 20px;
+  height: 20px;
+  border-radius: 6px;
+  border: 2px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.subtask-checkbox.checked {
+  background: var(--primary-blue);
+  border-color: var(--primary-blue);
+}
+
+/* Activity Tab */
+.activity-list {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.activity-item {
+  display: flex;
+  gap: 16px;
+}
+
+.activity-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.activity-comment-block {
+  background: #F8FAFC;
+  padding: 16px;
+  border-radius: 16px;
+  border: 1px solid var(--border-color);
+}
+
+.actor-name { font-weight: 700; font-size: 0.95rem; }
+.activity-time { font-size: 0.8rem; color: var(--text-muted); margin-left: 8px; }
+.activity-comment-text { margin-top: 8px; font-size: 0.95rem; line-height: 1.5; color: var(--text-main); }
+
+/* Footer */
+.drawer-footer {
+  padding: 24px 28px;
+  border-top: 1px solid var(--border-color);
+  background: white;
+}
+
+.comment-input-container {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #F1F5F9;
+  padding: 6px 6px 6px 16px;
+  border-radius: 999px;
+}
+
+.comment-avatar-pill {
+  width: 28px;
+  height: 28px;
+  background: var(--primary-blue);
+  color: white;
+  border-radius: 50%;
+  font-size: 0.7rem;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.comment-field {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  font-size: 0.95rem;
+  padding: 8px 0;
+}
+
+.send-comment-btn {
+  width: 36px;
+  height: 36px;
+  background: var(--primary-blue);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.send-comment-btn:hover { transform: scale(1.05); background: var(--primary-blue-hover); }

@@ -1,14 +1,8 @@
-.dashboard-layout {
-  display: grid;
-  grid-template-columns: 1fr 340px;
-  gap: 12px;
-  align-items: start;
-}
 
 /* Outer KPI Wrapper */
 .kpi-outer-wrapper {
-  padding: 10px;
-  margin-bottom: 12px;
+  padding: 16px;
+  margin-bottom: 24px;
   border-radius: 20px;
   border: 1px solid var(--border-color);
   background: white;
@@ -17,24 +11,30 @@
 .kpi-grid {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
-  gap: 10px;
+  gap: 16px;
 }
 
 /* Individual KPI Card */
 .kpi-card {
   border: 1px solid var(--border-color);
-  border-radius: 15px;
-  padding: 10px 16px;
+  border-radius: 16px;
+  padding: 20px;
   background-color: var(--kpi-card-bg);
   display: flex;
   flex-direction: column;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.kpi-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
 }
 
 .kpi-card-header {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 12px;
+  margin-bottom: 16px;
 }
 
 .kpi-icon-group {
@@ -134,6 +134,247 @@
 .schedule-card {
   padding: 16px 20px;
   border-radius: 16px;
+}
+
+/* ── View Switcher Row ── */
+.view-switcher-row {
+  display: flex;
+  align-items: center;
+  margin: 14px 0;
+}
+
+/* ── Kanban Section ── */
+.kanban-section {
+  padding: 16px 20px;
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.kanban-scroll {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  scrollbar-width: thin;
+  scrollbar-color: #CBD5E1 transparent;
+}
+
+.kanban-col {
+  flex-shrink: 0;
+  width: 220px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.kanban-col-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 2px 4px;
+}
+
+.kanban-col-title {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.kanban-col-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+}
+
+.kanban-col-label {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--text-main);
+}
+
+.kanban-col-count {
+  font-size: 0.72rem;
+  background: #F1F5F9;
+  color: var(--text-muted);
+  padding: 1px 7px;
+  border-radius: 9999px;
+}
+
+.kanban-col-add {
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  border: 1px solid var(--border-color);
+  background: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+  cursor: pointer;
+}
+
+/* Kanban Card — matches existing KPI card style exactly */
+.kanban-card {
+  background: white;
+  border: 1px solid var(--border-color);
+  border-radius: 14px;
+  padding: 12px 14px;
+  cursor: pointer;
+  transition: box-shadow 0.15s ease, transform 0.15s ease;
+}
+
+.kanban-card:hover {
+  box-shadow: 0 4px 12px rgba(1,139,241,0.09);
+  transform: translateY(-1px);
+  border-color: #C7D8F0;
+}
+
+.kc-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 7px;
+}
+
+.kc-tag {
+  font-size: 0.68rem;
+  font-weight: 500;
+  background: #F1F5F9;
+  color: var(--text-muted);
+  padding: 2px 7px;
+  border-radius: 4px;
+}
+
+.kc-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+}
+
+.kc-title {
+  font-size: 0.82rem;
+  font-weight: 400;
+  color: var(--text-main);
+  line-height: 1.4;
+  margin-bottom: 10px;
+}
+
+.kc-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 8px;
+  border-top: 1px solid #F1F5F9;
+}
+
+.kc-avatars {
+  display: flex;
+}
+
+.kc-avatar {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 2px solid white;
+  margin-right: -5px;
+}
+
+.kc-due {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 0.7rem;
+  color: var(--text-muted);
+}
+
+.kanban-add-card {
+  width: 100%;
+  padding: 8px;
+  border: 1.5px dashed #CBD5E1;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 0.78rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.kanban-add-card:hover {
+  border-color: var(--primary-blue);
+  color: var(--primary-blue);
+}
+
+/* ── List Section ── */
+.list-section {
+  padding: 0;
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.list-header-row {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr 1fr;
+  padding: 10px 20px;
+  border-bottom: 1px solid var(--border-color);
+  background: #F8FAFC;
+}
+
+.lh-title-col, .lh-col {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.list-row {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr 1fr;
+  padding: 12px 20px;
+  border-bottom: 1px solid #F1F5F9;
+  align-items: center;
+  transition: background 0.12s ease;
+}
+
+.list-row:hover { background: #FAFCFF; }
+.list-row:last-child { border-bottom: none; }
+
+.lr-title {
+  font-size: 0.84rem;
+  color: var(--text-main);
+  font-weight: 400;
+}
+
+.lr-status {
+  font-size: 0.75rem;
+  font-weight: 500;
+  padding: 3px 9px;
+  border-radius: 9999px;
+  width: fit-content;
+}
+
+.lr-priority {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.78rem;
+  font-weight: 400;
+}
+
+.lp-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+}
+
+.lr-assignee {
+  font-size: 0.82rem;
+  color: var(--text-main);
+}
+
+.lr-due {
+  font-size: 0.78rem;
+  color: var(--text-muted);
 }
 
 .schedule-header {

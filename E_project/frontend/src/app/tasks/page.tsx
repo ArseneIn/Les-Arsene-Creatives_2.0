@@ -1,7 +1,10 @@
 'use client';
-import { useState } from 'react';
+
+import { useState, useMemo } from 'react';
 import './tasks.css';
 import TaskDrawer from '@/components/TaskDrawer';
+import RightSidebar from '@/components/RightSidebar';
+import { useProject } from '@/context/ProjectContext';
 
 // ── Types ──────────────────────────────────────────────────────────────────
 export type Priority = 'Critical' | 'High' | 'Medium' | 'Low';
@@ -9,6 +12,7 @@ export type TaskStatus = 'backlog' | 'todo' | 'in_progress' | 'review' | 'done';
 
 export interface ProjectTask {
   id: string;
+  projectId: string; // Added link to project
   title: string;
   description?: string;
   priority: Priority;
@@ -24,17 +28,17 @@ export interface ProjectTask {
 
 // ── Seed data ──────────────────────────────────────────────────────────────
 const initialTasks: ProjectTask[] = [
-  { id: 't1', title: 'Define product requirements document', priority: 'High', status: 'todo', assignees: [{ name: 'Alice', color: '#018bf1' }, { name: 'Bob', color: '#34C759' }], tags: ['Planning'], dueDate: '28 Apr', storyPoints: 5, commentsCount: 3, attachmentsCount: 1, customFields: [{ label: 'Client', value: 'Acme Corp' }] },
-  { id: 't2', title: 'Brand identity design system', priority: 'Critical', status: 'todo', assignees: [{ name: 'Carol', color: '#FF9500' }], tags: ['Design'], dueDate: '30 Apr', storyPoints: 8, commentsCount: 7, attachmentsCount: 4, customFields: [{ label: 'Budget', value: '$2,000' }] },
-  { id: 't3', title: 'Set up Next.js monorepo scaffold', priority: 'High', status: 'in_progress', assignees: [{ name: 'Dave', color: '#AF52DE' }], tags: ['Engineering'], dueDate: '25 Apr', storyPoints: 3, commentsCount: 2, attachmentsCount: 0 },
-  { id: 't4', title: 'Implement authentication flow (OAuth + JWT)', priority: 'Critical', status: 'in_progress', assignees: [{ name: 'Alice', color: '#018bf1' }], tags: ['Engineering', 'Security'], dueDate: '27 Apr', storyPoints: 13, commentsCount: 5, attachmentsCount: 2 },
-  { id: 't5', title: 'Client onboarding deck (v2)', priority: 'Medium', status: 'in_progress', assignees: [{ name: 'Eve', color: '#FF3B30' }, { name: 'Bob', color: '#34C759' }], tags: ['Marketing'], dueDate: '29 Apr', storyPoints: 2, commentsCount: 1, attachmentsCount: 3 },
-  { id: 't6', title: 'Dashboard analytics integration', priority: 'High', status: 'review', assignees: [{ name: 'Dave', color: '#AF52DE' }], tags: ['Engineering'], dueDate: '24 Apr', storyPoints: 8, commentsCount: 9, attachmentsCount: 1 },
-  { id: 't7', title: 'UX audit & accessibility review', priority: 'Medium', status: 'review', assignees: [{ name: 'Carol', color: '#FF9500' }, { name: 'Alice', color: '#018bf1' }], tags: ['Design', 'QA'], dueDate: '23 Apr', storyPoints: 5, commentsCount: 4, attachmentsCount: 2 },
-  { id: 't8', title: 'Set up CI/CD pipeline (GitHub Actions)', priority: 'Low', status: 'done', assignees: [{ name: 'Dave', color: '#AF52DE' }], tags: ['DevOps'], dueDate: '20 Apr', storyPoints: 3, commentsCount: 0, attachmentsCount: 0 },
-  { id: 't9', title: 'Project kickoff meeting & minutes', priority: 'Low', status: 'done', assignees: [{ name: 'Alice', color: '#018bf1' }, { name: 'Eve', color: '#FF3B30' }], tags: ['Planning'], dueDate: '15 Apr', storyPoints: 1, commentsCount: 2, attachmentsCount: 1 },
-  { id: 't10', title: 'Competitor landscape research', priority: 'Medium', status: 'backlog', assignees: [], tags: ['Research'], storyPoints: 3, commentsCount: 0, attachmentsCount: 0 },
-  { id: 't11', title: 'Notification microservice architecture', priority: 'High', status: 'backlog', assignees: [{ name: 'Dave', color: '#AF52DE' }], tags: ['Engineering'], storyPoints: 8, commentsCount: 1, attachmentsCount: 0 },
+  { id: 't1', projectId: 'p1', title: 'Define product requirements document', priority: 'High', status: 'todo', assignees: [{ name: 'Alice', color: '#018bf1' }, { name: 'Bob', color: '#34C759' }], tags: ['Planning'], dueDate: '28 Apr', storyPoints: 5, commentsCount: 3, attachmentsCount: 1, customFields: [{ label: 'Client', value: 'Acme Corp' }] },
+  { id: 't2', projectId: 'p1', title: 'Brand identity design system', priority: 'Critical', status: 'todo', assignees: [{ name: 'Carol', color: '#FF9500' }], tags: ['Design'], dueDate: '30 Apr', storyPoints: 8, commentsCount: 7, attachmentsCount: 4, customFields: [{ label: 'Budget', value: '$2,000' }] },
+  { id: 't3', projectId: 'p2', title: 'Set up Next.js monorepo scaffold', priority: 'High', status: 'in_progress', assignees: [{ name: 'Dave', color: '#AF52DE' }], tags: ['Engineering'], dueDate: '25 Apr', storyPoints: 3, commentsCount: 2, attachmentsCount: 0 },
+  { id: 't4', projectId: 'p2', title: 'Implement authentication flow (OAuth + JWT)', priority: 'Critical', status: 'in_progress', assignees: [{ name: 'Alice', color: '#018bf1' }], tags: ['Engineering', 'Security'], dueDate: '27 Apr', storyPoints: 13, commentsCount: 5, attachmentsCount: 2 },
+  { id: 't5', projectId: 'p3', title: 'Client onboarding deck (v2)', priority: 'Medium', status: 'in_progress', assignees: [{ name: 'Eve', color: '#FF3B30' }, { name: 'Bob', color: '#34C759' }], tags: ['Marketing'], dueDate: '29 Apr', storyPoints: 2, commentsCount: 1, attachmentsCount: 3 },
+  { id: 't6', projectId: 'p2', title: 'Dashboard analytics integration', priority: 'High', status: 'review', assignees: [{ name: 'Dave', color: '#AF52DE' }], tags: ['Engineering'], dueDate: '24 Apr', storyPoints: 8, commentsCount: 9, attachmentsCount: 1 },
+  { id: 't7', projectId: 'p1', title: 'UX audit & accessibility review', priority: 'Medium', status: 'review', assignees: [{ name: 'Carol', color: '#FF9500' }, { name: 'Alice', color: '#018bf1' }], tags: ['Design', 'QA'], dueDate: '23 Apr', storyPoints: 5, commentsCount: 4, attachmentsCount: 2 },
+  { id: 't8', projectId: 'p2', title: 'Set up CI/CD pipeline (GitHub Actions)', priority: 'Low', status: 'done', assignees: [{ name: 'Dave', color: '#AF52DE' }], tags: ['DevOps'], dueDate: '20 Apr', storyPoints: 3, commentsCount: 0, attachmentsCount: 0 },
+  { id: 't9', projectId: 'p1', title: 'Project kickoff meeting & minutes', priority: 'Low', status: 'done', assignees: [{ name: 'Alice', color: '#018bf1' }, { name: 'Eve', color: '#FF3B30' }], tags: ['Planning'], dueDate: '15 Apr', storyPoints: 1, commentsCount: 2, attachmentsCount: 1 },
+  { id: 't10', projectId: 'p3', title: 'Competitor landscape research', priority: 'Medium', status: 'backlog', assignees: [], tags: ['Research'], storyPoints: 3, commentsCount: 0, attachmentsCount: 0 },
+  { id: 't11', projectId: 'p2', title: 'Notification microservice architecture', priority: 'High', status: 'backlog', assignees: [{ name: 'Dave', color: '#AF52DE' }], tags: ['Engineering'], storyPoints: 8, commentsCount: 1, attachmentsCount: 0 },
 ];
 
 const COLUMNS: { id: TaskStatus; label: string; accent: string }[] = [
@@ -53,10 +57,10 @@ const PRIORITY_CONFIG: Record<Priority, { color: string; bg: string }> = {
 };
 
 // ── Sub-components ─────────────────────────────────────────────────────────
-function TaskCard({ task, onClick }: { task: ProjectTask; onClick: () => void }) {
+function TaskCard({ task, onClick, projectColor }: { task: ProjectTask; onClick: () => void; projectColor?: string }) {
   const p = PRIORITY_CONFIG[task.priority];
   return (
-    <div className="kboard-card" onClick={onClick}>
+    <div className="kboard-card" onClick={onClick} style={projectColor ? { borderLeft: `3px solid ${projectColor}` } : {}}>
       <div className="kcard-header">
         <div className="kcard-tags">
           {task.tags.map(t => <span key={t} className="kcard-tag">{t}</span>)}
@@ -101,10 +105,11 @@ function TaskCard({ task, onClick }: { task: ProjectTask; onClick: () => void })
   );
 }
 
-function KanbanColumn({ column, tasks, onCardClick }: {
+function KanbanColumn({ column, tasks, onCardClick, projects }: {
   column: typeof COLUMNS[0];
   tasks: ProjectTask[];
   onCardClick: (task: ProjectTask) => void;
+  projects: any[];
 }) {
   return (
     <div className="kboard-column">
@@ -120,9 +125,17 @@ function KanbanColumn({ column, tasks, onCardClick }: {
       </div>
 
       <div className="kboard-cards">
-        {tasks.map(task => (
-          <TaskCard key={task.id} task={task} onClick={() => onCardClick(task)} />
-        ))}
+        {tasks.map(task => {
+          const project = projects.find(p => p.id === task.projectId);
+          return (
+            <TaskCard 
+              key={task.id} 
+              task={task} 
+              onClick={() => onCardClick(task)} 
+              projectColor={project?.color}
+            />
+          );
+        })}
         <button className="kboard-add-card">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
           Add task
@@ -134,99 +147,100 @@ function KanbanColumn({ column, tasks, onCardClick }: {
 
 // ── Main Page ──────────────────────────────────────────────────────────────
 export default function TasksPage() {
-  const [tasks] = useState<ProjectTask[]>(initialTasks);
+  const { projects, selectedProject } = useProject();
   const [activeView, setActiveView] = useState<'board' | 'list' | 'gantt' | 'backlog'>('board');
   const [selectedTask, setSelectedTask] = useState<ProjectTask | null>(null);
 
+  // Filter tasks by project
+  const filteredTasks = useMemo(() => {
+    if (!selectedProject) return initialTasks;
+    return initialTasks.filter(t => t.projectId === selectedProject.id);
+  }, [selectedProject]);
+
   const getColumnTasks = (status: TaskStatus) =>
-    tasks.filter(t => t.status === status);
+    filteredTasks.filter(t => t.status === status);
 
   return (
-    <div className="tasks-page animate-fade-in">
-      {/* Page Toolbar */}
-      <div className="tasks-toolbar">
-        <div className="tasks-project-info">
-          <div className="project-breadcrumb">
-            <span className="breadcrumb-org">Les Arsène Creatives</span>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="9 18 15 12 9 6"/></svg>
-            <span className="breadcrumb-project">ERP Platform</span>
-          </div>
-          <h1 className="tasks-page-title">ERP Platform — Sprint 3</h1>
-        </div>
+    <main className="dashboard-layout">
+      <div className="dashboard-main-column">
+        <div className="tasks-page animate-fade-in">
+          {/* Page Toolbar */}
+          <div className="tasks-toolbar">
+            <div className="tasks-project-info">
+              <h1 className="tasks-page-title">
+                {selectedProject ? `${selectedProject.name} — Workspace` : 'Portfolio Task Overview'}
+              </h1>
+            </div>
 
-        <div className="tasks-toolbar-right">
-          {/* View Switcher */}
-          <div className="view-switcher">
-            {([['board', 'Board'], ['list', 'List'], ['gantt', 'Gantt'], ['backlog', 'Backlog']] as const).map(([v, label]) => (
-              <button
-                key={v}
-                className={`view-btn ${activeView === v ? 'active' : ''}`}
-                onClick={() => setActiveView(v)}
-              >
-                {label}
+            <div className="tasks-toolbar-right">
+              {/* View Switcher */}
+              <div className="view-switcher">
+                {([['board', 'Board'], ['list', 'List'], ['gantt', 'Gantt'], ['backlog', 'Backlog']] as const).map(([v, label]) => (
+                  <button
+                    key={v}
+                    className={`view-btn ${activeView === v ? 'active' : ''}`}
+                    onClick={() => setActiveView(v)}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+
+              <div className="toolbar-divider" />
+
+              {/* Filter & Group controls */}
+              <button className="toolbar-btn">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="4" y1="6" x2="20" y2="6"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="11" y1="18" x2="13" y2="18"/></svg>
+                Filter
               </button>
-            ))}
+              
+              <button className="toolbar-btn primary">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                New Task
+              </button>
+            </div>
           </div>
 
-          <div className="toolbar-divider" />
+          {/* Kanban Board */}
+          {activeView === 'board' && (
+            <div className="kboard-scroll-wrapper">
+              <div className="kboard-grid">
+                {COLUMNS.map(col => (
+                  <KanbanColumn
+                    key={col.id}
+                    projects={projects}
+                    column={col}
+                    tasks={getColumnTasks(col.id)}
+                    onCardClick={setSelectedTask}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
 
-          {/* Filter & Group controls */}
-          <button className="toolbar-btn">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="4" y1="6" x2="20" y2="6"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="11" y1="18" x2="13" y2="18"/></svg>
-            Filter
-          </button>
-          <button className="toolbar-btn">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
-            Group by
-          </button>
+          {/* Placeholder for other views */}
+          {activeView !== 'board' && (
+            <div className="view-placeholder">
+              <div className="vp-icon">
+                {activeView === 'list' && <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>}
+                {activeView === 'gantt' && <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>}
+                {activeView === 'backlog' && <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>}
+              </div>
+              <h2 className="vp-title">{activeView === 'list' ? 'List View' : activeView === 'gantt' ? 'Gantt Chart' : 'Backlog'}</h2>
+              <p className="vp-sub">Coming up next — this view is being built.</p>
+            </div>
+          )}
 
-          {/* Assignee Avatars (filters by person) */}
-          <div className="toolbar-assignees">
-            {[{ name: 'Alice', color: '#018bf1' }, { name: 'Dave', color: '#AF52DE' }, { name: 'Carol', color: '#FF9500' }].map(a => (
-              <div key={a.name} className="avatar-chip" style={{ background: a.color }}>{a.name[0]}</div>
-            ))}
-          </div>
-
-          <button className="toolbar-btn primary">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-            New Task
-          </button>
+          {/* Sliding Drawer */}
+          {selectedTask && (
+            <TaskDrawer task={selectedTask} onClose={() => setSelectedTask(null)} />
+          )}
         </div>
       </div>
-
-      {/* Kanban Board */}
-      {activeView === 'board' && (
-        <div className="kboard-scroll-wrapper">
-          <div className="kboard-grid">
-            {COLUMNS.map(col => (
-              <KanbanColumn
-                key={col.id}
-                column={col}
-                tasks={getColumnTasks(col.id)}
-                onCardClick={setSelectedTask}
-              />
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Placeholder for other views */}
-      {activeView !== 'board' && (
-        <div className="view-placeholder">
-          <div className="vp-icon">
-            {activeView === 'list' && <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>}
-            {activeView === 'gantt' && <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>}
-            {activeView === 'backlog' && <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>}
-          </div>
-          <h2 className="vp-title">{activeView === 'list' ? 'List View' : activeView === 'gantt' ? 'Gantt Chart' : 'Backlog'}</h2>
-          <p className="vp-sub">Coming up next — this view is being built.</p>
-        </div>
-      )}
-
-      {/* Sliding Drawer */}
-      {selectedTask && (
-        <TaskDrawer task={selectedTask} onClose={() => setSelectedTask(null)} />
-      )}
-    </div>
+      
+      <div className="dashboard-right-column">
+        <RightSidebar mode="dashboard" />
+      </div>
+    </main>
   );
 }

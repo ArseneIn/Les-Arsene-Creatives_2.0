@@ -1,0 +1,194 @@
+/* ── Content Sections ── */
+.reports-section {
+  padding: 24px;
+  border-radius: 20px;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.section-title {
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: var(--text-main);
+}
+
+/* ── Chart Styles ── */
+.chart-container {
+  width: 100%;
+  position: relative;
+  overflow: visible;
+}
+
+.chart-grid-line {
+  stroke: #E2E8F0;
+  stroke-width: 1;
+  stroke-dasharray: 4 4;
+}
+
+.chart-axis-label {
+  font-size: 0.75rem;
+  fill: var(--text-muted);
+  font-weight: 500;
+}
+
+/* ── Heatmap / Grid Styles ── */
+.heatmap-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.heatmap-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.heatmap-label {
+  width: 100px;
+  font-size: 0.85rem;
+  color: var(--text-main);
+  font-weight: 500;
+  flex-shrink: 0;
+}
+
+.heatmap-cells {
+  display: flex;
+  gap: 6px;
+  flex: 1;
+}
+
+.heatmap-cell {
+  aspect-ratio: 1;
+  flex: 1;
+  border-radius: 6px;
+}
+
+/* ── Specific Metrics ── */
+.metric-summary {
+  display: flex;
+  gap: 32px;
+  margin-bottom: 24px;
+}
+
+.metric-item {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.metric-value {
+  font-size: 1.75rem;
+  font-weight: 600;
+  color: var(--text-main);
+}
+
+.metric-label {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.trend-indicator {
+  font-size: 0.85rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.trend-up { color: #1E8E3E; }
+.trend-down { color: #D93025; }
+
+/* ── Table Fixes for High Density ── */
+.report-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.report-table th {
+  text-align: left;
+  padding: 12px 20px;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--text-muted);
+  border-bottom: 1px solid var(--border-color);
+  letter-spacing: 0.5px;
+}
+
+.report-table td {
+  padding: 16px 20px;
+  font-size: 0.9rem;
+  color: var(--text-main);
+  border-bottom: 1px solid #F1F5F9;
+}
+
+.report-table tr:hover {
+  background: #F8FAFC;
+}
+
+/* ── Reports Empty State ── */
+.reports-empty-state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: calc(100vh - 160px);
+  width: 100%;
+}
+
+.empty-state-card {
+  max-width: 440px;
+  width: 100%;
+  padding: 64px 40px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  background: white;
+}
+
+.empty-icon-wrapper {
+  width: 96px;
+  height: 96px;
+  background: #F1F5F9;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 12px;
+}
+
+.empty-state-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--text-main);
+}
+
+.empty-state-text {
+  font-size: 1rem;
+  color: var(--text-muted);
+  line-height: 1.6;
+}
+
+.empty-state-hint {
+  margin-top: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #018bf1;
+  animation: bounce-vertical 2s ease-in-out infinite;
+}
+
+@keyframes bounce-vertical {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+}
