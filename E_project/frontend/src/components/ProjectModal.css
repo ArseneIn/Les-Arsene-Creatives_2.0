@@ -1,0 +1,227 @@
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(15, 23, 42, 0.4);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+}
+
+.project-modal {
+    width: 100%;
+    max-width: 540px;
+    background: white;
+    padding: 0 !important;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.modal-header {
+    padding: 32px 32px 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.modal-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-main);
+    letter-spacing: -0.5px;
+    margin-bottom: 4px;
+}
+
+.modal-subtitle {
+    font-size: 0.95rem;
+    color: var(--text-muted);
+}
+
+.close-btn-circle {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: 1px solid var(--border-color);
+    background: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.close-btn-circle:hover {
+    background: #F1F5F9;
+    color: var(--text-main);
+}
+
+/* ── Steps Progress ── */
+.steps-progress {
+    padding: 0 32px 32px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.step-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #E2E8F0;
+    transition: all 0.4s ease;
+}
+
+.step-dot.active {
+    background: var(--primary-blue);
+    box-shadow: 0 0 0 4px rgba(1, 139, 241, 0.15);
+}
+
+.step-line {
+    height: 2px;
+    flex: 1;
+    background: #E2E8F0;
+    transition: all 0.4s ease;
+}
+
+.step-line.active {
+    background: var(--primary-blue);
+}
+
+/* ── Form Body ── */
+.modal-body {
+    padding: 0 32px 40px;
+    min-height: 240px;
+}
+
+.form-step {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.form-group label {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text-main);
+}
+
+.form-group input {
+    width: 100%;
+    padding: 14px 16px;
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    font-size: 1rem;
+    outline: none;
+    transition: all 0.2s;
+}
+
+.form-group input:focus {
+    border-color: var(--primary-blue);
+    box-shadow: 0 0 0 4px rgba(1, 139, 241, 0.08);
+}
+
+/* Color Picker */
+.color-picker-grid {
+    display: flex;
+    gap: 16px;
+}
+
+.color-swatch {
+    width: 44px;
+    height: 44px;
+    border-radius: 14px;
+    border: 3px solid transparent;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.color-swatch.active {
+    border-color: #E2E8F0;
+    transform: scale(1.15);
+}
+
+/* Review Card */
+.review-card {
+    background: #F8FAFC;
+    border-radius: 16px;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.review-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.95rem;
+}
+
+.review-label { color: var(--text-muted); }
+.review-val { font-weight: 600; color: var(--text-main); }
+
+.final-hint {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    line-height: 1.5;
+    text-align: center;
+}
+
+/* ── Footer ── */
+.modal-footer {
+    padding: 24px 32px 32px;
+    border-top: 1px solid #F1F5F9;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.modal-btn {
+    padding: 12px 24px;
+    border-radius: 12px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    height: 48px;
+    border: 1px solid transparent;
+}
+
+.modal-btn.primary {
+    background: var(--primary-blue);
+    color: white;
+}
+
+.modal-btn.primary:hover:not(:disabled) {
+    background: var(--primary-blue-hover);
+    transform: translateY(-1px);
+}
+
+.modal-btn.primary:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.modal-btn.secondary {
+    background: white;
+    border-color: var(--border-color);
+    color: var(--text-main);
+}
+
+.modal-btn.secondary:hover {
+    background: #F8FAFC;
+}
+
+.spacer { flex: 1; }

@@ -23,15 +23,27 @@ interface ProjectContextType {
   selectedProject: Project | null;
   setSelectedProject: (project: Project | null) => void;
   projects: Project[];
+  addProject: (project: Omit<Project, 'id' | 'progress'>) => void;
 }
 
 const ProjectContext = createContext<ProjectContextType | undefined>(undefined);
 
 export function ProjectProvider({ children }: { children: ReactNode }) {
+  const [projects, setProjects] = useState<Project[]>(MOCK_PROJECTS);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
 
+  const addProject = (baseProject: Omit<Project, 'id' | 'progress'>) => {
+    const newProject: Project = {
+      ...baseProject,
+      id: `p${projects.length + 1}`,
+      progress: 0,
+    };
+    setProjects([...projects, newProject]);
+    setSelectedProject(newProject); // Auto-focus the new project
+  };
+
   return (
-    <ProjectContext.Provider value={{ selectedProject, setSelectedProject, projects: MOCK_PROJECTS }}>
+    <ProjectContext.Provider value={{ selectedProject, setSelectedProject, projects, addProject }}>
       {children}
     </ProjectContext.Provider>
   );

@@ -37,15 +37,16 @@
 }
 
 /* View Switcher */
-.view-switcher {
+.tasks-v-switcher {
   display: flex;
   background: #F1F5F9;
   border-radius: 12px;
   padding: 4px;
   gap: 4px;
+  flex-shrink: 0;
 }
 
-.view-btn {
+.tasks-v-btn {
   padding: 8px 16px;
   border-radius: 8px;
   border: none;
@@ -55,9 +56,10 @@
   color: var(--text-muted);
   cursor: pointer;
   transition: all 0.2s ease;
+  white-space: nowrap;
 }
 
-.view-btn.active {
+.tasks-v-btn.active {
   background: white;
   color: var(--text-main);
   box-shadow: 0 2px 8px rgba(0,0,0,0.06);

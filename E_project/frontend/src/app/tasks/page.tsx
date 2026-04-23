@@ -2,9 +2,9 @@
 
 import { useState, useMemo } from 'react';
 import './tasks.css';
-import TaskDrawer from '@/components/TaskDrawer';
-import RightSidebar from '@/components/RightSidebar';
-import { useProject } from '@/context/ProjectContext';
+import TaskDrawer from '../../components/TaskDrawer';
+import RightSidebar from '../../components/RightSidebar';
+import { useProject } from '../../context/ProjectContext';
 
 // ── Types ──────────────────────────────────────────────────────────────────
 export type Priority = 'Critical' | 'High' | 'Medium' | 'Low';
@@ -109,7 +109,7 @@ function KanbanColumn({ column, tasks, onCardClick, projects }: {
   column: typeof COLUMNS[0];
   tasks: ProjectTask[];
   onCardClick: (task: ProjectTask) => void;
-  projects: any[];
+  projects: { id: string; name: string; color: string; client: string }[];
 }) {
   return (
     <div className="kboard-column">
@@ -174,11 +174,11 @@ export default function TasksPage() {
 
             <div className="tasks-toolbar-right">
               {/* View Switcher */}
-              <div className="view-switcher">
+              <div className="tasks-v-switcher">
                 {([['board', 'Board'], ['list', 'List'], ['gantt', 'Gantt'], ['backlog', 'Backlog']] as const).map(([v, label]) => (
                   <button
                     key={v}
-                    className={`view-btn ${activeView === v ? 'active' : ''}`}
+                    className={`tasks-v-btn ${activeView === v ? 'active' : ''}`}
                     onClick={() => setActiveView(v)}
                   >
                     {label}

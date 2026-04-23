@@ -3,11 +3,13 @@
 import { useState } from 'react';
 import { usePathname } from 'next/navigation';
 import { useProject, Project } from '@/context/ProjectContext';
+import ProjectModal from './ProjectModal';
 
 export default function TopHeader() {
   const pathname = usePathname();
   const { selectedProject, setSelectedProject, projects } = useProject();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isProjectModalOpen, setIsProjectModalOpen] = useState(false);
   
   const getPageTitle = () => {
     switch (pathname) {
@@ -17,6 +19,7 @@ export default function TopHeader() {
       case '/calendar': return 'Calendar';
       case '/media': return 'Media Library';
       case '/messages': return 'Messages';
+      case '/users': return 'Team Management';
       default: return 'Dashboard';
     }
   };
@@ -75,7 +78,7 @@ export default function TopHeader() {
                 ))}
               </div>
               <div className="dropdown-footer">
-                <button className="add-project-btn">
+                <button className="add-project-btn" onClick={() => { setIsProjectModalOpen(true); setIsDropdownOpen(false); }}>
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
                   Create New Project
                 </button>
@@ -100,6 +103,8 @@ export default function TopHeader() {
           <input type="text" placeholder="Search data points..." className="search-input" />
         </div>
       </div>
+
+      <ProjectModal isOpen={isProjectModalOpen} onClose={() => setIsProjectModalOpen(false)} />
     </header>
   );
 }
