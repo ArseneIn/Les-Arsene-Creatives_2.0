@@ -5,6 +5,7 @@ import { Globe, Search, Bell, AlertTriangle, ChevronRight, X } from 'lucide-reac
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ApiClient } from '../lib/api_client';
 import { useTheme } from '../lib/theme/ThemeContext';
+import { useAuth } from '../lib/auth/AuthContext';
 
 const NAV_ITEMS = [
     { id: 'overview', label: 'Overview' },
@@ -21,9 +22,16 @@ interface DashboardHeaderProps {
 export default function DashboardHeader({ activeTab, onTabChange }: DashboardHeaderProps) {
     const insets = useSafeAreaInsets();
     const { colors, isDarkMode } = useTheme();
+    const { user } = useAuth();
     const [shopInfo, setShopInfo] = useState({ name: '...', logo: null, initials: '..' });
     const [alerts, setAlerts] = useState<any[]>([]);
     const [isDropdownVisible, setIsDropdownVisible] = useState(false);
+    
+    const isCashier = user?.role === 'CASHIER';
+    const filteredNavItems = NAV_ITEMS.filter(item => {
+        if (isCashier && (item.id === 'expenses' || item.id === 'crm')) return false;
+        return true;
+    });
     
     // Animation value for the Bell ringing effect
     const bellAnimation = useRef(new Animated.Value(0)).current;
@@ -166,7 +174,7 @@ export default function DashboardHeader({ activeTab, onTabChange }: DashboardHea
                     showsHorizontalScrollIndicator={false}
                     contentContainerStyle={styles.navScroll}
                 >
-                    {NAV_ITEMS.map((item) => (
+                    {filteredNavItems.map((item) => (
                         <TouchableOpacity 
                             key={item.id} 
                             onPress={() => onTabChange(item.id)}

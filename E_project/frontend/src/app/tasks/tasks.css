@@ -98,11 +98,15 @@
   background: var(--primary-blue);
   color: white;
   border-color: var(--primary-blue);
+  white-space: nowrap;
+  flex-shrink: 0;
+  box-shadow: 0 4px 12px rgba(1, 139, 241, 0.15);
 }
 
 .toolbar-btn.primary:hover {
   background: var(--primary-blue-hover);
   transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(1, 139, 241, 0.2);
 }
 
 /* ── Kanban Board ────────────────────────────────────────────── */
@@ -115,7 +119,6 @@
 
 .kboard-grid {
   display: flex;
-  gap: 20px;
   height: 100%;
   min-width: max-content;
   align-items: flex-start;
@@ -123,15 +126,27 @@
 
 /* Column */
 .kboard-column {
-  width: 300px;
+  width: 320px;
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
   max-height: 100%;
-  background: #F8FAFC;
-  border-radius: 16px;
-  padding: 12px;
+  background: white;
+  padding: 24px;
+  border-right: 1.5px solid #F1F5F9;
+  min-height: calc(100vh - 250px);
 }
+
+.kboard-column:last-child {
+  border-right: none;
+}
+
+/* Phase Background Gradients (4% opacity tints) */
+.phase-backlog { background: linear-gradient(to bottom, rgba(148, 163, 184, 0.04), transparent); }
+.phase-todo { background: linear-gradient(to bottom, rgba(1, 139, 241, 0.04), transparent); }
+.phase-in_progress { background: linear-gradient(to bottom, rgba(255, 149, 0, 0.04), transparent); }
+.phase-review { background: linear-gradient(to bottom, rgba(175, 82, 222, 0.04), transparent); }
+.phase-done { background: linear-gradient(to bottom, rgba(52, 199, 89, 0.04), transparent); }
 
 .kboard-col-header {
   display: flex;

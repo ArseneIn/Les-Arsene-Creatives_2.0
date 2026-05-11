@@ -1,0 +1,76 @@
+/* ── Phantom UI: Skeleton Shimmer ──────────────────────────────── */
+.skeleton-base {
+    background: #F1F5F9;
+    background: linear-gradient(
+        90deg, 
+        #F1F5F9 25%, 
+        #F8FAFC 50%, 
+        #F1F5F9 75%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite linear;
+    border-radius: 8px;
+    position: relative;
+    overflow: hidden;
+}
+
+@keyframes shimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+
+/* Variants */
+.skeleton-card {
+    height: 140px;
+    width: 100%;
+    border-radius: 20px;
+}
+
+.skeleton-chart {
+    height: 380px;
+    width: 100%;
+    border-radius: 24px;
+}
+
+.skeleton-kanban-col {
+    width: 320px;
+    height: 600px;
+    background: rgba(241, 245, 249, 0.5);
+    border-radius: 16px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.skeleton-task-card {
+    height: 120px;
+    width: 100%;
+    background: white;
+    border: 1px solid #E2E8F0;
+    border-radius: 12px;
+}
+
+.skeleton-title {
+    height: 24px;
+    width: 140px;
+    margin-bottom: 20px;
+}
+
+.skeleton-text {
+    height: 14px;
+    width: 100%;
+    margin-bottom: 8px;
+}
+
+.skeleton-circle {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+}
+
+.skeleton-header-stat {
+    width: 180px;
+    height: 48px;
+    border-radius: 12px;
+}

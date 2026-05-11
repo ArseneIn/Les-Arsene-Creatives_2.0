@@ -6,6 +6,7 @@ import AddProductModal from './AddProductModal';
 import RestockModal from './RestockModal';
 import SkeletonLoader from './SkeletonLoader';
 import { useTheme } from '../lib/theme/ThemeContext';
+import { useAuth } from '../lib/auth/AuthContext';
 
 interface InventoryItem {
     id: string;
@@ -64,6 +65,8 @@ const InventorySkeleton = () => {
 
 export default function InventoryModule() {
     const { colors, isDarkMode } = useTheme();
+    const { user } = useAuth();
+    const isCashier = user?.role === 'CASHIER';
     const [searchQuery, setSearchQuery] = useState('');
     const [showAddProduct, setShowAddProduct] = useState(false);
     const [showRestock, setShowRestock] = useState(false);
@@ -266,20 +269,24 @@ export default function InventoryModule() {
                         onChangeText={setSearchQuery}
                     />
                 </View>
-                <TouchableOpacity 
-                    style={[styles.filterIconButton, { backgroundColor: colors.card, borderColor: colors.border }]}
-                    onPress={() => setShowRestock(true)}
-                    activeOpacity={0.7}
-                >
-                    <Archive size={20} color={isDarkMode ? '#FFFFFF' : '#111827'} />
-                </TouchableOpacity>
-                <TouchableOpacity 
-                    style={[styles.filterIconButton, { backgroundColor: colors.card, borderColor: colors.border }]}
-                    onPress={() => setShowAddProduct(true)}
-                    activeOpacity={0.7}
-                >
-                    <Plus size={22} color={colors.brandGold} />
-                </TouchableOpacity>
+                {!isCashier && (
+                    <>
+                        <TouchableOpacity 
+                            style={[styles.filterIconButton, { backgroundColor: colors.card, borderColor: colors.border }]}
+                            onPress={() => setShowRestock(true)}
+                            activeOpacity={0.7}
+                        >
+                            <Archive size={20} color={isDarkMode ? '#FFFFFF' : '#111827'} />
+                        </TouchableOpacity>
+                        <TouchableOpacity 
+                            style={[styles.filterIconButton, { backgroundColor: colors.card, borderColor: colors.border }]}
+                            onPress={() => setShowAddProduct(true)}
+                            activeOpacity={0.7}
+                        >
+                            <Plus size={22} color={colors.brandGold} />
+                        </TouchableOpacity>
+                    </>
+                )}
             </View>
 
             {/* List */}

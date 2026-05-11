@@ -1,11 +1,13 @@
 import { Platform } from 'react-native';
 import * as SecureStore from 'expo-secure-store';
 import { Product, CreateSaleDto } from './types';
+import NetInfo from '@react-native-community/netinfo';
+import { syncManager } from './sync/SyncManager';
 
 // Android emulator uses 10.0.2.2 to access host localhost
 // Real device would need the actual LAN IP of the computer
 // Use LAN IP for physical devices (both iOS and Android) to reach the backend
-const BASE_URL = 'http://192.168.43.140:3001';
+const BASE_URL = 'http://192.168.9.130:3001';
 
 // Caching system
 type CacheEntry = {
@@ -65,9 +67,27 @@ export const ApiClient = {
     /**
      * Internal request helper
      */
-    async _request(endpoint: string, options: any = {}, useCache = false, ttl = DEFAULT_TTL) {
+    async _request(endpoint: string, options: any = {}, useCache = false, ttl = DEFAULT_TTL, bypassOfflineInterceptor = false) {
         const url = `${BASE_URL}${endpoint}`;
-        const isGet = !options.method || options.method === 'GET';
+        const method = options.method || 'GET';
+        const isGet = method === 'GET';
+
+        // 0. Offline Interceptor
+        if (!bypassOfflineInterceptor && !isGet) {
+            const networkState = await NetInfo.fetch();
+            if (!networkState.isConnected) {
+                // We are offline, queue the request
+                let bodyParsed = options.body;
+                if (typeof options.body === 'string') {
+                    try { bodyParsed = JSON.parse(options.body); } catch(e) {}
+                }
+                
+                await syncManager.enqueue(endpoint, method, bodyParsed);
+                
+                // Return a mock success response so the UI proceeds optimistically
+                return { _offlineQueued: true, success: true };
+            }
+        }
 
         // 1. Check Cache
         if (isGet && useCache) {
@@ -143,6 +163,35 @@ export const ApiClient = {
             body: JSON.stringify({ oldPin, newPin }),
         });
     },
+
+    // --- Login Approval Methods ---
+    async checkLoginStatus(requestId: string): Promise<any> {
+        return this._request(`/auth/login/status/${requestId}`, {}, false); // bypassing cache explicitly via GET is tricky, but _request doesn't cache if useCache=false
+    },
+
+    async approveLogin(requestId: string): Promise<any> {
+        return this._request(`/auth/login/approve/${requestId}`, { method: 'POST' });
+    },
+
+    async rejectLogin(requestId: string): Promise<any> {
+        return this._request(`/auth/login/reject/${requestId}`, { method: 'POST' });
+    },
+
+    async overrideLogin(requestId: string, pin: string): Promise<any> {
+        return this._request(`/auth/login/override/${requestId}`, {
+            method: 'POST',
+            body: JSON.stringify({ pin }),
+        });
+    },
+
+    async getPendingLogins(bypassCache = false): Promise<any[]> {
+        return this._request('/merchants/staff/pending-logins', {}, !bypassCache);
+    },
+
+    async getTeamProgress(bypassCache = false): Promise<any[]> {
+        return this._request('/merchants/staff/team-progress', {}, !bypassCache);
+    },
+    // ------------------------------
 
     async getProducts(bypassCache = false): Promise<Product[]> {
         return this._request('/products', {}, !bypassCache);
@@ -274,5 +323,24 @@ export const ApiClient = {
     
     async getCustomerSales(customerId: string): Promise<any[]> {
         return this._request(`/sales/customer/${customerId}`);
+    },
+
+    // Shifts
+    async getCurrentShift(bypassCache = false): Promise<any> {
+        return this._request('/merchants/shifts/current', {}, !bypassCache);
+    },
+
+    async openShift(startingCash: number): Promise<any> {
+        return this._request('/merchants/shifts/open', {
+            method: 'POST',
+            body: JSON.stringify({ startingCash }),
+        });
+    },
+
+    async closeShift(shiftId: string, actualCash: number, notes?: string): Promise<any> {
+        return this._request(`/merchants/shifts/close/${shiftId}`, {
+            method: 'PATCH',
+            body: JSON.stringify({ actualCash, notes }),
+        });
     }
 };

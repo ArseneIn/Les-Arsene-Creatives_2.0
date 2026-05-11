@@ -1,5 +1,7 @@
 
 
+import { db } from './sync/db';
+
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://192.168.0.84:3001';
 
 export interface ApiResponse<T> {
@@ -21,6 +23,32 @@ export async function fetchApi<T>(endpoint: string, options: RequestInit = {}): 
         if (token) {
             (headers as any)['Authorization'] = `Bearer ${token}`;
         }
+    }
+
+    const isGet = !options.method || options.method === 'GET';
+    const bypassOffline = (headers as any)['X-Bypass-Offline'] === 'true';
+
+    // Offline interception
+    if (typeof window !== 'undefined' && !window.navigator.onLine && !isGet && !bypassOffline) {
+        let bodyParsed = options.body;
+        if (typeof options.body === 'string') {
+            try { bodyParsed = JSON.parse(options.body); } catch(e) {}
+        }
+        
+        await db.syncQueue.add({
+            endpoint,
+            method: options.method || 'POST',
+            body: bodyParsed,
+            timestamp: Date.now()
+        });
+
+        // Return mock success
+        return { _offlineQueued: true, success: true } as unknown as T;
+    }
+
+    // Remove bypass header before sending to server
+    if ((headers as any)['X-Bypass-Offline']) {
+        delete (headers as any)['X-Bypass-Offline'];
     }
 
     const response = await fetch(`${API_URL}${endpoint}`, {

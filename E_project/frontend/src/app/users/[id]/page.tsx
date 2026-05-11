@@ -3,7 +3,6 @@
 import { useParams } from 'next/navigation';
 import '../users.css';
 import RightSidebar from '@/components/RightSidebar';
-import Link from 'next/link';
 
 // ── Mock Data ──────────────────────────────────────────────────────────────
 const MOCK_TEAM = [
@@ -23,25 +22,30 @@ export default function UserProfilePage() {
         <div className="user-profile-page animate-fade-in">
           
           <header className="profile-header card">
-            <div className="profile-cover" style={{ backgroundColor: user.avatarColor + '22' }} />
+            <div className="profile-cover" style={{ backgroundColor: user.avatarColor + '15' }}>
+              <div className="cover-pattern" />
+              <div className="cover-gradient" />
+            </div>
             <div className="profile-identity">
                 <div className="profile-avatar-lg" style={{ backgroundColor: user.avatarColor }}>
                     {user.name.split(' ').map(n => n[0]).join('')}
-                    <span className={`status-indicator-lg ${user.status.toLowerCase().replace(' ', '-')}`} />
+                    <div className={`status-indicator-lg ${user.status.toLowerCase().replace(' ', '-')}`}>
+                      <div className="status-ping" />
+                    </div>
                 </div>
                 <div className="profile-info-main">
                     <h1 className="profile-name">{user.name}</h1>
                     <div className="profile-meta-row">
-                        <span className="profile-role-badge">{user.role}</span>
-                        <span className="meta-sep">•</span>
-                        <span className="profile-dept">{user.department}</span>
-                        <span className="meta-sep">•</span>
-                        <span className="profile-email">{user.email}</span>
+                        <span className="profile-role-badge-cool">{user.role.toUpperCase()}</span>
+                        <div className="meta-divider" />
+                        <span className="profile-dept-cool">{user.department}</span>
+                        <div className="meta-divider" />
+                        <span className="profile-email-cool text-link">{user.email}</span>
                     </div>
                 </div>
                 <div className="profile-actions-top">
-                    <button className="toolbar-btn">Edit Profile</button>
-                    <button className="toolbar-btn primary">Message</button>
+                    <button className="btn btn-outline btn-profile">Edit Profile</button>
+                    <button className="btn btn-primary btn-profile">Message</button>
                 </div>
             </div>
           </header>
@@ -49,28 +53,35 @@ export default function UserProfilePage() {
           <div className="profile-grid-container">
             <div className="profile-left-col">
                 <section className="profile-section card">
-                    <h2 className="section-title">About</h2>
-                    <p className="profile-bio">{user.bio}</p>
-                    <div className="stats-horizontal">
+                    <div className="p-section-header">
+                        <h2 className="section-title">About</h2>
+                    </div>
+                    <div className="bio-container">
+                        <p className="profile-bio">{user.bio}</p>
+                    </div>
+                    <div className="stats-accent-row">
                         <div className="p-stat">
-                            <span className="p-stat-val">124</span>
+                            <span className="p-stat-val font-numeric">124</span>
                             <span className="p-stat-label">Tasks Finished</span>
                         </div>
                         <div className="p-stat">
-                            <span className="p-stat-val">98%</span>
+                            <span className="p-stat-val font-numeric">98%</span>
                             <span className="p-stat-label">On-time Delivery</span>
                         </div>
                         <div className="p-stat">
-                            <span className="p-stat-val">4.9</span>
+                            <span className="p-stat-val font-numeric">4.9</span>
                             <span className="p-stat-label">Rating</span>
                         </div>
                     </div>
                 </section>
 
                 <section className="profile-section card">
-                    <div className="section-header">
+                    <div className="section-header-row">
                         <h2 className="section-title">Assigned Projects</h2>
-                        <button className="text-action-link">View All</button>
+                        <button className="view-all-premium">
+                            View All
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                        </button>
                     </div>
                     <div className="project-list-compact">
                         {[
@@ -86,11 +97,11 @@ export default function UserProfilePage() {
                                         <span className="pc-role">{proj.role}</span>
                                     </div>
                                 </div>
-                                <div className="pc-progress">
+                                <div className="pc-progress-wrapper">
                                     <div className="pc-progress-bar">
                                         <div className="pc-progress-fill" style={{ width: `${proj.progress}%`, background: proj.color }} />
                                     </div>
-                                    <span className="pc-val">{proj.progress}%</span>
+                                    <span className="pc-val font-numeric">{proj.progress}%</span>
                                 </div>
                             </div>
                         ))}
@@ -101,18 +112,22 @@ export default function UserProfilePage() {
             <div className="profile-right-col">
                 <section className="profile-section card">
                     <h2 className="section-title">Monthly Capacity</h2>
-                    <div className="capacity-chart-placeholder">
+                    <div className="capacity-chart-container">
                         <div className="cap-bar-group">
-                            <div className="cap-bar" style={{ height: '60%' }} />
-                            <div className="cap-bar" style={{ height: '85%' }} />
-                            <div className="cap-bar active" style={{ height: `${user.workload}%` }} />
-                            <div className="cap-bar" style={{ height: '40%' }} />
-                        </div>
-                        <div className="cap-labels">
-                            <span>Feb</span><span>Mar</span><span className="active">Apr</span><span>May</span>
+                            {[
+                                { m: 'Feb', h: 60, a: false },
+                                { m: 'Mar', h: 85, a: false },
+                                { m: 'Apr', h: user.workload, a: true },
+                                { m: 'May', h: 40, a: false }
+                            ].map(b => (
+                                <div key={b.m} className="cap-bar-col">
+                                    <div className={`cap-bar ${b.a ? 'active' : ''}`} style={{ height: `${b.h}%` }} />
+                                    <span className={`cap-label ${b.a ? 'active' : ''}`}>{b.m}</span>
+                                </div>
+                            ))}
                         </div>
                     </div>
-                    <p className="cap-hint">Current workload of {user.workload}% is considered {user.workload > 85 ? 'High' : 'Optimal'}.</p>
+                    <p className="cap-hint">Current workload of <strong className="font-numeric">{user.workload}%</strong> is considered <span className={user.workload > 85 ? 'text-red' : 'text-green'}>{user.workload > 85 ? 'High' : 'Optimal'}</span>.</p>
                 </section>
 
                 <section className="profile-section card">
@@ -144,44 +159,106 @@ export default function UserProfilePage() {
       </div>
 
       <style jsx>{`
-        .profile-header { padding: 0; overflow: hidden; position: relative; margin-bottom: 24px; }
-        .profile-cover { height: 120px; width: 100%; border-bottom: 1px solid var(--border-color); }
-        .profile-identity { padding: 0 32px 32px; display: flex; align-items: flex-end; gap: 24px; margin-top: -40px; position: relative; }
-        .profile-avatar-lg { width: 100px; height: 100px; border-radius: 24px; border: 4px solid white; display: flex; align-items: center; justify-content: center; font-size: 2rem; font-weight: 700; color: white; position: relative; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
-        .status-indicator-lg { position: absolute; bottom: 4px; right: 4px; width: 20px; height: 20px; border-radius: 50%; border: 4px solid white; }
-        .profile-name { font-size: 2rem; font-weight: 700; color: var(--text-main); margin-bottom: 4px; }
-        .profile-meta-row { display: flex; align-items: center; gap: 12px; font-size: 0.95rem; color: var(--text-muted); }
-        .profile-role-badge { background: #F1F5F9; color: var(--text-main); padding: 4px 12px; border-radius: 8px; font-weight: 600; font-size: 0.85rem; }
-        .profile-actions-top { margin-left: auto; display: flex; gap: 12px; padding-bottom: 8px; }
-        .profile-grid-container { display: grid; grid-template-columns: 1fr 340px; gap: 24px; }
-        .profile-section { padding: 24px; display: flex; flex-direction: column; gap: 20px; margin-bottom: 24px; }
-        .section-header { display: flex; justify-content: space-between; align-items: center; }
-        .stats-horizontal { display: flex; justify-content: space-between; padding: 20px 0; border-top: 1px solid #F1F5F9; margin-top: 10px; }
+        .profile-header { padding: 0; overflow: hidden; position: relative; margin-bottom: 24px; border-radius: 28px; border: 1px solid var(--border-color); background: white; }
+        .profile-cover { height: 160px; width: 100%; position: relative; overflow: hidden; border-bottom: 1px solid rgba(0,0,0,0.05); }
+        .cover-pattern { position: absolute; inset: 0; background-image: radial-gradient(var(--border-color) 1px, transparent 1px); background-size: 24px 24px; opacity: 0.2; }
+        .cover-gradient { position: absolute; inset: 0; background: linear-gradient(to bottom, transparent, rgba(255,255,255,0.4)); }
+        
+        .profile-identity { padding: 0 40px 40px; display: flex; align-items: flex-end; gap: 32px; margin-top: -60px; position: relative; width: calc(100% - 80px); }
+        
+        .profile-avatar-lg { width: 140px; height: 140px; border-radius: 36px; border: 8px solid white; display: flex; align-items: center; justify-content: center; font-size: 2.75rem; font-weight: 800; color: white; position: relative; box-shadow: 0 20px 40px rgba(0,0,0,0.15); transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); flex-shrink: 0; }
+        .profile-avatar-lg:hover { transform: scale(1.02); }
+        
+        .status-indicator-lg { position: absolute; bottom: 8px; right: 8px; width: 22px; height: 22px; border-radius: 50%; border: 4px solid white; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .status-ping { position: absolute; inset: -4px; border-radius: 50%; background: inherit; opacity: 0.4; animation: ping 2s cubic-bezier(0, 0, 0.2, 1) infinite; }
+        @keyframes ping { 75%, 100% { transform: scale(2.5); opacity: 0; } }
+
+        .profile-info-main { flex: 1; min-width: 0; }
+        .profile-name { font-size: 2.5rem; font-weight: 800; color: #0F172A; margin-bottom: 10px; letter-spacing: -0.03em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .profile-meta-row { display: flex; align-items: center; gap: 16px; margin-top: 4px; flex-wrap: wrap; }
+        .meta-divider { width: 1px; height: 16px; background: #E2E8F0; flex-shrink: 0; }
+        
+        .profile-role-badge-cool { background: #F1F5F9; color: #475569; padding: 6px 16px; border-radius: 12px; font-weight: 700; font-size: 0.75rem; letter-spacing: 0.05em; border: 1px solid rgba(0,0,0,0.03); white-space: nowrap; }
+        .profile-dept-cool { font-size: 0.95rem; font-weight: 500; color: #64748B; white-space: nowrap; }
+        .profile-email-cool { font-size: 0.95rem; font-weight: 500; color: var(--primary-blue); cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 300px; }
+        .text-link:hover { text-decoration: underline; }
+        
+        .profile-actions-top { display: flex; gap: 16px; padding-bottom: 12px; flex-shrink: 0; }
+        .btn-profile { padding: 12px 24px; min-width: 140px; }
+
+        .profile-grid-container { display: grid; grid-template-columns: 1.15fr 340px; gap: 24px; }
+        .profile-section { padding: 32px; border-radius: 28px; background: white; border: 1px solid var(--border-color); margin-bottom: 20px; }
+        .section-title { font-size: 1.1rem; font-weight: 700; color: #0F172A; text-transform: none; }
+        
+        .p-section-header { margin-bottom: 12px; }
+        .bio-container { border-left: 3px solid var(--primary-blue); padding-left: 20px; margin: 8px 0 24px 0; }
+        .profile-bio { font-size: 0.95rem; line-height: 1.65; color: #475569; margin: 0; }
+        
+        .stats-accent-row { display: flex; justify-content: space-between; padding: 24px; background: #F8FAFC; border-radius: 20px; border: 1px solid rgba(0,0,0,0.02); }
         .p-stat { display: flex; flex-direction: column; gap: 4px; }
-        .p-stat-val { font-size: 1.5rem; font-weight: 700; color: var(--text-main); }
-        .p-stat-label { font-size: 0.8rem; color: var(--text-muted); }
+        .p-stat-val { font-size: 1.85rem; font-weight: 800; color: #0F172A; letter-spacing: -0.03em; }
+        .p-stat-label { font-size: 0.75rem; font-weight: 600; color: #64748B; text-transform: uppercase; letter-spacing: 0.05em; }
+        
+        .section-header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+        
+        .view-all-premium {
+            background: #F1F5F9;
+            color: var(--primary-blue);
+            border: none;
+            padding: 8px 16px;
+            border-radius: 10px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .view-all-premium:hover {
+            background: #E0F2FE;
+            gap: 10px;
+            transform: translateY(-1px);
+        }
+
+        .view-all-premium svg {
+            transition: transform 0.2s ease;
+        }
+        
         .project-list-compact { display: flex; flex-direction: column; gap: 12px; }
-        .project-compact-card { display: flex; align-items: center; justify-content: space-between; padding: 12px; background: #F8FAFC; border-radius: 12px; }
-        .pc-info { display: flex; align-items: center; gap: 12px; }
-        .pc-dot { width: 8px; height: 8px; border-radius: 50%; }
+        .project-compact-card { display: flex; align-items: center; justify-content: space-between; padding: 14px 20px; background: #F8FAFC; border-radius: 18px; border: 1px solid transparent; transition: all 0.2s ease; }
+        .project-compact-card:hover { background: white; border-color: var(--border-color); transform: translateX(4px); box-shadow: 0 4px 15px rgba(0,0,0,0.04); }
+        
+        .pc-info { display: flex; align-items: center; gap: 16px; }
+        .pc-dot { width: 10px; height: 10px; border-radius: 50%; box-shadow: 0 0 0 4px rgba(0,0,0,0.02); }
         .pc-text { display: flex; flex-direction: column; }
-        .pc-name { font-size: 0.9rem; font-weight: 600; color: var(--text-main); }
-        .pc-role { font-size: 0.75rem; color: var(--text-muted); }
-        .pc-progress { display: flex; align-items: center; gap: 12px; width: 120px; }
-        .pc-progress-bar { height: 4px; background: #E2E8F0; border-radius: 99px; flex: 1; overflow: hidden; }
-        .pc-progress-fill { height: 100%; transition: width 0.4s; }
-        .pc-val { font-size: 0.75rem; font-weight: 600; color: var(--text-main); width: 24px; }
-        .capacity-chart-placeholder { height: 120px; display: flex; flex-direction: column; justify-content: flex-end; gap: 12px; margin: 20px 0; }
-        .cap-bar-group { display: flex; align-items: flex-end; justify-content: space-between; height: 80px; padding: 0 10px; }
-        .cap-bar { width: 32px; background: #E2E8F0; border-radius: 6px; transition: all 0.3s; }
-        .cap-bar.active { background: var(--primary-blue); }
-        .cap-labels { display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--text-muted); padding: 0 8px; }
-        .cap-labels .active { color: var(--primary-blue); font-weight: 700; }
-        .profile-activity-feed { display: flex; flex-direction: column; gap: 16px; }
-        .p-activity-item { display: flex; gap: 12px; }
-        .p-act-dot { width: 6px; height: 6px; background: var(--primary-blue); border-radius: 50%; margin-top: 8px; flex-shrink: 0; }
-        .p-act-msg { font-size: 0.85rem; line-height: 1.4; color: var(--text-main); margin: 0; }
-        .p-act-time { font-size: 0.75rem; color: var(--text-muted); }
+        .pc-name { font-size: 0.95rem; font-weight: 600; color: #0F172A; }
+        .pc-role { font-size: 0.8rem; color: #64748B; }
+        
+        .pc-progress-wrapper { display: flex; align-items: center; gap: 20px; width: 180px; }
+        .pc-progress-bar { height: 8px; background: #E2E8F0; border-radius: 99px; flex: 1; overflow: hidden; border: 1px solid rgba(0,0,0,0.01); }
+        .pc-progress-fill { height: 100%; border-radius: 99px; }
+        .pc-val { font-size: 0.85rem; font-weight: 700; color: #0F172A; min-width: 40px; text-align: right; }
+        
+        .capacity-chart-container { margin: 16px 0 24px 0; padding: 24px; background: #F8FAFC; border-radius: 24px; border: 1px solid rgba(0,0,0,0.01); }
+        .cap-bar-group { display: flex; align-items: flex-end; justify-content: space-around; height: 110px; }
+        .cap-bar-col { display: flex; flex-direction: column; align-items: center; gap: 14px; height: 100%; justify-content: flex-end; }
+        .cap-bar { width: 44px; background: #E2E8F0; border-radius: 12px 12px 4px 4px; transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
+        .cap-bar.active { background: linear-gradient(180deg, #018bf1 0%, #0070E0 100%); box-shadow: 0 8px 20px rgba(1, 139, 241, 0.25); border: 2px solid white; }
+        .cap-label { font-size: 0.8rem; font-weight: 600; color: #94A3B8; }
+        .cap-label.active { color: var(--primary-blue); font-weight: 800; }
+        
+        .cap-hint { font-size: 0.95rem; color: #475569; margin: 0; text-align: center; }
+        .text-red { color: var(--danger-red); font-weight: 800; }
+        .text-green { color: var(--success-green); font-weight: 800; }
+        
+        .profile-activity-feed { display: flex; flex-direction: column; gap: 20px; }
+        .p-activity-item { display: flex; gap: 16px; padding: 4px 0; }
+        .p-act-dot { width: 10px; height: 10px; background: #018bf1; border-radius: 50%; margin-top: 6px; flex-shrink: 0; box-shadow: 0 0 0 4px rgba(1, 139, 241, 0.12); border: 2px solid white; }
+        .p-act-msg { font-size: 0.9rem; line-height: 1.55; color: #334155; margin: 0; }
+        .p-act-time { font-size: 0.8rem; font-weight: 500; color: #94A3B8; margin-top: 2px; display: block; }
+        
         .status-indicator-lg.active { background: var(--success-green); }
         .status-indicator-lg.away { background: var(--warning-yellow); }
       `}</style>

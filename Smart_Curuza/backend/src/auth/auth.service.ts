@@ -12,6 +12,7 @@ import { RegisterDto } from './dto/register.dto';
 import * as bcrypt from 'bcrypt';
 
 import { Merchant } from '../entities/merchant.entity';
+import { LoginRequest, LoginRequestStatus } from '../entities/login-request.entity';
 
 @Injectable()
 export class AuthService {
@@ -20,6 +21,8 @@ export class AuthService {
     private usersRepository: Repository<User>,
     @InjectRepository(Merchant)
     private merchantsRepository: Repository<Merchant>,
+    @InjectRepository(LoginRequest)
+    private loginRequestsRepository: Repository<LoginRequest>,
     private jwtService: JwtService,
   ) {}
 
@@ -128,6 +131,29 @@ export class AuthService {
       throw new UnauthorizedException('Invalid credentials');
     }
 
+    if (user.role === UserRole.CASHIER) {
+      // Create a login request instead of returning token immediately
+      const expiresAt = new Date(Date.now() + 5 * 60 * 1000); // 5 minutes
+      const loginRequest = this.loginRequestsRepository.create({
+        cashierId: user.id,
+        merchantId: user.merchant.id,
+        status: LoginRequestStatus.PENDING,
+        expires_at: expiresAt,
+      });
+      const savedRequest = await this.loginRequestsRepository.save(loginRequest);
+
+      return {
+        status: 'REQUIRES_APPROVAL',
+        loginRequestId: savedRequest.id,
+        message: 'Waiting for merchant approval.',
+        expiresAt,
+      };
+    }
+
+    return this.generateAuthResponse(user);
+  }
+
+  private generateAuthResponse(user: User) {
     const payload = {
       sub: user.id,
       email: user.email,
@@ -148,6 +174,81 @@ export class AuthService {
       },
     };
   }
+
+  async checkLoginStatus(requestId: string) {
+    const request = await this.loginRequestsRepository.findOne({
+      where: { id: requestId },
+      relations: ['cashier', 'cashier.merchant'],
+    });
+
+    if (!request) throw new UnauthorizedException('Login request not found');
+
+    if (new Date() > request.expires_at && request.status === LoginRequestStatus.PENDING) {
+      request.status = LoginRequestStatus.EXPIRED;
+      await this.loginRequestsRepository.save(request);
+    }
+
+    if (request.status === LoginRequestStatus.APPROVED) {
+      return this.generateAuthResponse(request.cashier);
+    } else if (request.status === LoginRequestStatus.REJECTED) {
+      throw new UnauthorizedException('Login request rejected by merchant');
+    } else if (request.status === LoginRequestStatus.EXPIRED) {
+      throw new UnauthorizedException('Login request expired');
+    }
+
+    return { status: 'PENDING' };
+  }
+
+  async approveLogin(requestId: string, merchantId: string) {
+    const request = await this.loginRequestsRepository.findOne({
+      where: { id: requestId, merchantId },
+    });
+    if (!request) throw new UnauthorizedException('Login request not found');
+    
+    request.status = LoginRequestStatus.APPROVED;
+    await this.loginRequestsRepository.save(request);
+    return { success: true };
+  }
+
+  async rejectLogin(requestId: string, merchantId: string) {
+    const request = await this.loginRequestsRepository.findOne({
+      where: { id: requestId, merchantId },
+    });
+    if (!request) throw new UnauthorizedException('Login request not found');
+    
+    request.status = LoginRequestStatus.REJECTED;
+    await this.loginRequestsRepository.save(request);
+    return { success: true };
+  }
+
+  async overrideLogin(requestId: string, pin: string) {
+    const request = await this.loginRequestsRepository.findOne({
+      where: { id: requestId },
+      relations: ['merchant', 'merchant.owner', 'cashier', 'cashier.merchant'],
+    });
+
+    if (!request) throw new UnauthorizedException('Login request not found');
+    
+    if (new Date() > request.expires_at && request.status === LoginRequestStatus.PENDING) {
+      request.status = LoginRequestStatus.EXPIRED;
+      await this.loginRequestsRepository.save(request);
+      throw new UnauthorizedException('Login request expired');
+    }
+
+    const owner = request.merchant.owner;
+    if (!owner || !owner.pin_hash) {
+      throw new UnauthorizedException('Owner PIN not set');
+    }
+
+    const isValid = await bcrypt.compare(pin, owner.pin_hash);
+    if (!isValid) {
+      throw new UnauthorizedException('Invalid override PIN');
+    }
+
+    request.status = LoginRequestStatus.APPROVED;
+    await this.loginRequestsRepository.save(request);
+
+    return this.generateAuthResponse(request.cashier);
 
   async changePin(userId: string, oldPin: string, newPin: string) {
     const user = await this.usersRepository.findOne({ where: { id: userId } });

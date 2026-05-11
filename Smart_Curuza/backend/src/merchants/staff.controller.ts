@@ -33,6 +33,16 @@ export class StaffController {
     return this.staffService.createStaff(user.merchantId, body);
   }
 
+  @Get('pending-logins')
+  async getPendingLogins(@CurrentUser() user: AuthenticatedUser) {
+    return this.staffService.getPendingLogins(user.merchantId);
+  }
+
+  @Get('team-progress')
+  async getTeamProgress(@CurrentUser() user: AuthenticatedUser) {
+    return this.staffService.getTeamProgress(user.merchantId);
+  }
+
   @Delete(':id')
   async removeStaff(@Param('id') id: string) {
     return this.staffService.removeStaff(id);

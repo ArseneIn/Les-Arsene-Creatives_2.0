@@ -3,7 +3,7 @@ import { View, Text, TextInput, TouchableOpacity, ActivityIndicator, KeyboardAvo
 import { useRouter } from 'expo-router';
 import { useAuth } from '../lib/auth/AuthContext';
 import { ApiClient } from '../lib/api_client';
-import { Smartphone, Lock, Eye, EyeOff, LogIn, WifiOff, Mail } from 'lucide-react-native';
+import { Smartphone, Lock, Eye, EyeOff, LogIn, WifiOff, Mail, Clock, Key } from 'lucide-react-native';
 import ScreenWrapper from '../components/ScreenWrapper';
 
 type LoginMethod = 'phone' | 'email';
@@ -24,6 +24,11 @@ export default function LoginScreen() {
 
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
+
+    const [approvalRequest, setApprovalRequest] = useState<any>(null);
+    const [overridePin, setOverridePin] = useState('');
+    const [showOverride, setShowOverride] = useState(false);
+    const [timeLeft, setTimeLeft] = useState(300);
 
     const { login } = useAuth();
     const router = useRouter();
@@ -51,9 +56,60 @@ export default function LoginScreen() {
                 : { email, password };
 
             const response = await ApiClient.login(credentials);
-            await login(response.access_token, response.user);
+            
+            if (response.status === 'REQUIRES_APPROVAL') {
+                setApprovalRequest(response);
+                setTimeLeft(300);
+            } else {
+                await login(response.access_token, response.user);
+            }
         } catch (err: any) {
             setError(err.message || 'Login failed. Please check your credentials.');
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    React.useEffect(() => {
+        let interval: NodeJS.Timeout;
+        if (approvalRequest && !showOverride) {
+            interval = setInterval(async () => {
+                try {
+                    const status = await ApiClient.checkLoginStatus(approvalRequest.loginRequestId);
+                    if (status.access_token) {
+                        clearInterval(interval);
+                        await login(status.access_token, status.user);
+                    }
+                } catch (err: any) {
+                    clearInterval(interval);
+                    setApprovalRequest(null);
+                    setError(err.message || 'Login request denied or expired.');
+                }
+            }, 3000);
+        }
+        return () => clearInterval(interval);
+    }, [approvalRequest, showOverride]);
+
+    React.useEffect(() => {
+        let timer: NodeJS.Timeout;
+        if (approvalRequest && timeLeft > 0) {
+            timer = setInterval(() => setTimeLeft(prev => prev - 1), 1000);
+        } else if (timeLeft === 0 && approvalRequest) {
+            setApprovalRequest(null);
+            setError('Login request expired.');
+        }
+        return () => clearInterval(timer);
+    }, [approvalRequest, timeLeft]);
+
+    const handleOverride = async () => {
+        if (!overridePin) return;
+        setIsLoading(true);
+        setError('');
+        try {
+            const response = await ApiClient.overrideLogin(approvalRequest.loginRequestId, overridePin);
+            await login(response.access_token, response.user);
+        } catch (err: any) {
+            setError(err.message || 'Invalid override PIN.');
         } finally {
             setIsLoading(false);
         }
@@ -83,170 +139,225 @@ export default function LoginScreen() {
                             <Text style={styles.welcomeSubtitle}>Please enter your credentials to access your store.</Text>
                         </View>
 
-                        {/* Login Method Toggle */}
-                        <View style={styles.toggleContainer}>
-                            <TouchableOpacity
-                                style={[styles.toggleButton, loginMethod === 'phone' && styles.toggleButtonActive]}
-                                onPress={() => {
-                                    setLoginMethod('phone');
-                                    setError('');
-                                }}
-                            >
-                                <Text style={[styles.toggleText, loginMethod === 'phone' && styles.toggleTextActive]}>Phone</Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity
-                                style={[styles.toggleButton, loginMethod === 'email' && styles.toggleButtonActive]}
-                                onPress={() => {
-                                    setLoginMethod('email');
-                                    setError('');
-                                }}
-                            >
-                                <Text style={[styles.toggleText, loginMethod === 'email' && styles.toggleTextActive]}>Email</Text>
-                            </TouchableOpacity>
-                        </View>
+                        {approvalRequest ? (
+                            <View style={styles.formSection}>
+                                <View style={{ alignItems: 'center', marginBottom: 24 }}>
+                                    <Clock size={48} color="#fbe134" style={{ marginBottom: 16 }} />
+                                    <Text style={[styles.welcomeTitle, { fontSize: 18 }]}>Waiting for Approval</Text>
+                                    <Text style={styles.welcomeSubtitle}>
+                                        Your login request has been sent to the shop owner. Please wait.
+                                    </Text>
+                                    <Text style={{ fontFamily: 'Poppins_700Bold', fontSize: 24, marginTop: 16, color: '#0b0c0c' }}>
+                                        {Math.floor(timeLeft / 60)}:{(timeLeft % 60).toString().padStart(2, '0')}
+                                    </Text>
+                                </View>
 
-                        {/* Form Section */}
-                        <View style={styles.formSection}>
-
-                            {loginMethod === 'phone' ? (
-                                <>
-                                    {/* Phone Input */}
+                                {showOverride ? (
                                     <View style={styles.inputGroup}>
-                                        <Text style={styles.label}>PHONE NUMBER</Text>
+                                        <Text style={styles.label}>EMERGENCY OVERRIDE PIN</Text>
                                         <View style={styles.inputWrapper}>
                                             <View style={styles.iconLeft}>
-                                                <Smartphone size={20} color="#9CA3AF" />
-                                            </View>
-                                             <TextInput
-                                                 style={styles.input}
-                                                 placeholder="078X XXX XXX"
-                                                 keyboardType="phone-pad"
-                                                 value={phone}
-                                                 onChangeText={setPhone}
-                                                 autoCapitalize="none"
-                                                 autoCorrect={false}
-                                                 placeholderTextColor="#9CA3AF"
-                                                 textContentType="username"
-                                                 autoComplete="username"
-                                             />
-                                        </View>
-                                    </View>
-
-                                    {/* PIN Input */}
-                                    <View style={styles.inputGroup}>
-                                        <Text style={styles.label}>4-DIGIT PIN</Text>
-                                        <View style={styles.inputWrapper}>
-                                            <View style={styles.iconLeft}>
-                                                <Lock size={20} color="#9CA3AF" />
+                                                <Key size={20} color="#9CA3AF" />
                                             </View>
                                             <TextInput
                                                 style={[styles.input, styles.pinInput]}
                                                 placeholder="••••"
-                                                secureTextEntry={!showPin}
+                                                secureTextEntry={true}
                                                 keyboardType="numeric"
-                                                maxLength={4}
-                                                value={pin}
-                                                onChangeText={setPin}
+                                                value={overridePin}
+                                                onChangeText={setOverridePin}
                                                 placeholderTextColor="#9CA3AF"
                                             />
-                                            <TouchableOpacity
-                                                style={styles.iconRight}
-                                                onPress={() => setShowPin(!showPin)}
-                                            >
-                                                {showPin ? (
-                                                    <EyeOff size={20} color="#9CA3AF" />
-                                                ) : (
-                                                    <Eye size={20} color="#9CA3AF" />
-                                                )}
-                                            </TouchableOpacity>
                                         </View>
+                                        
+                                        {error ? <Text style={styles.errorText}>{error}</Text> : null}
+                                        
+                                        <TouchableOpacity onPress={handleOverride} disabled={isLoading} style={[styles.button, { marginTop: 16 }]}>
+                                            {isLoading ? <ActivityIndicator color="#0b0c0c" /> : <Text style={styles.buttonText}>Submit PIN</Text>}
+                                        </TouchableOpacity>
+                                        <TouchableOpacity onPress={() => setShowOverride(false)} style={{ marginTop: 16, alignItems: 'center' }}>
+                                            <Text style={styles.forgotText}>Cancel Override</Text>
+                                        </TouchableOpacity>
                                     </View>
-                                </>
-                            ) : (
-                                <>
-                                    {/* Email Input */}
-                                    <View style={styles.inputGroup}>
-                                        <Text style={styles.label}>EMAIL ADDRESS</Text>
-                                        <View style={styles.inputWrapper}>
-                                            <View style={styles.iconLeft}>
-                                                <Mail size={20} color="#9CA3AF" />
-                                            </View>
-                                            <TextInput
-                                                style={styles.input}
-                                                placeholder="merchant@smartcuruza.com"
-                                                keyboardType="email-address"
-                                                value={email}
-                                                onChangeText={setEmail}
-                                                autoCapitalize="none"
-                                                placeholderTextColor="#9CA3AF"
-                                                textContentType="username"
-                                                autoComplete="username"
-                                            />
-                                        </View>
-                                    </View>
-
-                                    {/* Password Input */}
-                                    <View style={styles.inputGroup}>
-                                        <Text style={styles.label}>PASSWORD</Text>
-                                        <View style={styles.inputWrapper}>
-                                            <View style={styles.iconLeft}>
-                                                <Lock size={20} color="#9CA3AF" />
-                                            </View>
-                                            <TextInput
-                                                style={[styles.input, styles.passwordInput, { paddingRight: 48, zIndex: 1 }]}
-                                                placeholder="Password"
-                                                secureTextEntry={!showPassword}
-                                                value={password}
-                                                onChangeText={setPassword}
-                                                placeholderTextColor="#9CA3AF"
-                                                autoCapitalize="none"
-                                                autoCorrect={false}
-                                                textContentType="password"
-                                                autoComplete="password"
-                                                enablesReturnKeyAutomatically
-                                            />
-                                            <TouchableOpacity
-                                                style={[styles.iconRight, { zIndex: 99 }]}
-                                                onPress={() => setShowPassword(!showPassword)}
-                                                hitSlop={{ top: 20, bottom: 20, left: 20, right: 20 }}
-                                            >
-                                                {showPassword ? (
-                                                    <EyeOff size={20} color="#9CA3AF" />
-                                                ) : (
-                                                    <Eye size={20} color="#9CA3AF" />
-                                                )}
-                                            </TouchableOpacity>
-                                        </View>
-                                    </View>
-                                </>
-                            )}
-
-                            {error ? (
-                                <Text style={styles.errorText}>{error}</Text>
-                            ) : null}
-
-                            {/* Login Button */}
-                            <TouchableOpacity
-                                onPress={handleLogin}
-                                disabled={isLoading}
-                                style={[styles.button, isLoading && styles.buttonDisabled]}
-                            >
-                                {isLoading ? (
-                                    <ActivityIndicator color="#0b0c0c" />
                                 ) : (
-                                    <View style={styles.buttonContent}>
-                                        <LogIn size={20} color="#0b0c0c" />
-                                        <Text style={styles.buttonText}>Login</Text>
-                                    </View>
+                                    <>
+                                        {error ? <Text style={styles.errorText}>{error}</Text> : null}
+                                        <TouchableOpacity onPress={() => setShowOverride(true)} style={[styles.button, { backgroundColor: '#F3F4F6' }]}>
+                                            <Text style={[styles.buttonText, { color: '#374151' }]}>Use Emergency PIN</Text>
+                                        </TouchableOpacity>
+                                        <TouchableOpacity onPress={() => setApprovalRequest(null)} style={{ marginTop: 16, alignItems: 'center' }}>
+                                            <Text style={styles.forgotText}>Cancel Login</Text>
+                                        </TouchableOpacity>
+                                    </>
                                 )}
-                            </TouchableOpacity>
+                            </View>
+                        ) : (
+                            <>
+                                {/* Login Method Toggle */}
+                                <View style={styles.toggleContainer}>
+                                    <TouchableOpacity
+                                        style={[styles.toggleButton, loginMethod === 'phone' && styles.toggleButtonActive]}
+                                        onPress={() => {
+                                            setLoginMethod('phone');
+                                            setError('');
+                                        }}
+                                    >
+                                        <Text style={[styles.toggleText, loginMethod === 'phone' && styles.toggleTextActive]}>Phone</Text>
+                                    </TouchableOpacity>
+                                    <TouchableOpacity
+                                        style={[styles.toggleButton, loginMethod === 'email' && styles.toggleButtonActive]}
+                                        onPress={() => {
+                                            setLoginMethod('email');
+                                            setError('');
+                                        }}
+                                    >
+                                        <Text style={[styles.toggleText, loginMethod === 'email' && styles.toggleTextActive]}>Email</Text>
+                                    </TouchableOpacity>
+                                </View>
 
-                            <TouchableOpacity style={styles.forgotButton}>
-                                <Text style={styles.forgotText}>
-                                    {loginMethod === 'phone' ? 'Forgot your PIN?' : 'Forgot your Password?'}
-                                </Text>
-                            </TouchableOpacity>
-                        </View>
+                                {/* Form Section */}
+                                <View style={styles.formSection}>
+                                    {loginMethod === 'phone' ? (
+                                        <>
+                                            {/* Phone Input */}
+                                            <View style={styles.inputGroup}>
+                                                <Text style={styles.label}>PHONE NUMBER</Text>
+                                                <View style={styles.inputWrapper}>
+                                                    <View style={styles.iconLeft}>
+                                                        <Smartphone size={20} color="#9CA3AF" />
+                                                    </View>
+                                                    <TextInput
+                                                        style={styles.input}
+                                                        placeholder="078X XXX XXX"
+                                                        keyboardType="phone-pad"
+                                                        value={phone}
+                                                        onChangeText={setPhone}
+                                                        autoCapitalize="none"
+                                                        autoCorrect={false}
+                                                        placeholderTextColor="#9CA3AF"
+                                                        textContentType="username"
+                                                        autoComplete="username"
+                                                    />
+                                                </View>
+                                            </View>
+
+                                            {/* PIN Input */}
+                                            <View style={styles.inputGroup}>
+                                                <Text style={styles.label}>4-DIGIT PIN</Text>
+                                                <View style={styles.inputWrapper}>
+                                                    <View style={styles.iconLeft}>
+                                                        <Lock size={20} color="#9CA3AF" />
+                                                    </View>
+                                                    <TextInput
+                                                        style={[styles.input, styles.pinInput]}
+                                                        placeholder="••••"
+                                                        secureTextEntry={!showPin}
+                                                        keyboardType="numeric"
+                                                        maxLength={4}
+                                                        value={pin}
+                                                        onChangeText={setPin}
+                                                        placeholderTextColor="#9CA3AF"
+                                                    />
+                                                    <TouchableOpacity
+                                                        style={styles.iconRight}
+                                                        onPress={() => setShowPin(!showPin)}
+                                                    >
+                                                        {showPin ? (
+                                                            <EyeOff size={20} color="#9CA3AF" />
+                                                        ) : (
+                                                            <Eye size={20} color="#9CA3AF" />
+                                                        )}
+                                                    </TouchableOpacity>
+                                                </View>
+                                            </View>
+                                        </>
+                                    ) : (
+                                        <>
+                                            {/* Email Input */}
+                                            <View style={styles.inputGroup}>
+                                                <Text style={styles.label}>EMAIL ADDRESS</Text>
+                                                <View style={styles.inputWrapper}>
+                                                    <View style={styles.iconLeft}>
+                                                        <Mail size={20} color="#9CA3AF" />
+                                                    </View>
+                                                    <TextInput
+                                                        style={styles.input}
+                                                        placeholder="merchant@smartcuruza.com"
+                                                        keyboardType="email-address"
+                                                        value={email}
+                                                        onChangeText={setEmail}
+                                                        autoCapitalize="none"
+                                                        placeholderTextColor="#9CA3AF"
+                                                        textContentType="username"
+                                                        autoComplete="username"
+                                                    />
+                                                </View>
+                                            </View>
+
+                                            {/* Password Input */}
+                                            <View style={styles.inputGroup}>
+                                                <Text style={styles.label}>PASSWORD</Text>
+                                                <View style={styles.inputWrapper}>
+                                                    <View style={styles.iconLeft}>
+                                                        <Lock size={20} color="#9CA3AF" />
+                                                    </View>
+                                                    <TextInput
+                                                        style={[styles.input, styles.passwordInput, { paddingRight: 48, zIndex: 1 }]}
+                                                        placeholder="Password"
+                                                        secureTextEntry={!showPassword}
+                                                        value={password}
+                                                        onChangeText={setPassword}
+                                                        placeholderTextColor="#9CA3AF"
+                                                        autoCapitalize="none"
+                                                        autoCorrect={false}
+                                                        textContentType="password"
+                                                        autoComplete="password"
+                                                        enablesReturnKeyAutomatically
+                                                    />
+                                                    <TouchableOpacity
+                                                        style={[styles.iconRight, { zIndex: 99 }]}
+                                                        onPress={() => setShowPassword(!showPassword)}
+                                                        hitSlop={{ top: 20, bottom: 20, left: 20, right: 20 }}
+                                                    >
+                                                        {showPassword ? (
+                                                            <EyeOff size={20} color="#9CA3AF" />
+                                                        ) : (
+                                                            <Eye size={20} color="#9CA3AF" />
+                                                        )}
+                                                    </TouchableOpacity>
+                                                </View>
+                                            </View>
+                                        </>
+                                    )}
+
+                                    {error ? (
+                                        <Text style={styles.errorText}>{error}</Text>
+                                    ) : null}
+
+                                    {/* Login Button */}
+                                    <TouchableOpacity
+                                        onPress={handleLogin}
+                                        disabled={isLoading}
+                                        style={[styles.button, isLoading && styles.buttonDisabled]}
+                                    >
+                                        {isLoading ? (
+                                            <ActivityIndicator color="#0b0c0c" />
+                                        ) : (
+                                            <View style={styles.buttonContent}>
+                                                <LogIn size={20} color="#0b0c0c" />
+                                                <Text style={styles.buttonText}>Login</Text>
+                                            </View>
+                                        )}
+                                    </TouchableOpacity>
+
+                                    <TouchableOpacity style={styles.forgotButton}>
+                                        <Text style={styles.forgotText}>
+                                            {loginMethod === 'phone' ? 'Forgot your PIN?' : 'Forgot your Password?'}
+                                        </Text>
+                                    </TouchableOpacity>
+                                </View>
+                            </>
+                        )}
                     </View>
 
                     {/* Footer */}

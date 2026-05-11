@@ -1,21 +1,39 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Switch, ScrollView, Alert } from 'react-native';
 import { useAuth } from '../../lib/auth/AuthContext';
+import { useRouter } from 'expo-router';
 import { Bell, ChevronRight, User, Shield, CircleHelp, LogOut, Settings, Moon, Store, Users, FileText } from 'lucide-react-native';
 import ShopSettingsModal from '../../components/ShopSettingsModal';
 import PersonalInfoModal from '../../components/PersonalInfoModal';
 import SecurityModal from '../../components/SecurityModal';
+import CloseShiftModal from '../../components/CloseShiftModal';
+import EbmConfigModal from '../../components/EbmConfigModal';
 import ScreenWrapper from '../../components/ScreenWrapper';
+import { ApiClient } from '../../lib/api_client';
 
 import { useTheme } from '../../lib/theme/ThemeContext';
 
 export default function Profile() {
     const { logout, user } = useAuth();
+    const router = useRouter();
     const { colors, isDarkMode, toggleDarkMode } = useTheme();
     const [notificationsEnabled, setNotificationsEnabled] = useState(true);
     const [showShopSettings, setShowShopSettings] = useState(false);
     const [showPersonalInfo, setShowPersonalInfo] = useState(false);
     const [showSecurityModal, setShowSecurityModal] = useState(false);
+    const [showCloseShift, setShowCloseShift] = useState(false);
+    const [showEbmConfig, setShowEbmConfig] = useState(false);
+    const [currentShiftId, setCurrentShiftId] = useState<string | null>(null);
+
+    const isCashier = user?.role === 'CASHIER';
+
+    React.useEffect(() => {
+        if (isCashier) {
+            ApiClient.getCurrentShift().then(shift => {
+                if (shift) setCurrentShiftId(shift.id);
+            }).catch(() => {});
+        }
+    }, [isCashier]);
 
     const toggleNotifications = () => setNotificationsEnabled(previousState => !previousState);
 
@@ -83,12 +101,12 @@ export default function Profile() {
                         <MenuItem
                             icon={Users}
                             label="Team Management"
-                            onPress={() => Alert.alert('Coming Soon', 'Team management will be available in the next update.')}
+                            onPress={() => router.push('/team')}
                         />
                         <MenuItem
                             icon={FileText}
                             label="EBM Configuration"
-                            onPress={() => Alert.alert('Coming Soon', 'EBM configuration will be available in the next update.')}
+                            onPress={() => setShowEbmConfig(true)}
                         />
                     </MenuSection>
 
@@ -135,6 +153,16 @@ export default function Profile() {
                         />
                     </MenuSection>
 
+                    {isCashier && currentShiftId && (
+                        <MenuSection title="Shift Management">
+                            <MenuItem
+                                icon={LogOut}
+                                label="Close Current Shift"
+                                onPress={() => setShowCloseShift(true)}
+                            />
+                        </MenuSection>
+                    )}
+
                     <TouchableOpacity style={[styles.logoutButton, { backgroundColor: isDarkMode ? 'rgba(220,38,38,0.1)' : '#FEF2F2', borderColor: isDarkMode ? 'rgba(220,38,38,0.3)' : '#FECACA' }]} onPress={logout}>
                         <LogOut size={20} color={colors.danger} />
                         <Text style={[styles.logoutText, { color: colors.danger }]}>Sign Out</Text>
@@ -157,6 +185,24 @@ export default function Profile() {
             <SecurityModal
                 visible={showSecurityModal}
                 onClose={() => setShowSecurityModal(false)}
+            />
+            
+            {currentShiftId && (
+                <CloseShiftModal
+                    visible={showCloseShift}
+                    shiftId={currentShiftId}
+                    onClose={() => setShowCloseShift(false)}
+                    onSuccess={() => {
+                        setShowCloseShift(false);
+                        setCurrentShiftId(null);
+                        logout(); // Force logout after shift close
+                    }}
+                />
+            )}
+
+            <EbmConfigModal
+                visible={showEbmConfig}
+                onClose={() => setShowEbmConfig(false)}
             />
         </ScreenWrapper>
     );

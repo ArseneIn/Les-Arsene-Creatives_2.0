@@ -1,0 +1,131 @@
+/* Portfolio Dashboard Styles */
+
+.portfolio-container {
+  padding: 0 24px;
+  max-width: 1400px;
+  margin: 0 auto;
+  font-family: inherit;
+}
+
+.portfolio-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  padding: 32px 0;
+  border-bottom: 1px solid var(--border-muted);
+}
+
+.portfolio-header .back-link {
+  color: var(--primary-blue);
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+  transition: opacity 0.2s;
+}
+.portfolio-header .back-link:hover { opacity: 0.7; }
+
+.portfolio-header h1 {
+  font-size: 2rem;
+  font-weight: 800;
+  margin: 0;
+  letter-spacing: -0.03em;
+  color: var(--text-main);
+}
+
+.kpi-row {
+  display: flex;
+  gap: 24px;
+  margin: 24px 0;
+}
+.kpi-card {
+  flex: 1;
+  background: white;
+  border: 1px solid var(--border-muted);
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+}
+.kpi-card h3 {
+  margin: 0 0 8px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+.kpi-card p {
+  margin: 0;
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: var(--primary-blue);
+}
+
+.filters-bar {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 24px;
+}
+.filters-bar select,
+.filters-bar input {
+  padding: 8px 12px;
+  border: 1px solid var(--border-muted);
+  border-radius: 8px;
+  background: white;
+  font-size: 0.9rem;
+}
+
+.alerts-panel {
+  background: #FFF8E1;
+  border-left: 4px solid #FFC107;
+  padding: 16px;
+  margin-bottom: 24px;
+  border-radius: 8px;
+}
+.alerts-panel h4 {
+  margin: 0 0 8px;
+  font-weight: 700;
+  color: #B8860B;
+}
+.alerts-panel ul {
+  margin: 0;
+  padding-left: 20px;
+}
+.alerts-panel li {
+  margin-bottom: 4px;
+  font-size: 0.9rem;
+}
+
+.table-wrapper {
+  overflow-x: auto;
+  margin-bottom: 32px;
+}
+.portfolio-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.portfolio-table th,
+.portfolio-table td {
+  padding: 12px 16px;
+  text-align: left;
+  border-bottom: 1px solid var(--border-muted);
+  font-size: 0.9rem;
+}
+.portfolio-table th {
+  background: #F1F5F9;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+.portfolio-table tr:hover {
+  background: rgba(1,139,241,0.04);
+}
+
+.chart-wrapper {
+  background: white;
+  border: 1px solid var(--border-muted);
+  border-radius: 16px;
+  padding: 24px;
+  margin-bottom: 32px;
+}

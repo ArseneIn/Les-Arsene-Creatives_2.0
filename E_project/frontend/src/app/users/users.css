@@ -8,10 +8,9 @@
 /* ── Toolbar ─────────────────────────────────────────────────── */
 .users-toolbar {
     display: flex;
-    align-items: flex-end;
+    align-items: center;
     justify-content: space-between;
-    padding: 0 0 24px 0;
-    border-bottom: 1px solid var(--border-color);
+    padding: 0 0 32px 0;
     margin-bottom: 24px;
 }
 
@@ -36,14 +35,21 @@
 .users-search {
     display: flex;
     align-items: center;
-    background: white;
-    border: 1px solid var(--border-color);
-    border-radius: 12px;
-    padding: 0 16px;
-    height: 44px;
-    width: 260px;
-    gap: 10px;
+    background: #F8FAFC;
+    border: 1.5px solid #E2E8F0;
+    border-radius: 999px;
+    padding: 0 20px;
+    height: 48px;
+    width: 320px;
+    gap: 12px;
     color: var(--text-muted);
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.users-search:focus-within {
+    background: white;
+    border-color: var(--primary-blue);
+    box-shadow: 0 4px 20px rgba(1, 139, 241, 0.08);
 }
 
 .users-search input {
@@ -51,6 +57,7 @@
     background: transparent;
     outline: none;
     font-size: 0.9rem;
+    font-weight: 500;
     color: var(--text-main);
     width: 100%;
 }
@@ -58,27 +65,31 @@
 /* ── Filters ── */
 .users-filters {
     display: flex;
-    gap: 28px;
+    gap: 12px;
     margin-bottom: 32px;
-    border-bottom: 1px solid #F1F5F9;
 }
 
 .dept-tab {
-    padding: 0 4px 12px 4px;
-    background: none;
-    border: none;
-    border-bottom: 2px solid transparent;
-    font-size: 0.9rem;
-    font-weight: 500;
-    color: var(--text-muted);
+    padding: 8px 18px;
+    background: #F1F5F9;
+    border: 1px solid transparent;
+    border-radius: 10px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #64748B;
     cursor: pointer;
     transition: all 0.2s;
 }
 
-.dept-tab:hover { color: var(--text-main); }
+.dept-tab:hover { 
+    background: #E2E8F0;
+    color: var(--text-main); 
+}
+
 .dept-tab.active {
-    color: var(--primary-blue);
-    border-bottom-color: var(--primary-blue);
+    background: #0F172A;
+    color: white;
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.2);
 }
 
 /* ── Team Grid ── */
@@ -143,14 +154,22 @@
 .status-indicator.away { background: var(--warning-yellow); }
 
 .member-name {
-    font-size: 1.05rem;
-    font-weight: 600;
+    font-size: 1.1rem;
+    font-weight: 700;
     color: var(--text-main);
+    letter-spacing: -0.02em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .member-role {
     font-size: 0.8rem;
+    font-weight: 600;
     color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    white-space: nowrap;
 }
 
 .member-body {
@@ -180,11 +199,11 @@
 .workload-header {
     display: flex;
     justify-content: space-between;
-    align-items: baseline;
+    align-items: center;
 }
 
-.workload-label { font-size: 0.85rem; font-weight: 600; color: var(--text-main); }
-.workload-val { font-size: 0.85rem; font-weight: 700; color: var(--text-main); }
+.workload-label { font-size: 0.8rem; font-weight: 700; color: #64748B; text-transform: uppercase; letter-spacing: 0.05em; }
+.workload-val { font-family: 'Manrope', sans-serif; font-size: 1.1rem; font-weight: 800; color: var(--text-main); letter-spacing: -0.02em; }
 
 .workload-bar-bg {
     height: 6px;
@@ -212,22 +231,5 @@
 .member-footer {
     display: flex;
     justify-content: center;
-}
-
-.profile-btn {
-    width: 100%;
-    padding: 10px;
-    background: #F8FAFC;
-    border: 1px solid var(--border-color);
-    border-radius: 12px;
-    font-size: 0.85rem;
-    font-weight: 600;
-    color: var(--text-main);
-    cursor: pointer;
-    transition: all 0.2s;
-}
-
-.profile-btn:hover {
-    background: #F1F5F9;
-    border-color: #CBD5E1;
+    padding-top: 4px;
 }

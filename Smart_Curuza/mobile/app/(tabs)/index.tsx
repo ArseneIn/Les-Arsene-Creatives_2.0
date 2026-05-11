@@ -12,7 +12,9 @@ import CRMModule from '../../components/CRMModule';
 import InventoryModule from '../../components/InventoryModule';
 import ExpensesModule from '../../components/ExpensesModule';
 import SkeletonLoader from '../../components/SkeletonLoader';
+import ShiftManagerModal from '../../components/ShiftManagerModal';
 import { ApiClient } from '../../lib/api_client';
+import { useAuth } from '../../lib/auth/AuthContext';
 
 type Period = 'today' | 'week' | 'month';
 
@@ -48,6 +50,8 @@ export default function Dashboard() {
     const [recentActivity, setRecentActivity] = useState<RecentSale[]>([]);
     const [loadingOverview, setLoadingOverview] = useState(true);
     const [refreshing, setRefreshing] = useState(false);
+    const [requiresShift, setRequiresShift] = useState(false);
+    const { user } = useAuth();
 
     const fetchOverviewData = useCallback(async (p: Period, bypassCache = false) => {
         // Only show skeleton if we don't have data yet or we are force-refreshing
@@ -56,6 +60,18 @@ export default function Dashboard() {
         }
 
         try {
+            // Check shift status for Cashiers first
+            if (user?.role === 'CASHIER' && bypassCache) {
+                try {
+                    const shift = await ApiClient.getCurrentShift(true);
+                    if (!shift) setRequiresShift(true);
+                } catch (e: any) {
+                    if (e.message?.includes('404')) {
+                        setRequiresShift(true);
+                    }
+                }
+            }
+
             // Concurrent fetch: stats (includes topSellingProducts) + recent transactions
             const [stats, recent] = await Promise.all([
                 ApiClient.getDashboardStats(p, bypassCache),
@@ -179,6 +195,11 @@ export default function Dashboard() {
                     </>
                 )}
             </ScrollView>
+            
+            <ShiftManagerModal 
+                visible={requiresShift} 
+                onShiftOpened={() => setRequiresShift(false)} 
+            />
         </ScreenWrapper>
     );
 }

@@ -132,7 +132,7 @@ export default function RightSidebar({ mode }: RightSidebarProps) {
                     <div className="c-avatar" style={{ background: c.color }}>{c.name[0]}</div>
                     <div className="c-info">
                        <span className="c-name">{c.name}</span>
-                       <span className="c-tasks">{c.tasks} Tasks completed</span>
+                       <span className="c-tasks"><strong className="font-numeric">{c.tasks}</strong> Tasks completed</span>
                     </div>
                  </div>
                ))}

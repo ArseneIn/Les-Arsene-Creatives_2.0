@@ -8,6 +8,8 @@ import { Repository } from 'typeorm';
 import { User, UserRole } from '../entities/user.entity';
 import { Merchant } from '../entities/merchant.entity';
 import { Shift } from '../entities/shift.entity';
+import { Sale } from '../entities/sale.entity';
+import { LoginRequest, LoginRequestStatus } from '../entities/login-request.entity';
 import * as bcrypt from 'bcrypt';
 
 @Injectable()
@@ -19,6 +21,10 @@ export class StaffService {
     private merchantRepository: Repository<Merchant>,
     @InjectRepository(Shift)
     private shiftsRepository: Repository<Shift>,
+    @InjectRepository(Sale)
+    private salesRepository: Repository<Sale>,
+    @InjectRepository(LoginRequest)
+    private loginRequestsRepository: Repository<LoginRequest>,
   ) { }
 
   async createStaff(
@@ -110,5 +116,60 @@ export class StaffService {
     });
 
     return shifts;
+  }
+
+  async getPendingLogins(merchantId: string) {
+    // Delete expired requests
+    await this.loginRequestsRepository
+      .createQueryBuilder()
+      .delete()
+      .where('status = :status', { status: LoginRequestStatus.PENDING })
+      .andWhere('expires_at < :now', { now: new Date() })
+      .execute();
+
+    return this.loginRequestsRepository.find({
+      where: { merchantId, status: LoginRequestStatus.PENDING },
+      relations: ['cashier'],
+      order: { created_at: 'DESC' },
+    });
+  }
+
+  async getTeamProgress(merchantId: string) {
+    // Get all cashiers for the merchant
+    const cashiers = await this.usersRepository.find({
+      where: { merchant: { id: merchantId }, role: UserRole.CASHIER },
+      select: ['id', 'name', 'email', 'phone'],
+    });
+
+    const progress = [];
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    for (const cashier of cashiers) {
+      // Find open shift
+      const openShift = await this.shiftsRepository.findOne({
+        where: { user_id: cashier.id, end_time: null },
+      });
+
+      // Sum sales for today
+      const salesQuery = this.salesRepository.createQueryBuilder('sale')
+        .where('sale.userId = :userId', { userId: cashier.id })
+        .andWhere('sale.created_at >= :today', { today });
+      
+      const salesResult = await salesQuery.select('SUM(sale.total)', 'totalSales').getRawOne();
+      const totalSales = Number(salesResult?.totalSales) || 0;
+
+      progress.push({
+        id: cashier.id,
+        name: cashier.name,
+        email: cashier.email,
+        phone: cashier.phone,
+        shiftOpen: !!openShift,
+        shiftId: openShift?.id,
+        totalSales,
+      });
+    }
+
+    return progress;
   }
 }

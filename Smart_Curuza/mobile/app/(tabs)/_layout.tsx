@@ -4,10 +4,14 @@ import * as Haptics from 'expo-haptics';
 import { LayoutDashboard, History, BarChart3, User, ShoppingCart, ScanLine } from 'lucide-react-native';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { useTheme } from '../../lib/theme/ThemeContext';
+import { useAuth } from '../../lib/auth/AuthContext';
 
 export default function TabLayout() {
     const router = useRouter();
     const { isDarkMode, colors } = useTheme();
+    const { user } = useAuth();
+    
+    const isCashier = user?.role === 'CASHIER';
 
     return (
         <Tabs
@@ -69,6 +73,7 @@ export default function TabLayout() {
                         <BarChart3 size={24} color={color} />
                     ),
                     tabBarLabel: 'Reports',
+                    href: isCashier ? null : '/reports',
                 }}
             />
             <Tabs.Screen

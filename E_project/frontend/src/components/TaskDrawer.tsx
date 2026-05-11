@@ -24,13 +24,14 @@ export default function TaskDrawer({ task, onClose }: { task: ProjectTask; onClo
   const p = PRIORITY_CONFIG[task.priority];
 
   useEffect(() => {
-    requestAnimationFrame(() => setVisible(true));
-    return () => setVisible(false);
+    // Small delay to trigger entry animation
+    const timer = setTimeout(() => setVisible(true), 10);
+    return () => clearTimeout(timer);
   }, []);
 
   const handleClose = () => {
     setVisible(false);
-    setTimeout(onClose, 280);
+    setTimeout(onClose, 300); // Wait for transition
   };
 
   return (
@@ -67,7 +68,7 @@ export default function TaskDrawer({ task, onClose }: { task: ProjectTask; onClo
             <h2 className="drawer-task-title">{task.title}</h2>
             <div className="drawer-tags">
               {task.tags.map(t => <span key={t} className="drawer-tag">{t}</span>)}
-              <button className="add-tag-btn">+ Add Tag</button>
+              <button className="add-tag-btn">+ Tag</button>
             </div>
           </div>
 

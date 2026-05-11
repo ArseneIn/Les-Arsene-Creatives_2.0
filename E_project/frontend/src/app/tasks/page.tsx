@@ -112,7 +112,7 @@ function KanbanColumn({ column, tasks, onCardClick, projects }: {
   projects: { id: string; name: string; color: string; client: string }[];
 }) {
   return (
-    <div className="kboard-column">
+    <div className={`kboard-column phase-${column.id}`}>
       <div className="kboard-col-header">
         <div className="kboard-col-title">
           <span className="kboard-col-dot" style={{ background: column.accent }} />

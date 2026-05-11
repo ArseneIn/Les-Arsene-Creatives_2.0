@@ -4,6 +4,8 @@ import "../globals.css";
 import { ToastProvider } from "@/contexts/ToastContext";
 import { NextIntlClientProvider } from 'next-intl';
 import { getMessages } from 'next-intl/server';
+import { SyncProvider } from '@/components/SyncProvider';
+import OfflineBanner from '@/components/OfflineBanner';
 
 // Playfair Display - Elegant serif for headings
 const playfair = Playfair_Display({
@@ -47,9 +49,12 @@ export default async function LocaleLayout({
         <html lang={locale} className={`${playfair.variable} ${montserrat.variable} ${poppins.variable}`} suppressHydrationWarning>
             <body className="font-body">
                 <NextIntlClientProvider locale={locale} messages={messages}>
-                    <ToastProvider>
-                        {children}
-                    </ToastProvider>
+                    <SyncProvider>
+                        <OfflineBanner />
+                        <ToastProvider>
+                            {children}
+                        </ToastProvider>
+                    </SyncProvider>
                 </NextIntlClientProvider>
             </body>
         </html>

@@ -6,6 +6,7 @@ import { Merchant } from '../entities/merchant.entity';
 import { User } from '../entities/user.entity';
 import { Shift } from '../entities/shift.entity';
 import { Sale } from '../entities/sale.entity';
+import { LoginRequest } from '../entities/login-request.entity';
 
 import { NotificationsModule } from '../notifications/notifications.module';
 
@@ -16,7 +17,7 @@ import { ShiftsService } from './shifts.service';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Merchant, User, Shift, Sale]),
+    TypeOrmModule.forFeature([Merchant, User, Shift, Sale, LoginRequest]),
     NotificationsModule,
   ],
   controllers: [MerchantsController, StaffController, ShiftsController],

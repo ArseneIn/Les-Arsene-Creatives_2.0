@@ -14,27 +14,30 @@
   pointer-events: auto;
 }
 
-/* ── Sliding Panel ───────────────────────────────────────────── */
+/* ── Modal Container ─────────────────────────────────────────── */
 .task-drawer {
   position: fixed;
-  top: 0;
-  right: 0;
-  width: 520px;
+  top: 50%;
+  left: 50%;
+  width: 600px;
   max-width: 95vw;
-  height: 100vh;
+  max-height: 90vh;
   background: white;
-  border-left: 1px solid var(--border-color);
-  box-shadow: -15px 0 50px rgba(0, 0, 0, 0.15);
+  border-radius: 28px;
+  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.2);
   z-index: 1001;
   display: flex;
   flex-direction: column;
-  transform: translateX(100%);
-  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  transform: translate(-50%, -40%);
+  opacity: 0;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
   overflow: hidden;
+  border: 1px solid var(--border-color);
 }
 
 .task-drawer.open {
-  transform: translateX(0);
+  transform: translate(-50%, -50%);
+  opacity: 1;
 }
 
 .drawer-scroll-area {
@@ -155,13 +158,45 @@
 }
 
 .add-tag-btn {
-  background: none;
-  border: 1px dashed var(--border-color);
-  padding: 4px 10px;
-  border-radius: 6px;
+  background: white;
+  border: 1px solid var(--border-color);
+  padding: 4px 12px;
+  border-radius: 999px;
   font-size: 0.75rem;
+  font-weight: 600;
   color: var(--text-muted);
   cursor: pointer;
+  transition: all 0.2s;
+}
+
+.add-tag-btn:hover {
+  background: var(--primary-blue);
+  color: white;
+  border-color: var(--primary-blue);
+}
+
+.add-subtask-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 12px;
+  border: 2px dashed #E2E8F0;
+  border-radius: 12px;
+  background: white;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-top: 8px;
+}
+
+.add-subtask-btn:hover {
+  border-color: var(--primary-blue);
+  color: var(--primary-blue);
+  background: #F8FAFC;
 }
 
 /* ── Tabs ── */
@@ -300,10 +335,26 @@
   letter-spacing: 1px;
 }
 
-.ds-edit-btn, .ds-count {
+.ds-edit-btn {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--primary-blue);
+  background: #F1F5F9;
+  border: none;
+  padding: 4px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.ds-edit-btn:hover {
+  background: var(--primary-blue);
+  color: white;
+}
+
+.ds-count {
   font-size: 0.8rem;
   color: var(--text-muted);
-  cursor: pointer;
 }
 
 .ds-description {

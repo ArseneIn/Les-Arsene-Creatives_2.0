@@ -1,0 +1,275 @@
+/* ── Identity Nexus: Heritage Tech Split ────────────────────────── */
+.login-page {
+    min-height: 100vh;
+    width: 100%;
+    display: flex;
+    background: white;
+    overflow: hidden;
+    color: var(--text-main);
+}
+
+/* Left Panel: The Heritage Engine */
+.login-side-main {
+    flex: 1.2;
+    background: #0F172A;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 80px 100px;
+    color: white;
+    overflow: hidden;
+}
+
+/* High-Visibility Vertical Imigongo Pattern Overlay */
+.login-side-main::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    opacity: 0.45;
+    background-image: 
+        linear-gradient(115deg, var(--primary-blue) 12%, transparent 12%), 
+        linear-gradient(245deg, var(--primary-blue) 12%, transparent 12%), 
+        linear-gradient(65deg, var(--primary-blue) 12%, transparent 12%), 
+        linear-gradient(295deg, var(--primary-blue) 12%, transparent 12%);
+    background-position: 0 0, 0 0, 0 0, 0 0;
+    background-size: 60px 240px;
+    background-repeat: repeat;
+    mask-image: linear-gradient(to right, black 15%, transparent 85%);
+    -webkit-mask-image: linear-gradient(to right, black 15%, transparent 85%);
+}
+
+.login-side-main::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at 100% 50%, rgba(1, 139, 241, 0.15) 0%, transparent 60%);
+}
+
+.main-side-content {
+    position: relative;
+    z-index: 5;
+    max-width: 500px;
+}
+
+.main-side-logo {
+    width: 80px;
+    height: 80px;
+    background: var(--primary-blue);
+    border-radius: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 48px;
+    box-shadow: 0 12px 40px rgba(1, 139, 241, 0.3);
+}
+
+.main-side-title {
+    font-size: 3.5rem;
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: -0.04em;
+    margin-bottom: 24px;
+}
+
+.main-side-title span {
+    display: block;
+    color: rgba(255, 255, 255, 0.4);
+}
+
+.main-side-desc {
+    font-size: 1.1rem;
+    color: #94A3B8;
+    line-height: 1.6;
+    margin-bottom: 60px;
+}
+
+.main-side-stats {
+    display: flex;
+    gap: 40px;
+}
+
+.m-stat {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.m-stat-val {
+    font-family: 'Manrope', sans-serif;
+    font-size: 1.5rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+}
+
+.m-stat-lbl {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #64748B;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+}
+
+/* Right Panel: The Access */
+.login-side-form {
+    flex: 1;
+    background: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 60px;
+    position: relative;
+}
+
+.form-wrapper {
+    width: 100%;
+    max-width: 400px;
+    animation: formSlide 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes formSlide {
+    from { opacity: 0; transform: translateX(20px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+
+.form-header {
+    margin-bottom: 40px;
+}
+
+.form-title {
+    font-size: 2rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    margin-bottom: 12px;
+}
+
+.form-subtitle {
+    color: var(--text-muted);
+    font-weight: 500;
+}
+
+/* Inputs & Form Logic */
+.login-form {
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+}
+
+.input-label {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #64748B;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 10px;
+    display: block;
+}
+
+.login-input {
+    width: 100%;
+    height: 56px;
+    background: #F8FAFC;
+    border: 1.5px solid #E2E8F0;
+    border-radius: 12px;
+    padding: 0 20px;
+    color: var(--text-main);
+    font-size: 1rem;
+    font-weight: 500;
+    transition: all 0.2s;
+}
+
+.login-input:focus {
+    outline: none;
+    background: white;
+    border-color: var(--primary-blue);
+    box-shadow: 0 0 0 4px rgba(1, 139, 241, 0.08);
+}
+
+.form-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.forgot-link {
+    color: var(--primary-blue);
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.submit-area {
+    margin-top: 12px;
+}
+
+.btn-auth {
+    height: 60px;
+    width: 100%;
+    border-radius: 14px;
+    font-size: 1rem;
+    font-weight: 700;
+}
+
+.signup-prompt {
+    text-align: center;
+    margin-top: 40px;
+    font-size: 0.95rem;
+    color: var(--text-muted);
+}
+
+.signup-link {
+    color: var(--primary-blue);
+    font-weight: 700;
+    text-decoration: none;
+    margin-left: 6px;
+}
+
+/* Security Ledger */
+.security-ledger {
+    position: absolute;
+    bottom: 40px;
+    left: 80px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: #475569;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+}
+
+.ledger-dot {
+    width: 8px;
+    height: 8px;
+    background: var(--success-green);
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% { transform: scale(0.9); opacity: 0.5; }
+    50% { transform: scale(1.1); opacity: 1; }
+    100% { transform: scale(0.9); opacity: 0.5; }
+}
+
+@media (max-width: 1024px) {
+    .login-side-main { display: none; }
+    .login-side-form { flex: 1; }
+}
+
+@keyframes badgePulse {
+    0% { transform: scale(0.9); opacity: 0.5; }
+    50% { transform: scale(1.1); opacity: 1; }
+    100% { transform: scale(0.9); opacity: 0.5; }
+}
+
+@keyframes badgePulse {
+    0% { opacity: 0.4; }
+    50% { opacity: 1; }
+    100% { opacity: 0.4; }
+}

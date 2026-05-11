@@ -4,6 +4,7 @@ import { AuthController } from './auth.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from '../entities/user.entity';
 import { Merchant } from '../entities/merchant.entity';
+import { LoginRequest } from '../entities/login-request.entity';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { JwtStrategy } from './jwt.strategy';
@@ -11,7 +12,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([User, Merchant]),
+    TypeOrmModule.forFeature([User, Merchant, LoginRequest]),
     PassportModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],
