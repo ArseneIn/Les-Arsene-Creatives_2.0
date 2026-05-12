@@ -43,32 +43,35 @@ export default function MerchantDashboard() {
     const [lowStockItems, setLowStockItems] = useState<LowStockItem[]>([]);
     const [loading, setLoading] = useState(true);
     const [role, setRole] = useState<string | null>(null);
+    const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
+
+    const fetchDashboardData = async () => {
+        setLoading(true);
+        try {
+            const storedUser = localStorage.getItem('user');
+            if (storedUser) {
+                const user = JSON.parse(storedUser);
+                setRole(user.role);
+            }
+
+            const [statsData, transactionsData, lowStockData] = await Promise.all([
+                api.get<DashboardStats>('/dashboard/stats'),
+                api.get<Transaction[]>('/dashboard/recent-transactions'),
+                api.get<LowStockItem[]>('/dashboard/low-stock')
+            ]);
+
+            setStats(statsData);
+            setRecentTransactions(transactionsData);
+            setLowStockItems(lowStockData);
+            setLastUpdated(new Date());
+        } catch (error) {
+            console.error('Error fetching dashboard data:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     useEffect(() => {
-        const fetchDashboardData = async () => {
-            try {
-                const storedUser = localStorage.getItem('user');
-                if (storedUser) {
-                    const user = JSON.parse(storedUser);
-                    setRole(user.role);
-                }
-
-                const [statsData, transactionsData, lowStockData] = await Promise.all([
-                    api.get<DashboardStats>('/dashboard/stats'),
-                    api.get<Transaction[]>('/dashboard/recent-transactions'),
-                    api.get<LowStockItem[]>('/dashboard/low-stock')
-                ]);
-
-                setStats(statsData);
-                setRecentTransactions(transactionsData);
-                setLowStockItems(lowStockData);
-            } catch (error) {
-                console.error('Error fetching dashboard data:', error);
-            } finally {
-                setLoading(false);
-            }
-        };
-
         fetchDashboardData();
     }, []);
 
@@ -83,7 +86,7 @@ export default function MerchantDashboard() {
         return `${Math.floor(diffInSeconds / 86400)}${t('d')} ${t('ago')}`;
     };
 
-    if (loading) {
+    if (loading && !stats) {
         return <div className="p-8 text-center text-gray-500">{t('loading')}</div>;
     }
 
@@ -99,7 +102,7 @@ export default function MerchantDashboard() {
                 </div>
                 <div className="flex gap-4 justify-center">
                     <button
-                        onClick={() => window.location.reload()}
+                        onClick={() => fetchDashboardData()}
                         className="px-6 py-2 bg-jet text-white rounded-lg hover:bg-onyx transition-colors shadow-sm"
                     >
                         {t('retry')}
@@ -125,9 +128,24 @@ export default function MerchantDashboard() {
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div>
                     <h1 className="text-2xl font-bold text-jet font-heading">{t('title')}</h1>
-                    <p className="text-gray-500 mt-1 text-sm">{t('subtitle')}</p>
+                    <p className="text-gray-500 mt-1 text-sm flex items-center gap-2">
+                        {t('subtitle')}
+                        {lastUpdated && (
+                            <span className="text-[10px] bg-gray-100 text-gray-400 px-2 py-0.5 rounded-full">
+                                Updated {lastUpdated.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                            </span>
+                        )}
+                    </p>
                 </div>
                 <div className="flex gap-3">
+                    <button
+                        onClick={fetchDashboardData}
+                        disabled={loading}
+                        className={`px-4 py-2 bg-white border border-gray-200 text-jet rounded-lg hover:bg-gray-50 transition-colors flex items-center gap-2 text-sm font-medium shadow-sm ${loading ? 'opacity-50' : ''}`}
+                    >
+                        <Bell className={`h-4 w-4 text-gray-400 ${loading ? 'animate-spin' : ''}`} />
+                        {loading ? 'Refreshing...' : t('refresh') || 'Refresh'}
+                    </button>
                     <button
                         onClick={() => alert('Export functionality coming soon!')}
                         className="px-4 py-2 bg-white border border-gray-200 text-jet rounded-lg hover:bg-gray-50 transition-colors flex items-center gap-2 text-sm font-medium shadow-sm"

@@ -44,7 +44,7 @@ export class SalesService {
     if (paymentMethod?.toUpperCase() === 'CREDIT') paymentMethod = 'Credit';
 
     this.logger.log(
-      `Creating sale: ${items.length} items, Total: ${total}, Method: ${paymentMethod}, User: ${userId}`,
+      `Creating sale for Merchant: ${merchantId}, User: ${userId}, Total: ${total}`,
     );
 
     // Start Transaction
@@ -331,9 +331,13 @@ export class SalesService {
   }
 
   async getSalesReport(startDate: string, endDate: string, merchantId: string) {
+    // Boundaries adjusted for Kigali (UTC+2)
+    // 00:00:00 Kigali = 22:00:00 UTC (previous day)
     const start = new Date(startDate);
+    start.setHours(start.getHours() - 2);
+
     const end = new Date(endDate);
-    end.setHours(23, 59, 59, 999); // Include the whole end day
+    end.setHours(23 - 2, 59, 59, 999);
 
     const sales = await this.saleRepository
       .createQueryBuilder('sale')
@@ -371,7 +375,9 @@ export class SalesService {
     >();
 
     for (const sale of sales) {
-      const dateKey = sale.created_at.toISOString().split('T')[0]; // YYYY-MM-DD
+      // Normalize to Kigali Time (UTC+2) for consistent daily grouping
+      const kigaliTime = new Date(sale.created_at.getTime() + 2 * 60 * 60 * 1000);
+      const dateKey = kigaliTime.toISOString().split('T')[0]; // YYYY-MM-DD
 
       let saleProfit = 0;
       if (sale.items && Array.isArray(sale.items)) {

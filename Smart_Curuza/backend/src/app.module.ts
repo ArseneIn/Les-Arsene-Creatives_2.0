@@ -66,4 +66,4 @@ import { ShiftsModule } from './shifts/shifts.module';
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule { }
+export class AppModule {}

@@ -1,6 +1,6 @@
 export interface AuthenticatedUser {
-    userId: string;
-    email: string;
-    role: string;
-    merchantId: string;
+  userId: string;
+  email: string;
+  role: string;
+  merchantId: string;
 }

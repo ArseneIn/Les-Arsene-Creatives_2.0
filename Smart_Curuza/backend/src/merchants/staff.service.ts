@@ -4,12 +4,15 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, IsNull, Between, MoreThanOrEqual, LessThanOrEqual } from 'typeorm';
 import { User, UserRole } from '../entities/user.entity';
 import { Merchant } from '../entities/merchant.entity';
 import { Shift } from '../entities/shift.entity';
 import { Sale } from '../entities/sale.entity';
-import { LoginRequest, LoginRequestStatus } from '../entities/login-request.entity';
+import {
+  LoginRequest,
+  LoginRequestStatus,
+} from '../entities/login-request.entity';
 import * as bcrypt from 'bcrypt';
 
 @Injectable()
@@ -25,7 +28,7 @@ export class StaffService {
     private salesRepository: Repository<Sale>,
     @InjectRepository(LoginRequest)
     private loginRequestsRepository: Repository<LoginRequest>,
-  ) { }
+  ) {}
 
   async createStaff(
     merchantId: string,
@@ -81,8 +84,9 @@ export class StaffService {
 
     const savedUser = await this.usersRepository.save(newUser);
 
-    // Return without password/pin
-    const { password, pin_hash, ...result } = savedUser;
+    // Return without password/pin (destructure to exclude them)
+    const { password: _, pin_hash: __, ...result } = savedUser;
+    void _; void __;
     return result;
   }
 
@@ -118,6 +122,64 @@ export class StaffService {
     return shifts;
   }
 
+  async getStaffSales(
+    merchantId: string,
+    staffId: string,
+    limit = 500,
+    startDate?: string,
+    endDate?: string,
+  ) {
+    // Verify staff belongs to merchant
+    const staff = await this.usersRepository.findOne({
+      where: { id: staffId, merchant: { id: merchantId } },
+      select: ['id', 'name', 'email', 'phone', 'role'],
+    });
+
+    if (!staff) {
+      throw new NotFoundException('Staff member not found');
+    }
+
+    // Build date range filter
+    let dateFilter: any = {};
+    if (startDate && endDate) {
+      // Boundaries adjusted for Kigali (UTC+2)
+      const start = new Date(startDate);
+      start.setHours(start.getHours() - 2);
+
+      const end = new Date(endDate);
+      end.setHours(23 - 2, 59, 59, 999);
+      dateFilter = { created_at: Between(start, end) };
+    } else if (startDate) {
+      const start = new Date(startDate);
+      start.setHours(0, 0, 0, 0);
+      dateFilter = { created_at: MoreThanOrEqual(start) };
+    } else if (endDate) {
+      const end = new Date(endDate);
+      end.setHours(23, 59, 59, 999);
+      dateFilter = { created_at: LessThanOrEqual(end) };
+    }
+
+    const sales = await this.salesRepository.find({
+      where: { merchant_id: merchantId, user_id: staffId, ...dateFilter },
+      order: { created_at: 'DESC' },
+      take: limit,
+    });
+
+    const totalRevenue = sales
+      .filter((s) => s.status === 'COMPLETED')
+      .reduce((sum, s) => sum + Number(s.total), 0);
+
+    return {
+      staff,
+      sales,
+      summary: {
+        totalSales: sales.filter((s) => s.status === 'COMPLETED').length,
+        totalRevenue,
+        refunds: sales.filter((s) => s.status === 'REFUNDED').length,
+      },
+    };
+  }
+
   async getPendingLogins(merchantId: string) {
     // Delete expired requests
     await this.loginRequestsRepository
@@ -141,22 +203,38 @@ export class StaffService {
       select: ['id', 'name', 'email', 'phone'],
     });
 
-    const progress = [];
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    const progress: {
+      id: string;
+      name: string;
+      email: string;
+      phone: string;
+      shiftOpen: boolean;
+      shiftId?: string;
+      totalSales: number;
+    }[] = [];
+    
+    // Adjust today for Kigali timezone (UTC+2)
+    // 00:00:00 Kigali = 22:00:00 UTC (previous day)
+    const kigaliNow = new Date(Date.now() + 2 * 60 * 60 * 1000);
+    const startDate = kigaliNow.toISOString().split('T')[0];
+    const today = new Date(startDate);
+    today.setHours(today.getHours() - 2);
 
     for (const cashier of cashiers) {
       // Find open shift
       const openShift = await this.shiftsRepository.findOne({
-        where: { user_id: cashier.id, end_time: null },
+        where: { user_id: cashier.id, end_time: IsNull() },
       });
 
       // Sum sales for today
-      const salesQuery = this.salesRepository.createQueryBuilder('sale')
-        .where('sale.userId = :userId', { userId: cashier.id })
+      const salesQuery = this.salesRepository
+        .createQueryBuilder('sale')
+        .where('sale.user_id = :userId', { userId: cashier.id })
         .andWhere('sale.created_at >= :today', { today });
-      
-      const salesResult = await salesQuery.select('SUM(sale.total)', 'totalSales').getRawOne();
+
+      const salesResult = await salesQuery
+        .select('SUM(sale.total)', 'totalSales')
+        .getRawOne<{ totalSales: string | null }>();
       const totalSales = Number(salesResult?.totalSales) || 0;
 
       progress.push({

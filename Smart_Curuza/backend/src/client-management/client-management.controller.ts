@@ -18,7 +18,7 @@ import { Customer } from '../entities/customer.entity';
 
 @Controller('client-management')
 export class ClientManagementController {
-  constructor(private readonly clientService: ClientManagementService) { }
+  constructor(private readonly clientService: ClientManagementService) {}
 
   @UseGuards(JwtAuthGuard)
   @Post('debt')

@@ -1,10 +1,12 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { ArrowLeft } from 'lucide-react-native';
+import { ArrowLeft, Globe } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
+import { useSync } from '../lib/sync/SyncContext';
 
 export default function POSHeader() {
     const router = useRouter();
+    const { isOffline, isSyncing, queueLength } = useSync();
 
     const handleBack = () => {
         if (router.canGoBack()) {
@@ -23,8 +25,21 @@ export default function POSHeader() {
                     </TouchableOpacity>
 
                     <View style={styles.titleSection}>
-                        <Text style={styles.title}>New Sale</Text>
-                        <Text style={styles.subtitle}>Process Transaction</Text>
+                        <View style={styles.titleRow}>
+                            <Text style={styles.title}>New Sale</Text>
+                            {isOffline && (
+                                <View style={styles.offlineBadge}>
+                                    <Globe size={10} color="#EF4444" />
+                                    <Text style={styles.offlineText}>Offline</Text>
+                                </View>
+                            )}
+                        </View>
+                        <View style={styles.subtitleRow}>
+                            <Text style={styles.subtitle}>Process Transaction</Text>
+                            {isSyncing && (
+                                <Text style={styles.syncText}>• Syncing {queueLength}</Text>
+                            )}
+                        </View>
                     </View>
                 </View>
 
@@ -67,11 +82,34 @@ const styles = StyleSheet.create({
     titleSection: {
         justifyContent: 'center',
     },
-    title: {
-        fontSize: 22,
+    titleRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 8,
+    },
+    offlineBadge: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: 'rgba(239, 68, 68, 0.1)',
+        paddingHorizontal: 6,
+        paddingVertical: 2,
+        borderRadius: 4,
+        gap: 4,
+    },
+    offlineText: {
+        fontSize: 10,
         fontFamily: 'Montserrat_700Bold',
-        color: '#FFFFFF',
-        lineHeight: 28,
+        color: '#EF4444',
+    },
+    subtitleRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 6,
+    },
+    syncText: {
+        fontSize: 10,
+        fontFamily: 'Montserrat_600SemiBold',
+        color: '#fbe134',
     },
     subtitle: {
         fontSize: 12,

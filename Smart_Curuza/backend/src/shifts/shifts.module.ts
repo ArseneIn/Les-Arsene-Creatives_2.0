@@ -7,9 +7,9 @@ import { Merchant } from '../entities/merchant.entity';
 import { User } from '../entities/user.entity';
 
 @Module({
-    imports: [TypeOrmModule.forFeature([Shift, Merchant, User])],
-    controllers: [ShiftsController],
-    providers: [ShiftsService],
-    exports: [ShiftsService],
+  imports: [TypeOrmModule.forFeature([Shift, Merchant, User])],
+  controllers: [ShiftsController],
+  providers: [ShiftsService],
+  exports: [ShiftsService],
 })
-export class ShiftsModule { }
+export class ShiftsModule {}

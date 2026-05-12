@@ -47,15 +47,16 @@ export class DashboardService {
   ) {}
 
   async getDashboardStats(merchantId: string, period: string = 'today') {
-    const now = new Date();
+    // Normalize to Kigali Time (UTC+2)
+    const kigaliNow = new Date(Date.now() + 2 * 60 * 60 * 1000);
     let startDate: string;
-    const endDate = now.toISOString().split('T')[0];
+    const endDate = kigaliNow.toISOString().split('T')[0];
 
     if (period === 'week') {
-      const start = new Date(now.getTime() - 6 * 24 * 60 * 60 * 1000);
+      const start = new Date(kigaliNow.getTime() - 6 * 24 * 60 * 60 * 1000);
       startDate = start.toISOString().split('T')[0];
     } else if (period === 'month') {
-      const start = new Date(now.getTime() - 29 * 24 * 60 * 60 * 1000);
+      const start = new Date(kigaliNow.getTime() - 29 * 24 * 60 * 60 * 1000);
       startDate = start.toISOString().split('T')[0];
     } else {
       startDate = endDate;
@@ -141,10 +142,13 @@ export class DashboardService {
   ): Promise<
     Array<{ id: string; name: string; sold_quantity: number; price: number }>
   > {
+    // Boundaries adjusted for Kigali (UTC+2)
+    // 00:00:00 Kigali = 22:00:00 UTC (previous day)
     const start = new Date(startDate);
-    start.setHours(0, 0, 0, 0);
+    start.setHours(start.getHours() - 2); 
+    
     const end = new Date(endDate);
-    end.setHours(23, 59, 59, 999);
+    end.setHours(23 - 2, 59, 59, 999);
 
     // Using raw query for high-performance JSONB aggregation
     const results = (await this.salesService.getRawQuery(

@@ -7,7 +7,7 @@ import { syncManager } from './sync/SyncManager';
 // Android emulator uses 10.0.2.2 to access host localhost
 // Real device would need the actual LAN IP of the computer
 // Use LAN IP for physical devices (both iOS and Android) to reach the backend
-const BASE_URL = 'http://192.168.9.130:3001';
+const BASE_URL = 'http://10.10.6.103:3001';
 
 // Caching system
 type CacheEntry = {
@@ -344,3 +344,6 @@ export const ApiClient = {
         });
     }
 };
+
+// Break require cycle
+syncManager.setApiClient(ApiClient);

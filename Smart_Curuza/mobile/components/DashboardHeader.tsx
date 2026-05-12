@@ -6,6 +6,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ApiClient } from '../lib/api_client';
 import { useTheme } from '../lib/theme/ThemeContext';
 import { useAuth } from '../lib/auth/AuthContext';
+import { useSync } from '../lib/sync/SyncContext';
 
 const NAV_ITEMS = [
     { id: 'overview', label: 'Overview' },
@@ -23,6 +24,7 @@ export default function DashboardHeader({ activeTab, onTabChange }: DashboardHea
     const insets = useSafeAreaInsets();
     const { colors, isDarkMode } = useTheme();
     const { user } = useAuth();
+    const { isOffline, isSyncing, queueLength } = useSync();
     const [shopInfo, setShopInfo] = useState({ name: '...', logo: null, initials: '..' });
     const [alerts, setAlerts] = useState<any[]>([]);
     const [isDropdownVisible, setIsDropdownVisible] = useState(false);
@@ -141,10 +143,26 @@ export default function DashboardHeader({ activeTab, onTabChange }: DashboardHea
                         ) : (
                             <Text style={styles.avatarText}>{shopInfo.initials}</Text>
                         )}
-                        <View style={[styles.onlineBadge, { borderColor: isDarkMode ? colors.card : colors.brandGold }]} />
+                        <View style={[
+                            styles.onlineBadge, 
+                            { 
+                                borderColor: isDarkMode ? colors.card : colors.brandGold,
+                                backgroundColor: isOffline ? '#EF4444' : '#22C55E'
+                            }
+                        ]} />
                     </View>
                     <View style={styles.infoSection}>
-                        <Text style={[styles.greeting, { color: isDarkMode ? 'rgba(255, 255, 255, 0.5)' : 'rgba(0, 0, 0, 0.5)' }]}>Good Morning,</Text>
+                        <View style={styles.statusRow}>
+                            <Text style={[styles.greeting, { color: isDarkMode ? 'rgba(255, 255, 255, 0.5)' : 'rgba(0, 0, 0, 0.5)' }]}>
+                                {isOffline ? 'Offline Mode' : 'Online'}
+                            </Text>
+                            {isSyncing && (
+                                <View style={styles.syncIndicator}>
+                                    <View style={styles.syncDot} />
+                                    <Text style={styles.syncText}>Syncing {queueLength}</Text>
+                                </View>
+                            )}
+                        </View>
                         <Text style={[styles.shopName, { color: isDarkMode ? colors.textPrimary : '#111827' }]} numberOfLines={1}>{shopInfo.name}</Text>
                     </View>
                 </View>
@@ -299,6 +317,32 @@ const styles = StyleSheet.create({
     infoSection: {
         justifyContent: 'center',
         flex: 1,
+    },
+    statusRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 6,
+    },
+    syncIndicator: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: 'rgba(251, 225, 52, 0.2)',
+        paddingHorizontal: 6,
+        paddingVertical: 1,
+        borderRadius: 4,
+        gap: 4,
+    },
+    syncDot: {
+        width: 4,
+        height: 4,
+        backgroundColor: '#fbe134',
+        borderRadius: 2,
+    },
+    syncText: {
+        fontSize: 8,
+        fontFamily: 'Montserrat_700Bold',
+        color: '#fbe134',
+        textTransform: 'uppercase',
     },
     greeting: {
         fontSize: 11,

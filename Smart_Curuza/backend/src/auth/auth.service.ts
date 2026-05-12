@@ -12,7 +12,10 @@ import { RegisterDto } from './dto/register.dto';
 import * as bcrypt from 'bcrypt';
 
 import { Merchant } from '../entities/merchant.entity';
-import { LoginRequest, LoginRequestStatus } from '../entities/login-request.entity';
+import {
+  LoginRequest,
+  LoginRequestStatus,
+} from '../entities/login-request.entity';
 
 @Injectable()
 export class AuthService {
@@ -140,7 +143,8 @@ export class AuthService {
         status: LoginRequestStatus.PENDING,
         expires_at: expiresAt,
       });
-      const savedRequest = await this.loginRequestsRepository.save(loginRequest);
+      const savedRequest =
+        await this.loginRequestsRepository.save(loginRequest);
 
       return {
         status: 'REQUIRES_APPROVAL',
@@ -183,7 +187,10 @@ export class AuthService {
 
     if (!request) throw new UnauthorizedException('Login request not found');
 
-    if (new Date() > request.expires_at && request.status === LoginRequestStatus.PENDING) {
+    if (
+      new Date() > request.expires_at &&
+      request.status === LoginRequestStatus.PENDING
+    ) {
       request.status = LoginRequestStatus.EXPIRED;
       await this.loginRequestsRepository.save(request);
     }
@@ -204,7 +211,7 @@ export class AuthService {
       where: { id: requestId, merchantId },
     });
     if (!request) throw new UnauthorizedException('Login request not found');
-    
+
     request.status = LoginRequestStatus.APPROVED;
     await this.loginRequestsRepository.save(request);
     return { success: true };
@@ -215,7 +222,7 @@ export class AuthService {
       where: { id: requestId, merchantId },
     });
     if (!request) throw new UnauthorizedException('Login request not found');
-    
+
     request.status = LoginRequestStatus.REJECTED;
     await this.loginRequestsRepository.save(request);
     return { success: true };
@@ -228,8 +235,11 @@ export class AuthService {
     });
 
     if (!request) throw new UnauthorizedException('Login request not found');
-    
-    if (new Date() > request.expires_at && request.status === LoginRequestStatus.PENDING) {
+
+    if (
+      new Date() > request.expires_at &&
+      request.status === LoginRequestStatus.PENDING
+    ) {
       request.status = LoginRequestStatus.EXPIRED;
       await this.loginRequestsRepository.save(request);
       throw new UnauthorizedException('Login request expired');
@@ -249,6 +259,7 @@ export class AuthService {
     await this.loginRequestsRepository.save(request);
 
     return this.generateAuthResponse(request.cashier);
+  }
 
   async changePin(userId: string, oldPin: string, newPin: string) {
     const user = await this.usersRepository.findOne({ where: { id: userId } });

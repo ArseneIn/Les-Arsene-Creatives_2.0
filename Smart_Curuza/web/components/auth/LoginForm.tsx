@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { api } from '@/lib/api';
 import { useToast } from '@/contexts/ToastContext';
-import { Store, User, Lock, Eye, EyeOff, Phone, Mail, Globe } from 'lucide-react';
+import { Store, User, Lock, Eye, EyeOff, Phone, Mail, Globe, Clock } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { usePathname } from 'next/navigation';
 import PhoneInput from '@/components/ui/PhoneInput';
@@ -24,6 +24,8 @@ export default function LoginForm() {
     const [error, setError] = useState('');
     const [showPassword, setShowPassword] = useState(false);
     const [isPhoneValid, setIsPhoneValid] = useState(false);
+    const [approvalRequest, setApprovalRequest] = useState<any>(null);
+    const [timeLeft, setTimeLeft] = useState(300);
 
     const { showToast } = useToast();
 
@@ -38,7 +40,7 @@ export default function LoginForm() {
     useEffect(() => {
         const token = localStorage.getItem('token');
         const userStr = localStorage.getItem('user');
-        if (token && userStr) {
+        if (token && userStr && userStr !== 'undefined') {
             try {
                 const user = JSON.parse(userStr);
                 if (user.role === 'SUPERADMIN') {
@@ -50,7 +52,47 @@ export default function LoginForm() {
                 // Invalid user data, ignore
             }
         }
-    }, [router]);
+    }, [router, currentLocale]);
+
+    // Handle polling for approval status
+    useEffect(() => {
+        let interval: NodeJS.Timeout;
+        if (approvalRequest) {
+            interval = setInterval(async () => {
+                try {
+                    const status = await api.get(`/auth/login/status/${approvalRequest.loginRequestId}`) as any;
+                    if (status.access_token) {
+                        clearInterval(interval);
+                        localStorage.setItem('token', status.access_token);
+                        localStorage.setItem('user', JSON.stringify(status.user));
+                        showToast('Login approved!', 'success');
+                        router.push(`/${currentLocale}/merchant`);
+                    } else if (status.status === 'REJECTED' || status.status === 'EXPIRED') {
+                        clearInterval(interval);
+                        setApprovalRequest(null);
+                        setError(status.status === 'REJECTED' ? 'Login request denied by merchant.' : 'Login request expired.');
+                    }
+                } catch (err: any) {
+                    clearInterval(interval);
+                    setApprovalRequest(null);
+                    setError(err.message || 'Login request denied or expired.');
+                }
+            }, 3000);
+        }
+        return () => clearInterval(interval);
+    }, [approvalRequest, currentLocale, router, showToast]);
+
+    // Handle timer
+    useEffect(() => {
+        let timer: NodeJS.Timeout;
+        if (approvalRequest && timeLeft > 0) {
+            timer = setInterval(() => setTimeLeft(prev => prev - 1), 1000);
+        } else if (timeLeft === 0 && approvalRequest) {
+            setApprovalRequest(null);
+            setError('Login request expired.');
+        }
+        return () => clearInterval(timer);
+    }, [approvalRequest, timeLeft]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -69,14 +111,21 @@ export default function LoginForm() {
 
             const data = await api.post<any>('/auth/login', payload);
 
+            if (data.status === 'REQUIRES_APPROVAL') {
+                setApprovalRequest(data);
+                setTimeLeft(300);
+                showToast('Approval required from merchant.', 'info');
+                return;
+            }
+
             localStorage.setItem('token', data.access_token);
             localStorage.setItem('user', JSON.stringify(data.user));
 
             showToast('Login successful!', 'success');
 
-            if (data.user.role === 'SUPERADMIN') {
+            if (data.user?.role === 'SUPERADMIN') {
                 router.push(`/${currentLocale}/admin`);
-            } else if (data.user.role === 'MERCHANT' || data.user.role === 'CASHIER') {
+            } else if (data.user?.role === 'MERCHANT' || data.user?.role === 'CASHIER') {
                 router.push(`/${currentLocale}/merchant`);
             } else {
                 router.push(`/${currentLocale}`);
@@ -111,7 +160,28 @@ export default function LoginForm() {
             </div>
 
             <div className="bg-white rounded-[2rem] p-8 shadow-xl shadow-gray-100/50">
-                <form onSubmit={handleSubmit} className="space-y-5">
+                {approvalRequest ? (
+                    <div className="text-center">
+                        <div className="mb-6 flex justify-center">
+                            <Clock className="w-12 h-12 text-gold animate-pulse" />
+                        </div>
+                        <h2 className="text-xl font-bold text-onyx mb-2">Waiting for Approval</h2>
+                        <p className="text-gray-500 mb-6">
+                            Your login request has been sent to the shop owner. Please wait.
+                        </p>
+                        <div className="text-3xl font-bold font-heading text-onyx mb-8">
+                            {Math.floor(timeLeft / 60)}:{(timeLeft % 60).toString().padStart(2, '0')}
+                        </div>
+                        <button
+                            onClick={() => setApprovalRequest(null)}
+                            className="text-gray-500 hover:text-jet font-medium"
+                        >
+                            Cancel Login
+                        </button>
+                    </div>
+                ) : (
+                    <>
+                        <form onSubmit={handleSubmit} className="space-y-5">
                     {loginMethod === 'email' ? (
                         <>
                             <div className="relative group">
@@ -244,6 +314,8 @@ export default function LoginForm() {
                         </button>
                     </p>
                 </div>
+                </>
+                )}
             </div>
         </div>
     );

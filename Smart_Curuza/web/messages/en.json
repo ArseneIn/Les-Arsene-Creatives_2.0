@@ -68,6 +68,7 @@
     "Header": {
         "controlTower": "Control Tower",
         "online": "Online",
+        "offline": "Offline",
         "user": "User"
     },
     "Dashboard": {

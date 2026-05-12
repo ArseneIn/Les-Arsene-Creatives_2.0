@@ -5,6 +5,7 @@ import {
   Delete,
   Body,
   Param,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { StaffService } from './staff.service';
@@ -17,8 +18,7 @@ import type { AuthenticatedUser } from '../auth/types';
 @Controller('merchants/staff')
 @UseGuards(JwtAuthGuard)
 export class StaffController {
-  constructor(private readonly staffService: StaffService) {
-  }
+  constructor(private readonly staffService: StaffService) {}
 
   @Get()
   async getStaff(@CurrentUser() user: AuthenticatedUser) {
@@ -54,5 +54,15 @@ export class StaffController {
     @Param('id') id: string,
   ) {
     return this.staffService.getStaffActivity(user.merchantId, id);
+  }
+
+  @Get(':id/sales')
+  async getStaffSales(
+    @CurrentUser() user: AuthenticatedUser,
+    @Param('id') id: string,
+    @Query('startDate') startDate?: string,
+    @Query('endDate') endDate?: string,
+  ) {
+    return this.staffService.getStaffSales(user.merchantId, id, 500, startDate, endDate);
   }
 }

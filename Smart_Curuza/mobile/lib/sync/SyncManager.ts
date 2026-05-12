@@ -1,5 +1,5 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { ApiClient } from '../api_client';
+import * as FileSystem from 'expo-file-system';
+// ApiClient imported dynamically to break require cycle
 
 export interface QueuedRequest {
     id: string;
@@ -9,21 +9,27 @@ export interface QueuedRequest {
     timestamp: number;
 }
 
-const SYNC_QUEUE_KEY = '@smartcuruza_sync_queue';
+const QUEUE_FILE = FileSystem.documentDirectory + 'sync_queue.json';
 
 class SyncManager {
     private queue: QueuedRequest[] = [];
     private isSyncing: boolean = false;
     private listeners: ((syncing: boolean, progress: number, queueLength: number) => void)[] = [];
+    private apiClient: any = null;
 
     constructor() {
         this.loadQueue();
     }
 
+    public setApiClient(client: any) {
+        this.apiClient = client;
+    }
+
     private async loadQueue() {
         try {
-            const data = await AsyncStorage.getItem(SYNC_QUEUE_KEY);
-            if (data) {
+            const fileInfo = await FileSystem.getInfoAsync(QUEUE_FILE);
+            if (fileInfo.exists) {
+                const data = await FileSystem.readAsStringAsync(QUEUE_FILE);
                 this.queue = JSON.parse(data);
                 this.notifyListeners();
             }
@@ -34,7 +40,7 @@ class SyncManager {
 
     private async saveQueue() {
         try {
-            await AsyncStorage.setItem(SYNC_QUEUE_KEY, JSON.stringify(this.queue));
+            await FileSystem.writeAsStringAsync(QUEUE_FILE, JSON.stringify(this.queue));
             this.notifyListeners();
         } catch (error) {
             console.error('Failed to save sync queue', error);
@@ -71,49 +77,56 @@ class SyncManager {
     }
 
     public async processQueue() {
-        if (this.isSyncing || this.queue.length === 0) return;
+        if (!this.apiClient || this.isSyncing || this.queue.length === 0) return;
 
-        console.log(`[SyncManager] Starting sync of ${this.queue.length} items`);
         this.isSyncing = true;
-        
-        const totalItems = this.queue.length;
-        let processed = 0;
-
         this.notifyListeners(0);
 
-        // Process queue sequentially
-        while (this.queue.length > 0) {
-            const request = this.queue[0]; // peek
+        console.log(`[SyncManager] Processing queue with ${this.queue.length} items`);
 
+        let successCount = 0;
+        let failureCount = 0;
+
+        // Clone queue to work with
+        const currentQueue = [...this.queue];
+        const nextQueue: QueuedRequest[] = [];
+
+        for (let i = 0; i < currentQueue.length; i++) {
+            const request = currentQueue[i];
+            
             try {
-                // We use ApiClient._request but bypass the offline interceptor to prevent infinite loops
-                await ApiClient._request(request.endpoint, {
+                await this.apiClient._request(request.endpoint, {
                     method: request.method,
                     body: request.body ? JSON.stringify(request.body) : undefined,
-                }, false, 0, true); // true = bypassOfflineInterceptor
-
-                console.log(`[SyncManager] Successfully synced ${request.method} ${request.endpoint}`);
+                }, false, 0, true); 
                 
-                // Remove from queue on success
-                this.queue.shift();
-                processed++;
-                
-                const progress = Math.round((processed / totalItems) * 100);
+                successCount++;
+                const progress = Math.round(((i + 1) / currentQueue.length) * 100);
                 this.notifyListeners(progress);
-                await this.saveQueue();
-
             } catch (error: any) {
                 console.error(`[SyncManager] Failed to sync ${request.method} ${request.endpoint}`, error);
-                // If it's a 4xx error (e.g. validation), we should probably discard it or move to a dead-letter queue.
-                // For now, if it fails, we abort the sync loop and try again later to preserve order.
-                break;
+                
+                // Inspect status code if available
+                const statusCode = error.status || error.response?.status;
+                
+                if (statusCode >= 400 && statusCode < 500) {
+                    console.warn(`[SyncManager] Non-retriable error (${statusCode}). Discarding request to unblock queue.`);
+                    failureCount++;
+                    // Item is NOT added to nextQueue (discarded)
+                } else {
+                    console.log(`[SyncManager] Retriable error (Network/Server). Preserving remainder of queue.`);
+                    nextQueue.push(...currentQueue.slice(i));
+                    break;
+                }
             }
         }
 
+        this.queue = nextQueue;
+        await this.saveQueue();
+        
         this.isSyncing = false;
         this.notifyListeners(100);
         
-        // Brief delay before resetting progress bar to 0
         setTimeout(() => {
             if (!this.isSyncing) this.notifyListeners(0);
         }, 1000);

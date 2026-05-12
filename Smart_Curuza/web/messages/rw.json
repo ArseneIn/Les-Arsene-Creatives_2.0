@@ -68,6 +68,7 @@
     "Header": {
         "controlTower": "Igenzura (Control Tower)",
         "online": "Urahari",
+        "offline": "Nta Interineti",
         "user": "Umukoresha"
     },
     "Dashboard": {

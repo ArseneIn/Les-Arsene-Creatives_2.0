@@ -1,7 +1,7 @@
 import Sidebar from "@/components/Sidebar";
 import Header from "@/components/Header";
-
 import AuthGuard from "@/components/auth/AuthGuard";
+import PageLoader from "@/components/ui/PageLoader";
 
 export default function DashboardLayout({
     children,
@@ -10,6 +10,7 @@ export default function DashboardLayout({
 }>) {
     return (
         <AuthGuard>
+            <PageLoader />
             <div className="flex h-screen bg-transparent">
                 <Sidebar />
                 <div className="flex-1 flex flex-col overflow-hidden">

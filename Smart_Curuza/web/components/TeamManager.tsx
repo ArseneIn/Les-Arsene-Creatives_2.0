@@ -1,7 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { api } from '@/lib/api';
-import { Plus, Trash2, User, Shield, Activity, X } from 'lucide-react';
+import { Plus, Trash2, User, Shield, Activity, X, ShieldCheck, UserCheck, UserX, Clock, Bell, TrendingUp, ShoppingBag, RotateCcw, DollarSign } from 'lucide-react';
 import PhoneInput from './ui/PhoneInput';
+
+interface PendingLoginRequest {
+    id: string;
+    cashier?: { name?: string; email?: string; phone?: string };
+    expires_at: string;
+    status: string;
+}
 
 interface StaffMember {
     id: string;
@@ -23,6 +30,21 @@ interface ShiftActivity {
     status: 'OPEN' | 'CLOSED';
 }
 
+interface StaffSaleRecord {
+    id: string;
+    total: number;
+    payment_method: string;
+    status: string;
+    items: { productName: string; quantity: number; price: number }[];
+    created_at: string;
+}
+
+interface StaffSalesData {
+    staff: StaffMember;
+    sales: StaffSaleRecord[];
+    summary: { totalSales: number; totalRevenue: number; refunds: number };
+}
+
 export default function TeamManager() {
     const [staff, setStaff] = useState<StaffMember[]>([]);
     const [loading, setLoading] = useState(true);
@@ -41,12 +63,36 @@ export default function TeamManager() {
 
     // Activity Monitoring State
     const [selectedStaff, setSelectedStaff] = useState<StaffMember | null>(null);
+    const [activeTab, setActiveTab] = useState<'shifts' | 'sales'>('shifts');
     const [staffActivity, setStaffActivity] = useState<ShiftActivity[]>([]);
     const [loadingActivity, setLoadingActivity] = useState(false);
+    const [staffSalesData, setStaffSalesData] = useState<StaffSalesData | null>(null);
+    const [loadingSales, setLoadingSales] = useState(false);
+    const [salesDateRange, setSalesDateRange] = useState<{ start: string; end: string }>({
+        start: '',
+        end: '',
+    });
+
+    // Pending Login Approvals State
+    const [pendingLogins, setPendingLogins] = useState<PendingLoginRequest[]>([]);
+    const [approvingId, setApprovingId] = useState<string | null>(null);
+
+    const fetchPendingLogins = useCallback(async () => {
+        try {
+            const data = await api.get<PendingLoginRequest[]>('/merchants/staff/pending-logins');
+            setPendingLogins(data);
+        } catch (error) {
+            // Silently fail — don't interrupt the user
+        }
+    }, []);
 
     useEffect(() => {
         fetchStaff();
-    }, []);
+        fetchPendingLogins();
+        // Poll every 10 seconds for new login requests
+        const interval = setInterval(fetchPendingLogins, 10000);
+        return () => clearInterval(interval);
+    }, [fetchPendingLogins]);
 
     const fetchStaff = async () => {
         try {
@@ -71,9 +117,41 @@ export default function TeamManager() {
         }
     };
 
-    const handleViewActivity = (member: StaffMember) => {
+    const fetchStaffSales = async (staffId: string, startDate?: string, endDate?: string) => {
+        setLoadingSales(true);
+        try {
+            const params = new URLSearchParams();
+            if (startDate) params.append('startDate', startDate);
+            if (endDate) params.append('endDate', endDate);
+            const query = params.toString() ? `?${params.toString()}` : '';
+            const data = await api.get<StaffSalesData>(`/merchants/staff/${staffId}/sales${query}`);
+            setStaffSalesData(data);
+        } catch (error) {
+            console.error('Failed to fetch staff sales', error);
+        } finally {
+            setLoadingSales(false);
+        }
+    };
+
+    const handleViewStaff = (member: StaffMember) => {
         setSelectedStaff(member);
+        setActiveTab('shifts');
+        setStaffActivity([]);
+        setStaffSalesData(null);
+        setSalesDateRange({ start: '', end: '' });
         fetchStaffActivity(member.id);
+        fetchStaffSales(member.id);
+    };
+
+    const handleApplySalesDateFilter = () => {
+        if (selectedStaff) {
+            fetchStaffSales(selectedStaff.id, salesDateRange.start || undefined, salesDateRange.end || undefined);
+        }
+    };
+
+    const handleClearSalesDateFilter = () => {
+        setSalesDateRange({ start: '', end: '' });
+        if (selectedStaff) fetchStaffSales(selectedStaff.id);
     };
 
     const handleAddStaff = async (e: React.FormEvent) => {
@@ -106,8 +184,89 @@ export default function TeamManager() {
         }
     };
 
+    const handleApproveLogin = async (requestId: string) => {
+        setApprovingId(requestId);
+        try {
+            await api.post(`/auth/login/approve/${requestId}`, {});
+            fetchPendingLogins();
+        } catch (error) {
+            console.error('Failed to approve login', error);
+        } finally {
+            setApprovingId(null);
+        }
+    };
+
+    const handleRejectLogin = async (requestId: string) => {
+        setApprovingId(requestId);
+        try {
+            await api.post(`/auth/login/reject/${requestId}`, {});
+            fetchPendingLogins();
+        } catch (error) {
+            console.error('Failed to reject login', error);
+        } finally {
+            setApprovingId(null);
+        }
+    };
+
     return (
         <div className="space-y-6">
+            {/* PENDING LOGIN APPROVALS */}
+            {pendingLogins.length > 0 && (
+                <div className="rounded-xl border-2 border-amber-400/60 bg-amber-50/50 p-4 space-y-3 shadow-sm">
+                    <div className="flex items-center gap-2 mb-1">
+                        <div className="relative">
+                            <Bell className="h-5 w-5 text-amber-600" />
+                            <span className="absolute -top-1 -right-1 flex h-3 w-3">
+                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-500 opacity-75"></span>
+                                <span className="relative inline-flex rounded-full h-3 w-3 bg-amber-600"></span>
+                            </span>
+                        </div>
+                        <span className="font-bold text-amber-800 text-sm">Login Approvals ({pendingLogins.length})</span>
+                    </div>
+                    {pendingLogins.map(request => {
+                        const expiresAt = new Date(request.expires_at);
+                        const minutesLeft = Math.max(0, Math.floor((expiresAt.getTime() - Date.now()) / 60000));
+                        const isExpiring = minutesLeft <= 1;
+                        const isProcessing = approvingId === request.id;
+                        return (
+                            <div key={request.id} className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white rounded-lg p-3 border border-amber-200 shadow-sm">
+                                <div className="flex items-center gap-3">
+                                    <div className="w-10 h-10 bg-amber-100 rounded-full flex items-center justify-center flex-shrink-0">
+                                        <User className="h-5 w-5 text-amber-700" />
+                                    </div>
+                                    <div>
+                                        <p className="font-bold text-jet text-sm">{request.cashier?.name || request.cashier?.email || request.cashier?.phone || 'Unknown Staff'}</p>
+                                        <p className="text-xs text-jet-500">Wants to log in</p>
+                                        <div className={`flex items-center gap-1 text-xs mt-0.5 font-semibold ${isExpiring ? 'text-red-600' : 'text-amber-700'}`}>
+                                            <Clock className="h-3 w-3" />
+                                            <span>Expires {isExpiring ? 'in &lt;1 min' : `in ${minutesLeft} min`} — {expiresAt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="flex gap-2 self-end sm:self-auto">
+                                    <button
+                                        onClick={() => handleRejectLogin(request.id)}
+                                        disabled={isProcessing}
+                                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-red-50 text-red-600 font-bold text-sm hover:bg-red-100 transition-colors disabled:opacity-50"
+                                    >
+                                        <UserX className="h-4 w-4" />
+                                        Reject
+                                    </button>
+                                    <button
+                                        onClick={() => handleApproveLogin(request.id)}
+                                        disabled={isProcessing}
+                                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-green-500 text-white font-bold text-sm hover:bg-green-600 transition-colors disabled:opacity-50"
+                                    >
+                                        <UserCheck className="h-4 w-4" />
+                                        {isProcessing ? '...' : 'Approve'}
+                                    </button>
+                                </div>
+                            </div>
+                        );
+                    })}
+                </div>
+            )}
+
             <div className="flex justify-end items-center mb-4">
                 <button
                     onClick={() => setShowAddModal(true)}
@@ -137,11 +296,11 @@ export default function TeamManager() {
                                             {member.role}
                                         </div>
                                         <button
-                                            onClick={() => handleViewActivity(member)}
+                                            onClick={() => handleViewStaff(member)}
                                             className="text-xs text-gold hover:underline flex items-center gap-1"
                                         >
                                             <Activity className="h-3 w-3" />
-                                            View Activity
+                                            View Details
                                         </button>
                                     </div>
                                 </div>
@@ -157,14 +316,15 @@ export default function TeamManager() {
                 </div>
             )}
 
-            {/* Activity Modal */}
+            {/* Staff Detail Modal */}
             {selectedStaff && (
                 <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
-                    <div className="bg-surface w-full max-w-2xl rounded-xl shadow-lg p-6 animate-in fade-in zoom-in duration-200 max-h-[80vh] flex flex-col">
-                        <div className="flex justify-between items-center mb-6">
+                    <div className="bg-surface w-full max-w-2xl rounded-xl shadow-lg p-6 animate-in fade-in zoom-in duration-200 max-h-[85vh] flex flex-col">
+                        {/* Header */}
+                        <div className="flex justify-between items-center mb-4">
                             <div>
-                                <h3 className="text-xl font-bold text-jet font-heading">{selectedStaff.name}'s Activity</h3>
-                                <p className="text-sm text-jet-700">Recent shifts and performance</p>
+                                <h3 className="text-xl font-bold text-jet font-heading">{selectedStaff.name}</h3>
+                                <p className="text-sm text-jet-700">{selectedStaff.email || selectedStaff.phone} · {selectedStaff.role}</p>
                             </div>
                             <button
                                 onClick={() => setSelectedStaff(null)}
@@ -174,42 +334,156 @@ export default function TeamManager() {
                             </button>
                         </div>
 
+                        {/* Summary KPIs (from sales data) */}
+                        {staffSalesData && (
+                            <div className="grid grid-cols-3 gap-3 mb-4">
+                                <div className="bg-green-50 rounded-xl p-3 text-center border border-green-100">
+                                    <p className="text-xs text-green-700 font-semibold">Total Revenue</p>
+                                    <p className="text-lg font-bold text-green-800">{Number(staffSalesData.summary.totalRevenue).toLocaleString()} <span className="text-xs">RWF</span></p>
+                                </div>
+                                <div className="bg-blue-50 rounded-xl p-3 text-center border border-blue-100">
+                                    <p className="text-xs text-blue-700 font-semibold">Sales Count</p>
+                                    <p className="text-lg font-bold text-blue-800">{staffSalesData.summary.totalSales}</p>
+                                </div>
+                                <div className="bg-red-50 rounded-xl p-3 text-center border border-red-100">
+                                    <p className="text-xs text-red-700 font-semibold">Refunds</p>
+                                    <p className="text-lg font-bold text-red-800">{staffSalesData.summary.refunds}</p>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Tabs */}
+                        <div className="flex gap-2 mb-4 border-b border-platinum-200">
+                            <button
+                                onClick={() => setActiveTab('shifts')}
+                                className={`pb-2 px-1 text-sm font-semibold border-b-2 transition-colors ${
+                                    activeTab === 'shifts' ? 'border-gold text-jet' : 'border-transparent text-jet-500 hover:text-jet'
+                                }`}
+                            >
+                                Shift History
+                            </button>
+                            <button
+                                onClick={() => setActiveTab('sales')}
+                                className={`pb-2 px-1 text-sm font-semibold border-b-2 transition-colors ${
+                                    activeTab === 'sales' ? 'border-gold text-jet' : 'border-transparent text-jet-500 hover:text-jet'
+                                }`}
+                            >
+                                Sales ({staffSalesData?.summary.totalSales ?? '...'})
+                            </button>
+                        </div>
+
+                        {/* Tab Content */}
                         <div className="flex-1 overflow-y-auto custom-scrollbar">
-                            {loadingActivity ? (
-                                <div className="text-center py-8">Loading activity...</div>
-                            ) : staffActivity.length === 0 ? (
-                                <div className="text-center py-8 text-jet-500">No activity recorded yet.</div>
-                            ) : (
-                                <div className="space-y-4">
-                                    {staffActivity.map(shift => (
-                                        <div key={shift.id} className="border border-platinum-200 rounded-lg p-4 hover:bg-platinum-50 transition-colors">
-                                            <div className="flex justify-between items-start mb-2">
-                                                <div>
-                                                    <span className={`text-xs font-bold px-2 py-1 rounded-full ${shift.status === 'OPEN' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'
-                                                        }`}>
-                                                        {shift.status}
-                                                    </span>
-                                                    <p className="text-sm font-medium text-jet mt-2">
-                                                        {new Date(shift.start_time).toLocaleDateString()}
-                                                    </p>
-                                                    <p className="text-xs text-jet-500">
-                                                        {new Date(shift.start_time).toLocaleTimeString()} - {shift.end_time ? new Date(shift.end_time).toLocaleTimeString() : 'Ongoing'}
-                                                    </p>
-                                                </div>
-                                                <div className="text-right">
-                                                    <p className="text-sm text-jet-700">Expected: <span className="font-medium">{Number(shift.expected_cash).toLocaleString()} RWF</span></p>
-                                                    {shift.actual_cash !== null && (
-                                                        <p className="text-sm text-jet-700">Actual: <span className="font-medium">{Number(shift.actual_cash).toLocaleString()} RWF</span></p>
-                                                    )}
-                                                    {shift.difference !== undefined && shift.difference !== null && shift.difference !== 0 && (
-                                                        <p className={`text-sm font-bold ${shift.difference < 0 ? 'text-red-500' : 'text-green-500'}`}>
-                                                            {shift.difference > 0 ? '+' : ''}{Number(shift.difference).toLocaleString()} RWF
+                            {activeTab === 'shifts' ? (
+                                loadingActivity ? (
+                                    <div className="text-center py-8 text-jet-500">Loading shifts...</div>
+                                ) : staffActivity.length === 0 ? (
+                                    <div className="text-center py-8 text-jet-500">No shifts recorded yet.</div>
+                                ) : (
+                                    <div className="space-y-3">
+                                        {staffActivity.map(shift => (
+                                            <div key={shift.id} className="border border-platinum-200 rounded-lg p-4 hover:bg-platinum-50 transition-colors">
+                                                <div className="flex justify-between items-start">
+                                                    <div>
+                                                        <span className={`text-xs font-bold px-2 py-1 rounded-full ${shift.status === 'OPEN' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'}`}>
+                                                            {shift.status}
+                                                        </span>
+                                                        <p className="text-sm font-medium text-jet mt-2">{new Date(shift.start_time).toLocaleDateString()}</p>
+                                                        <p className="text-xs text-jet-500">
+                                                            {new Date(shift.start_time).toLocaleTimeString()} → {shift.end_time ? new Date(shift.end_time).toLocaleTimeString() : 'Ongoing'}
                                                         </p>
-                                                    )}
+                                                    </div>
+                                                    <div className="text-right">
+                                                        <p className="text-sm text-jet-700">Expected: <span className="font-medium">{Number(shift.expected_cash).toLocaleString()} RWF</span></p>
+                                                        {shift.actual_cash != null && (
+                                                            <p className="text-sm text-jet-700">Actual: <span className="font-medium">{Number(shift.actual_cash).toLocaleString()} RWF</span></p>
+                                                        )}
+                                                        {shift.difference != null && shift.difference !== 0 && (
+                                                            <p className={`text-sm font-bold ${shift.difference < 0 ? 'text-red-500' : 'text-green-500'}`}>
+                                                                {shift.difference > 0 ? '+' : ''}{Number(shift.difference).toLocaleString()} RWF
+                                                            </p>
+                                                        )}
+                                                    </div>
                                                 </div>
                                             </div>
+                                        ))}
+                                    </div>
+                                )
+                            ) : (
+                                <div>
+                                    {/* Date filter bar */}
+                                    <div className="flex flex-wrap items-center gap-2 mb-4 p-3 bg-platinum-50 rounded-xl border border-platinum-200">
+                                        <div className="flex items-center gap-1.5">
+                                            <label className="text-xs font-semibold text-jet-600">From</label>
+                                            <input
+                                                type="date"
+                                                value={salesDateRange.start}
+                                                onChange={e => setSalesDateRange(r => ({ ...r, start: e.target.value }))}
+                                                className="text-xs border border-platinum-300 rounded-lg px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-gold/30"
+                                            />
                                         </div>
-                                    ))}
+                                        <div className="flex items-center gap-1.5">
+                                            <label className="text-xs font-semibold text-jet-600">To</label>
+                                            <input
+                                                type="date"
+                                                value={salesDateRange.end}
+                                                onChange={e => setSalesDateRange(r => ({ ...r, end: e.target.value }))}
+                                                className="text-xs border border-platinum-300 rounded-lg px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-gold/30"
+                                            />
+                                        </div>
+                                        <button
+                                            onClick={handleApplySalesDateFilter}
+                                            className="text-xs px-3 py-1.5 bg-gold text-onyx font-bold rounded-lg hover:bg-gold/90 transition-colors"
+                                        >
+                                            Apply
+                                        </button>
+                                        {(salesDateRange.start || salesDateRange.end) && (
+                                            <button
+                                                onClick={handleClearSalesDateFilter}
+                                                className="text-xs px-3 py-1.5 bg-platinum-200 text-jet-600 font-bold rounded-lg hover:bg-platinum-300 transition-colors"
+                                            >
+                                                Clear
+                                            </button>
+                                        )}
+                                    </div>
+
+                                    {loadingSales ? (
+                                        <div className="text-center py-8 text-jet-500">Loading sales...</div>
+                                    ) : !staffSalesData || staffSalesData.sales.length === 0 ? (
+                                        <div className="text-center py-8 text-jet-500">No sales found for selected period.</div>
+                                ) : (
+                                    <div className="space-y-3">
+                                        {staffSalesData.sales.map(sale => (
+                                            <div key={sale.id} className="border border-platinum-200 rounded-lg p-4 hover:bg-platinum-50 transition-colors">
+                                                <div className="flex justify-between items-center">
+                                                    <div>
+                                                        <div className="flex items-center gap-2">
+                                                            <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${
+                                                                sale.status === 'COMPLETED' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
+                                                            }`}>
+                                                                {sale.status}
+                                                            </span>
+                                                            <span className="text-xs bg-platinum-100 text-jet-600 px-2 py-0.5 rounded-full font-medium">{sale.payment_method}</span>
+                                                        </div>
+                                                        <p className="text-xs text-jet-500 mt-1">
+                                                            {new Date(sale.created_at).toLocaleString()}
+                                                        </p>
+                                                        {sale.items?.length > 0 && (
+                                                            <p className="text-xs text-jet-500 mt-0.5">
+                                                                {sale.items.length} item{sale.items.length > 1 ? 's' : ''}: {sale.items.map(i => i.productName).join(', ')}
+                                                            </p>
+                                                        )}
+                                                    </div>
+                                                    <div className="text-right">
+                                                        <p className={`text-lg font-bold ${sale.status === 'REFUNDED' ? 'text-red-500 line-through' : 'text-jet'}`}>
+                                                            {Number(sale.total).toLocaleString()} RWF
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                    )}
                                 </div>
                             )}
                         </div>

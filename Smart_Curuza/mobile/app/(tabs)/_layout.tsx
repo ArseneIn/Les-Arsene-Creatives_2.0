@@ -85,6 +85,12 @@ export default function TabLayout() {
                     tabBarLabel: 'Profile',
                 }}
             />
+            <Tabs.Screen
+                name="team"
+                options={{
+                    href: null,
+                }}
+            />
         </Tabs>
     );
 }

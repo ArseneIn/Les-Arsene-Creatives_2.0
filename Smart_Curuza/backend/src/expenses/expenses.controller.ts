@@ -16,7 +16,7 @@ import type { AuthenticatedUser } from '../auth/types';
 @Controller('expenses')
 @UseGuards(JwtAuthGuard)
 export class ExpensesController {
-  constructor(private readonly expensesService: ExpensesService) { }
+  constructor(private readonly expensesService: ExpensesService) {}
 
   @Post()
   create(@Body() data: any, @CurrentUser() user: AuthenticatedUser) {

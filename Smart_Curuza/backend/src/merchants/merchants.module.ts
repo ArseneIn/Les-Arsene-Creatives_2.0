@@ -24,4 +24,4 @@ import { ShiftsService } from './shifts.service';
   providers: [MerchantsService, StaffService, ShiftsService],
   exports: [MerchantsService, StaffService, ShiftsService],
 })
-export class MerchantsModule { }
+export class MerchantsModule {}

@@ -1,14 +1,16 @@
 'use client';
 
-import { Bell, User } from 'lucide-react';
+import { Bell, User, Wifi, WifiOff } from 'lucide-react';
 import LanguageSwitcher from './LanguageSwitcher';
 import { useEffect, useState } from 'react';
 import { api } from '@/lib/api';
 import NotificationDropdown from './NotificationDropdown';
 import { useTranslations } from 'next-intl';
+import { useSync } from './SyncProvider';
 
 const Header = () => {
     const t = useTranslations('Header');
+    const { isOffline } = useSync();
     const [user, setUser] = useState<{ name: string; role: string } | null>(null);
     const [shopName, setShopName] = useState<string>("");
     const [location, setLocation] = useState<string>("");
@@ -60,7 +62,7 @@ const Header = () => {
                         <div>
                             <h2 className="text-lg font-bold text-white">{shopName || t('loading')}</h2>
                             <p className="text-sm text-gray-400 flex items-center gap-1">
-                                <span className="w-1.5 h-1.5 rounded-full bg-green-500"></span>
+                                <span className={`w-1.5 h-1.5 rounded-full transition-colors duration-500 ${isOffline ? 'bg-orange-400' : 'bg-green-500'}`}></span>
                                 {location || '...'}
                             </p>
                         </div>
@@ -71,9 +73,28 @@ const Header = () => {
             </div>
             <div className="flex items-center space-x-6">
                 {(user?.role === 'MERCHANT' || user?.role === 'CASHIER') && (
-                    <div className="flex items-center gap-2 bg-green-500/10 px-3 py-1.5 rounded-full border border-green-500/20">
-                        <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                        <span className="text-sm font-medium text-green-400">{t('online')}</span>
+                    <div
+                        className="flex items-center gap-2 px-3 py-1.5 rounded-full border transition-all duration-500"
+                        style={isOffline ? {
+                            background: 'rgba(239,68,68,0.12)',
+                            borderColor: 'rgba(239,68,68,0.3)',
+                        } : {
+                            background: 'rgba(34,197,94,0.1)',
+                            borderColor: 'rgba(34,197,94,0.2)',
+                        }}
+                    >
+                        {isOffline ? (
+                            <>
+                                <WifiOff className="w-3.5 h-3.5 text-red-400" />
+                                <span className="text-sm font-medium text-red-400">{t('offline')}</span>
+                                <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+                            </>
+                        ) : (
+                            <>
+                                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+                                <span className="text-sm font-medium text-green-400">{t('online')}</span>
+                            </>
+                        )}
                     </div>
                 )}
 

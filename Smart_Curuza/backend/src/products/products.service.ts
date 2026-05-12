@@ -13,7 +13,7 @@ export class ProductsService {
     private productsRepository: Repository<Product>,
     private batchesService: BatchesService,
     private notificationsService: NotificationsService,
-  ) { }
+  ) {}
 
   async findAll(merchantId?: string): Promise<any[]> {
     const whereClause = merchantId ? { merchant_id: merchantId } : {};
