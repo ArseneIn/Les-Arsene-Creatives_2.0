@@ -4,6 +4,7 @@ import * as Haptics from 'expo-haptics';
 import { ShoppingCart, Package, Bell, Eye, Users, Settings, Smartphone, Headphones, FileText } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import { useTheme } from '../lib/theme/ThemeContext';
+import { useAuth } from '../lib/auth/AuthContext';
 
 // Screen width minus padding
 const { width } = Dimensions.get('window');
@@ -39,22 +40,34 @@ const QuickActionItem = ({ icon: Icon, label, onPress, color, bgColor }: QuickAc
 export default function QuickActions() {
     const router = useRouter();
     const { colors, isDarkMode } = useTheme();
+    const { user } = useAuth();
     const [activeIndex, setActiveIndex] = useState(0);
 
-    const actions = [
-        { icon: Package, label: 'Inventory', color: '#fbe134', bgColor: 'rgba(251, 225, 52, 0.1)', onPress: () => router.push('/inventory') },
-        { icon: Users, label: 'Contacts', color: '#8B5CF6', bgColor: '#EDE9FE', onPress: () => {} },
-        { icon: Bell, label: 'Expenses', color: '#EF4444', bgColor: '#FEE2E2', onPress: () => {} },
-        { icon: Smartphone, label: 'Activity', color: '#EC4899', bgColor: '#FCE7F3', onPress: () => {} },
-        { icon: Eye, label: 'Catalog', color: '#06B6D4', bgColor: '#CFFAFE', onPress: () => {} },
-        { icon: Settings, label: 'Settings', color: '#6B7280', bgColor: '#F3F4F6', onPress: () => {} },
-        { icon: Headphones, label: 'Support', color: '#F97316', bgColor: '#FFEDD5', onPress: () => {} },
+    const isCashier = user?.role === 'CASHIER';
+
+    const allActions = [
+        { id: 'inventory', icon: Package, label: 'Inventory', color: '#fbe134', bgColor: 'rgba(251, 225, 52, 0.1)', onPress: () => router.push('/inventory') },
+        { id: 'contacts', icon: Users, label: 'Contacts', color: '#8B5CF6', bgColor: '#EDE9FE', onPress: () => {} },
+        { id: 'expenses', icon: Bell, label: 'Expenses', color: '#EF4444', bgColor: '#FEE2E2', onPress: () => {} },
+        { id: 'activity', icon: Smartphone, label: 'Activity', color: '#EC4899', bgColor: '#FCE7F3', onPress: () => {} },
+        { id: 'catalog', icon: Eye, label: 'Catalog', color: '#06B6D4', bgColor: '#CFFAFE', onPress: () => {} },
+        { id: 'settings', icon: Settings, label: 'Settings', color: '#6B7280', bgColor: '#F3F4F6', onPress: () => {} },
+        { id: 'support', icon: Headphones, label: 'Support', color: '#F97316', bgColor: '#FFEDD5', onPress: () => {} },
     ];
 
-    // Chunk actions into arrays of 3
+    const actions = allActions.filter(action => {
+        if (isCashier && (action.id === 'expenses' || action.id === 'settings')) return false;
+        return true;
+    });
+
+    // Dynamic items per row based on count (max 3)
+    const itemsPerRow = actions.length <= 4 ? (actions.length <= 2 ? actions.length : 2) : 3;
+    const itemWidth = `${100 / itemsPerRow}%`;
+
+    // Chunk actions based on calculated itemsPerRow
     const chunkedActions = [];
-    for (let i = 0; i < actions.length; i += 3) {
-        chunkedActions.push(actions.slice(i, i + 3));
+    for (let i = 0; i < actions.length; i += itemsPerRow) {
+        chunkedActions.push(actions.slice(i, i + itemsPerRow));
     }
 
     const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
@@ -84,7 +97,7 @@ export default function QuickActions() {
                     {chunkedActions.map((chunk, pageIndex) => (
                         <View key={pageIndex} style={styles.slidePage}>
                             {chunk.map((action, actionIndex) => (
-                                <View key={actionIndex} style={styles.itemWrapper}>
+                                <View key={actionIndex} style={[styles.itemWrapper, { width: itemWidth }]}>
                                     <QuickActionItem 
                                         icon={action.icon}
                                         label={action.label}
@@ -94,9 +107,9 @@ export default function QuickActions() {
                                     />
                                 </View>
                             ))}
-                            {/* Empty placeholders to keep spacing consistent on the last page if < 3 items */}
-                            {chunk.length < 3 && Array.from({ length: 3 - chunk.length }).map((_, i) => (
-                                <View key={`empty-${i}`} style={styles.itemWrapper} />
+                            {/* Empty placeholders to keep spacing consistent on the last page */}
+                            {chunk.length < itemsPerRow && Array.from({ length: itemsPerRow - chunk.length }).map((_, i) => (
+                                <View key={`empty-${i}`} style={[styles.itemWrapper, { width: itemWidth }]} />
                             ))}
                         </View>
                     ))}

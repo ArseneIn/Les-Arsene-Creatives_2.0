@@ -56,11 +56,13 @@ const Sidebar = () => {
             <NavItem href={`/${currentLocale}/merchant/sales/history`} icon={FileText} label={t('salesHistory')} />
             <NavItem href={`/${currentLocale}/merchant/inventory`} icon={Package} label={t('inventory')} />
             {role !== 'CASHIER' && (
-                <NavItem href={`/${currentLocale}/merchant/reports`} icon={BarChart} label={t('reports')} />
+                <>
+                    <NavItem href={`/${currentLocale}/merchant/reports`} icon={BarChart} label={t('reports')} />
+                    <NavItem href={`/${currentLocale}/merchant/expenses`} icon={CreditCard} label={t('expenses')} />
+                    <NavItem href={`/${currentLocale}/merchant/crm`} icon={Users} label={t('crm')} />
+                    <NavItem href={`/${currentLocale}/merchant/settings`} icon={Settings} label={t('settings')} />
+                </>
             )}
-            <NavItem href={`/${currentLocale}/merchant/expenses`} icon={CreditCard} label={t('expenses')} />
-            <NavItem href={`/${currentLocale}/merchant/crm`} icon={Users} label={t('crm')} />
-            <NavItem href={`/${currentLocale}/merchant/settings`} icon={Settings} label={t('settings')} />
         </>
     );
 

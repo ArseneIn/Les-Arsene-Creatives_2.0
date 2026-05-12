@@ -381,8 +381,10 @@ const styles = StyleSheet.create({
         paddingBottom: 12,
     },
     navScroll: {
+        flexGrow: 1,
+        justifyContent: 'center',
         paddingHorizontal: 24,
-        gap: 24,
+        gap: 32, // Slightly more gap for better touch targets when centered
     },
     navItem: {
         alignItems: 'center',

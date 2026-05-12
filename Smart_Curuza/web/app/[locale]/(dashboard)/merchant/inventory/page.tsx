@@ -140,7 +140,7 @@ export default function InventoryPage() {
             accessorKey: 'price' as keyof Product,
             cell: (item: Product) => <span>{Number(item.price).toLocaleString()} RWF</span>,
         },
-        {
+        ...(role !== 'CASHIER' ? [{
             header: 'Total Value',
             accessorKey: 'total_stock_value' as keyof Product,
             cell: (item: Product) => (
@@ -148,7 +148,7 @@ export default function InventoryPage() {
                     {item.total_stock_value ? item.total_stock_value.toLocaleString() : '0'} RWF
                 </span>
             ),
-        },
+        }] : []),
         {
             header: 'Available Stock',
             accessorKey: 'stock' as keyof Product,
@@ -268,13 +268,15 @@ export default function InventoryPage() {
             />
 
             {/* Inventory Summary */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                <div className="bg-surface p-4 rounded-xl border border-platinum-600 shadow-sm">
-                    <p className="text-sm text-jet-700 font-medium">Total Inventory Value</p>
-                    <p className="text-2xl font-bold text-jet font-heading mt-1">
-                        {products.reduce((sum, p) => sum + (p.total_stock_value || 0), 0).toLocaleString()} RWF
-                    </p>
-                </div>
+            <div className={`grid grid-cols-1 ${role === 'CASHIER' ? 'md:grid-cols-2' : 'md:grid-cols-3'} gap-4 mb-6`}>
+                {role !== 'CASHIER' && (
+                    <div className="bg-surface p-4 rounded-xl border border-platinum-600 shadow-sm">
+                        <p className="text-sm text-jet-700 font-medium">Total Inventory Value</p>
+                        <p className="text-2xl font-bold text-jet font-heading mt-1">
+                            {products.reduce((sum, p) => sum + (p.total_stock_value || 0), 0).toLocaleString()} RWF
+                        </p>
+                    </div>
+                )}
                 <div className="bg-surface p-4 rounded-xl border border-platinum-600 shadow-sm">
                     <p className="text-sm text-jet-700 font-medium">Total Products</p>
                     <p className="text-2xl font-bold text-jet font-heading mt-1">

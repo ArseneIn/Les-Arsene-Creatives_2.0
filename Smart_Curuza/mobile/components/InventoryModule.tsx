@@ -139,7 +139,7 @@ export default function InventoryModule() {
     const totalItems = inventory.length;
     const lowStockItems = inventory.filter(i => i.status === 'Low Stock' || i.status === 'Out of Stock').length;
     const inventoryValue = inventory.reduce((acc, item) => acc + (item.stock * item.price), 0);
-    const potentialProfit = inventory.reduce((acc, item) => acc + (item.stock * (item.price - item.cost_price)), 0);
+    const potentialProfit = inventory.reduce((acc, item) => acc + (item.stock * (item.price - (item.cost_price || 0))), 0);
 
     const filteredInventory = inventory.filter(i => 
         i.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
@@ -186,11 +186,15 @@ export default function InventoryModule() {
                     <Text style={[styles.finLabel, { color: colors.textSecondary }]}>Stock Level</Text>
                     <Text style={[styles.finValue, { color: colors.textPrimary }, item.stock <= 10 && { color: colors.danger }]}>{item.stock} <Text style={[styles.currency, { color: colors.textSecondary }]}>{item.unit}</Text></Text>
                 </View>
-                <View style={[styles.finItemDivider, { backgroundColor: colors.border }]} />
-                <View style={styles.finItemMid}>
-                    <Text style={[styles.finLabel, { color: colors.textSecondary }]}>Unit Cost</Text>
-                    <Text style={[styles.finValue, { color: colors.textPrimary }]}>{item.cost_price.toLocaleString()} <Text style={[styles.currency, { color: colors.textSecondary }]}>RWF</Text></Text>
-                </View>
+                {!isCashier && (
+                    <>
+                        <View style={[styles.finItemDivider, { backgroundColor: colors.border }]} />
+                        <View style={styles.finItemMid}>
+                            <Text style={[styles.finLabel, { color: colors.textSecondary }]}>Unit Cost</Text>
+                            <Text style={[styles.finValue, { color: colors.textPrimary }]}>{item.cost_price.toLocaleString()} <Text style={[styles.currency, { color: colors.textSecondary }]}>RWF</Text></Text>
+                        </View>
+                    </>
+                )}
                 <View style={[styles.finItemDivider, { backgroundColor: colors.border }]} />
                 <View style={styles.finItemRight}>
                     <Text style={[styles.finLabel, { color: colors.textSecondary }]}>Unit Price</Text>
@@ -238,22 +242,34 @@ export default function InventoryModule() {
         <View style={styles.container}>
             {/* Macro Summary */}
             <View style={styles.summaryContainer}>
-                <View style={[styles.summaryCardMain, { backgroundColor: colors.card, borderColor: colors.border }]}>
-                    <Text style={[styles.summaryLabel, { color: colors.textSecondary }]}>Total Projected Revenue</Text>
-                    <Text style={[styles.summaryValueMain, { color: colors.textPrimary }]}>{inventoryValue.toLocaleString()} <Text style={{fontSize: 14, color: colors.textSecondary}}>RWF</Text></Text>
-                    <Text style={[styles.summaryLabelSub, { color: colors.brandGreen }]}>Margin: {potentialProfit.toLocaleString()} RWF</Text>
-                </View>
+                {!isCashier ? (
+                    <View style={[styles.summaryCardMain, { backgroundColor: colors.card, borderColor: colors.border }]}>
+                        <Text style={[styles.summaryLabel, { color: colors.textSecondary }]}>Total Projected Revenue</Text>
+                        <Text style={[styles.summaryValueMain, { color: colors.textPrimary }]}>{inventoryValue.toLocaleString()} <Text style={{fontSize: 14, color: colors.textSecondary}}>RWF</Text></Text>
+                        <Text style={[styles.summaryLabelSub, { color: colors.brandGreen }]}>Margin: {potentialProfit.toLocaleString()} RWF</Text>
+                    </View>
+                ) : (
+                    <View style={[styles.summaryCardMain, { backgroundColor: colors.card, borderColor: colors.border }]}>
+                        <Text style={[styles.summaryLabel, { color: colors.textSecondary }]}>Total Stock Items</Text>
+                        <Text style={[styles.summaryValueMain, { color: colors.textPrimary }]}>{totalItems}</Text>
+                        <Text style={[styles.summaryLabelSub, { color: colors.danger }]}>{lowStockItems} Items need restocking</Text>
+                    </View>
+                )}
 
                 <View style={[styles.summaryCardSub, { backgroundColor: colors.card, borderColor: colors.border }]}>
                     <View style={styles.subItem}>
-                        <Text style={[styles.subLabel, { color: colors.textSecondary }]}>Total SKUs</Text>
-                        <Text style={[styles.subValue, { color: colors.textPrimary }]}>{totalItems}</Text>
+                        <Text style={[styles.subLabel, { color: colors.textSecondary }]}>Categories</Text>
+                        <Text style={[styles.subValue, { color: colors.textPrimary }]}>{Array.from(new Set(inventory.map(i => i.category))).length}</Text>
                     </View>
-                    <View style={[styles.subDivider, { backgroundColor: colors.border }]} />
-                    <View style={styles.subItem}>
-                        <Text style={[styles.subLabel, { color: colors.textSecondary }]}>Alerts</Text>
-                        <Text style={[styles.subValue, { color: colors.danger }]}>{lowStockItems}</Text>
-                    </View>
+                    {!isCashier && (
+                        <>
+                            <View style={[styles.subDivider, { backgroundColor: colors.border }]} />
+                            <View style={styles.subItem}>
+                                <Text style={[styles.subLabel, { color: colors.textSecondary }]}>Alerts</Text>
+                                <Text style={[styles.subValue, { color: colors.danger }]}>{lowStockItems}</Text>
+                            </View>
+                        </>
+                    )}
                 </View>
             </View>
 

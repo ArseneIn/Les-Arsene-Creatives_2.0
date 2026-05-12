@@ -1,78 +1,78 @@
 import React, { useState } from 'react';
-import { View, Text, FlatList, TouchableOpacity, Image, StyleSheet, TextInput } from 'react-native';
-import { Search, Plus } from 'lucide-react-native';
-import { Product } from '../lib/types';
+import { View, Text, FlatList, TouchableOpacity, StyleSheet, TextInput } from 'react-native';
+import { Search } from 'lucide-react-native';
+import { Product, CartItem } from '../lib/types';
 import ProductCard from './ProductCard';
+import { useTheme } from '../lib/theme/ThemeContext';
 
 interface ProductGridProps {
     products: Product[];
+    cart: CartItem[];
     onAddToCart: (product: Product) => void;
+    onDecrement: (productId: string) => void;
 }
 
-export default function ProductGrid({ products, onAddToCart }: ProductGridProps) {
+export default function ProductGrid({ products, cart, onAddToCart, onDecrement }: ProductGridProps) {
+    const { colors } = useTheme();
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedCategory, setSelectedCategory] = useState('All');
 
-    // Only show items with stock > 0
     const availableProducts = products.filter(p => p.stock > 0);
-
-    // Filter out empty/null categories. No more "General" placeholder.
     const uniqueCategories = [...new Set(availableProducts.map(p => p.category).filter((c): c is string => Boolean(c)))];
     const categories = uniqueCategories.length > 0 ? ['All', ...uniqueCategories] : [];
 
     const filteredProducts = availableProducts.filter(p => {
-        const matchesSearch = p.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+        const matchesSearch = p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
                              p.barcode?.includes(searchQuery);
         const matchesCategory = selectedCategory === 'All' || p.category === selectedCategory;
         return matchesSearch && matchesCategory;
     });
 
-    const renderItem = ({ item }: { item: Product }) => (
-        <View style={styles.cardWrapper}>
-            <ProductCard product={item} onAddToCart={onAddToCart} />
-        </View>
-    );
+    const getCartQty = (productId: string) => {
+        const item = cart.find(i => i.id === productId);
+        return item ? item.quantity : 0;
+    };
 
     const renderHeader = () => (
         <View>
-            {/* Search Section */}
-            <View style={styles.searchSection}>
-                <View style={styles.searchContainer}>
-                    <Search size={20} color="#6B7280" style={styles.searchIcon} />
-                    <TextInput
-                        style={styles.searchInput}
-                        placeholder="Search for products..."
-                        value={searchQuery}
-                        onChangeText={setSearchQuery}
-                        placeholderTextColor="#6B7280"
-                        selectionColor="#2a2e34"
-                    />
-                </View>
+            {/* Search */}
+            <View style={[styles.searchContainer, { backgroundColor: colors.card, borderColor: colors.border }]}>
+                <Search size={18} color={colors.textSecondary} style={{ marginRight: 10 }} />
+                <TextInput
+                    style={[styles.searchInput, { color: colors.textPrimary }]}
+                    placeholder="Search products..."
+                    placeholderTextColor={colors.textSecondary}
+                    value={searchQuery}
+                    onChangeText={setSearchQuery}
+                    selectionColor={colors.brandGold}
+                />
             </View>
 
-            {/* Categories Section - Only show if there are actual categories */}
+            {/* Category chips */}
             {categories.length > 1 && (
-                <View style={styles.categoriesSection}>
+                <View style={styles.categoriesRow}>
                     <FlatList
                         data={categories}
                         horizontal
                         showsHorizontalScrollIndicator={false}
                         keyExtractor={item => item}
-                        contentContainerStyle={styles.categoryList}
+                        contentContainerStyle={{ gap: 8, paddingRight: 4 }}
                         renderItem={({ item }) => (
                             <TouchableOpacity
                                 style={[
-                                    styles.categoryChip,
-                                    selectedCategory === item && styles.categoryChipActive
+                                    styles.chip,
+                                    { backgroundColor: colors.card, borderColor: colors.border },
+                                    selectedCategory === item && { backgroundColor: 'rgba(251,225,52,0.1)', borderColor: '#fbe134' }
                                 ]}
                                 onPress={() => setSelectedCategory(item)}
                                 activeOpacity={0.7}
                             >
                                 <Text style={[
-                                    styles.categoryText,
-                                    selectedCategory === item && styles.categoryTextActive
+                                    styles.chipText,
+                                    { color: colors.textSecondary },
+                                    selectedCategory === item && { color: '#fbe134' }
                                 ]}>
-                                    {item as string}
+                                    {item}
                                 </Text>
                             </TouchableOpacity>
                         )}
@@ -86,7 +86,16 @@ export default function ProductGrid({ products, onAddToCart }: ProductGridProps)
         <View style={styles.container}>
             <FlatList
                 data={filteredProducts}
-                renderItem={renderItem}
+                renderItem={({ item }) => (
+                    <View style={styles.cardWrapper}>
+                        <ProductCard
+                            product={item}
+                            cartQty={getCartQty(item.id)}
+                            onAddToCart={onAddToCart}
+                            onDecrement={onDecrement}
+                        />
+                    </View>
+                )}
                 keyExtractor={item => item.id}
                 numColumns={2}
                 columnWrapperStyle={styles.row}
@@ -95,106 +104,47 @@ export default function ProductGrid({ products, onAddToCart }: ProductGridProps)
                 ListHeaderComponent={renderHeader}
                 ListEmptyComponent={
                     <View style={styles.emptyContainer}>
-                        <View style={styles.emptyIconCircle}>
-                            <Search size={40} color="#374151" />
-                        </View>
-                        <Text style={styles.emptyText}>No products found</Text>
-                        <Text style={styles.emptySubText}>Try adjusting your search or filters</Text>
+                        <Search size={40} color={colors.textSecondary} />
+                        <Text style={[styles.emptyText, { color: colors.textPrimary }]}>No products found</Text>
+                        <Text style={[styles.emptySubText, { color: colors.textSecondary }]}>Try adjusting your search</Text>
                     </View>
                 }
             />
         </View>
-
     );
 }
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-    },
-    searchSection: {
-        paddingHorizontal: 2,
-    },
+    container: { flex: 1 },
     searchContainer: {
         flexDirection: 'row',
         alignItems: 'center',
-        backgroundColor: '#2a2e34', // Dark surface
-        borderRadius: 12, 
-        paddingHorizontal: 16,
-        height: 44, 
-        marginBottom: 16,
+        borderRadius: 12,
+        paddingHorizontal: 14,
+        height: 44,
+        marginBottom: 12,
         borderWidth: 1,
-        borderColor: 'rgba(255, 255, 255, 0.05)',
-    },
-    searchIcon: {
-        marginRight: 10,
     },
     searchInput: {
         flex: 1,
         fontSize: 14,
         fontFamily: 'Montserrat_500Medium',
-        color: '#FFFFFF', // White text
     },
-    categoriesSection: {
-        marginBottom: 20,
-    },
-    categoryList: {
-        paddingHorizontal: 2,
-        gap: 8,
-    },
-    categoryChip: {
-        paddingHorizontal: 18,
-        paddingVertical: 10,
-        borderRadius: 12,
-        backgroundColor: 'rgba(255, 255, 255, 0.03)',
+    categoriesRow: { marginBottom: 16 },
+    chip: {
+        paddingHorizontal: 14,
+        paddingVertical: 8,
+        borderRadius: 20,
         borderWidth: 1,
-        borderColor: 'rgba(255, 255, 255, 0.06)',
     },
-    categoryChipActive: {
-        backgroundColor: 'rgba(251, 225, 52, 0.1)', // Subtle tinted glow instead of solid fill
-        borderColor: '#fbe134',
-    },
-    categoryText: {
-        fontSize: 13,
+    chipText: {
+        fontSize: 12,
         fontFamily: 'Montserrat_600SemiBold',
-        color: '#9CA3AF',
     },
-    categoryTextActive: {
-        color: '#fbe134', // Match the tint
-    },
-    listContent: {
-        paddingBottom: 120,
-    },
-    row: {
-        justifyContent: 'space-between',
-        marginBottom: 8,
-    },
-    cardWrapper: {
-        width: '48%',
-    },
-    emptyContainer: {
-        alignItems: 'center',
-        justifyContent: 'center',
-        paddingTop: 60,
-    },
-    emptyIconCircle: {
-        width: 80,
-        height: 80,
-        borderRadius: 40,
-        backgroundColor: 'rgba(255, 255, 255, 0.03)',
-        alignItems: 'center',
-        justifyContent: 'center',
-        marginBottom: 16,
-    },
-    emptyText: {
-        fontSize: 18,
-        fontFamily: 'Poppins_700Bold',
-        color: '#FFFFFF',
-        marginBottom: 4,
-    },
-    emptySubText: {
-        fontSize: 14,
-        fontFamily: 'Montserrat_500Medium',
-        color: '#9CA3AF',
-    },
+    listContent: { paddingBottom: 140 },
+    row: { justifyContent: 'space-between', marginBottom: 0 },
+    cardWrapper: { width: '48.5%' },
+    emptyContainer: { alignItems: 'center', justifyContent: 'center', paddingTop: 60, gap: 8 },
+    emptyText: { fontSize: 17, fontFamily: 'Poppins_700Bold', marginTop: 8 },
+    emptySubText: { fontSize: 13, fontFamily: 'Montserrat_500Medium' },
 });

@@ -22,6 +22,7 @@ export default function Profile() {
     const [showPersonalInfo, setShowPersonalInfo] = useState(false);
     const [showSecurityModal, setShowSecurityModal] = useState(false);
     const [showCloseShift, setShowCloseShift] = useState(false);
+    const [isLogoutTriggered, setIsLogoutTriggered] = useState(false);
     const [showEbmConfig, setShowEbmConfig] = useState(false);
     const [currentShiftId, setCurrentShiftId] = useState<string | null>(null);
 
@@ -158,12 +159,25 @@ export default function Profile() {
                             <MenuItem
                                 icon={LogOut}
                                 label="Close Current Shift"
-                                onPress={() => setShowCloseShift(true)}
+                                onPress={() => {
+                                    setIsLogoutTriggered(false);
+                                    setShowCloseShift(true);
+                                }}
                             />
                         </MenuSection>
                     )}
 
-                    <TouchableOpacity style={[styles.logoutButton, { backgroundColor: isDarkMode ? 'rgba(220,38,38,0.1)' : '#FEF2F2', borderColor: isDarkMode ? 'rgba(220,38,38,0.3)' : '#FECACA' }]} onPress={logout}>
+                    <TouchableOpacity 
+                        style={[styles.logoutButton, { backgroundColor: isDarkMode ? 'rgba(220,38,38,0.1)' : '#FEF2F2', borderColor: isDarkMode ? 'rgba(220,38,38,0.3)' : '#FECACA' }]} 
+                        onPress={() => {
+                            if (isCashier && currentShiftId) {
+                                setIsLogoutTriggered(true);
+                                setShowCloseShift(true);
+                            } else {
+                                logout();
+                            }
+                        }}
+                    >
                         <LogOut size={20} color={colors.danger} />
                         <Text style={[styles.logoutText, { color: colors.danger }]}>Sign Out</Text>
                     </TouchableOpacity>
@@ -191,6 +205,7 @@ export default function Profile() {
                 <CloseShiftModal
                     visible={showCloseShift}
                     shiftId={currentShiftId}
+                    fromLogout={isLogoutTriggered}
                     onClose={() => setShowCloseShift(false)}
                     onSuccess={() => {
                         setShowCloseShift(false);

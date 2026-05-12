@@ -1,4 +1,4 @@
-import * as FileSystem from 'expo-file-system';
+import * as FileSystem from 'expo-file-system/legacy';
 // ApiClient imported dynamically to break require cycle
 
 export interface QueuedRequest {

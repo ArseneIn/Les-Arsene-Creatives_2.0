@@ -5,6 +5,7 @@ import Svg, { Path, Defs, LinearGradient, Stop } from 'react-native-svg';
 import { ApiClient } from '../lib/api_client';
 import SkeletonLoader from './SkeletonLoader';
 import { useTheme } from '../lib/theme/ThemeContext';
+import { useAuth } from '../lib/auth/AuthContext';
 
 const { width } = Dimensions.get('window');
 
@@ -97,6 +98,8 @@ const DashboardSkeleton = () => {
 
 export default function DashboardStats({ period, setPeriod, data, loading }: DashboardStatsProps) {
     const { colors, isDarkMode } = useTheme();
+    const { user } = useAuth();
+    const isCashier = user?.role === 'CASHIER';
 
     if (loading || !data) {
         return <DashboardSkeleton />;
@@ -159,92 +162,94 @@ export default function DashboardStats({ period, setPeriod, data, loading }: Das
             </View>
 
             {/* Main Insight Section */}
-            <View style={styles.insightSection}>
-                <View style={styles.gaugeWrapper}>
-                    <Svg width={gaugeWidth} height={gaugeHeight} style={styles.svgGauge}>
-                        <Defs>
-                            <LinearGradient id="goldGlow" x1="0" y1="0" x2="1" y2="0">
-                                <Stop offset="0" stopColor="#B45309" stopOpacity="1" />
-                                <Stop offset="0.5" stopColor="#fbe134" stopOpacity="1" />
-                                <Stop offset="1" stopColor="#FDE047" stopOpacity="1" />
-                            </LinearGradient>
-                        </Defs>
-                        
-                        {/* Glowing backdrop path for 3D effect */}
-                        <Path 
-                            d={arcPath}
-                            stroke="#fbe134"
-                            strokeWidth={strokeWidth + 8}
-                            strokeOpacity={0.15}
-                            fill="none"
-                            strokeLinecap="round"
-                            strokeDasharray={`${circumference} ${circumference}`}
-                            strokeDashoffset={calculateYieldOffset(data.yieldRate)}
-                        />
-                        
-                        {/* Background track */}
-                        <Path 
-                            d={arcPath}
-                            stroke={colors.border}
-                            strokeWidth={strokeWidth}
-                            fill="none"
-                            strokeLinecap="round"
-                        />
-                        
-                        {/* Fill track with gradient */}
-                        <Path 
-                            d={arcPath}
-                            stroke="url(#goldGlow)"
-                            strokeWidth={strokeWidth}
-                            fill="none"
-                            strokeLinecap="round"
-                            strokeDasharray={`${circumference} ${circumference}`}
-                            strokeDashoffset={calculateYieldOffset(data.yieldRate)}
-                        />
-                    </Svg>
+            {!isCashier && (
+                <View style={styles.insightSection}>
+                    <View style={styles.gaugeWrapper}>
+                        <Svg width={gaugeWidth} height={gaugeHeight} style={styles.svgGauge}>
+                            <Defs>
+                                <LinearGradient id="goldGlow" x1="0" y1="0" x2="1" y2="0">
+                                    <Stop offset="0" stopColor="#B45309" stopOpacity="1" />
+                                    <Stop offset="0.5" stopColor="#fbe134" stopOpacity="1" />
+                                    <Stop offset="1" stopColor="#FDE047" stopOpacity="1" />
+                                </LinearGradient>
+                            </Defs>
+                            
+                            {/* Glowing backdrop path for 3D effect */}
+                            <Path 
+                                d={arcPath}
+                                stroke="#fbe134"
+                                strokeWidth={strokeWidth + 8}
+                                strokeOpacity={0.15}
+                                fill="none"
+                                strokeLinecap="round"
+                                strokeDasharray={`${circumference} ${circumference}`}
+                                strokeDashoffset={calculateYieldOffset(data.yieldRate)}
+                            />
+                            
+                            {/* Background track */}
+                            <Path 
+                                d={arcPath}
+                                stroke={colors.border}
+                                strokeWidth={strokeWidth}
+                                fill="none"
+                                strokeLinecap="round"
+                            />
+                            
+                            {/* Fill track with gradient */}
+                            <Path 
+                                d={arcPath}
+                                stroke="url(#goldGlow)"
+                                strokeWidth={strokeWidth}
+                                fill="none"
+                                strokeLinecap="round"
+                                strokeDasharray={`${circumference} ${circumference}`}
+                                strokeDashoffset={calculateYieldOffset(data.yieldRate)}
+                            />
+                        </Svg>
 
-                    <View style={styles.gaugeValueContainer}>
-                        <Text style={[styles.marginValue, { color: colors.textPrimary, textShadowColor: colors.overlay }]}>
-                            {(data.yieldRate || 0).toFixed(1)}%
-                        </Text>
-                        <Text style={styles.netProfitLabel}>PROFIT MARGIN</Text>
+                        <View style={styles.gaugeValueContainer}>
+                            <Text style={[styles.marginValue, { color: colors.textPrimary, textShadowColor: colors.overlay }]}>
+                                {(data.yieldRate || 0).toFixed(1)}%
+                            </Text>
+                            <Text style={styles.netProfitLabel}>PROFIT MARGIN</Text>
+                        </View>
+                    </View>
+
+                    {/* KPI Sub-row directly below graph */}
+                    <View style={styles.kpiRow}>
+                        <View style={styles.kpiItem}>
+                            <Text style={styles.metricLabel}>NET PROFIT</Text>
+                            <Text style={[styles.metricValueGreen, { color: colors.brandGreen }]} numberOfLines={1}>
+                                {formatAmount(data.todayProfit)}
+                            </Text>
+                        </View>
+                        
+                        <View style={[styles.marginBadge, { backgroundColor: colors.brandGold, shadowColor: colors.brandGold }]}>
+                            <TrendingUp size={12} color="#0b0c0c" style={{ marginRight: 4 }} />
+                            <Text style={[styles.marginBadgeText, { color: '#0b0c0c' }]}>HIGH YIELD</Text>
+                        </View>
+                        
+                        <View style={styles.kpiItem}>
+                            <Text style={styles.metricLabel}>GROSS REV</Text>
+                            <Text style={[styles.metricValueWhite, { color: colors.textPrimary }]} numberOfLines={1}>
+                                {formatAmount(data.grossProfit)}
+                            </Text>
+                        </View>
+                    </View>
+
+                    <View style={[styles.comparisonRow, { marginTop: 24, borderTopColor: colors.border }]}>
+                        <View style={styles.comparisonItem}>
+                            <Text style={[styles.comparisonAmount, { color: colors.danger }]}>{formatAmount(data.totalDebt)}</Text>
+                            <Text style={[styles.comparisonLabel, { color: colors.textSecondary }]}>Outstanding Debt</Text>
+                        </View>
+                        <View style={[styles.comparisonDivider, { backgroundColor: colors.border }]} />
+                        <View style={styles.comparisonItem}>
+                            <Text style={[styles.comparisonAmount, { color: colors.textPrimary }]}>{formatAmount(data.expenses)}</Text>
+                            <Text style={[styles.comparisonLabel, { color: colors.textSecondary }]}>Op. Expenses</Text>
+                        </View>
                     </View>
                 </View>
-
-                {/* KPI Sub-row directly below graph */}
-                <View style={styles.kpiRow}>
-                    <View style={styles.kpiItem}>
-                        <Text style={styles.metricLabel}>NET PROFIT</Text>
-                        <Text style={[styles.metricValueGreen, { color: colors.brandGreen }]} numberOfLines={1}>
-                            {formatAmount(data.todayProfit)}
-                        </Text>
-                    </View>
-                    
-                    <View style={[styles.marginBadge, { backgroundColor: colors.brandGold, shadowColor: colors.brandGold }]}>
-                        <TrendingUp size={12} color="#0b0c0c" style={{ marginRight: 4 }} />
-                        <Text style={[styles.marginBadgeText, { color: '#0b0c0c' }]}>HIGH YIELD</Text>
-                    </View>
-                    
-                    <View style={styles.kpiItem}>
-                        <Text style={styles.metricLabel}>GROSS REV</Text>
-                        <Text style={[styles.metricValueWhite, { color: colors.textPrimary }]} numberOfLines={1}>
-                            {formatAmount(data.grossProfit)}
-                        </Text>
-                    </View>
-                </View>
-
-                <View style={[styles.comparisonRow, { marginTop: 24, borderTopColor: colors.border }]}>
-                    <View style={styles.comparisonItem}>
-                        <Text style={[styles.comparisonAmount, { color: colors.danger }]}>{formatAmount(data.totalDebt)}</Text>
-                        <Text style={[styles.comparisonLabel, { color: colors.textSecondary }]}>Outstanding Debt</Text>
-                    </View>
-                    <View style={[styles.comparisonDivider, { backgroundColor: colors.border }]} />
-                    <View style={styles.comparisonItem}>
-                        <Text style={[styles.comparisonAmount, { color: colors.textPrimary }]}>{formatAmount(data.expenses)}</Text>
-                        <Text style={[styles.comparisonLabel, { color: colors.textSecondary }]}>Op. Expenses</Text>
-                    </View>
-                </View>
-            </View>
+            )}
 
             {/* KPI Grid */}
             <View style={styles.kpiGrid}>
@@ -285,16 +290,18 @@ export default function DashboardStats({ period, setPeriod, data, loading }: Das
                 </View>
 
                 {/* VAT KPI */}
-                <View style={[styles.kpiCard, styles.kpiCardHalf, { backgroundColor: colors.overlay, borderColor: colors.border }]}>
-                    <View style={styles.kpiTopRow}>
-                        <View style={[styles.iconBox, { backgroundColor: 'rgba(59, 130, 246, 0.1)' }]}>
-                            <FileText size={18} color="#3B82F6" />
+                {!isCashier && (
+                    <View style={[styles.kpiCard, styles.kpiCardHalf, { backgroundColor: colors.overlay, borderColor: colors.border }]}>
+                        <View style={styles.kpiTopRow}>
+                            <View style={[styles.iconBox, { backgroundColor: 'rgba(59, 130, 246, 0.1)' }]}>
+                                <FileText size={18} color="#3B82F6" />
+                            </View>
+                            <MiniSparkline data={[3, 5, 4, 6, 5, 7]} color="#3B82F6" />
                         </View>
-                        <MiniSparkline data={[3, 5, 4, 6, 5, 7]} color="#3B82F6" />
+                        <Text style={[styles.kpiValue, { color: colors.textPrimary }]}>{formatAmount(data.todayVat)}</Text>
+                        <Text style={[styles.kpiLabel, { color: colors.textSecondary }]}>Estimated VAT</Text>
                     </View>
-                    <Text style={[styles.kpiValue, { color: colors.textPrimary }]}>{formatAmount(data.todayVat)}</Text>
-                    <Text style={[styles.kpiLabel, { color: colors.textSecondary }]}>Estimated VAT</Text>
-                </View>
+                )}
 
 
             </View>

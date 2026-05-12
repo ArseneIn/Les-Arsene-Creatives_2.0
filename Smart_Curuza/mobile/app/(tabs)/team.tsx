@@ -10,7 +10,6 @@ export default function TeamScreen() {
     const [loading, setLoading] = useState(true);
     const [refreshing, setRefreshing] = useState(false);
     
-    const [pendingLogins, setPendingLogins] = useState<any[]>([]);
     const [teamProgress, setTeamProgress] = useState<any[]>([]);
 
     // Staff sales modal state
@@ -20,11 +19,7 @@ export default function TeamScreen() {
 
     const fetchData = async (bypassCache = false) => {
         try {
-            const [logins, progress] = await Promise.all([
-                ApiClient.getPendingLogins(bypassCache),
-                ApiClient.getTeamProgress(bypassCache),
-            ]);
-            setPendingLogins(logins);
+            const progress = await ApiClient.getTeamProgress(bypassCache);
             setTeamProgress(progress);
         } catch (error: any) {
             console.error('Error fetching team data:', error);
@@ -49,23 +44,7 @@ export default function TeamScreen() {
         fetchData(true);
     };
 
-    const handleApprove = async (requestId: string) => {
-        try {
-            await ApiClient.approveLogin(requestId);
-            fetchData(true);
-        } catch (error) {
-            Alert.alert('Error', 'Failed to approve login.');
-        }
-    };
 
-    const handleReject = async (requestId: string) => {
-        try {
-            await ApiClient.rejectLogin(requestId);
-            fetchData(true);
-        } catch (error) {
-            Alert.alert('Error', 'Failed to reject login.');
-        }
-    };
 
     const handleViewSales = async (staff: any, preset: 'all' | 'today' | 'week' | 'month' = 'all') => {
         setLoadingSales(true);
@@ -115,48 +94,7 @@ export default function TeamScreen() {
                 showsVerticalScrollIndicator={false}
                 refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.brandGold} />}
             >
-                {/* PENDING LOGINS SECTION */}
-                {pendingLogins.length > 0 && (
-                    <View style={styles.section}>
-                        <View style={styles.sectionHeader}>
-                            <ShieldCheck size={20} color={colors.brandGold} />
-                            <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>Login Approvals</Text>
-                        </View>
-                        
-                        {pendingLogins.map((request) => (
-                            <View key={request.id} style={[styles.card, { backgroundColor: colors.card, borderColor: colors.border }]}>
-                                <View style={styles.cardInfo}>
-                                    <View style={[styles.avatar, { backgroundColor: colors.overlay }]}>
-                                        <User size={20} color={colors.brandGold} />
-                                    </View>
-                                    <View style={{ flex: 1 }}>
-                                        <Text style={[styles.cardTitle, { color: colors.textPrimary }]}>{request.cashier?.name}</Text>
-                                        <Text style={[styles.cardSubtitle, { color: colors.textSecondary }]}>Wants to log in</Text>
-                                        <Text style={[styles.cardTime, { color: colors.danger }]}>
-                                            Expires at {new Date(request.expires_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                                        </Text>
-                                    </View>
-                                </View>
-                                <View style={styles.actionRow}>
-                                    <TouchableOpacity 
-                                        style={[styles.actionBtn, { backgroundColor: 'rgba(239,68,68,0.1)' }]} 
-                                        onPress={() => handleReject(request.id)}
-                                    >
-                                        <UserX size={18} color={colors.danger} />
-                                        <Text style={[styles.actionText, { color: colors.danger }]}>Reject</Text>
-                                    </TouchableOpacity>
-                                    <TouchableOpacity 
-                                        style={[styles.actionBtn, { backgroundColor: colors.brandGreen }]}
-                                        onPress={() => handleApprove(request.id)}
-                                    >
-                                        <UserCheck size={18} color="#FFF" />
-                                        <Text style={[styles.actionText, { color: '#FFF' }]}>Approve</Text>
-                                    </TouchableOpacity>
-                                </View>
-                            </View>
-                        ))}
-                    </View>
-                )}
+
 
                 {/* TEAM PROGRESS SECTION */}
                 <View style={styles.section}>

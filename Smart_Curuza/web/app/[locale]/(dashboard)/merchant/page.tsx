@@ -164,7 +164,7 @@ export default function MerchantDashboard() {
             </div>
 
             {/* KPI Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
+            <div className={`grid grid-cols-1 md:grid-cols-2 ${role === 'CASHIER' ? 'lg:grid-cols-3' : 'lg:grid-cols-5'} gap-6`}>
                 <KpiCard
                     title={t('todaySales')}
                     value={loading ? "..." : `${stats?.todaySales.toLocaleString()} RWF`}
@@ -217,7 +217,7 @@ export default function MerchantDashboard() {
             {/* Quick Actions */}
             <div>
                 <h2 className="text-lg font-bold text-jet mb-4">{t('quickActions')}</h2>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div className={`grid grid-cols-2 ${role === 'CASHIER' ? 'md:grid-cols-2' : 'md:grid-cols-4'} gap-4`}>
                     <Link
                         href="/merchant/sales"
                         className="group p-6 bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md hover:border-gold/50 transition-all duration-200 flex flex-col items-center gap-3"

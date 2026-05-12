@@ -5,6 +5,7 @@ import { LayoutDashboard, History, BarChart3, User, ShoppingCart, ScanLine } fro
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { useTheme } from '../../lib/theme/ThemeContext';
 import { useAuth } from '../../lib/auth/AuthContext';
+import GlobalApprovalModal from '../../components/GlobalApprovalModal';
 
 export default function TabLayout() {
     const router = useRouter();
@@ -14,8 +15,9 @@ export default function TabLayout() {
     const isCashier = user?.role === 'CASHIER';
 
     return (
-        <Tabs
-            screenOptions={{
+        <>
+            <Tabs
+                screenOptions={{
                 headerShown: false,
                 tabBarActiveTintColor: isDarkMode ? colors.brandGold : '#111827', // Gold in dark, Black in light (for Gold BG)
                 tabBarInactiveTintColor: isDarkMode ? colors.textSecondary : 'rgba(0, 0, 0, 0.4)', 
@@ -73,7 +75,8 @@ export default function TabLayout() {
                         <BarChart3 size={24} color={color} />
                     ),
                     tabBarLabel: 'Reports',
-                    href: isCashier ? null : '/reports',
+                    // If cashier, keep the slot but make it an empty spacer to keep Quick Sale centered
+                    tabBarButton: isCashier ? () => <View style={{ flex: 1 }} /> : undefined,
                 }}
             />
             <Tabs.Screen
@@ -92,6 +95,8 @@ export default function TabLayout() {
                 }}
             />
         </Tabs>
+        <GlobalApprovalModal />
+        </>
     );
 }
 
@@ -123,6 +128,7 @@ const styles = StyleSheet.create({
         marginBottom: 8,
     },
     quickSaleContainer: {
+        flex: 1,
         alignItems: 'center',
         justifyContent: 'flex-end',
         top: -24, // Float above

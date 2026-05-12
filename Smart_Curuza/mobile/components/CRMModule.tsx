@@ -5,6 +5,7 @@ import { Search, User, Users, Phone, PhoneCall, AlertTriangle, CheckCircle, Chev
 import { ApiClient } from '../lib/api_client';
 import SkeletonLoader from './SkeletonLoader';
 import { useTheme } from '../lib/theme/ThemeContext';
+import { useAuth } from '../lib/auth/AuthContext';
 import CreateCustomerModal from './CreateCustomerModal';
 import ClientHistoryModal from './ClientHistoryModal';
 
@@ -329,6 +330,8 @@ const CRMSkeleton = () => {
 
 export default function CRMModule() {
     const { colors, isDarkMode } = useTheme();
+    const { user } = useAuth();
+    const isCashier = user?.role === 'CASHIER';
     const [searchQuery, setSearchQuery] = useState('');
     const [loading, setLoading] = useState(true);
     const [refreshing, setRefreshing] = useState(false);
@@ -434,22 +437,24 @@ export default function CRMModule() {
             </View>
 
             {/* Financial Status */}
-            <View style={[styles.financialRow, { backgroundColor: colors.overlay, borderColor: colors.border }]}>
-                <View style={styles.finItem}>
-                    <Text style={[styles.finLabel, { color: colors.textSecondary }]}>Lifetime Value</Text>
-                    <Text style={[styles.finValue, { color: colors.textPrimary }]}>{item.lifetimeValue.toLocaleString()} <Text style={[styles.currency, { color: colors.textSecondary }]}>RWF</Text></Text>
+            {!isCashier && (
+                <View style={[styles.financialRow, { backgroundColor: colors.overlay, borderColor: colors.border }]}>
+                    <View style={styles.finItem}>
+                        <Text style={[styles.finLabel, { color: colors.textSecondary }]}>Lifetime Value</Text>
+                        <Text style={[styles.finValue, { color: colors.textPrimary }]}>{item.lifetimeValue.toLocaleString()} <Text style={[styles.currency, { color: colors.textSecondary }]}>RWF</Text></Text>
+                    </View>
+                    
+                    <View style={styles.finItemRight}>
+                        <Text style={[styles.finLabel, { color: colors.textSecondary }]}>Outstanding Debt</Text>
+                        <Text style={[
+                            styles.finValue, 
+                            item.outstandingDebt > 0 ? { color: '#EF4444' } : { color: '#10B981' }
+                        ]}>
+                            {item.outstandingDebt.toLocaleString()} <Text style={[styles.currency, { color: colors.textSecondary }]}>RWF</Text>
+                        </Text>
+                    </View>
                 </View>
-                
-                <View style={styles.finItemRight}>
-                    <Text style={[styles.finLabel, { color: colors.textSecondary }]}>Outstanding Debt</Text>
-                    <Text style={[
-                        styles.finValue, 
-                        item.outstandingDebt > 0 ? { color: '#EF4444' } : { color: '#10B981' }
-                    ]}>
-                        {item.outstandingDebt.toLocaleString()} <Text style={[styles.currency, { color: colors.textSecondary }]}>RWF</Text>
-                    </Text>
-                </View>
-            </View>
+            )}
 
             {/* Action Row */}
             <View style={styles.actionRow}>
@@ -516,28 +521,43 @@ export default function CRMModule() {
         <View style={styles.container}>
             {/* Macro Debt Summary Header */}
             <View style={styles.summaryContainer}>
-                <View style={[styles.summaryCardMain, { backgroundColor: colors.card }]}>
-                    <TouchableOpacity 
-                        style={[styles.addClientHeaderBtn, { backgroundColor: colors.overlay }]}
-                        onPress={() => setShowCreateModal(true)}
-                    >
-                        <UserPlus size={18} color={colors.brandGold} />
-                    </TouchableOpacity>
-                    <Text style={[styles.summaryLabel, { color: colors.textSecondary }]}>Total Outstanding Debt</Text>
-                    <Text style={[styles.summaryValueMain, { color: colors.danger }]}>{totalDebt.toLocaleString()} <Text style={{fontSize: 14, color: colors.textSecondary}}>RWF</Text></Text>
-                </View>
+                {!isCashier ? (
+                    <View style={[styles.summaryCardMain, { backgroundColor: colors.card }]}>
+                        <TouchableOpacity 
+                            style={[styles.addClientHeaderBtn, { backgroundColor: colors.overlay }]}
+                            onPress={() => setShowCreateModal(true)}
+                        >
+                            <UserPlus size={18} color={colors.brandGold} />
+                        </TouchableOpacity>
+                        <Text style={[styles.summaryLabel, { color: colors.textSecondary }]}>Total Outstanding Debt</Text>
+                        <Text style={[styles.summaryValueMain, { color: colors.danger }]}>{totalDebt.toLocaleString()} <Text style={{fontSize: 14, color: colors.textSecondary}}>RWF</Text></Text>
+                    </View>
+                ) : (
+                    <View style={[styles.summaryCardMain, { backgroundColor: colors.card, borderColor: colors.border }]}>
+                        <TouchableOpacity 
+                            style={[styles.addClientHeaderBtn, { backgroundColor: colors.overlay }]}
+                            onPress={() => setShowCreateModal(true)}
+                        >
+                            <UserPlus size={18} color={colors.brandGold} />
+                        </TouchableOpacity>
+                        <Text style={[styles.summaryLabel, { color: colors.textSecondary }]}>Client Database</Text>
+                        <Text style={[styles.summaryValueMain, { color: colors.brandGold }]}>{totalClients} <Text style={{fontSize: 14, color: colors.textSecondary}}>Clients</Text></Text>
+                    </View>
+                )}
 
-                <View style={[styles.summaryCardSub, { backgroundColor: colors.card, borderColor: colors.border }]}>
-                    <View style={styles.subItem}>
-                        <Text style={[styles.subLabel, { color: colors.textSecondary }]}>Total Clients</Text>
-                        <Text style={[styles.subValue, { color: colors.textPrimary }]}>{totalClients}</Text>
+                {!isCashier && (
+                    <View style={[styles.summaryCardSub, { backgroundColor: colors.card, borderColor: colors.border }]}>
+                        <View style={styles.subItem}>
+                            <Text style={[styles.subLabel, { color: colors.textSecondary }]}>Total Clients</Text>
+                            <Text style={[styles.subValue, { color: colors.textPrimary }]}>{totalClients}</Text>
+                        </View>
+                        <View style={[styles.subDivider, { backgroundColor: colors.border }]} />
+                        <View style={styles.subItem}>
+                            <Text style={[styles.subLabel, { color: colors.textSecondary }]}>In Debt</Text>
+                            <Text style={[styles.subValue, { color: colors.danger }]}>{clientsWithDebt}</Text>
+                        </View>
                     </View>
-                    <View style={[styles.subDivider, { backgroundColor: colors.border }]} />
-                    <View style={styles.subItem}>
-                        <Text style={[styles.subLabel, { color: colors.textSecondary }]}>In Debt</Text>
-                        <Text style={[styles.subValue, { color: colors.danger }]}>{clientsWithDebt}</Text>
-                    </View>
-                </View>
+                )}
             </View>
 
             {/* Command Bar (Search) */}

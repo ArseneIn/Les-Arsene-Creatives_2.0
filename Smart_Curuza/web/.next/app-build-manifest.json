@@ -66,10 +66,30 @@
       "static/chunks/main-app.js",
       "static/chunks/app/[locale]/(dashboard)/merchant/crm/page.js"
     ],
-    "/not-found": [
+    "/[locale]/(dashboard)/admin/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/not-found.js"
+      "static/chunks/app/[locale]/(dashboard)/admin/page.js"
+    ],
+    "/[locale]/(dashboard)/admin/layout": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/[locale]/(dashboard)/admin/layout.js"
+    ],
+    "/[locale]/(dashboard)/admin/merchants/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/[locale]/(dashboard)/admin/merchants/page.js"
+    ],
+    "/[locale]/(dashboard)/admin/users/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/[locale]/(dashboard)/admin/users/page.js"
+    ],
+    "/[locale]/(dashboard)/admin/merchants/[id]/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/[locale]/(dashboard)/admin/merchants/[id]/page.js"
     ]
   }
 }

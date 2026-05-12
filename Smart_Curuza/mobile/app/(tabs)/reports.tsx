@@ -10,6 +10,8 @@ import * as FileSystem from 'expo-file-system';
 import * as Sharing from 'expo-sharing';
 import { ApiClient } from '../../lib/api_client';
 import { useTheme } from '../../lib/theme/ThemeContext';
+import { useAuth } from '../../lib/auth/AuthContext';
+import { Headphones, MessageSquare, PhoneCall, Globe, ChevronRight } from 'lucide-react-native';
 
 const { width } = Dimensions.get('window');
 
@@ -17,6 +19,8 @@ type Period = 'Month' | 'Quarter' | 'Year';
 
 export default function Reports() {
     const { colors, isDarkMode } = useTheme();
+    const { user } = useAuth();
+    const isCashier = user?.role === 'CASHIER';
     const insets = useSafeAreaInsets();
     const [period, setPeriod] = useState<Period>('Month');
     const [loading, setLoading] = useState(true);
@@ -134,6 +138,80 @@ export default function Reports() {
             stroke: isDarkMode ? "#0b0c0c" : colors.card
         }
     };
+
+    if (isCashier) {
+        return (
+            <ScreenWrapper safeArea={false} style={{ backgroundColor: colors.background }}>
+                <View style={[styles.header, { paddingTop: insets.top + 16, backgroundColor: isDarkMode ? colors.card : colors.brandGold }]}>
+                    <View style={styles.headerTop}>
+                        <View>
+                            <Text style={[styles.headerTitle, { color: isDarkMode ? '#FFFFFF' : '#111827' }]}>Support</Text>
+                            <Text style={[styles.headerSub, { color: isDarkMode ? 'rgba(255, 255, 255, 0.5)' : '#4B5563' }]}>Help Center & Merchant Assistance</Text>
+                        </View>
+                        <View style={[styles.iconBox, { backgroundColor: isDarkMode ? 'rgba(251, 225, 52, 0.1)' : 'rgba(255, 255, 255, 0.2)' }]}>
+                            <Headphones size={24} color={isDarkMode ? '#fbe134' : '#111827'} />
+                        </View>
+                    </View>
+                </View>
+
+                <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+                    <View style={styles.section}>
+                        <Text style={[styles.sectionTitle, { color: colors.textSecondary }]}>Quick Help</Text>
+                        <View style={[styles.sheetCard, { backgroundColor: colors.card, borderTopColor: colors.brandGold }]}>
+                            <TouchableOpacity style={styles.supportItem} onPress={() => Alert.alert("Support", "Connecting to live chat...")}>
+                                <View style={[styles.supportIcon, { backgroundColor: 'rgba(59, 130, 246, 0.1)' }]}>
+                                    <MessageSquare size={20} color="#3B82F6" />
+                                </View>
+                                <View style={{ flex: 1 }}>
+                                    <Text style={[styles.supportLabel, { color: colors.textPrimary }]}>Live Chat</Text>
+                                    <Text style={[styles.supportDesc, { color: colors.textSecondary }]}>Chat with our support team</Text>
+                                </View>
+                                <ChevronRight size={18} color={colors.textSecondary} />
+                            </TouchableOpacity>
+
+                            <View style={[styles.sheetDivider, { backgroundColor: colors.border }]} />
+
+                            <TouchableOpacity style={styles.supportItem} onPress={() => RN.Linking.openURL('tel:+250780000000')}>
+                                <View style={[styles.supportIcon, { backgroundColor: 'rgba(34, 197, 94, 0.1)' }]}>
+                                    <PhoneCall size={20} color="#22C55E" />
+                                </View>
+                                <View style={{ flex: 1 }}>
+                                    <Text style={[styles.supportLabel, { color: colors.textPrimary }]}>Call Support</Text>
+                                    <Text style={[styles.supportDesc, { color: colors.textSecondary }]}>Available 24/7 for merchants</Text>
+                                </View>
+                                <ChevronRight size={18} color={colors.textSecondary} />
+                            </TouchableOpacity>
+
+                            <View style={[styles.sheetDivider, { backgroundColor: colors.border }]} />
+
+                            <TouchableOpacity style={styles.supportItem} onPress={() => RN.Linking.openURL('https://smartcuruza.rw')}>
+                                <View style={[styles.supportIcon, { backgroundColor: 'rgba(251, 225, 52, 0.1)' }]}>
+                                    <Globe size={20} color={colors.brandGold} />
+                                </View>
+                                <View style={{ flex: 1 }}>
+                                    <Text style={[styles.supportLabel, { color: colors.textPrimary }]}>Knowledge Base</Text>
+                                    <Text style={[styles.supportDesc, { color: colors.textSecondary }]}>Read guides and tutorials</Text>
+                                </View>
+                                <ChevronRight size={18} color={colors.textSecondary} />
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+
+                    <View style={styles.section}>
+                        <View style={[styles.alertCard, { backgroundColor: 'rgba(251, 225, 52, 0.05)', borderColor: 'rgba(251, 225, 52, 0.2)' }]}>
+                            <View style={[styles.alertIconBox, { backgroundColor: 'rgba(251, 225, 52, 0.1)' }]}>
+                                <AlertTriangle size={20} color={colors.brandGold} />
+                            </View>
+                            <View style={styles.alertContent}>
+                                <Text style={[styles.alertTitle, { color: colors.textPrimary }]}>Admin Access Required</Text>
+                                <Text style={[styles.alertDesc, { color: colors.textSecondary }]}>Detailed financial reports are only accessible by business owners and administrators.</Text>
+                            </View>
+                        </View>
+                    </View>
+                </ScrollView>
+            </ScreenWrapper>
+        );
+    }
 
     const handleExport = async () => {
         setLoading(true);
@@ -532,5 +610,57 @@ const styles = StyleSheet.create({
         textAlign: 'center',
         paddingHorizontal: 20,
         lineHeight: 16,
-    }
+    },
+    supportItem: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingVertical: 12,
+        gap: 16,
+    },
+    supportIcon: {
+        width: 40,
+        height: 40,
+        borderRadius: 12,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    supportLabel: {
+        fontSize: 14,
+        fontFamily: 'Montserrat_700Bold',
+    },
+    supportDesc: {
+        fontSize: 12,
+        fontFamily: 'Montserrat_500Medium',
+    },
+    alertCard: {
+        flexDirection: 'row',
+        backgroundColor: 'rgba(255, 255, 255, 0.03)',
+        borderRadius: 16,
+        padding: 16,
+        marginBottom: 12,
+        borderWidth: 1,
+        borderColor: 'rgba(251, 225, 52, 0.2)',
+    },
+    alertIconBox: {
+        width: 40,
+        height: 40,
+        backgroundColor: 'rgba(251, 225, 52, 0.1)',
+        borderRadius: 12,
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginRight: 12,
+    },
+    alertContent: {
+        flex: 1,
+    },
+    alertTitle: {
+        fontSize: 14,
+        fontFamily: 'Montserrat_700Bold',
+        marginBottom: 4,
+    },
+    alertDesc: {
+        fontSize: 12,
+        fontFamily: 'Montserrat_500Medium',
+        lineHeight: 18,
+    },
 });
