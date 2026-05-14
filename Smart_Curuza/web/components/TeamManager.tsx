@@ -73,26 +73,9 @@ export default function TeamManager() {
         end: '',
     });
 
-    // Pending Login Approvals State
-    const [pendingLogins, setPendingLogins] = useState<PendingLoginRequest[]>([]);
-    const [approvingId, setApprovingId] = useState<string | null>(null);
-
-    const fetchPendingLogins = useCallback(async () => {
-        try {
-            const data = await api.get<PendingLoginRequest[]>('/merchants/staff/pending-logins');
-            setPendingLogins(data);
-        } catch (error) {
-            // Silently fail — don't interrupt the user
-        }
-    }, []);
-
     useEffect(() => {
         fetchStaff();
-        fetchPendingLogins();
-        // Poll every 10 seconds for new login requests
-        const interval = setInterval(fetchPendingLogins, 10000);
-        return () => clearInterval(interval);
-    }, [fetchPendingLogins]);
+    }, []);
 
     const fetchStaff = async () => {
         try {
@@ -184,89 +167,9 @@ export default function TeamManager() {
         }
     };
 
-    const handleApproveLogin = async (requestId: string) => {
-        setApprovingId(requestId);
-        try {
-            await api.post(`/auth/login/approve/${requestId}`, {});
-            fetchPendingLogins();
-        } catch (error) {
-            console.error('Failed to approve login', error);
-        } finally {
-            setApprovingId(null);
-        }
-    };
-
-    const handleRejectLogin = async (requestId: string) => {
-        setApprovingId(requestId);
-        try {
-            await api.post(`/auth/login/reject/${requestId}`, {});
-            fetchPendingLogins();
-        } catch (error) {
-            console.error('Failed to reject login', error);
-        } finally {
-            setApprovingId(null);
-        }
-    };
 
     return (
         <div className="space-y-6">
-            {/* PENDING LOGIN APPROVALS */}
-            {pendingLogins.length > 0 && (
-                <div className="rounded-xl border-2 border-amber-400/60 bg-amber-50/50 p-4 space-y-3 shadow-sm">
-                    <div className="flex items-center gap-2 mb-1">
-                        <div className="relative">
-                            <Bell className="h-5 w-5 text-amber-600" />
-                            <span className="absolute -top-1 -right-1 flex h-3 w-3">
-                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-500 opacity-75"></span>
-                                <span className="relative inline-flex rounded-full h-3 w-3 bg-amber-600"></span>
-                            </span>
-                        </div>
-                        <span className="font-bold text-amber-800 text-sm">Login Approvals ({pendingLogins.length})</span>
-                    </div>
-                    {pendingLogins.map(request => {
-                        const expiresAt = new Date(request.expires_at);
-                        const minutesLeft = Math.max(0, Math.floor((expiresAt.getTime() - Date.now()) / 60000));
-                        const isExpiring = minutesLeft <= 1;
-                        const isProcessing = approvingId === request.id;
-                        return (
-                            <div key={request.id} className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white rounded-lg p-3 border border-amber-200 shadow-sm">
-                                <div className="flex items-center gap-3">
-                                    <div className="w-10 h-10 bg-amber-100 rounded-full flex items-center justify-center flex-shrink-0">
-                                        <User className="h-5 w-5 text-amber-700" />
-                                    </div>
-                                    <div>
-                                        <p className="font-bold text-jet text-sm">{request.cashier?.name || request.cashier?.email || request.cashier?.phone || 'Unknown Staff'}</p>
-                                        <p className="text-xs text-jet-500">Wants to log in</p>
-                                        <div className={`flex items-center gap-1 text-xs mt-0.5 font-semibold ${isExpiring ? 'text-red-600' : 'text-amber-700'}`}>
-                                            <Clock className="h-3 w-3" />
-                                            <span>Expires {isExpiring ? 'in &lt;1 min' : `in ${minutesLeft} min`} — {expiresAt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className="flex gap-2 self-end sm:self-auto">
-                                    <button
-                                        onClick={() => handleRejectLogin(request.id)}
-                                        disabled={isProcessing}
-                                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-red-50 text-red-600 font-bold text-sm hover:bg-red-100 transition-colors disabled:opacity-50"
-                                    >
-                                        <UserX className="h-4 w-4" />
-                                        Reject
-                                    </button>
-                                    <button
-                                        onClick={() => handleApproveLogin(request.id)}
-                                        disabled={isProcessing}
-                                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-green-500 text-white font-bold text-sm hover:bg-green-600 transition-colors disabled:opacity-50"
-                                    >
-                                        <UserCheck className="h-4 w-4" />
-                                        {isProcessing ? '...' : 'Approve'}
-                                    </button>
-                                </div>
-                            </div>
-                        );
-                    })}
-                </div>
-            )}
-
             <div className="flex justify-end items-center mb-4">
                 <button
                     onClick={() => setShowAddModal(true)}

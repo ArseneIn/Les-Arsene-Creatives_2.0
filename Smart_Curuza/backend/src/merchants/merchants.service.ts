@@ -26,15 +26,6 @@ export class MerchantsService {
       return user.merchant;
     }
 
-    // Fallback for development: Return the default seeded merchant
-    const defaultMerchant = await this.merchantRepository.findOne({
-      where: { id: '1989623c-2677-41b1-9159-64ef44ab6a1f' },
-    });
-
-    if (defaultMerchant) {
-      return defaultMerchant;
-    }
-
     throw new NotFoundException('Merchant profile not found for this user');
   }
 
@@ -43,9 +34,16 @@ export class MerchantsService {
     updateData: Partial<Merchant>,
   ): Promise<Merchant> {
     const merchant = await this.getProfile(userId);
+    if (!merchant) throw new NotFoundException('Merchant not found');
 
-    // Update fields
-    Object.assign(merchant, updateData);
+    // Selectively update allowed fields to avoid metadata/relation issues
+    if (updateData.business_name !== undefined)
+      merchant.business_name = updateData.business_name;
+    if (updateData.address !== undefined) merchant.address = updateData.address;
+    if (updateData.phone !== undefined) merchant.phone = updateData.phone;
+    if (updateData.tin !== undefined) merchant.tin = updateData.tin;
+    if (updateData.vat_rate !== undefined)
+      merchant.vat_rate = updateData.vat_rate;
 
     const savedMerchant = await this.merchantRepository.save(merchant);
 

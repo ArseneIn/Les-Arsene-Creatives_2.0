@@ -7,6 +7,12 @@ import { getMessages } from 'next-intl/server';
 import { SyncProvider } from '@/components/SyncProvider';
 import OfflineBanner from '@/components/OfflineBanner';
 
+const locales = ['en', 'rw'];
+
+export function generateStaticParams() {
+    return locales.map((locale) => ({ locale }));
+}
+
 // Playfair Display - Elegant serif for headings
 const playfair = Playfair_Display({
     subsets: ['latin'],

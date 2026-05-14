@@ -185,6 +185,7 @@ export default function SalesHistoryPage() {
                 data={filteredData}
                 columns={columns}
                 loading={loading}
+                initialPageSize={10}
                 onRowClick={(item) => setSelectedSale(item)}
             />
 

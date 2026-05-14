@@ -8,6 +8,7 @@ import { Store, User, Lock, Eye, EyeOff, Phone, Mail, Globe, Clock } from 'lucid
 import { useTranslations } from 'next-intl';
 import { usePathname } from 'next/navigation';
 import PhoneInput from '@/components/ui/PhoneInput';
+import PageLoader from '@/components/ui/PageLoader';
 
 export default function LoginForm() {
     const router = useRouter();
@@ -26,6 +27,7 @@ export default function LoginForm() {
     const [isPhoneValid, setIsPhoneValid] = useState(false);
     const [approvalRequest, setApprovalRequest] = useState<any>(null);
     const [timeLeft, setTimeLeft] = useState(300);
+    const [isNavigating, setIsNavigating] = useState(false);
 
     const { showToast } = useToast();
 
@@ -38,21 +40,28 @@ export default function LoginForm() {
     };
 
     useEffect(() => {
+        // Prevent redirects if we are already in the middle of a login process
+        if (loading || approvalRequest) return;
+
         const token = localStorage.getItem('token');
         const userStr = localStorage.getItem('user');
+        
         if (token && userStr && userStr !== 'undefined') {
             try {
                 const user = JSON.parse(userStr);
-                if (user.role === 'SUPERADMIN') {
-                    router.replace(`/${currentLocale}/admin`);
-                } else if (user.role === 'MERCHANT' || user.role === 'CASHIER') {
-                    router.replace(`/${currentLocale}/merchant`);
+                // Only redirect if we are actually on the login page to avoid interference with AuthGuard
+                if (pathname.includes('/login')) {
+                    if (user.role === 'SUPERADMIN') {
+                        router.replace(`/${currentLocale}/admin`);
+                    } else if (user.role === 'MERCHANT' || user.role === 'CASHIER') {
+                        router.replace(`/${currentLocale}/merchant`);
+                    }
                 }
             } catch (e) {
-                // Invalid user data, ignore
+                console.error("Failed to parse user from localStorage", e);
             }
         }
-    }, [router, currentLocale]);
+    }, [router, currentLocale, pathname, loading, approvalRequest]);
 
     // Handle polling for approval status
     useEffect(() => {
@@ -140,8 +149,14 @@ export default function LoginForm() {
         }
     };
 
+    const handleRegisterNav = () => {
+        setIsNavigating(true);
+        router.push(`/${currentLocale}/register`);
+    };
+
     return (
         <div className="w-full max-w-md mx-auto relative">
+            {isNavigating && <PageLoader isManual={true} />}
             {/* Language Switcher */}
             <button
                 onClick={toggleLanguage}
@@ -309,7 +324,11 @@ export default function LoginForm() {
                 <div className="mt-8 text-center">
                     <p className="text-gray-400 text-sm font-medium">
                         {t('notMember')}{' '}
-                        <button type="button" className="text-gold hover:text-gold-600 font-bold transition-colors">
+                        <button 
+                            type="button" 
+                            onClick={handleRegisterNav}
+                            className="text-gold hover:text-gold-600 font-bold transition-colors"
+                        >
                             {t('register')}
                         </button>
                     </p>

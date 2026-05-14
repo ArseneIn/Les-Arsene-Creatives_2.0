@@ -62,7 +62,7 @@ export default function QuickActions() {
 
     // Dynamic items per row based on count (max 3)
     const itemsPerRow = actions.length <= 4 ? (actions.length <= 2 ? actions.length : 2) : 3;
-    const itemWidth = `${100 / itemsPerRow}%`;
+    const itemWidth = `${100 / itemsPerRow}%` as any;
 
     // Chunk actions based on calculated itemsPerRow
     const chunkedActions = [];

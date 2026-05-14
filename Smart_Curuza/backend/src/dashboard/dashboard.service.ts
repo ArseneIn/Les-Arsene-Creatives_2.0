@@ -145,7 +145,7 @@ export class DashboardService {
     // Boundaries adjusted for Kigali (UTC+2)
     // 00:00:00 Kigali = 22:00:00 UTC (previous day)
     const start = new Date(startDate);
-    start.setHours(start.getHours() - 2); 
+    start.setHours(start.getHours() - 2);
     
     const end = new Date(endDate);
     end.setHours(23 - 2, 59, 59, 999);

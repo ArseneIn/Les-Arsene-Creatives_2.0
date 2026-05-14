@@ -11,6 +11,7 @@ const Sidebar = () => {
     const pathname = usePathname();
     const currentLocale = pathname.split('/')[1] || 'en';
     const [role, setRole] = useState<string | null>(null);
+    const [shopName, setShopName] = useState<string>("");
 
     useEffect(() => {
         const userStr = localStorage.getItem('user');
@@ -18,6 +19,9 @@ const Sidebar = () => {
             try {
                 const user = JSON.parse(userStr);
                 setRole(user.role);
+                if (user.shopName) {
+                    setShopName(user.shopName);
+                }
             } catch (e) {
                 console.error('Failed to parse user from local storage');
             }
@@ -68,9 +72,9 @@ const Sidebar = () => {
 
     return (
         <div className="hidden md:flex flex-col w-72 h-[calc(100vh-2rem)] m-4 bg-[#2a2e34]/95 backdrop-blur-xl border border-white/10 shadow-2xl rounded-3xl overflow-hidden">
-            <div className="flex items-center justify-center h-20 border-b border-white/10 bg-black/20">
-                <span className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-yellow-300">
-                    Smart-Curuza
+            <div className="flex items-center justify-center h-20 border-b border-white/10 bg-black/20 px-4">
+                <span className="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-yellow-300 truncate">
+                    {(role === 'MERCHANT' || role === 'CASHIER') ? (shopName || 'Smart-Curuza') : 'Smart-Curuza'}
                 </span>
             </div>
 

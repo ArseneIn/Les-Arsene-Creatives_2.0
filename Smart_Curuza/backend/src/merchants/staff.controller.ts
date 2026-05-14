@@ -63,6 +63,12 @@ export class StaffController {
     @Query('startDate') startDate?: string,
     @Query('endDate') endDate?: string,
   ) {
-    return this.staffService.getStaffSales(user.merchantId, id, 500, startDate, endDate);
+    return this.staffService.getStaffSales(
+      user.merchantId,
+      id,
+      500,
+      startDate,
+      endDate,
+    );
   }
 }

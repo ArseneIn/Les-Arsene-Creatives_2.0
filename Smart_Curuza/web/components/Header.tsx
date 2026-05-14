@@ -39,8 +39,19 @@ const Header = () => {
         try {
             const profile = await api.get<any>('/merchants/profile');
             if (profile) {
-                setShopName(profile.business_name || "");
+                const name = profile.business_name || "";
+                setShopName(name);
                 setLocation(profile.address || "");
+
+                // Sync back to localStorage if needed
+                const userStr = localStorage.getItem('user');
+                if (userStr) {
+                    const user = JSON.parse(userStr);
+                    if (user.shopName !== name) {
+                        user.shopName = name;
+                        localStorage.setItem('user', JSON.stringify(user));
+                    }
+                }
             }
         } catch (error) {
             console.error("Failed to fetch shop profile", error);

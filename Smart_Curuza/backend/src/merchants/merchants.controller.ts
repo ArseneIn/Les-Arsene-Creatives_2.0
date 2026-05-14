@@ -10,11 +10,11 @@ export class MerchantsController {
 
   @Get('profile')
   async getProfile(@Request() req) {
-    return this.merchantsService.getProfile(req.user.id);
+    return this.merchantsService.getProfile(req.user.userId);
   }
 
   @Put('profile')
   async updateProfile(@Request() req, @Body() updateData: Partial<Merchant>) {
-    return this.merchantsService.updateProfile(req.user.id, updateData);
+    return this.merchantsService.updateProfile(req.user.userId, updateData);
   }
 }

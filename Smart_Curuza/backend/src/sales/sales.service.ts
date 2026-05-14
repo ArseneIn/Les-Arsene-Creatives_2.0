@@ -376,7 +376,9 @@ export class SalesService {
 
     for (const sale of sales) {
       // Normalize to Kigali Time (UTC+2) for consistent daily grouping
-      const kigaliTime = new Date(sale.created_at.getTime() + 2 * 60 * 60 * 1000);
+      const kigaliTime = new Date(
+        sale.created_at.getTime() + 2 * 60 * 60 * 1000,
+      );
       const dateKey = kigaliTime.toISOString().split('T')[0]; // YYYY-MM-DD
 
       let saleProfit = 0;

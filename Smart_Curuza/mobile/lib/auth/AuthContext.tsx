@@ -68,13 +68,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     useEffect(() => {
         if (isLoading) return;
 
-        const isLoginPage = segments[0] === 'login';
+        // Check if current segments include auth-related pages
+        const isAuthPage = segments.some(s => s === 'login' || s === 'register');
         
-        if (!user && !isLoginPage) {
+        if (!user && !isAuthPage) {
             // Redirect to login if not authenticated
             router.replace('/login');
-        } else if (user && isLoginPage) {
-            // Redirect to home if authenticated and trying to access login
+        } else if (user && isAuthPage) {
+            // Redirect to home if authenticated and trying to access auth pages
             router.replace('/');
         }
     }, [user, segments, isLoading]);
@@ -92,8 +93,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setUser(null);
         await SecureStore.deleteItemAsync('auth_token');
         await SecureStore.deleteItemAsync('auth_user');
-        ApiClient.clearCache(); // Clear API cache on logout for security
-        router.replace('/login');
+        ApiClient.clearCache(); 
+        
+        // Only redirect if we're not already on the login page
+        if (!segments.includes('login')) {
+            router.replace('/login');
+        }
     };
 
     return (

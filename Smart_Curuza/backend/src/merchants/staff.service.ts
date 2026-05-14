@@ -4,7 +4,13 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, IsNull, Between, MoreThanOrEqual, LessThanOrEqual } from 'typeorm';
+import {
+  Repository,
+  IsNull,
+  Between,
+  MoreThanOrEqual,
+  LessThanOrEqual,
+} from 'typeorm';
 import { User, UserRole } from '../entities/user.entity';
 import { Merchant } from '../entities/merchant.entity';
 import { Shift } from '../entities/shift.entity';
@@ -86,7 +92,8 @@ export class StaffService {
 
     // Return without password/pin (destructure to exclude them)
     const { password: _, pin_hash: __, ...result } = savedUser;
-    void _; void __;
+    void _;
+    void __;
     return result;
   }
 
@@ -140,7 +147,7 @@ export class StaffService {
     }
 
     // Build date range filter
-    let dateFilter: any = {};
+    let dateFilter: { created_at?: any } = {};
     if (startDate && endDate) {
       // Boundaries adjusted for Kigali (UTC+2)
       const start = new Date(startDate);
@@ -212,7 +219,7 @@ export class StaffService {
       shiftId?: string;
       totalSales: number;
     }[] = [];
-    
+
     // Adjust today for Kigali timezone (UTC+2)
     // 00:00:00 Kigali = 22:00:00 UTC (previous day)
     const kigaliNow = new Date(Date.now() + 2 * 60 * 60 * 1000);

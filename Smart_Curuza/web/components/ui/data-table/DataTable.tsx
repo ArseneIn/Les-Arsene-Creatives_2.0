@@ -13,6 +13,7 @@ interface DataTableProps<T> {
     columns: Column<T>[];
     onRowClick?: (item: T) => void;
     loading?: boolean;
+    initialPageSize?: number;
 }
 
 export function DataTable<T extends { id: string }>({
@@ -20,10 +21,37 @@ export function DataTable<T extends { id: string }>({
     columns,
     onRowClick,
     loading,
+    initialPageSize = 10,
 }: DataTableProps<T>) {
+    const [currentPage, setCurrentPage] = React.useState(1);
+    const [pageSize, setPageSize] = React.useState(initialPageSize);
+
+    // Reset to page 1 when data changes (e.g. search/filter)
+    React.useEffect(() => {
+        setCurrentPage(1);
+    }, [data.length]);
+
     if (loading) {
-        return <div className="p-8 text-center text-gray-500">Loading data...</div>;
+        return (
+            <div className="bg-white rounded-xl border border-platinum-200 shadow-card p-12 flex flex-col items-center justify-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gold mb-4"></div>
+                <p className="text-jet-500 animate-pulse font-medium">Loading records...</p>
+            </div>
+        );
     }
+
+    const totalItems = data.length;
+    const totalPages = Math.ceil(totalItems / pageSize);
+    const startIndex = (currentPage - 1) * pageSize;
+    const paginatedData = data.slice(startIndex, startIndex + pageSize);
+
+    const handlePrevPage = () => {
+        setCurrentPage((prev) => Math.max(1, prev - 1));
+    };
+
+    const handleNextPage = () => {
+        setCurrentPage((prev) => Math.min(totalPages, prev + 1));
+    };
 
     return (
         <div className="bg-white rounded-xl border border-platinum-200 shadow-card overflow-hidden transition-all duration-300 hover:shadow-lg">
@@ -45,14 +73,14 @@ export function DataTable<T extends { id: string }>({
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-platinum-100">
-                        {data.length === 0 ? (
+                        {paginatedData.length === 0 ? (
                             <tr>
                                 <td colSpan={columns.length + 1} className="p-12 text-center text-jet-500 font-body">
                                     No records found.
                                 </td>
                             </tr>
                         ) : (
-                            data.map((item) => (
+                            paginatedData.map((item) => (
                                 <tr
                                     key={item.id}
                                     onClick={() => onRowClick && onRowClick(item)}
@@ -74,15 +102,48 @@ export function DataTable<T extends { id: string }>({
             </div>
 
             {/* Pagination Footer */}
-            <div className="p-4 border-t border-platinum-200 flex justify-between items-center bg-platinum-50">
-                <span className="text-sm text-jet-500 font-body">Showing <span className="font-semibold text-jet">{data.length}</span> results</span>
-                <div className="flex gap-2">
-                    <button className="p-2 rounded-lg hover:bg-white hover:shadow-sm border border-transparent hover:border-platinum-200 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed" disabled>
-                        <ChevronLeft className="h-5 w-5 text-jet-600" />
-                    </button>
-                    <button className="p-2 rounded-lg hover:bg-white hover:shadow-sm border border-transparent hover:border-platinum-200 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed" disabled>
-                        <ChevronRight className="h-5 w-5 text-jet-600" />
-                    </button>
+            <div className="p-4 border-t-2 border-gold/30 flex flex-col sm:flex-row justify-between items-center bg-gold/5 gap-4">
+                <div className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto">
+                    <span className="text-sm text-onyx/70 font-body whitespace-nowrap">
+                        Showing <span className="font-bold text-onyx">{totalItems > 0 ? startIndex + 1 : 0}</span> to <span className="font-bold text-onyx">{Math.min(startIndex + pageSize, totalItems)}</span> of <span className="font-bold text-onyx">{totalItems}</span>
+                    </span>
+                    
+                    <div className="flex items-center gap-2">
+                        <span className="text-xs font-medium text-onyx/50 uppercase tracking-wider">Per page:</span>
+                        <select 
+                            value={pageSize}
+                            onChange={(e) => {
+                                setPageSize(Number(e.target.value));
+                                setCurrentPage(1);
+                            }}
+                            className="text-xs border-gold/30 rounded-lg focus:ring-gold focus:border-gold bg-white py-1 px-3 font-bold text-onyx shadow-sm transition-all duration-200 cursor-pointer hover:border-gold"
+                        >
+                            <option value={5}>5</option>
+                            <option value={10}>10</option>
+                            <option value={20}>20</option>
+                            <option value={50}>50</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div className="flex items-center justify-between sm:justify-end gap-6 w-full sm:w-auto border-t sm:border-none border-gold/10 pt-4 sm:pt-0">
+                    <span className="text-xs text-onyx/60 font-bold uppercase tracking-widest">Page {currentPage} / {totalPages || 1}</span>
+                    <div className="flex gap-2">
+                        <button 
+                            onClick={(e) => { e.stopPropagation(); handlePrevPage(); }}
+                            className="p-2.5 rounded-xl hover:bg-gold hover:text-onyx border border-gold/20 bg-white shadow-sm transition-all duration-300 disabled:opacity-20 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:text-jet-600 group" 
+                            disabled={currentPage === 1 || loading}
+                        >
+                            <ChevronLeft className="h-4 w-4 text-onyx transition-transform group-hover:-translate-x-0.5" />
+                        </button>
+                        <button 
+                            onClick={(e) => { e.stopPropagation(); handleNextPage(); }}
+                            className="p-2.5 rounded-xl hover:bg-gold hover:text-onyx border border-gold/20 bg-white shadow-sm transition-all duration-300 disabled:opacity-20 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:text-jet-600 group" 
+                            disabled={currentPage === totalPages || totalPages === 0 || loading}
+                        >
+                            <ChevronRight className="h-4 w-4 text-onyx transition-transform group-hover:translate-x-0.5" />
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>

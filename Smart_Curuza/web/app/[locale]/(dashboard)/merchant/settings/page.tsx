@@ -71,7 +71,13 @@ export default function SettingsPage() {
         e.preventDefault();
         setSaving(true);
         try {
-            await api.put('/merchants/profile', profile);
+            const updatePayload = {
+                business_name: profile.business_name,
+                address: profile.address,
+                phone: profile.phone,
+                tin: profile.tin,
+            };
+            await api.put('/merchants/profile', updatePayload);
             showToast('Settings saved successfully', 'success');
         } catch (error: any) {
             console.error('Error saving profile:', error);

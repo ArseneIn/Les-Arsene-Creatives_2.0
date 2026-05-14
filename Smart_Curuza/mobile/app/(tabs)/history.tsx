@@ -145,13 +145,34 @@ export default function History() {
         </TouchableOpacity>
     );
 
+    const [currentPage, setCurrentPage] = useState(1);
+    const [pageSize, setPageSize] = useState(10);
+
+    const totalItems = filteredSales.length;
+    const totalPages = Math.ceil(totalItems / pageSize);
+    const startIndex = (currentPage - 1) * pageSize;
+    const paginatedData = filteredSales.slice(startIndex, startIndex + pageSize);
+
+    // Reset to page 1 when filters change
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [searchQuery, selectedStatuses, selectedPayments]);
+
+    const handlePrevPage = () => {
+        setCurrentPage(prev => Math.max(1, prev - 1));
+    };
+
+    const handleNextPage = () => {
+        setCurrentPage(prev => Math.min(totalPages, prev + 1));
+    };
+
     return (
         <ScreenWrapper safeArea={false} style={{ backgroundColor: colors.background }}>
             {/* Header Area */}
             <View style={[styles.header, { paddingTop: insets.top + 16, backgroundColor: isDarkMode ? colors.card : colors.brandGold, shadowColor: isDarkMode ? '#000': '#E5E7EB' }]}>
                 <View>
                     <Text style={[styles.headerTitle, { color: isDarkMode ? '#FFFFFF' : '#111827' }]}>Sales Ledger</Text>
-                    <Text style={[styles.headerSub, { color: isDarkMode ? 'rgba(255, 255, 255, 0.5)' : '#4B5563' }]}>Analyzing {filteredSales.length} Transactions</Text>
+                    <Text style={[styles.headerSub, { color: isDarkMode ? 'rgba(255, 255, 255, 0.5)' : '#4B5563' }]}>Analyzing {totalItems} Transactions</Text>
                 </View>
                 <TouchableOpacity
                     style={[styles.exportButton, { backgroundColor: isDarkMode ? colors.brandGold : '#111827' }]}
@@ -163,27 +184,27 @@ export default function History() {
 
             <View style={styles.content}>
                 {/* Unified Command Bar (V5) */}
-            <View style={styles.actionRow}>
-                <View style={[styles.searchBar, { backgroundColor: colors.card, borderColor: colors.border }]}>
-                    <Search size={18} color={colors.textSecondary} />
-                    <TextInput
-                        style={[styles.searchInput, { color: colors.textPrimary }]}
-                        placeholder="Search ID or Customer..."
-                        placeholderTextColor={colors.textSecondary}
-                        value={searchQuery}
-                        onChangeText={setSearchQuery}
-                    />
+                <View style={styles.actionRow}>
+                    <View style={[styles.searchBar, { backgroundColor: colors.card, borderColor: colors.border }]}>
+                        <Search size={18} color={colors.textSecondary} />
+                        <TextInput
+                            style={[styles.searchInput, { color: colors.textPrimary }]}
+                            placeholder="Search ID or Customer..."
+                            placeholderTextColor={colors.textSecondary}
+                            value={searchQuery}
+                            onChangeText={setSearchQuery}
+                        />
+                    </View>
+                    <TouchableOpacity 
+                        style={[styles.filterIconButton, { backgroundColor: colors.card, borderColor: colors.border }, (selectedStatuses.length > 0 || selectedPayments.length > 0) && styles.filterIconButtonActive]}
+                        onPress={() => setShowFilters(true)}
+                    >
+                        <Filter size={20} color={(selectedStatuses.length > 0 || selectedPayments.length > 0) ? "#000000" : colors.textPrimary} />
+                        {(selectedStatuses.length > 0 || selectedPayments.length > 0) && (
+                            <View style={styles.filterDot} />
+                        )}
+                    </TouchableOpacity>
                 </View>
-                <TouchableOpacity 
-                    style={[styles.filterIconButton, { backgroundColor: colors.card, borderColor: colors.border }, (selectedStatuses.length > 0 || selectedPayments.length > 0) && styles.filterIconButtonActive]}
-                    onPress={() => setShowFilters(true)}
-                >
-                    <Filter size={20} color={(selectedStatuses.length > 0 || selectedPayments.length > 0) ? "#000000" : colors.textPrimary} />
-                    {(selectedStatuses.length > 0 || selectedPayments.length > 0) && (
-                        <View style={styles.filterDot} />
-                    )}
-                </TouchableOpacity>
-            </View>
 
                 {/* List */}
                 {loading ? (
@@ -191,25 +212,57 @@ export default function History() {
                         <ActivityIndicator size="large" color="#fbe134" />
                     </View>
                 ) : (
-                    <FlatList
-                        data={filteredSales}
-                        renderItem={renderSaleItem}
-                        keyExtractor={item => item.id}
-                        contentContainerStyle={styles.listContent}
-                        style={styles.flatList}
-                        refreshControl={
-                            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#fbe134" />
-                        }
-                        ListEmptyComponent={
-                            <View style={styles.emptyContainer}>
-                                <AlertTriangle size={48} color={colors.textSecondary} />
-                                <Text style={[styles.emptyText, { color: colors.textPrimary }]}>No matching records</Text>
-                                <TouchableOpacity onPress={clearFilters}>
-                                    <Text style={styles.clearFiltersText}>Reset All Filters</Text>
+                    <>
+                        <FlatList
+                            data={paginatedData}
+                            renderItem={renderSaleItem}
+                            keyExtractor={item => item.id}
+                            contentContainerStyle={styles.listContent}
+                            style={styles.flatList}
+                            refreshControl={
+                                <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#fbe134" />
+                            }
+                            ListEmptyComponent={
+                                <View style={styles.emptyContainer}>
+                                    <AlertTriangle size={48} color={colors.textSecondary} />
+                                    <Text style={[styles.emptyText, { color: colors.textPrimary }]}>No matching records</Text>
+                                    <TouchableOpacity onPress={clearFilters}>
+                                        <Text style={styles.clearFiltersText}>Reset All Filters</Text>
+                                    </TouchableOpacity>
+                                </View>
+                            }
+                        />
+                        
+                        {/* Pagination Bar */}
+                        <View style={[styles.paginationBar, { backgroundColor: isDarkMode ? colors.card : '#FFFFFF', borderTopColor: isDarkMode ? colors.border : '#fbe134' }]}>
+                            <View style={styles.paginationInfo}>
+                                <Text style={[styles.paginationText, { color: colors.textSecondary }]}>
+                                    Page <Text style={[styles.paginationHighlight, { color: colors.textPrimary }]}>{currentPage}</Text> of <Text style={[styles.paginationHighlight, { color: colors.textPrimary }]}>{totalPages || 1}</Text>
+                                </Text>
+                                <Text style={[styles.paginationSubText, { color: colors.textSecondary }]}>
+                                    Showing {totalItems > 0 ? startIndex + 1 : 0}-{Math.min(startIndex + pageSize, totalItems)}
+                                </Text>
+                            </View>
+                            
+                            <View style={styles.paginationControls}>
+                                <TouchableOpacity 
+                                    style={[styles.pageButton, { borderColor: colors.border }, currentPage === 1 && styles.pageButtonDisabled]}
+                                    onPress={handlePrevPage}
+                                    disabled={currentPage === 1}
+                                >
+                                    <ArrowRight size={20} color={currentPage === 1 ? colors.textSecondary : colors.brandGold} style={{ transform: [{ rotate: '180deg' }] }} />
+                                </TouchableOpacity>
+                                
+                                <TouchableOpacity 
+                                    style={[styles.pageButton, { borderColor: colors.border }, (currentPage === totalPages || totalPages === 0) && styles.pageButtonDisabled]}
+                                    onPress={handleNextPage}
+                                    disabled={currentPage === totalPages || totalPages === 0}
+                                >
+                                    <ArrowRight size={20} color={(currentPage === totalPages || totalPages === 0) ? colors.textSecondary : colors.brandGold} />
                                 </TouchableOpacity>
                             </View>
-                        }
-                    />
+                        </View>
+                    </>
                 )}
             </View>
             
@@ -601,5 +654,51 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
+    },
+    paginationBar: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        paddingHorizontal: 24,
+        paddingVertical: 16,
+        borderTopWidth: 2,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: -4 },
+        shadowOpacity: 0.1,
+        shadowRadius: 10,
+        elevation: 20,
+    },
+    paginationInfo: {
+        flex: 1,
+    },
+    paginationText: {
+        fontSize: 14,
+        fontFamily: 'Montserrat_600SemiBold',
+    },
+    paginationHighlight: {
+        fontFamily: 'Montserrat_700Bold',
+    },
+    paginationSubText: {
+        fontSize: 10,
+        fontFamily: 'Montserrat_500Medium',
+        marginTop: 2,
+        textTransform: 'uppercase',
+        letterSpacing: 0.5,
+    },
+    paginationControls: {
+        flexDirection: 'row',
+        gap: 12,
+    },
+    pageButton: {
+        width: 44,
+        height: 44,
+        borderRadius: 12,
+        borderWidth: 1,
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    },
+    pageButtonDisabled: {
+        opacity: 0.3,
     },
 });

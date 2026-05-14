@@ -7,7 +7,7 @@ import { syncManager } from './sync/SyncManager';
 // Android emulator uses 10.0.2.2 to access host localhost
 // Real device would need the actual LAN IP of the computer
 // Use LAN IP for physical devices (both iOS and Android) to reach the backend
-const BASE_URL = 'http://10.10.6.103:3001';
+const BASE_URL = 'http://10.10.6.57:3001';
 
 // Caching system
 type CacheEntry = {
@@ -153,6 +153,27 @@ export const ApiClient = {
             return await response.json();
         } catch (error) {
             console.error('Login error:', error);
+            throw error;
+        }
+    },
+
+    async register(data: any) {
+        try {
+            // Registration also bypasses _request to handle initial setup
+            const response = await fetch(`${BASE_URL}/auth/register`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data),
+            });
+
+            if (!response.ok) {
+                const errorBody = await response.text();
+                throw new Error(`Registration Failed: ${response.status} - ${errorBody}`);
+            }
+
+            return await response.json();
+        } catch (error) {
+            console.error('Registration error:', error);
             throw error;
         }
     },

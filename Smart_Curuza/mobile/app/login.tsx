@@ -61,7 +61,10 @@ export default function LoginScreen() {
                 setApprovalRequest(response);
                 setTimeLeft(300);
             } else {
-                await login(response.access_token, response.user);
+                // Ensure we don't call login multiple times if it's already successful
+                if (response.access_token) {
+                    await login(response.access_token, response.user);
+                }
             }
         } catch (err: any) {
             setError(err.message || 'Login failed. Please check your credentials.');
@@ -355,6 +358,13 @@ export default function LoginScreen() {
                                             {loginMethod === 'phone' ? 'Forgot your PIN?' : 'Forgot your Password?'}
                                         </Text>
                                     </TouchableOpacity>
+
+                                    <View style={styles.signupContainer}>
+                                        <Text style={styles.signupText}>Don't have an account? </Text>
+                                        <TouchableOpacity onPress={() => router.push('/register')}>
+                                            <Text style={styles.signupLink}>Sign Up</Text>
+                                        </TouchableOpacity>
+                                    </View>
                                 </View>
                             </>
                         )}
@@ -555,6 +565,24 @@ const styles = StyleSheet.create({
         fontFamily: 'Montserrat_400Regular',
         fontSize: 14,
         color: '#6B7280',
+    },
+    signupContainer: {
+        flexDirection: 'row',
+        justifyContent: 'center',
+        marginTop: 24,
+        paddingTop: 24,
+        borderTopWidth: 1,
+        borderTopColor: '#F3F4F6',
+    },
+    signupText: {
+        fontFamily: 'Montserrat_400Regular',
+        fontSize: 14,
+        color: '#6B7280',
+    },
+    signupLink: {
+        fontFamily: 'Poppins_700Bold',
+        fontSize: 14,
+        color: '#fbe134',
     },
     footer: {
         flexDirection: 'row',

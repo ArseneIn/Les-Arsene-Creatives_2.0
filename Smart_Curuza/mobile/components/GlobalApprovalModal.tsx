@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Modal, ActivityIndicator } from 'react-native';
-import { ShieldCheck, UserCheck, UserX, User } from 'lucide-react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Modal, ActivityIndicator, Dimensions, Platform } from 'react-native';
+import { ShieldCheck, UserCheck, UserX, User, Lock, Clock } from 'lucide-react-native';
+import { BlurView } from 'expo-blur';
 import { useTheme } from '../lib/theme/ThemeContext';
 import { ApiClient } from '../lib/api_client';
 import { useAuth } from '../lib/auth/AuthContext';
+
+const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
 export default function GlobalApprovalModal() {
     const { colors, isDarkMode } = useTheme();
@@ -12,7 +15,7 @@ export default function GlobalApprovalModal() {
     const [processingId, setProcessingId] = useState<string | null>(null);
 
     // Only owners/managers should poll for approvals
-    const isOwner = user?.role !== 'CASHIER';
+    const isOwner = user?.role !== 'CASHIER' && user?.role !== null;
 
     useEffect(() => {
         if (!isOwner) return;
@@ -20,7 +23,8 @@ export default function GlobalApprovalModal() {
         const checkApprovals = async () => {
             try {
                 const logins = await ApiClient.getPendingLogins(true);
-                setPendingLogins(logins);
+                // Ensure we only show if there are actual pending requests
+                setPendingLogins(logins || []);
             } catch (error) {
                 // Fail silently in background
             }
@@ -29,8 +33,8 @@ export default function GlobalApprovalModal() {
         // Check immediately
         checkApprovals();
 
-        // Then poll every 10 seconds
-        const interval = setInterval(checkApprovals, 10000);
+        // Then poll every 5 seconds for faster responsiveness
+        const interval = setInterval(checkApprovals, 5000);
         return () => clearInterval(interval);
     }, [isOwner]);
 
@@ -60,137 +64,206 @@ export default function GlobalApprovalModal() {
 
     if (!isOwner || pendingLogins.length === 0) return null;
 
+    // We only show the first request to keep it focused
+    const request = pendingLogins[0];
+    const expiryDate = new Date(request.expires_at);
+    const timeStr = expiryDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
     return (
-        <Modal transparent visible animationType="fade">
-            <View style={[styles.overlay, { backgroundColor: 'rgba(0,0,0,0.6)' }]}>
-                <View style={[styles.modalContent, { backgroundColor: colors.card, borderColor: colors.border }]}>
-                    <View style={styles.header}>
-                        <ShieldCheck size={24} color={colors.brandGold} />
-                        <Text style={[styles.title, { color: colors.textPrimary }]}>Login Approval Required</Text>
-                    </View>
-                    
-                    <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
-                        {pendingLogins.length} team member(s) waiting for access.
-                    </Text>
+        <Modal transparent visible animationType="fade" statusBarTranslucent>
+            <BlurView 
+                intensity={Platform.OS === 'ios' ? 40 : 80} 
+                tint={isDarkMode ? 'dark' : 'light'} 
+                style={styles.fullScreen}
+            >
+                <View style={styles.container}>
+                    <View style={[styles.card, { backgroundColor: isDarkMode ? 'rgba(30, 30, 30, 0.9)' : 'rgba(255, 255, 255, 0.95)', borderColor: colors.border }]}>
+                        {/* Header Decoration */}
+                        <View style={[styles.iconHalo, { backgroundColor: isDarkMode ? 'rgba(251, 225, 52, 0.1)' : 'rgba(251, 225, 52, 0.15)' }]}>
+                            <Lock size={32} color={colors.brandGold} />
+                        </View>
 
-                    {pendingLogins.slice(0, 3).map(request => (
-                        <View key={request.id} style={[styles.card, { backgroundColor: colors.background, borderColor: colors.border }]}>
-                            <View style={styles.cardInfo}>
-                                <View style={[styles.avatar, { backgroundColor: colors.overlay }]}>
-                                    <User size={20} color={colors.brandGold} />
-                                </View>
-                                <View style={{ flex: 1 }}>
-                                    <Text style={[styles.cardTitle, { color: colors.textPrimary }]}>{request.cashier?.name}</Text>
-                                    <Text style={[styles.cardTime, { color: colors.danger }]}>
-                                        Expires at {new Date(request.expires_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                                    </Text>
-                                </View>
+                        <Text style={[styles.title, { color: colors.textPrimary }]}>Access Requested</Text>
+                        <Text style={[styles.description, { color: colors.textSecondary }]}>
+                            A team member is trying to sign in to your shop. Please verify their identity before granting access.
+                        </Text>
+
+                        {/* Request Card */}
+                        <View style={[styles.userBox, { backgroundColor: colors.overlay, borderColor: colors.border }]}>
+                            <View style={[styles.avatar, { backgroundColor: colors.brandGold }]}>
+                                <User size={24} color="#000" />
                             </View>
-
-                            <View style={styles.actionRow}>
-                                <TouchableOpacity 
-                                    style={[styles.actionBtn, { backgroundColor: 'rgba(239,68,68,0.1)' }]} 
-                                    onPress={() => handleReject(request.id)}
-                                    disabled={processingId === request.id}
-                                >
-                                    {processingId === request.id ? <ActivityIndicator size="small" color={colors.danger} /> : <UserX size={18} color={colors.danger} />}
-                                    <Text style={[styles.actionText, { color: colors.danger }]}>Reject</Text>
-                                </TouchableOpacity>
-                                <TouchableOpacity 
-                                    style={[styles.actionBtn, { backgroundColor: colors.brandGreen }]}
-                                    onPress={() => handleApprove(request.id)}
-                                    disabled={processingId === request.id}
-                                >
-                                    {processingId === request.id ? <ActivityIndicator size="small" color="#FFF" /> : <UserCheck size={18} color="#FFF" />}
-                                    <Text style={[styles.actionText, { color: '#FFF' }]}>Approve</Text>
-                                </TouchableOpacity>
+                            <View style={{ flex: 1 }}>
+                                <Text style={[styles.userName, { color: colors.textPrimary }]}>{request.cashier?.name || 'Staff Member'}</Text>
+                                <View style={styles.timeRow}>
+                                    <Clock size={12} color={colors.danger} />
+                                    <Text style={[styles.timeText, { color: colors.danger }]}>Expires at {timeStr}</Text>
+                                </View>
                             </View>
                         </View>
-                    ))}
+
+                        {/* Actions */}
+                        <View style={styles.actions}>
+                            <TouchableOpacity 
+                                style={[styles.rejectBtn, { borderColor: colors.danger }]}
+                                onPress={() => handleReject(request.id)}
+                                disabled={processingId === request.id}
+                            >
+                                {processingId === request.id ? (
+                                    <ActivityIndicator size="small" color={colors.danger} />
+                                ) : (
+                                    <>
+                                        <UserX size={20} color={colors.danger} />
+                                        <Text style={[styles.rejectText, { color: colors.danger }]}>Reject</Text>
+                                    </>
+                                )}
+                            </TouchableOpacity>
+
+                            <TouchableOpacity 
+                                style={[styles.approveBtn, { backgroundColor: colors.brandGreen }]}
+                                onPress={() => handleApprove(request.id)}
+                                disabled={processingId === request.id}
+                            >
+                                {processingId === request.id ? (
+                                    <ActivityIndicator size="small" color="#FFF" />
+                                ) : (
+                                    <>
+                                        <UserCheck size={20} color="#FFF" />
+                                        <Text style={styles.approveText}>Approve Access</Text>
+                                    </>
+                                )}
+                            </TouchableOpacity>
+                        </View>
+
+                        {pendingLogins.length > 1 && (
+                            <Text style={[styles.moreText, { color: colors.textSecondary }]}>
+                                + {pendingLogins.length - 1} other pending requests
+                            </Text>
+                        )}
+                    </View>
                 </View>
-            </View>
+            </BlurView>
         </Modal>
     );
 }
 
 const styles = StyleSheet.create({
-    overlay: {
+    fullScreen: {
+        flex: 1,
+        width: SCREEN_WIDTH,
+        height: SCREEN_HEIGHT,
+    },
+    container: {
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        padding: 20,
-        zIndex: 9999,
+        padding: 24,
     },
-    modalContent: {
+    card: {
         width: '100%',
         maxWidth: 400,
-        borderRadius: 24,
-        padding: 24,
+        borderRadius: 32,
+        padding: 32,
         borderWidth: 1,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 10 },
-        shadowOpacity: 0.3,
-        shadowRadius: 20,
-        elevation: 15,
-    },
-    header: {
-        flexDirection: 'row',
         alignItems: 'center',
-        marginBottom: 8,
-        gap: 12,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 20 },
+        shadowOpacity: 0.4,
+        shadowRadius: 30,
+        elevation: 20,
+    },
+    iconHalo: {
+        width: 80,
+        height: 80,
+        borderRadius: 40,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginBottom: 20,
     },
     title: {
         fontFamily: 'Poppins_700Bold',
-        fontSize: 20,
-    },
-    subtitle: {
-        fontFamily: 'Montserrat_500Medium',
-        fontSize: 14,
-        marginBottom: 20,
-    },
-    card: {
-        padding: 16,
-        borderRadius: 16,
-        borderWidth: 1,
+        fontSize: 24,
+        textAlign: 'center',
         marginBottom: 12,
     },
-    cardInfo: {
+    description: {
+        fontFamily: 'Montserrat_500Medium',
+        fontSize: 14,
+        textAlign: 'center',
+        lineHeight: 20,
+        marginBottom: 28,
+    },
+    userBox: {
+        width: '100%',
         flexDirection: 'row',
         alignItems: 'center',
+        padding: 16,
+        borderRadius: 20,
+        borderWidth: 1,
+        marginBottom: 32,
     },
     avatar: {
-        width: 44,
-        height: 44,
-        borderRadius: 22,
+        width: 52,
+        height: 52,
+        borderRadius: 26,
         justifyContent: 'center',
         alignItems: 'center',
         marginRight: 16,
     },
-    cardTitle: {
+    userName: {
         fontFamily: 'Poppins_700Bold',
-        fontSize: 16,
+        fontSize: 18,
     },
-    cardTime: {
-        fontFamily: 'Montserrat_600SemiBold',
-        fontSize: 12,
+    timeRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 6,
         marginTop: 4,
     },
-    actionRow: {
-        flexDirection: 'row',
-        marginTop: 16,
-        gap: 12,
+    timeText: {
+        fontFamily: 'Montserrat_700Bold',
+        fontSize: 12,
     },
-    actionBtn: {
-        flex: 1,
+    actions: {
+        width: '100%',
+        gap: 16,
+    },
+    approveBtn: {
+        width: '100%',
+        height: 56,
+        borderRadius: 16,
         flexDirection: 'row',
         justifyContent: 'center',
         alignItems: 'center',
-        paddingVertical: 12,
-        borderRadius: 12,
-        gap: 8,
+        gap: 10,
+        shadowColor: '#10B981',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.3,
+        shadowRadius: 8,
+        elevation: 4,
     },
-    actionText: {
+    approveText: {
         fontFamily: 'Poppins_700Bold',
-        fontSize: 14,
+        fontSize: 16,
+        color: '#FFF',
+    },
+    rejectBtn: {
+        width: '100%',
+        height: 56,
+        borderRadius: 16,
+        flexDirection: 'row',
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderWidth: 1.5,
+        gap: 10,
+    },
+    rejectText: {
+        fontFamily: 'Poppins_700Bold',
+        fontSize: 16,
+    },
+    moreText: {
+        fontFamily: 'Montserrat_600SemiBold',
+        fontSize: 12,
+        marginTop: 20,
     },
 });

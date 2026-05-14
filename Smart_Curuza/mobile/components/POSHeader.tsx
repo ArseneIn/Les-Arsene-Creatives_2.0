@@ -87,6 +87,11 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         gap: 8,
     },
+    title: {
+        fontSize: 18,
+        fontFamily: 'Montserrat_700Bold',
+        color: '#FFFFFF',
+    },
     offlineBadge: {
         flexDirection: 'row',
         alignItems: 'center',

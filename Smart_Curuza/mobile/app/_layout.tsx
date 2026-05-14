@@ -11,6 +11,7 @@ import { ThemeProvider } from '../lib/theme/ThemeContext';
 import { SyncProvider } from '../lib/sync/SyncContext';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import OfflineBanner from '../components/OfflineBanner';
+import GlobalApprovalModal from '../components/GlobalApprovalModal';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -40,10 +41,12 @@ export default function RootLayout() {
                 <AuthProvider>
                     <ThemeProvider>
                         <OfflineBanner />
+                        <GlobalApprovalModal />
                         <Stack screenOptions={{ headerShown: false }}>
                             <Stack.Screen name="index" />
                             <Stack.Screen name="(tabs)" />
                             <Stack.Screen name="login" />
+                            <Stack.Screen name="register" />
                             <Stack.Screen name="sales/index" />
                         </Stack>
                     </ThemeProvider>

@@ -3,16 +3,16 @@
 import { useEffect, useState, useRef } from 'react';
 import { usePathname } from 'next/navigation';
 
-export default function PageLoader() {
+export default function PageLoader({ isManual = false }: { isManual?: boolean }) {
     const pathname = usePathname();
     const [progress, setProgress] = useState(0);
-    const [phase, setPhase] = useState<'hidden' | 'entering' | 'loading' | 'leaving'>('hidden');
+    const [phase, setPhase] = useState<'hidden' | 'entering' | 'loading' | 'leaving'>(isManual ? 'entering' : 'hidden');
     const prevPath = useRef(pathname);
     const timerRef = useRef<NodeJS.Timeout | null>(null);
     const rafRef = useRef<number | null>(null);
 
     useEffect(() => {
-        if (pathname === prevPath.current) return;
+        if (!isManual && pathname === prevPath.current) return;
         prevPath.current = pathname;
 
         // Clear previous
@@ -50,7 +50,7 @@ export default function PageLoader() {
             if (timerRef.current) clearTimeout(timerRef.current);
             if (rafRef.current) cancelAnimationFrame(rafRef.current);
         };
-    }, [pathname]);
+    }, [pathname, isManual]);
 
     if (phase === 'hidden') return null;
 

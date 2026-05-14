@@ -1,8 +1,7 @@
 
 
-import { db } from './sync/db';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://192.168.0.84:3001';
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 
 export interface ApiResponse<T> {
     data: T;
@@ -30,6 +29,7 @@ export async function fetchApi<T>(endpoint: string, options: RequestInit = {}): 
 
     // Offline interception
     if (typeof window !== 'undefined' && !window.navigator.onLine && !isGet && !bypassOffline) {
+        const { db } = await import('./sync/db');
         let bodyParsed = options.body;
         if (typeof options.body === 'string') {
             try { bodyParsed = JSON.parse(options.body); } catch(e) {}
@@ -61,7 +61,11 @@ export async function fetchApi<T>(endpoint: string, options: RequestInit = {}): 
             if (typeof window !== 'undefined') {
                 localStorage.removeItem('token');
                 localStorage.removeItem('user');
-                window.location.href = '/login';
+                
+                // Only redirect if not already on login page
+                if (!window.location.pathname.includes('/login')) {
+                    window.location.href = '/en/login';
+                }
             }
         }
         const errorData = await response.json().catch(() => ({}));
@@ -69,7 +73,12 @@ export async function fetchApi<T>(endpoint: string, options: RequestInit = {}): 
     }
 
     const text = await response.text();
-    return text ? JSON.parse(text) : null as T;
+    try {
+        return text ? JSON.parse(text) : null as T;
+    } catch (e) {
+        console.error("Failed to parse API response", e, text);
+        return { message: "Invalid server response" } as unknown as T;
+    }
 }
 
 export const api = {
