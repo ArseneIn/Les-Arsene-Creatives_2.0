@@ -1,8 +1,7 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { ServeStaticModule } from '@nestjs/serve-static';
-import { join } from 'path';
+
 import { ClientManagementModule } from './client-management/client-management.module';
 import { ProductsModule } from './products/products.module';
 import { SalesModule } from './sales/sales.module';
@@ -59,8 +58,9 @@ const imports: any[] = [
   ShiftsModule,
 ];
 
-// ServeStaticModule crashes on Vercel because the 'uploads' folder doesn't exist
-// in the stateless/serverless environment. We only enable it for local dev.
+// We are completely disabling ServeStaticModule for now to ensure it
+// is not causing the Serverless Lambda cold-start crash.
+/*
 if (!process.env.VERCEL) {
   imports.push(
     ServeStaticModule.forRoot({
@@ -69,6 +69,7 @@ if (!process.env.VERCEL) {
     }),
   );
 }
+*/
 
 @Module({
   imports,
