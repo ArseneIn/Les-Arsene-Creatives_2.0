@@ -24,19 +24,27 @@ export default async function handler(req: any, res: any) {
     return;
   }
 
-  if (!app) {
-    app = await NestFactory.create(AppModule);
-    // ... we don't need app.enableCors() anymore, but keeping it doesn't hurt
-    app.useGlobalPipes(
-      new ValidationPipe({
-        whitelist: true,
-        forbidNonWhitelisted: true,
-        transform: true,
-      }),
-    );
-    await app.init();
-  }
+  try {
+    if (!app) {
+      app = await NestFactory.create(AppModule);
+      app.useGlobalPipes(
+        new ValidationPipe({
+          whitelist: true,
+          forbidNonWhitelisted: true,
+          transform: true,
+        }),
+      );
+      await app.init();
+    }
 
-  const instance = app.getHttpAdapter().getInstance();
-  return instance(req, res);
+    const instance = app.getHttpAdapter().getInstance();
+    return instance(req, res);
+  } catch (error: any) {
+    console.error('CRITICAL NESTJS STARTUP ERROR:', error);
+    res.status(500).json({
+      error: 'Backend Crash',
+      message: error.message || String(error),
+      stack: error.stack,
+    });
+  }
 }
