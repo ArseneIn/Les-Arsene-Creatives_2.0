@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-explicit-any, @typescript-eslint/no-floating-promises, prefer-const */
 import { DataSource } from 'typeorm';
 import { User } from './entities/user.entity';
 import { Merchant } from './entities/merchant.entity';
@@ -6,7 +7,7 @@ import { Customer } from './entities/customer.entity';
 import { Batch } from './entities/batch.entity';
 import { Sale } from './entities/sale.entity';
 import { DebtLedger } from './entities/debt-ledger.entity';
-import * as bcrypt from 'bcrypt';
+import * as bcrypt from 'bcryptjs';
 import * as dotenv from 'dotenv';
 
 dotenv.config();

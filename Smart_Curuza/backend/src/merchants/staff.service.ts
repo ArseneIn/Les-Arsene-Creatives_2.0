@@ -19,7 +19,7 @@ import {
   LoginRequest,
   LoginRequestStatus,
 } from '../entities/login-request.entity';
-import * as bcrypt from 'bcrypt';
+import * as bcrypt from 'bcryptjs';
 
 @Injectable()
 export class StaffService {

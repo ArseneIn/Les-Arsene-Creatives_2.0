@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-explicit-any, @typescript-eslint/no-floating-promises */
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from '../app.module';
 import { EntityManager, Not, In } from 'typeorm';
@@ -9,7 +10,7 @@ import { Expense } from '../entities/expense.entity';
 import { Sale } from '../entities/sale.entity';
 import { Customer } from '../entities/customer.entity';
 import { DebtLedger } from '../entities/debt-ledger.entity';
-import * as bcrypt from 'bcrypt';
+import * as bcrypt from 'bcryptjs';
 
 async function bootstrap() {
   const app = await NestFactory.createApplicationContext(AppModule);
