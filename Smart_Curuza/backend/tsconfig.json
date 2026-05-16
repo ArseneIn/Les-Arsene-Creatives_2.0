@@ -23,6 +23,6 @@
     "noFallthroughCasesInSwitch": false,
     "allowJs": true
   },
-  "include": ["src/**/*", "*.js"],
+  "include": ["src/**/*", "api/**/*", "*.js"],
   "exclude": ["node_modules", "dist"]
 }
