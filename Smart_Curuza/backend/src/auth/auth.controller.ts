@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-argument */
 import {
   Controller,
   Post,
@@ -10,7 +11,7 @@ import {
   Param,
 } from '@nestjs/common';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
-import { diskStorage } from 'multer';
+import { diskStorage, memoryStorage } from 'multer';
 import { extname } from 'path';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
@@ -38,16 +39,18 @@ export class AuthController {
         { name: 'owner_id_doc', maxCount: 1 },
       ],
       {
-        storage: diskStorage({
-          destination: './uploads',
-          filename: (req, file, cb) => {
-            const randomName = Array(32)
-              .fill(null)
-              .map(() => Math.round(Math.random() * 16).toString(16))
-              .join('');
-            return cb(null, `${randomName}${extname(file.originalname)}`);
-          },
-        }),
+        storage: process.env.VERCEL
+          ? memoryStorage()
+          : diskStorage({
+              destination: './uploads',
+              filename: (req, file, cb) => {
+                const randomName = Array(32)
+                  .fill(null)
+                  .map(() => Math.round(Math.random() * 16).toString(16))
+                  .join('');
+                return cb(null, `${randomName}${extname(file.originalname)}`);
+              },
+            }),
       },
     ),
   )
