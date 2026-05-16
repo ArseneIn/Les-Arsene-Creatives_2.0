@@ -20,49 +20,58 @@ import { SuperAdminModule } from './super-admin/super-admin.module';
 import { EbmModule } from './ebm/ebm.module';
 import { ShiftsModule } from './shifts/shifts.module';
 
-@Module({
-  imports: [
-    ConfigModule.forRoot({
-      isGlobal: true,
-      envFilePath: '.env',
+const imports: any[] = [
+  ConfigModule.forRoot({
+    isGlobal: true,
+    envFilePath: '.env',
+  }),
+  TypeOrmModule.forRootAsync({
+    imports: [ConfigModule],
+    useFactory: (configService: ConfigService) => ({
+      type: 'postgres',
+      host: configService.get<string>('DB_HOST'),
+      port: configService.get<number>('DB_PORT'),
+      username: configService.get<string>('DB_USERNAME'),
+      password: configService.get<string>('DB_PASSWORD'),
+      database: configService.get<string>('DB_NAME'),
+      entities: [__dirname + '/**/*.entity{.ts,.js}'],
+      synchronize: configService.get<string>('NODE_ENV') !== 'production',
+      ssl:
+        configService.get<string>('DB_SSL') === 'true'
+          ? { rejectUnauthorized: false }
+          : false,
     }),
-    TypeOrmModule.forRootAsync({
-      imports: [ConfigModule],
-      useFactory: (configService: ConfigService) => ({
-        type: 'postgres',
-        host: configService.get<string>('DB_HOST'),
-        port: configService.get<number>('DB_PORT'),
-        username: configService.get<string>('DB_USERNAME'),
-        password: configService.get<string>('DB_PASSWORD'),
-        database: configService.get<string>('DB_NAME'),
-        entities: [__dirname + '/**/*.entity{.ts,.js}'],
-        synchronize: configService.get<string>('NODE_ENV') !== 'production',
-        ssl:
-          configService.get<string>('DB_SSL') === 'true'
-            ? { rejectUnauthorized: false }
-            : false,
-      }),
-      inject: [ConfigService],
-    }),
-    ClientManagementModule,
-    ProductsModule,
-    SalesModule,
-    AuthModule,
-    BatchesModule,
-    PaymentsModule,
-    DashboardModule,
-    MerchantsModule,
-    NotificationsModule,
-    ExpensesModule,
-    TaxModule,
-    SuperAdminModule,
-    EbmModule,
-    ShiftsModule,
+    inject: [ConfigService],
+  }),
+  ClientManagementModule,
+  ProductsModule,
+  SalesModule,
+  AuthModule,
+  BatchesModule,
+  PaymentsModule,
+  DashboardModule,
+  MerchantsModule,
+  NotificationsModule,
+  ExpensesModule,
+  TaxModule,
+  SuperAdminModule,
+  EbmModule,
+  ShiftsModule,
+];
+
+// ServeStaticModule crashes on Vercel because the 'uploads' folder doesn't exist
+// in the stateless/serverless environment. We only enable it for local dev.
+if (!process.env.VERCEL) {
+  imports.push(
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', 'uploads'),
       serveRoot: '/uploads',
     }),
-  ],
+  );
+}
+
+@Module({
+  imports,
   controllers: [AppController],
   providers: [AppService],
 })
