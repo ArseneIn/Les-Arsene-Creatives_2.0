@@ -5,7 +5,7 @@ import {
     Alert, ActivityIndicator, Animated,
     KeyboardAvoidingView, ScrollView,
 } from 'react-native';
-import { ShoppingCart, ArrowLeft, CheckCircle2, Banknote, Smartphone, FileText, Minus, Plus, Trash2, Share2, X } from 'lucide-react-native';
+import { ShoppingCart, ArrowLeft, CheckCircle2, Banknote, Smartphone, FileText, Minus, Plus, Trash2, Share2, X, ArrowRight } from 'lucide-react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useTheme } from '../../lib/theme/ThemeContext';
@@ -20,7 +20,7 @@ import { Share } from 'react-native';
 const POSSkeleton = () => {
     const { colors } = useTheme();
     return (
-        <View style={{ flex: 1, paddingHorizontal: 16, paddingTop: 12, gap: 14 }}>
+        <View style={{ flex: 1, paddingHorizontal: 16, paddingTop: 12, gap: 14, backgroundColor: colors.background }}>
             <SkeletonLoader height={44} borderRadius={12} />
             <View style={{ flexDirection: 'row', gap: 10 }}>
                 <SkeletonLoader width="48%" height={150} borderRadius={16} />
@@ -168,19 +168,19 @@ export default function POSScreen() {
     return (
         <View style={[styles.root, { paddingTop: insets.top, backgroundColor: bg }]}>
             {/* ── Header ── */}
-            <View style={[styles.header, { backgroundColor: card, borderBottomColor: border }]}>
-                <TouchableOpacity onPress={headerBack} style={[styles.headerBack, { backgroundColor: colors.overlay, borderColor: border }]}>
-                    <ArrowLeft size={20} color={textPrimary} />
+            <View style={[styles.header, { backgroundColor: gold, borderBottomColor: border }]}>
+                <TouchableOpacity onPress={headerBack} style={[styles.headerBack, { backgroundColor: 'rgba(255,255,255,0.25)', borderColor: 'rgba(0,0,0,0.1)' }]}>
+                    <ArrowLeft size={20} color="#0b0c0c" />
                 </TouchableOpacity>
                 <View style={{ flex: 1 }}>
-                    <Text style={[styles.headerTitle, { color: textPrimary }]}>{headerTitle}</Text>
+                    <Text style={[styles.headerTitle, { color: '#0b0c0c' }]}>{headerTitle}</Text>
                     {screen === 'products' && (
-                        <Text style={[styles.headerSub, { color: textSecondary }]}>Tap + to add items</Text>
+                        <Text style={[styles.headerSub, { color: 'rgba(11,12,12,0.6)' }]}>Tap + to add items</Text>
                     )}
                 </View>
                 {screen === 'products' && (
-                    <TouchableOpacity style={styles.cartBtn} onPress={() => setScreen('cart')} activeOpacity={0.85}>
-                        <ShoppingCart size={20} color="#0b0c0c" />
+                    <TouchableOpacity style={[styles.cartBtn, { backgroundColor: '#0b0c0c' }]} onPress={() => setScreen('cart')} activeOpacity={0.85}>
+                        <ShoppingCart size={20} color={gold} />
                         {cartCount > 0 && (
                             <View style={styles.badge}><Text style={styles.badgeText}>{cartCount}</Text></View>
                         )}
@@ -208,9 +208,20 @@ export default function POSScreen() {
                             onPress={() => setScreen('cart')}
                             activeOpacity={0.85}
                         >
-                            <ShoppingCart size={18} color="#0b0c0c" />
-                            <Text style={styles.fabText}>{cartTotal.toLocaleString()} RWF</Text>
-                            <View style={styles.fabBadge}><Text style={styles.fabBadgeText}>{cartCount}</Text></View>
+                            <View style={styles.fabInner}>
+                                <View style={styles.fabIconContainer}>
+                                    <ShoppingCart size={22} color="#0b0c0c" />
+                                    {cartCount > 0 && (
+                                        <View style={styles.fabCountTag}>
+                                            <Text style={styles.fabCountText}>{cartCount}</Text>
+                                        </View>
+                                    )}
+                                </View>
+                                <Text style={styles.fabText}>{cartTotal.toLocaleString()} <Text style={{ fontSize: 12, opacity: 0.7 }}>RWF</Text></Text>
+                                <View style={styles.fabActionIcon}>
+                                    <ArrowRight size={20} color="#0b0c0c" />
+                                </View>
+                            </View>
                         </TouchableOpacity>
                     )}
                 </View>
@@ -280,15 +291,65 @@ export default function POSScreen() {
                         {(['CASH', 'MOBILE_MONEY', 'CREDIT'] as PayMethod[]).map((m) => {
                             const icons = { CASH: Banknote, MOBILE_MONEY: Smartphone, CREDIT: FileText };
                             const labels = { CASH: 'Cash', MOBILE_MONEY: 'Mobile Money (MoMo)', CREDIT: 'Debt (Ideni)' };
+                            
+                            const colorMap = {
+                                CASH: { bg: '#10B981', text: '#FFFFFF', icon: '#FFFFFF', light: 'rgba(16,185,129,0.1)' },
+                                MOBILE_MONEY: { bg: gold, text: '#0B0C0C', icon: '#0B0C0C', light: 'rgba(251,225,52,0.1)' },
+                                CREDIT: { bg: '#EF4444', text: '#FFFFFF', icon: '#FFFFFF', light: 'rgba(239,68,68,0.1)' }
+                            };
+                            
+                            const colors_cfg = colorMap[m];
                             const Icon = icons[m];
                             const active = method === m;
+                            
                             return (
-                                <TouchableOpacity key={m} style={[styles.methodRow, { backgroundColor: card, borderColor: active ? gold : border }]} onPress={() => setMethod(m)} activeOpacity={0.8}>
-                                    <View style={[styles.methodIcon, { backgroundColor: active ? 'rgba(251,225,52,0.1)' : colors.overlay }]}>
-                                        <Icon size={20} color={active ? gold : textSecondary} />
+                                <TouchableOpacity 
+                                    key={m} 
+                                    style={[
+                                        styles.methodRow, 
+                                        { 
+                                            backgroundColor: colors_cfg.bg, 
+                                            borderColor: 'transparent',
+                                            borderWidth: 0,
+                                            transform: [{ scale: active ? 1.03 : 1 }],
+                                            shadowColor: colors_cfg.bg,
+                                            shadowOffset: { width: 0, height: active ? 8 : 2 },
+                                            shadowOpacity: active ? 0.4 : 0.2,
+                                            shadowRadius: active ? 12 : 4,
+                                            elevation: active ? 8 : 2
+                                        }
+                                    ]} 
+                                    onPress={() => setMethod(m)} 
+                                    activeOpacity={0.8}
+                                >
+                                    {active && (
+                                        <View style={{
+                                            ...StyleSheet.absoluteFillObject,
+                                            borderWidth: 2,
+                                            borderColor: 'rgba(255,255,255,0.4)',
+                                            borderRadius: 16,
+                                            margin: 4
+                                        }} />
+                                    )}
+                                    <View style={[styles.methodIcon, { backgroundColor: 'rgba(255,255,255,0.2)' }]}>
+                                        <Icon size={20} color={colors_cfg.icon} />
                                     </View>
-                                    <Text style={[styles.methodLabel, { color: active ? textPrimary : textSecondary, fontFamily: active ? 'Poppins_700Bold' : 'Montserrat_500Medium' }]}>{labels[m]}</Text>
-                                    {active && <CheckCircle2 size={18} color={gold} />}
+                                    <Text 
+                                        style={[
+                                            styles.methodLabel, 
+                                            { 
+                                                color: colors_cfg.text, 
+                                                fontFamily: active ? 'Poppins_700Bold' : 'Montserrat_600SemiBold' 
+                                            }
+                                        ]}
+                                    >
+                                        {labels[m]}
+                                    </Text>
+                                    {active && (
+                                        <View style={{ backgroundColor: 'rgba(255,255,255,0.25)', borderRadius: 12, padding: 4 }}>
+                                            <CheckCircle2 size={16} color={colors_cfg.icon} />
+                                        </View>
+                                    )}
                                 </TouchableOpacity>
                             );
                         })}
@@ -358,10 +419,13 @@ const styles = StyleSheet.create({
     toast: { position: 'absolute', top: 80, alignSelf: 'center', flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 16, paddingVertical: 10, borderRadius: 24, zIndex: 100, shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.2, shadowRadius: 8, elevation: 10 },
     toastText: { fontSize: 13, fontFamily: 'Montserrat_700Bold', color: '#fff' },
     gridWrap: { flex: 1, paddingHorizontal: 12, paddingTop: 10 },
-    fab: { position: 'absolute', left: 16, right: 16, backgroundColor: '#fbe134', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingVertical: 15, borderRadius: 18, gap: 10, shadowColor: '#fbe134', shadowOffset: { width: 0, height: 6 }, shadowOpacity: 0.4, shadowRadius: 12, elevation: 10 },
-    fabText: { fontSize: 15, fontFamily: 'Poppins_700Bold', color: '#0b0c0c', flex: 1, textAlign: 'center' },
-    fabBadge: { backgroundColor: '#0b0c0c', borderRadius: 10, paddingHorizontal: 8, paddingVertical: 2 },
-    fabBadgeText: { fontSize: 12, fontFamily: 'Poppins_700Bold', color: '#fbe134' },
+    fab: { position: 'absolute', left: 16, right: 16, backgroundColor: '#fbe134', borderRadius: 20, shadowColor: '#fbe134', shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.5, shadowRadius: 16, elevation: 12, overflow: 'hidden' },
+    fabInner: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 12, gap: 12 },
+    fabIconContainer: { width: 48, height: 48, borderRadius: 12, backgroundColor: 'rgba(11,12,12,0.06)', alignItems: 'center', justifyContent: 'center' },
+    fabCountTag: { position: 'absolute', top: -4, right: -4, backgroundColor: '#0b0c0c', borderRadius: 10, minWidth: 20, height: 20, alignItems: 'center', justifyContent: 'center', borderWidth: 2, borderColor: '#fbe134' },
+    fabCountText: { color: '#fbe134', fontSize: 10, fontFamily: 'Poppins_700Bold' },
+    fabText: { flex: 1, fontSize: 18, fontFamily: 'Poppins_700Bold', color: '#0b0c0c', marginLeft: 4 },
+    fabActionIcon: { width: 36, height: 36, borderRadius: 18, backgroundColor: 'rgba(11,12,12,0.08)', alignItems: 'center', justifyContent: 'center' },
     emptyCart: { flex: 1, alignItems: 'center', paddingTop: 80, gap: 12 },
     emptyTitle: { fontSize: 18, fontFamily: 'Poppins_700Bold', marginTop: 8 },
     continueBtn: { marginTop: 8, borderWidth: 1.5, borderRadius: 12, paddingHorizontal: 24, paddingVertical: 10 },

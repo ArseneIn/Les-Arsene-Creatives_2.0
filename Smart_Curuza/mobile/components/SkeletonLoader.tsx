@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { Animated, ViewStyle, StyleProp } from 'react-native';
+import { useTheme } from '../lib/theme/ThemeContext';
 
 interface SkeletonLoaderProps {
     width?: number | string;
@@ -16,20 +17,21 @@ export default function SkeletonLoader({
     style,
     circle = false
 }: SkeletonLoaderProps) {
-    const pulseAnim = useRef(new Animated.Value(0)).current;
+    const { isDarkMode } = useTheme();
+    const pulseAnim = useRef(new Animated.Value(0.3)).current;
 
     useEffect(() => {
         const pulse = Animated.loop(
             Animated.sequence([
                 Animated.timing(pulseAnim, {
-                    toValue: 1,
-                    duration: 800,
-                    useNativeDriver: false, // backgroundColor interpolation needs false
+                    toValue: 0.8,
+                    duration: 1000,
+                    useNativeDriver: true,
                 }),
                 Animated.timing(pulseAnim, {
-                    toValue: 0,
-                    duration: 800,
-                    useNativeDriver: false,
+                    toValue: 0.3,
+                    duration: 1000,
+                    useNativeDriver: true,
                 }),
             ])
         );
@@ -38,10 +40,7 @@ export default function SkeletonLoader({
         return () => pulse.stop();
     }, [pulseAnim]);
 
-    const interpolatedColor = pulseAnim.interpolate({
-        inputRange: [0, 1],
-        outputRange: ['#2a2e34', '#4B5563'] // Solid Jet to Solid Slate (No transparency)
-    });
+    const baseColor = isDarkMode ? '#2a2e34' : '#E5E7EB';
 
     return (
         <Animated.View
@@ -50,8 +49,8 @@ export default function SkeletonLoader({
                     width: width as any,
                     height: height as any,
                     borderRadius: circle ? (typeof height === 'number' ? height / 2 : 50) : borderRadius,
-                    backgroundColor: interpolatedColor, // Solid color
-                    // opacity removed to prevent transparency bleeding
+                    backgroundColor: baseColor,
+                    opacity: pulseAnim,
                 },
                 style,
             ]}

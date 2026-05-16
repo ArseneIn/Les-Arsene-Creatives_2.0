@@ -39,6 +39,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const segments = useSegments();
     const router = useRouter();
 
+    const isLoggingOut = React.useRef(false);
+
     useEffect(() => {
         const loadSession = async () => {
             try {
@@ -57,13 +59,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         };
 
         loadSession();
-
-        // Register global 401 handler
-        ApiClient.onUnauthorized(() => {
-            console.log('AuthContext: Received 401, logging out...');
-            logout();
-        });
     }, []);
+
+    // Register global 401 handler with access to current user state
+    useEffect(() => {
+        ApiClient.onUnauthorized(() => {
+            // Only trigger logout if we have a user and aren't already logging out
+            if (user && !isLoggingOut.current) {
+                console.log('AuthContext: Received 401, initiating secure logout...');
+                logout();
+            }
+        });
+    }, [user]);
 
     useEffect(() => {
         if (isLoading) return;
@@ -81,6 +88,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }, [user, segments, isLoading]);
 
     const login = async (newToken: string, newUser: User) => {
+        isLoggingOut.current = false;
         setToken(newToken);
         setUser(newUser);
         await SecureStore.setItemAsync('auth_token', newToken);
@@ -89,15 +97,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
 
     const logout = async () => {
-        setToken(null);
-        setUser(null);
-        await SecureStore.deleteItemAsync('auth_token');
-        await SecureStore.deleteItemAsync('auth_user');
-        ApiClient.clearCache(); 
-        
-        // Only redirect if we're not already on the login page
-        if (!segments.includes('login')) {
-            router.replace('/login');
+        if (isLoggingOut.current) return;
+        isLoggingOut.current = true;
+
+        try {
+            setToken(null);
+            setUser(null);
+            await SecureStore.deleteItemAsync('auth_token');
+            await SecureStore.deleteItemAsync('auth_user');
+            ApiClient.clearCache(); 
+            
+            // Only redirect if we're not already on the login page
+            const isAuthPage = segments.some(s => s === 'login' || s === 'register');
+            if (!isAuthPage) {
+                router.replace('/login');
+            }
+        } finally {
+            // Keep it true for a moment to let navigation settle
+            setTimeout(() => {
+                isLoggingOut.current = false;
+            }, 1000);
         }
     };
 

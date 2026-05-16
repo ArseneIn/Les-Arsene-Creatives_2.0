@@ -182,7 +182,7 @@ export default function History() {
                 </TouchableOpacity>
             </View>
 
-            <View style={styles.content}>
+            <View style={[styles.content, { paddingBottom: insets.bottom + 80 }]}>
                 {/* Unified Command Bar (V5) */}
                 <View style={styles.actionRow}>
                     <View style={[styles.searchBar, { backgroundColor: colors.card, borderColor: colors.border }]}>
@@ -234,7 +234,13 @@ export default function History() {
                         />
                         
                         {/* Pagination Bar */}
-                        <View style={[styles.paginationBar, { backgroundColor: isDarkMode ? colors.card : '#FFFFFF', borderTopColor: isDarkMode ? colors.border : '#fbe134' }]}>
+                        <View style={[
+                            styles.paginationBar, 
+                            { 
+                                backgroundColor: isDarkMode ? colors.card : '#FFFFFF', 
+                                borderTopColor: isDarkMode ? colors.border : '#fbe134'
+                            }
+                        ]}>
                             <View style={styles.paginationInfo}>
                                 <Text style={[styles.paginationText, { color: colors.textSecondary }]}>
                                     Page <Text style={[styles.paginationHighlight, { color: colors.textPrimary }]}>{currentPage}</Text> of <Text style={[styles.paginationHighlight, { color: colors.textPrimary }]}>{totalPages || 1}</Text>
@@ -340,17 +346,15 @@ export default function History() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#1a1d21', 
     },
     header: {
-        backgroundColor: '#2a2e34', 
         paddingHorizontal: 24,
         paddingBottom: 24,
         borderBottomLeftRadius: 32,
         borderBottomRightRadius: 32,
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 8 },
-        shadowOpacity: 0.25,
+        shadowOpacity: 0.15,
         shadowRadius: 16,
         elevation: 12,
         zIndex: 100,
@@ -365,12 +369,10 @@ const styles = StyleSheet.create({
     headerTitle: {
         fontSize: 28,
         fontFamily: 'Poppins_700Bold',
-        color: '#FFFFFF',
     },
     headerSub: {
         fontSize: 12,
         fontFamily: 'Montserrat_600SemiBold',
-        color: 'rgba(255, 255, 255, 0.5)',
         marginTop: -4,
     },
     exportButton: {
@@ -380,12 +382,10 @@ const styles = StyleSheet.create({
         width: 44,
         height: 44,
         borderRadius: 14,
-        backgroundColor: '#fbe134',
         alignItems: 'center',
         justifyContent: 'center',
-        shadowColor: 'rgba(251, 225, 52, 0.4)',
         shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 1,
+        shadowOpacity: 0.3,
         shadowRadius: 10,
         elevation: 6,
     },
@@ -401,6 +401,13 @@ const styles = StyleSheet.create({
         flex: 1,
         flexDirection: 'row',
         alignItems: 'center',
+        height: 54,
+        borderRadius: 16,
+        paddingHorizontal: 16,
+        borderWidth: 1,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.05,
         shadowRadius: 4,
         elevation: 3,
     },
@@ -409,26 +416,24 @@ const styles = StyleSheet.create({
         marginLeft: 12,
         fontFamily: 'Montserrat_600SemiBold',
         fontSize: 14,
-        color: '#FFFFFF',
     },
     filterIconButton: {
         width: 54,
         height: 54,
-        backgroundColor: '#2a2e34', 
         borderRadius: 14,
         alignItems: 'center',
         justifyContent: 'center',
+        borderWidth: 1,
         borderTopWidth: 3,
-        borderTopColor: '#fbe134', // Gold Handle
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.2,
+        shadowOpacity: 0.05,
         shadowRadius: 4,
         elevation: 3,
     },
     filterIconButtonActive: {
         backgroundColor: '#fbe134',
-        borderTopColor: '#000', // Inverse handle when active
+        borderTopColor: '#0b0c0c',
     },
     filterDot: {
         position: 'absolute',
@@ -439,24 +444,21 @@ const styles = StyleSheet.create({
         backgroundColor: '#fbe134',
         borderRadius: 4,
         borderWidth: 2,
-        borderColor: '#2a2e34', 
     },
     listContent: {
         paddingHorizontal: 24,
+        paddingTop: 48,
         paddingBottom: 100,
         gap: 16,
     },
     saleCard: {
-        backgroundColor: '#2a2e34', 
         borderRadius: 20,
         padding: 20,
         borderTopWidth: 4,
-        borderTopColor: '#fbe134',
-        shadowColor: '#000',
         shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.2,
+        shadowOpacity: 0.1,
         shadowRadius: 10,
-        elevation: 6,
+        elevation: 4,
     },
     cardHeader: {
         flexDirection: 'row',
@@ -498,7 +500,6 @@ const styles = StyleSheet.create({
         marginBottom: 14,
         paddingBottom: 14,
         borderBottomWidth: 1,
-        borderBottomColor: 'rgba(255, 255, 255, 0.05)',
     },
     customerInfo: {
         flex: 1,
@@ -506,7 +507,6 @@ const styles = StyleSheet.create({
     customerName: {
         fontSize: 17,
         fontFamily: 'Poppins_700Bold',
-        color: '#FFFFFF', 
         marginBottom: 2,
     },
     itemsSummary: {
@@ -520,7 +520,6 @@ const styles = StyleSheet.create({
     amountText: {
         fontSize: 16,
         fontFamily: 'Poppins_700Bold',
-        color: '#FFFFFF', 
     },
     cardFooter: {
         flexDirection: 'row',
@@ -539,15 +538,19 @@ const styles = StyleSheet.create({
     },
     modalOverlay: {
         flex: 1,
-        backgroundColor: 'rgba(0,0,0,0.85)',
+        backgroundColor: 'rgba(0,0,0,0.5)',
         justifyContent: 'flex-end',
     },
     modalContent: {
-        backgroundColor: '#2a2e34',
         borderTopLeftRadius: 36,
         borderTopRightRadius: 36,
         paddingBottom: Platform.OS === 'ios' ? 44 : 24,
         maxHeight: '85%',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: -4 },
+        shadowOpacity: 0.1,
+        shadowRadius: 10,
+        elevation: 20,
     },
     modalHeader: {
         flexDirection: 'row',
@@ -555,12 +558,10 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         padding: 24,
         borderBottomWidth: 1,
-        borderBottomColor: 'rgba(255, 255, 255, 0.05)',
     },
     modalTitle: {
         fontSize: 22,
         fontFamily: 'Poppins_700Bold',
-        color: '#FFFFFF',
     },
     modalBody: {
         padding: 24,
@@ -568,7 +569,6 @@ const styles = StyleSheet.create({
     filterLabel: {
         fontSize: 13,
         fontFamily: 'Montserrat_700Bold',
-        color: 'rgba(255, 255, 255, 0.3)',
         textTransform: 'uppercase',
         letterSpacing: 1.5,
         marginBottom: 16,
@@ -583,9 +583,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: 16,
         paddingVertical: 12,
         borderRadius: 14,
-        backgroundColor: 'rgba(255, 255, 255, 0.03)',
         borderWidth: 1,
-        borderColor: 'rgba(255, 255, 255, 0.1)',
     },
     filterChipActive: {
         backgroundColor: 'rgba(251, 225, 52, 0.15)',
@@ -594,7 +592,6 @@ const styles = StyleSheet.create({
     filterChipText: {
         fontSize: 13,
         fontFamily: 'Montserrat_600SemiBold',
-        color: 'rgba(255, 255, 255, 0.5)',
     },
     filterChipTextActive: {
         color: '#fbe134',
@@ -609,12 +606,10 @@ const styles = StyleSheet.create({
         height: 56,
         borderRadius: 16,
         borderWidth: 1,
-        borderColor: 'rgba(255, 255, 255, 0.1)',
         alignItems: 'center',
         justifyContent: 'center',
     },
     resetButtonText: {
-        color: '#FFFFFF',
         fontFamily: 'Montserrat_700Bold',
         fontSize: 14,
     },
@@ -643,7 +638,6 @@ const styles = StyleSheet.create({
     emptyText: {
         fontSize: 18,
         fontFamily: 'Poppins_700Bold',
-        color: '#FFFFFF',
     },
     clearFiltersText: {
         color: '#fbe134',
@@ -696,7 +690,6 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         alignItems: 'center',
         justifyContent: 'center',
-        backgroundColor: 'rgba(255, 255, 255, 0.05)',
     },
     pageButtonDisabled: {
         opacity: 0.3,

@@ -64,21 +64,34 @@ export default function DashboardHeader({ activeTab, onTabChange }: DashboardHea
 
         const fetchAlerts = async () => {
             try {
+                // 1. Fetch real notifications from database (Sales, Refunds, etc.)
+                const dbNotifications = await ApiClient.getNotifications(true);
+                const mappedDbAlerts = dbNotifications.map((n: any) => ({
+                    id: n.id,
+                    title: n.title,
+                    description: n.message,
+                    color: n.type === 'success' ? '#22C55E' : n.type === 'warning' ? '#F59E0B' : '#3B82F6',
+                    type: n.type
+                }));
+
+                // 2. Fetch products for real-time low stock (local generation for immediate feedback)
                 const products = await ApiClient.getProducts();
-                // Filter items with low stock to generate alerts
                 const lowStockAlerts = products
                     .filter(p => p.stock < 10)
                     .map(p => ({
                         id: `stock-${p.id}`,
                         title: 'Low Stock Alert',
                         description: `${p.name} has only ${p.stock} units left. Restock soon.`,
-                        color: '#EF4444' // Red
+                        color: '#EF4444', // Red
+                        type: 'warning'
                     }));
                 
-                setAlerts(lowStockAlerts);
+                // Combine them
+                const allAlerts = [...mappedDbAlerts, ...lowStockAlerts];
+                setAlerts(allAlerts);
                 
                 // If there are alerts, trigger the continuous dancing animation
-                if (lowStockAlerts.length > 0) {
+                if (allAlerts.length > 0) {
                     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
                     startRingingAnimation();
                 }

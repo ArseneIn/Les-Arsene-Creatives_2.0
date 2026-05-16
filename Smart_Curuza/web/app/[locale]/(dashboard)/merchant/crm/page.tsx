@@ -14,6 +14,7 @@ interface Customer {
     address?: string;
     total_debt: number;
     loyalty_points: number;
+    lifetime_value?: number;
 }
 
 export default function CRMPage() {
@@ -26,6 +27,7 @@ export default function CRMPage() {
 
     useEffect(() => {
         fetchCustomers();
+        fetchMerchantProfile();
         const storedUser = localStorage.getItem('user');
         if (storedUser) {
             const user = JSON.parse(storedUser);
@@ -60,16 +62,6 @@ export default function CRMPage() {
     };
 
     const [merchantProfile, setMerchantProfile] = useState<any>(null);
-
-    useEffect(() => {
-        fetchCustomers();
-        fetchMerchantProfile();
-        const storedUser = localStorage.getItem('user');
-        if (storedUser) {
-            const user = JSON.parse(storedUser);
-            setRole(user.role);
-        }
-    }, []);
 
     const fetchMerchantProfile = async () => {
         try {
@@ -182,12 +174,29 @@ export default function CRMPage() {
                                             </div>
                                         </div>
                                     </div>
-                                    <button className="text-jet-700 hover:text-jet">
-                                        <MoreVertical className="h-5 w-5" />
-                                    </button>
+                                    {Number(customer.total_debt) > 0 ? (
+                                        <span className="px-2 py-1 bg-danger/10 text-danger text-[10px] font-bold rounded uppercase">Owes Money</span>
+                                    ) : (
+                                        <span className="px-2 py-1 bg-success/10 text-success text-[10px] font-bold rounded uppercase">Cleared</span>
+                                    )}
                                 </div>
 
-                                <div className="space-y-2 mb-4">
+                                <div className="bg-platinum-800/50 rounded-lg p-3 flex justify-between mb-4 border border-platinum-600/50">
+                                    <div>
+                                        <p className="text-[10px] text-jet-700 uppercase font-bold mb-1">Lifetime Value</p>
+                                        <p className="text-sm font-bold text-jet">
+                                            {(customer.lifetime_value || 0).toLocaleString()} <span className="text-[10px] opacity-60">RWF</span>
+                                        </p>
+                                    </div>
+                                    <div className="text-right">
+                                        <p className="text-[10px] text-jet-700 uppercase font-bold mb-1">Debt</p>
+                                        <p className={`text-sm font-bold ${Number(customer.total_debt) > 0 ? 'text-danger' : 'text-success'}`}>
+                                            {Number(customer.total_debt).toLocaleString()} <span className="text-[10px] opacity-60">RWF</span>
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <div className="space-y-1 mb-4">
                                     {customer.email && (
                                         <div className="flex items-center gap-2 text-sm text-jet-700">
                                             <Mail className="h-4 w-4" />
@@ -202,30 +211,29 @@ export default function CRMPage() {
                                     )}
                                 </div>
 
-                                <div className="flex justify-between items-center pt-4 border-t border-platinum-600">
-                                    <div>
-                                        <p className="text-xs text-jet-700 uppercase font-semibold">Debt</p>
-                                        <p className={`font-bold ${Number(customer.total_debt) > 0 ? 'text-danger' : 'text-success'}`}>
-                                            {Number(customer.total_debt).toLocaleString()} RWF
-                                        </p>
-                                    </div>
-                                    <div className="flex gap-2">
-                                        {Number(customer.total_debt) > 0 && (
-                                            <button
-                                                onClick={() => setRepaymentModal({ show: true, customer })}
-                                                className="px-3 py-1 bg-green-100 text-green-700 rounded-lg text-sm font-medium hover:bg-green-200 transition-colors"
-                                            >
-                                                Repay
-                                            </button>
-                                        )}
+                                <div className="flex gap-2">
+                                    <a 
+                                        href={`tel:${customer.phone}`}
+                                        className="flex-1 flex items-center justify-center gap-2 bg-gold text-onyx py-2 rounded-lg font-bold text-xs hover:bg-gold/90 transition-all"
+                                    >
+                                        <Phone className="h-3 w-3" />
+                                        Call
+                                    </a>
+                                    {Number(customer.total_debt) > 0 && (
                                         <button
-                                            onClick={() => handleSendReminder(customer)}
-                                            className="p-2 text-gold hover:bg-platinum-700 rounded-full transition-colors"
-                                            title="Send SMS Reminder"
+                                            onClick={() => setRepaymentModal({ show: true, customer })}
+                                            className="px-4 py-2 bg-success text-white rounded-lg text-xs font-bold hover:bg-success/90 transition-all"
                                         >
-                                            <MessageSquare className="h-5 w-5" />
+                                            REPAY
                                         </button>
-                                    </div>
+                                    )}
+                                    <button
+                                        onClick={() => handleSendReminder(customer)}
+                                        className="p-2 text-jet-700 hover:bg-platinum-800 rounded-lg transition-all"
+                                        title="Send Reminder"
+                                    >
+                                        <MessageSquare className="h-4 w-4" />
+                                    </button>
                                 </div>
                             </div>
                         </div>

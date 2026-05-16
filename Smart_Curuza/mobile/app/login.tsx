@@ -227,11 +227,13 @@ export default function LoginScreen() {
                                                 <Text style={styles.label}>PHONE NUMBER</Text>
                                                 <View style={styles.inputWrapper}>
                                                     <View style={styles.iconLeft}>
-                                                        <Smartphone size={20} color="#9CA3AF" />
+                                                        <Text style={styles.flagEmoji}>🇷🇼</Text>
+                                                        <Text style={styles.countryCode}>+250</Text>
+                                                        <View style={styles.divider} />
                                                     </View>
                                                     <TextInput
-                                                        style={styles.input}
-                                                        placeholder="078X XXX XXX"
+                                                        style={[styles.input, { paddingLeft: 95 }]}
+                                                        placeholder="78X XXX XXX"
                                                         keyboardType="phone-pad"
                                                         value={phone}
                                                         onChangeText={setPhone}
@@ -244,33 +246,40 @@ export default function LoginScreen() {
                                                 </View>
                                             </View>
 
-                                            {/* PIN Input */}
+                                            {/* PIN Input (Segmented) */}
                                             <View style={styles.inputGroup}>
-                                                <Text style={styles.label}>4-DIGIT PIN</Text>
-                                                <View style={styles.inputWrapper}>
-                                                    <View style={styles.iconLeft}>
-                                                        <Lock size={20} color="#9CA3AF" />
-                                                    </View>
+                                                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+                                                    <Text style={styles.label}>4-DIGIT PIN</Text>
+                                                    <TouchableOpacity onPress={() => setShowPin(!showPin)}>
+                                                        <Text style={{ fontSize: 12, fontFamily: 'Montserrat_600SemiBold', color: '#fbe134' }}>
+                                                            {showPin ? 'Hide' : 'Show'}
+                                                        </Text>
+                                                    </TouchableOpacity>
+                                                </View>
+                                                
+                                                <View style={styles.otpContainer}>
+                                                    {[0, 1, 2, 3].map((index) => (
+                                                        <View 
+                                                            key={index} 
+                                                            style={[
+                                                                styles.otpBox, 
+                                                                pin.length === index && styles.otpBoxActive,
+                                                                pin.length > index && styles.otpBoxFilled
+                                                            ]}
+                                                        >
+                                                            <Text style={styles.otpText}>
+                                                                {pin[index] ? (showPin ? pin[index] : '•') : ''}
+                                                            </Text>
+                                                        </View>
+                                                    ))}
                                                     <TextInput
-                                                        style={[styles.input, styles.pinInput]}
-                                                        placeholder="••••"
-                                                        secureTextEntry={!showPin}
+                                                        style={styles.hiddenInput}
                                                         keyboardType="numeric"
                                                         maxLength={4}
                                                         value={pin}
                                                         onChangeText={setPin}
-                                                        placeholderTextColor="#9CA3AF"
+                                                        autoFocus={false}
                                                     />
-                                                    <TouchableOpacity
-                                                        style={styles.iconRight}
-                                                        onPress={() => setShowPin(!showPin)}
-                                                    >
-                                                        {showPin ? (
-                                                            <EyeOff size={20} color="#9CA3AF" />
-                                                        ) : (
-                                                            <Eye size={20} color="#9CA3AF" />
-                                                        )}
-                                                    </TouchableOpacity>
                                                 </View>
                                             </View>
                                         </>
@@ -285,7 +294,7 @@ export default function LoginScreen() {
                                                     </View>
                                                     <TextInput
                                                         style={styles.input}
-                                                        placeholder="merchant@smartcuruza.com"
+                                                        placeholder="Enter email address"
                                                         keyboardType="email-address"
                                                         value={email}
                                                         onChangeText={setEmail}
@@ -305,8 +314,8 @@ export default function LoginScreen() {
                                                         <Lock size={20} color="#9CA3AF" />
                                                     </View>
                                                     <TextInput
-                                                        style={[styles.input, styles.passwordInput, { paddingRight: 48, zIndex: 1 }]}
-                                                        placeholder="Password"
+                                                        style={[styles.input, styles.passwordInput, { paddingRight: 48 }]}
+                                                        placeholder="Enter password"
                                                         secureTextEntry={!showPassword}
                                                         value={password}
                                                         onChangeText={setPassword}
@@ -318,9 +327,9 @@ export default function LoginScreen() {
                                                         enablesReturnKeyAutomatically
                                                     />
                                                     <TouchableOpacity
-                                                        style={[styles.iconRight, { zIndex: 99 }]}
+                                                        style={[styles.iconRight, { zIndex: 10 }]}
                                                         onPress={() => setShowPassword(!showPassword)}
-                                                        hitSlop={{ top: 20, bottom: 20, left: 20, right: 20 }}
+                                                        hitSlop={{ top: 15, bottom: 15, left: 15, right: 15 }}
                                                     >
                                                         {showPassword ? (
                                                             <EyeOff size={20} color="#9CA3AF" />
@@ -393,69 +402,71 @@ const styles = StyleSheet.create({
     scrollContent: {
         flexGrow: 1,
         justifyContent: 'center',
-        padding: 24,
+        padding: 16,
     },
     card: {
         backgroundColor: '#FFFFFF',
-        borderRadius: 32,
-        padding: 32,
+        borderRadius: 24,
+        padding: 20,
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 10 },
         shadowOpacity: 0.1,
         shadowRadius: 20,
         elevation: 10,
         alignItems: 'center',
+        width: '100%',
     },
     header: {
         width: '100%',
         backgroundColor: '#1e1e1e', // Dark header background
         borderRadius: 16,
-        paddingVertical: 32,
+        paddingVertical: 20,
         alignItems: 'center',
-        marginBottom: 32,
+        marginBottom: 20,
     },
     brandTitle: {
         fontFamily: 'Poppins_700Bold',
-        fontSize: 30,
+        fontSize: 26,
         color: '#fbe134', // Primary Gold
         letterSpacing: -0.5,
     },
     brandSubtitle: {
         fontFamily: 'Montserrat_500Medium',
-        fontSize: 12,
+        fontSize: 10,
         color: 'rgba(255, 255, 255, 0.5)',
-        marginTop: 4,
+        marginTop: 2,
         letterSpacing: 2,
         textTransform: 'uppercase',
     },
     welcomeSection: {
         width: '100%',
         alignItems: 'center',
-        marginBottom: 24,
+        marginBottom: 20,
     },
     welcomeTitle: {
         fontFamily: 'Poppins_700Bold',
-        fontSize: 24,
+        fontSize: 20,
         color: '#0b0c0c', // Onyx
-        marginBottom: 8,
+        marginBottom: 6,
     },
     welcomeSubtitle: {
         fontFamily: 'Montserrat_400Regular',
-        fontSize: 14,
+        fontSize: 13,
         color: '#6B7280', // Neutral-500
         textAlign: 'center',
+        maxWidth: '85%',
     },
     toggleContainer: {
         flexDirection: 'row',
         backgroundColor: '#F3F4F6',
         borderRadius: 12,
         padding: 4,
-        marginBottom: 24,
+        marginBottom: 20,
         width: '100%',
     },
     toggleButton: {
         flex: 1,
-        paddingVertical: 10,
+        paddingVertical: 8,
         alignItems: 'center',
         borderRadius: 10,
     },
@@ -469,7 +480,7 @@ const styles = StyleSheet.create({
     },
     toggleText: {
         fontFamily: 'Montserrat_500Medium',
-        fontSize: 14,
+        fontSize: 13,
         color: '#6B7280',
     },
     toggleTextActive: {
@@ -480,13 +491,13 @@ const styles = StyleSheet.create({
         width: '100%',
     },
     inputGroup: {
-        marginBottom: 24,
+        marginBottom: 16,
     },
     label: {
         fontFamily: 'Montserrat_600SemiBold',
-        fontSize: 12,
+        fontSize: 11,
         color: '#6B7280', // Neutral-500
-        marginBottom: 8,
+        marginBottom: 6,
         marginLeft: 4,
         letterSpacing: 0.5,
         textTransform: 'uppercase',
@@ -499,45 +510,110 @@ const styles = StyleSheet.create({
         width: '100%',
         backgroundColor: '#F3F4F6', // Neutral-100
         borderRadius: 12,
-        paddingVertical: 16,
-        paddingLeft: 48, // Space for left icon
+        paddingVertical: 14,
+        paddingLeft: 52, // Increased space for left icon
         paddingRight: 16,
-        fontSize: 16,
+        fontSize: 15,
         color: '#0b0c0c',
         fontFamily: 'Montserrat_400Regular',
+    },
+    // Segmented PIN styles
+    otpContainer: {
+        flexDirection: 'row',
+        justifyContent: 'center',
+        alignItems: 'center',
+        width: '100%',
+        position: 'relative',
+        height: 48,
+        gap: 12,
+    },
+    otpBox: {
+        width: 44,
+        height: 48,
+        backgroundColor: '#F3F4F6',
+        borderRadius: 10,
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderWidth: 1.5,
+        borderColor: 'transparent',
+    },
+    otpBoxActive: {
+        borderColor: '#fbe134',
+        backgroundColor: '#FFFFFF',
+        shadowColor: '#fbe134',
+        shadowOffset: { width: 0, height: 0 },
+        shadowOpacity: 0.15,
+        shadowRadius: 6,
+        elevation: 1,
+    },
+    otpBoxFilled: {
+        backgroundColor: '#FFFFFF',
+        borderColor: '#E5E7EB',
+    },
+    otpText: {
+        fontSize: 18,
+        fontFamily: 'Poppins_700Bold',
+        color: '#0b0c0c',
+    },
+    hiddenInput: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        opacity: 0,
+        zIndex: 1,
+    },
+    iconLeft: {
+        position: 'absolute',
+        left: 14,
+        zIndex: 1,
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    countryCode: {
+        fontFamily: 'Montserrat_700Bold',
+        fontSize: 14,
+        color: '#4B5563',
+        marginRight: 8,
+    },
+    flagEmoji: {
+        fontSize: 18,
+        marginRight: 8,
+    },
+    divider: {
+        width: 1,
+        height: 20,
+        backgroundColor: '#D1D5DB',
+        marginRight: 4,
     },
     passwordInput: {
         fontFamily: Platform.OS === 'ios' ? 'System' : 'Montserrat_400Regular',
     },
     pinInput: {
         fontFamily: 'Montserrat_700Bold',
-        letterSpacing: 8, // Tracking for PIN
-    },
-    iconLeft: {
-        position: 'absolute',
-        left: 16,
-        zIndex: 1,
+        letterSpacing: 8,
     },
     iconRight: {
         position: 'absolute',
-        right: 16,
+        right: 14,
         zIndex: 1,
         padding: 4,
     },
     errorText: {
         fontFamily: 'Montserrat_400Regular',
         color: '#EF4444',
-        fontSize: 14,
+        fontSize: 13,
         textAlign: 'center',
-        marginBottom: 16,
+        marginBottom: 12,
     },
     button: {
         width: '100%',
         backgroundColor: '#fbe134', // Primary Gold
         borderRadius: 12,
-        paddingVertical: 16,
+        paddingVertical: 14,
         alignItems: 'center',
-        marginTop: 8,
+        marginTop: 4,
         shadowColor: '#fbe134',
         shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.2,
@@ -553,47 +629,47 @@ const styles = StyleSheet.create({
     },
     buttonText: {
         fontFamily: 'Poppins_700Bold',
-        fontSize: 16,
+        fontSize: 15,
         color: '#0b0c0c',
         marginLeft: 8,
     },
     forgotButton: {
-        marginTop: 16,
+        marginTop: 12,
         alignItems: 'center',
     },
     forgotText: {
         fontFamily: 'Montserrat_400Regular',
-        fontSize: 14,
+        fontSize: 13,
         color: '#6B7280',
     },
     signupContainer: {
         flexDirection: 'row',
         justifyContent: 'center',
-        marginTop: 24,
-        paddingTop: 24,
+        marginTop: 20,
+        paddingTop: 20,
         borderTopWidth: 1,
         borderTopColor: '#F3F4F6',
     },
     signupText: {
         fontFamily: 'Montserrat_400Regular',
-        fontSize: 14,
+        fontSize: 13,
         color: '#6B7280',
     },
     signupLink: {
         fontFamily: 'Poppins_700Bold',
-        fontSize: 14,
+        fontSize: 13,
         color: '#fbe134',
     },
     footer: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        marginTop: 32,
+        marginTop: 24,
         opacity: 0.7,
     },
     footerText: {
         fontFamily: 'Montserrat_400Regular',
-        fontSize: 12,
+        fontSize: 11,
         color: '#9CA3AF', // Neutral-400
     },
 });

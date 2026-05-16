@@ -228,11 +228,9 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     header: {
-        backgroundColor: '#FFFFFF',
         paddingVertical: 32,
         alignItems: 'center',
         borderBottomWidth: 1,
-        borderBottomColor: '#E5E7EB',
     },
     avatar: {
         width: 80,
@@ -242,7 +240,6 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         marginBottom: 16,
-        shadowColor: '#fbe134',
         shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.3,
         shadowRadius: 8,
@@ -256,27 +253,22 @@ const styles = StyleSheet.create({
     name: {
         fontSize: 24,
         fontFamily: 'Poppins_700Bold',
-        color: '#111827',
         marginBottom: 4,
     },
     role: {
         fontSize: 14,
         fontFamily: 'Montserrat_500Medium',
-        color: '#6B7280',
         marginBottom: 16,
     },
     editProfileButton: {
         paddingVertical: 8,
         paddingHorizontal: 16,
         borderRadius: 20,
-        backgroundColor: '#F3F4F6',
         borderWidth: 1,
-        borderColor: '#E5E7EB',
     },
     editProfileText: {
         fontSize: 12,
         fontFamily: 'Montserrat_600SemiBold',
-        color: '#374151',
     },
     content: {
         padding: 24,
@@ -288,15 +280,12 @@ const styles = StyleSheet.create({
     sectionTitle: {
         fontSize: 14,
         fontFamily: 'Montserrat_600SemiBold',
-        color: '#6B7280',
         marginLeft: 4,
         textTransform: 'uppercase',
     },
     sectionContent: {
-        backgroundColor: '#FFFFFF',
         borderRadius: 16,
         overflow: 'hidden',
-        shadowColor: '#000',
         shadowOffset: { width: 0, height: 1 },
         shadowOpacity: 0.05,
         shadowRadius: 2,
@@ -308,7 +297,6 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         padding: 16,
         borderBottomWidth: 1,
-        borderBottomColor: '#F3F4F6',
     },
     menuItemLeft: {
         flexDirection: 'row',
@@ -319,14 +307,12 @@ const styles = StyleSheet.create({
         width: 36,
         height: 36,
         borderRadius: 10,
-        backgroundColor: '#F3F4F6',
         alignItems: 'center',
         justifyContent: 'center',
     },
     menuItemLabel: {
         fontSize: 15,
         fontFamily: 'Montserrat_500Medium',
-        color: '#1F2937',
     },
     menuItemRight: {
         flexDirection: 'row',
@@ -335,28 +321,23 @@ const styles = StyleSheet.create({
     },
     menuItemValue: {
         fontSize: 14,
-        color: '#6B7280',
     },
     logoutButton: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
         gap: 8,
-        backgroundColor: '#FEF2F2', // red-50
         paddingVertical: 16,
         borderRadius: 16,
         borderWidth: 1,
-        borderColor: '#FECACA',
     },
     logoutText: {
-        color: '#DC2626',
         fontSize: 16,
         fontFamily: 'Montserrat_600SemiBold',
     },
     versionText: {
         textAlign: 'center',
         fontSize: 12,
-        color: '#9CA3AF',
         marginTop: 8,
         fontFamily: 'Montserrat_500Medium',
     },

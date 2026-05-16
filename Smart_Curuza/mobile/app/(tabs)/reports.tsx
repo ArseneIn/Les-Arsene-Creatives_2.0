@@ -270,20 +270,20 @@ export default function Reports() {
                 </View>
 
                 {/* Simplified Period Tab */}
-                <View style={[styles.periodTabs, { backgroundColor: isDarkMode ? 'rgba(0,0,0,0.2)' : 'rgba(0,0,0,0.1)' }]}>
+                <View style={[styles.periodTabs, { backgroundColor: isDarkMode ? 'rgba(0,0,0,0.2)' : 'rgba(0,0,0,0.05)' }]}>
                     {(['Month', 'Quarter', 'Year'] as Period[]).map((p) => (
                         <TouchableOpacity 
                             key={p}
                             style={[
                                 styles.tabBtn, 
-                                period === p && [styles.tabBtnActive, { backgroundColor: isDarkMode ? '#fbe134' : '#111827', shadowColor: isDarkMode ? '#fbe134' : '#000' }]
+                                period === p && [styles.tabBtnActive, { backgroundColor: isDarkMode ? '#fbe134' : '#FFFFFF', shadowColor: isDarkMode ? '#fbe134' : 'rgba(0,0,0,0.1)' }]
                             ]}
                             onPress={() => setPeriod(p)}
                         >
                             <Text style={[
                                 styles.tabText, 
-                                { color: isDarkMode ? '#9CA3AF' : 'rgba(17, 24, 39, 0.5)' },
-                                period === p && [styles.tabTextActive, { color: isDarkMode ? '#0b0c0c' : colors.brandGold }]
+                                { color: isDarkMode ? '#9CA3AF' : '#6B7280' },
+                                period === p && [styles.tabTextActive, { color: isDarkMode ? '#0b0c0c' : '#0b0c0c' }]
                             ]}>{p}</Text>
                         </TouchableOpacity>
                     ))}
@@ -292,7 +292,7 @@ export default function Reports() {
 
             <ScrollView 
                 style={styles.scrollView} 
-                contentContainerStyle={styles.scrollContent}
+                contentContainerStyle={[styles.scrollContent, { backgroundColor: colors.background }]}
                 showsVerticalScrollIndicator={false}
                 refreshControl={
                     <RefreshControl 
@@ -314,7 +314,7 @@ export default function Reports() {
                     <>
                         {/* 1. The Macro-Financial Graph */}
                         <View style={styles.section}>
-                            <Text style={[styles.sectionTitle, { color: colors.textSecondary }]}>Revenue Trajectory</Text>
+                            <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>Revenue Trajectory</Text>
                             <View style={[styles.chartCard, { backgroundColor: colors.card, shadowColor: isDarkMode ? '#000': '#E5E7EB' }]}>
                                 <LineChart
                                     data={{
@@ -340,7 +340,7 @@ export default function Reports() {
 
                         {/* 2. Strict Profit & Loss (P&L) Statement */}
                         <View style={styles.section}>
-                            <Text style={[styles.sectionTitle, { color: colors.textSecondary }]}>Statement of P&L</Text>
+                            <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>Statement of P&L</Text>
                             <View style={[styles.sheetCard, { backgroundColor: colors.card, shadowColor: isDarkMode ? '#000' : '#E5E7EB' }]}>
                                 {/* GROSS */}
                                 <View style={styles.sheetRow}>
@@ -422,16 +422,15 @@ export default function Reports() {
 
 const styles = StyleSheet.create({
     header: {
-        backgroundColor: '#2a2e34', 
         paddingHorizontal: 24,
         paddingBottom: 24,
         borderBottomLeftRadius: 32,
         borderBottomRightRadius: 32,
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 8 },
-        shadowOpacity: 0.25,
+        shadowOpacity: 0.15,
         shadowRadius: 16,
-        elevation: 12,
+        elevation: 8,
         zIndex: 100,
     },
     headerTop: {
@@ -443,26 +442,22 @@ const styles = StyleSheet.create({
     headerTitle: {
         fontSize: 28,
         fontFamily: 'Poppins_700Bold',
-        color: '#FFFFFF',
     },
     headerSub: {
         fontSize: 12,
         fontFamily: 'Montserrat_600SemiBold',
-        color: 'rgba(255, 255, 255, 0.5)',
         marginTop: -4,
     },
     iconBox: {
         width: 48,
         height: 48,
-        backgroundColor: 'rgba(251, 225, 52, 0.1)',
         borderRadius: 16,
         alignItems: 'center',
         justifyContent: 'center',
     },
     periodTabs: {
         flexDirection: 'row',
-        marginHorizontal: 24,
-        backgroundColor: 'rgba(0,0,0,0.2)',
+        backgroundColor: 'rgba(0,0,0,0.05)',
         borderRadius: 12,
         padding: 4,
     },
@@ -473,28 +468,24 @@ const styles = StyleSheet.create({
         borderRadius: 10,
     },
     tabBtnActive: {
-        backgroundColor: '#fbe134',
-        shadowColor: '#fbe134',
         shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.3,
+        shadowOpacity: 0.2,
         shadowRadius: 4,
         elevation: 4,
     },
     tabText: {
         fontSize: 12,
         fontFamily: 'Montserrat_700Bold',
-        color: '#9CA3AF',
     },
     tabTextActive: {
-        color: '#0b0c0c',
     },
     scrollView: {
         flex: 1,
         marginTop: -32,
     },
     scrollContent: {
+        paddingTop: 48,
         paddingBottom: 100,
-        backgroundColor: '#1a1d21',
     },
     section: {
         paddingHorizontal: 24,
@@ -503,21 +494,18 @@ const styles = StyleSheet.create({
     sectionTitle: {
         fontSize: 14,
         fontFamily: 'Montserrat_700Bold',
-        color: '#9CA3AF',
         textTransform: 'uppercase',
         letterSpacing: 1.5,
         marginBottom: 16,
     },
     chartCard: {
-        backgroundColor: '#2a2e34',
         borderRadius: 24,
         paddingVertical: 20,
-        paddingRight: 20, // To give room for text
-        shadowColor: '#000',
+        paddingRight: 20, 
         shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.2,
+        shadowOpacity: 0.1,
         shadowRadius: 10,
-        elevation: 6,
+        elevation: 4,
         alignItems: 'center',
     },
     chartStyle: {
@@ -525,16 +513,13 @@ const styles = StyleSheet.create({
         borderRadius: 16,
     },
     sheetCard: {
-        backgroundColor: '#2a2e34', // Dark Card
         borderRadius: 24,
         padding: 24,
         borderTopWidth: 4,
-        borderTopColor: '#fbe134', // Gold Seal
-        shadowColor: '#000',
         shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.2,
+        shadowOpacity: 0.1,
         shadowRadius: 8,
-        elevation: 6,
+        elevation: 4,
     },
     sheetRow: {
         flexDirection: 'row',
@@ -545,27 +530,22 @@ const styles = StyleSheet.create({
     sheetLabel: {
         fontSize: 14,
         fontFamily: 'Montserrat_500Medium',
-        color: '#9CA3AF',
     },
     sheetValue: {
         fontSize: 15,
         fontFamily: 'Poppins_600SemiBold',
-        color: '#FFFFFF',
     },
     sheetDivider: {
         height: 1,
-        backgroundColor: 'rgba(255,255,255,0.05)',
         marginVertical: 12,
     },
     sheetDividerHeavy: {
         height: 2,
-        backgroundColor: 'rgba(255,255,255,0.1)',
         marginVertical: 12,
     },
     sheetTotalLabel: {
         fontSize: 16,
         fontFamily: 'Montserrat_800ExtraBold',
-        color: '#FFFFFF',
     },
     sheetTotalValue: {
         fontSize: 20,
@@ -580,12 +560,12 @@ const styles = StyleSheet.create({
     exportSection: {
         paddingHorizontal: 24,
         paddingTop: 32,
-        paddingBottom: 100, // Room for nav bar
+        paddingBottom: 100, 
         alignItems: 'center',
     },
     exportButton: {
         flexDirection: 'row',
-        backgroundColor: '#fbe134', // Solid Gold
+        backgroundColor: '#fbe134', 
         width: '100%',
         height: 56,
         borderRadius: 16,
@@ -593,7 +573,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         shadowColor: '#fbe134',
         shadowOffset: { width: 0, height: 6 },
-        shadowOpacity: 0.4,
+        shadowOpacity: 0.3,
         shadowRadius: 12,
         elevation: 8,
         marginBottom: 16,
@@ -606,7 +586,6 @@ const styles = StyleSheet.create({
     exportDisclaimer: {
         fontSize: 11,
         fontFamily: 'Montserrat_500Medium',
-        color: '#9CA3AF',
         textAlign: 'center',
         paddingHorizontal: 20,
         lineHeight: 16,
@@ -634,17 +613,14 @@ const styles = StyleSheet.create({
     },
     alertCard: {
         flexDirection: 'row',
-        backgroundColor: 'rgba(255, 255, 255, 0.03)',
         borderRadius: 16,
         padding: 16,
         marginBottom: 12,
         borderWidth: 1,
-        borderColor: 'rgba(251, 225, 52, 0.2)',
     },
     alertIconBox: {
         width: 40,
         height: 40,
-        backgroundColor: 'rgba(251, 225, 52, 0.1)',
         borderRadius: 12,
         alignItems: 'center',
         justifyContent: 'center',

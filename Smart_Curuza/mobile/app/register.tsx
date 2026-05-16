@@ -81,11 +81,11 @@ export default function RegisterScreen() {
             };
 
             const response = await ApiClient.register(registrationData);
-            
+
             // After successful registration, we might want to auto-login
             // or show a success screen. Let's show a success screen.
             setStep('success');
-            
+
             // Auto-login after a short delay
             setTimeout(async () => {
                 try {
@@ -115,7 +115,7 @@ export default function RegisterScreen() {
                     <View style={styles.iconLeft}><User size={20} color="#9CA3AF" /></View>
                     <TextInput
                         style={styles.input}
-                        placeholder="Arsene Creative"
+                        placeholder="Enter full name"
                         value={name}
                         onChangeText={setName}
                         placeholderTextColor="#9CA3AF"
@@ -126,10 +126,14 @@ export default function RegisterScreen() {
             <View style={styles.inputGroup}>
                 <Text style={styles.label}>PHONE NUMBER</Text>
                 <View style={styles.inputWrapper}>
-                    <View style={styles.iconLeft}><Smartphone size={20} color="#9CA3AF" /></View>
+                    <View style={styles.iconLeft}>
+                        <Text style={styles.flagEmoji}>🇷🇼</Text>
+                        <Text style={styles.countryCode}>+250</Text>
+                        <View style={styles.divider} />
+                    </View>
                     <TextInput
-                        style={styles.input}
-                        placeholder="078X XXX XXX"
+                        style={[styles.input, { paddingLeft: 95 }]}
+                        placeholder="788 123 456"
                         keyboardType="phone-pad"
                         value={phone}
                         onChangeText={setPhone}
@@ -250,22 +254,38 @@ export default function RegisterScreen() {
             </View>
 
             <View style={styles.inputGroup}>
-                <Text style={styles.label}>4-DIGIT POS PIN</Text>
-                <View style={styles.inputWrapper}>
-                    <View style={styles.iconLeft}><Key size={20} color="#9CA3AF" /></View>
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+                    <Text style={styles.label}>4-DIGIT POS PIN</Text>
+                    <TouchableOpacity onPress={() => setShowPin(!showPin)}>
+                        <Text style={{ fontSize: 12, fontFamily: 'Montserrat_600SemiBold', color: '#fbe134' }}>
+                            {showPin ? 'Hide' : 'Show'}
+                        </Text>
+                    </TouchableOpacity>
+                </View>
+
+                <View style={styles.otpContainer}>
+                    {[0, 1, 2, 3].map((index) => (
+                        <View
+                            key={index}
+                            style={[
+                                styles.otpBox,
+                                pin.length === index && styles.otpBoxActive,
+                                pin.length > index && styles.otpBoxFilled
+                            ]}
+                        >
+                            <Text style={styles.otpText}>
+                                {pin[index] ? (showPin ? pin[index] : '•') : ''}
+                            </Text>
+                        </View>
+                    ))}
                     <TextInput
-                        style={[styles.input, styles.pinInput]}
-                        placeholder="••••"
-                        secureTextEntry={!showPin}
+                        style={styles.hiddenInput}
                         keyboardType="numeric"
                         maxLength={4}
                         value={pin}
                         onChangeText={setPin}
-                        placeholderTextColor="#9CA3AF"
+                        autoFocus={false}
                     />
-                    <TouchableOpacity style={styles.iconRight} onPress={() => setShowPin(!showPin)}>
-                        {showPin ? <EyeOff size={20} color="#9CA3AF" /> : <Eye size={20} color="#9CA3AF" />}
-                    </TouchableOpacity>
                 </View>
             </View>
 
@@ -308,7 +328,7 @@ export default function RegisterScreen() {
                 style={styles.keyboardView}
             >
                 <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-                    
+
                     {/* Progress Bar */}
                     {step !== 'success' && (
                         <View style={styles.progressContainer}>
@@ -347,13 +367,13 @@ const styles = StyleSheet.create({
     scrollContent: {
         flexGrow: 1,
         justifyContent: 'center',
-        padding: 24,
+        padding: 16,
     },
     progressContainer: {
         height: 6,
         backgroundColor: '#E5E7EB',
         borderRadius: 3,
-        marginBottom: 24,
+        marginBottom: 20,
         overflow: 'hidden',
     },
     progressBar: {
@@ -362,8 +382,8 @@ const styles = StyleSheet.create({
     },
     card: {
         backgroundColor: '#FFFFFF',
-        borderRadius: 32,
-        padding: 32,
+        borderRadius: 24,
+        padding: 20,
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 10 },
         shadowOpacity: 0.1,
@@ -373,13 +393,13 @@ const styles = StyleSheet.create({
     header: {
         backgroundColor: '#1e1e1e',
         borderRadius: 16,
-        paddingVertical: 24,
+        paddingVertical: 20,
         alignItems: 'center',
-        marginBottom: 32,
+        marginBottom: 20,
     },
     brandTitle: {
         fontFamily: 'Poppins_700Bold',
-        fontSize: 24,
+        fontSize: 26,
         color: '#fbe134',
         letterSpacing: -0.5,
     },
@@ -387,7 +407,7 @@ const styles = StyleSheet.create({
         fontFamily: 'Montserrat_500Medium',
         fontSize: 10,
         color: 'rgba(255, 255, 255, 0.5)',
-        marginTop: 4,
+        marginTop: 2,
         letterSpacing: 2,
         textTransform: 'uppercase',
     },
@@ -396,24 +416,24 @@ const styles = StyleSheet.create({
     },
     stepTitle: {
         fontFamily: 'Poppins_700Bold',
-        fontSize: 20,
+        fontSize: 18,
         color: '#0b0c0c',
         marginBottom: 4,
     },
     stepSubtitle: {
         fontFamily: 'Montserrat_400Regular',
-        fontSize: 14,
+        fontSize: 13,
         color: '#6B7280',
-        marginBottom: 24,
+        marginBottom: 20,
     },
     inputGroup: {
-        marginBottom: 20,
+        marginBottom: 16,
     },
     label: {
         fontFamily: 'Montserrat_600SemiBold',
         fontSize: 11,
         color: '#6B7280',
-        marginBottom: 8,
+        marginBottom: 6,
         marginLeft: 4,
         letterSpacing: 0.5,
         textTransform: 'uppercase',
@@ -427,40 +447,101 @@ const styles = StyleSheet.create({
         backgroundColor: '#F3F4F6',
         borderRadius: 12,
         paddingVertical: 14,
-        paddingLeft: 48,
+        paddingLeft: 52,
         paddingRight: 16,
         fontSize: 15,
         color: '#0b0c0c',
         fontFamily: 'Montserrat_400Regular',
     },
-    pinInput: {
-        fontFamily: 'Montserrat_700Bold',
-        letterSpacing: 8,
-    },
     iconLeft: {
         position: 'absolute',
-        left: 16,
+        left: 14,
         zIndex: 1,
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    countryCode: {
+        fontFamily: 'Montserrat_700Bold',
+        fontSize: 14,
+        color: '#4B5563',
+        marginRight: 8,
+    },
+    flagEmoji: {
+        fontSize: 18,
+        marginRight: 8,
+    },
+    divider: {
+        width: 1,
+        height: 20,
+        backgroundColor: '#D1D5DB',
+        marginRight: 4,
     },
     iconRight: {
         position: 'absolute',
-        right: 16,
+        right: 14,
         zIndex: 1,
         padding: 4,
+    },
+    // Segmented PIN styles
+    otpContainer: {
+        flexDirection: 'row',
+        justifyContent: 'center',
+        alignItems: 'center',
+        width: '100%',
+        position: 'relative',
+        height: 48,
+        gap: 12,
+    },
+    otpBox: {
+        width: 44,
+        height: 48,
+        backgroundColor: '#F3F4F6',
+        borderRadius: 10,
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderWidth: 1.5,
+        borderColor: 'transparent',
+    },
+    otpBoxActive: {
+        borderColor: '#fbe134',
+        backgroundColor: '#FFFFFF',
+        shadowColor: '#fbe134',
+        shadowOffset: { width: 0, height: 0 },
+        shadowOpacity: 0.15,
+        shadowRadius: 6,
+        elevation: 1,
+    },
+    otpBoxFilled: {
+        backgroundColor: '#FFFFFF',
+        borderColor: '#E5E7EB',
+    },
+    otpText: {
+        fontSize: 18,
+        fontFamily: 'Poppins_700Bold',
+        color: '#0b0c0c',
+    },
+    hiddenInput: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        opacity: 0,
+        zIndex: 1,
     },
     errorText: {
         fontFamily: 'Montserrat_400Regular',
         color: '#EF4444',
         fontSize: 13,
         textAlign: 'center',
-        marginBottom: 16,
+        marginBottom: 12,
     },
     primaryButton: {
         flex: 2,
         flexDirection: 'row',
         backgroundColor: '#fbe134',
         borderRadius: 12,
-        paddingVertical: 16,
+        paddingVertical: 14,
         alignItems: 'center',
         justifyContent: 'center',
         shadowColor: '#fbe134',
@@ -480,7 +561,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         backgroundColor: '#F3F4F6',
         borderRadius: 12,
-        paddingVertical: 16,
+        paddingVertical: 14,
         alignItems: 'center',
         justifyContent: 'center',
         marginRight: 12,
@@ -493,15 +574,15 @@ const styles = StyleSheet.create({
     },
     buttonRow: {
         flexDirection: 'row',
-        marginTop: 8,
+        marginTop: 4,
     },
     loginLink: {
-        marginTop: 24,
+        marginTop: 20,
         alignItems: 'center',
     },
     loginLinkText: {
         fontFamily: 'Montserrat_400Regular',
-        fontSize: 14,
+        fontSize: 13,
         color: '#6B7280',
     },
     loginLinkHighlight: {
@@ -513,26 +594,26 @@ const styles = StyleSheet.create({
         paddingVertical: 20,
     },
     successIconWrapper: {
-        width: 120,
-        height: 120,
-        borderRadius: 60,
+        width: 100,
+        height: 100,
+        borderRadius: 50,
         backgroundColor: '#FDFBE7',
         alignItems: 'center',
         justifyContent: 'center',
-        marginBottom: 24,
+        marginBottom: 20,
     },
     successTitle: {
         fontFamily: 'Poppins_700Bold',
-        fontSize: 22,
+        fontSize: 20,
         color: '#0b0c0c',
         textAlign: 'center',
-        marginBottom: 12,
+        marginBottom: 10,
     },
     successSubtitle: {
         fontFamily: 'Montserrat_400Regular',
-        fontSize: 14,
+        fontSize: 13,
         color: '#6B7280',
         textAlign: 'center',
-        lineHeight: 22,
+        lineHeight: 20,
     }
 });

@@ -7,7 +7,7 @@ import { syncManager } from './sync/SyncManager';
 // Android emulator uses 10.0.2.2 to access host localhost
 // Real device would need the actual LAN IP of the computer
 // Use LAN IP for physical devices (both iOS and Android) to reach the backend
-const BASE_URL = 'http://10.10.6.57:3001';
+const BASE_URL = 'http://10.10.6.52:3001';
 
 // Caching system
 type CacheEntry = {
@@ -338,6 +338,13 @@ export const ApiClient = {
         });
     },
 
+    async recordRepayment(customerId: string, amount: number): Promise<any> {
+        return this._request(`/client-management/customers/${customerId}/repay`, {
+            method: 'POST',
+            body: JSON.stringify({ amount }),
+        });
+    },
+
     async getBatches(productId: string): Promise<any[]> {
         return this._request(`/batches/${productId}`);
     },
@@ -363,6 +370,10 @@ export const ApiClient = {
             method: 'PATCH',
             body: JSON.stringify({ actualCash, notes }),
         });
+    },
+
+    async getNotifications(bypassCache = false): Promise<any[]> {
+        return this._request('/notifications', {}, !bypassCache);
     }
 };
 

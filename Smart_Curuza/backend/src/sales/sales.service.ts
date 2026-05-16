@@ -177,6 +177,7 @@ export class SalesService {
         title: 'New Sale Recorded',
         message: `Sale #${savedSale.id.substring(0, 8)} completed. Total: ${savedSale.total} RWF.`,
         type: 'success',
+        user_id: userId,
       });
 
       return savedSale;
