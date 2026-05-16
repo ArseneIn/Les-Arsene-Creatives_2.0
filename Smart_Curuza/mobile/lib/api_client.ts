@@ -6,8 +6,9 @@ import { syncManager } from './sync/SyncManager';
 
 // Android emulator uses 10.0.2.2 to access host localhost
 // Real device would need the actual LAN IP of the computer
-// Use LAN IP for physical devices (both iOS and Android) to reach the backend
-const BASE_URL = 'http://10.10.6.52:3001';
+// Use LAN IP for physical devices (both iOS and Android) to reach the backend locally
+// Production Backend on Vercel:
+const BASE_URL = 'https://smartcuruzabackend.vercel.app';
 
 // Caching system
 type CacheEntry = {
