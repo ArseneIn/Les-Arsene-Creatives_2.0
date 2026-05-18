@@ -19,7 +19,8 @@ enum UserRole {
 
 model User {
   id        String   @id @default(uuid())
-  email     String   @unique
+  email     String?  @unique
+  username  String?
   password  String
   firstName String?
   lastName  String?
@@ -38,6 +39,8 @@ model User {
   facilitatedSections Section[] @relation("SectionFacilitator")
   
   testResults   TestResult[]
+
+  @@unique([username, institutionId])
 }
 
 model Institution {

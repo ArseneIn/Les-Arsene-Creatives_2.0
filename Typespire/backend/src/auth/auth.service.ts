@@ -22,24 +22,39 @@ export class AuthService {
   ) { }
 
   async validateUser(
-    email: string,
+    emailOrUsername: string,
     pass: string,
     institutionSlug?: string,
   ): Promise<Omit<User, 'password'> | null> {
-    const user = await this.prisma.user.findUnique({
-      where: { email },
-      include: { institution: true },
-    });
+    let user: any = null;
+
+    if (emailOrUsername.includes('@')) {
+      user = await this.prisma.user.findUnique({
+        where: { email: emailOrUsername },
+        include: { institution: true },
+      });
+    } else {
+      if (!institutionSlug) {
+        return null; // Username login requires an institution
+      }
+      const institution = await this.prisma.institution.findUnique({
+        where: { slug: institutionSlug },
+      });
+      if (!institution) {
+        return null;
+      }
+      user = await this.prisma.user.findFirst({
+        where: {
+          username: emailOrUsername,
+          institutionId: institution.id,
+        },
+        include: { institution: true },
+      });
+    }
 
     if (user && (await bcrypt.compare(pass, user.password))) {
       // If institution slug is provided, verify user belongs to it
       if (institutionSlug) {
-        // Allow PLATFORM_ADMIN to bypass institution check if they are logging in generally
-        // But if they selected an institution, we might want to check?
-        // For now, let's enforce strict checking: if you select an institution, you must belong to it
-        // UNLESS you are a super admin who might not belong to any, or we just ignore for super admin.
-        // The requirement says "check if the logging in user currently belongs under the institution chose".
-
         if (user.role !== UserRole.PLATFORM_ADMIN) {
           const institution = await this.prisma.institution.findUnique({
             where: { slug: institutionSlug },

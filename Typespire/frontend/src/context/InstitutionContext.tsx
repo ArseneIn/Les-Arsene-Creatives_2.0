@@ -24,8 +24,10 @@ export const InstitutionProvider: React.FC<{ children: ReactNode }> = ({ childre
             // Define backend response types locally
             interface BackendStudent {
                 id: string;
-                name: string;
-                email: string;
+                firstName?: string;
+                lastName?: string;
+                email: string | null;
+                username?: string;
             }
 
             interface BackendSection {
@@ -63,7 +65,12 @@ export const InstitutionProvider: React.FC<{ children: ReactNode }> = ({ childre
                 sections: item.sections ? item.sections.map((s) => ({
                     id: s.id,
                     name: s.name,
-                    students: s.students || [],
+                    students: s.students ? s.students.map((student) => ({
+                        id: student.id,
+                        name: `${student.firstName || ''} ${student.lastName || ''}`.trim() || student.email || student.username || 'Student',
+                        email: student.email || '',
+                        username: student.username || ''
+                    })) : [],
                     facilitator: s.facilitator ? {
                         id: s.facilitator.id,
                         name: `${s.facilitator.firstName || ''} ${s.facilitator.lastName || ''}`.trim() || s.facilitator.email,

@@ -84,7 +84,7 @@ const TypingTest: React.FC = () => {
     const { mins, secs } = formatTime(timeLeft);
 
     return (
-        <div className="text-[#0e1a13] dark:text-white transition-colors duration-200 min-h-screen font-display relative overflow-hidden">
+        <div className="text-[#0e1a13] dark:text-white transition-colors duration-200 min-h-screen font-sans relative overflow-hidden">
             {/* Solid Background Layer */}
             <div className="fixed inset-0 -z-30 bg-background-light dark:bg-background-dark transition-colors duration-200"></div>
             {/* Start Test Overlay */}

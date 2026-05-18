@@ -57,11 +57,11 @@ const DASHBOARD_DATA: MajorGroup[] = [
     }
 ];
 
-const COLORS = ['#3b82f6', '#8b5cf6', '#ec4899', '#10b981']; // Modern vibrant palette
+const COLORS = ['#3b82f6', '#8b5cf6', '#ec4899', '#10b981']; 
 const LEVEL_COLORS = {
-    level1: '#fbbf24', // Amber-400
-    level2: '#60a5fa', // Blue-400
-    passed: '#34d399'  // Emerald-400
+    level1: '#fbbf24', 
+    level2: '#60a5fa', 
+    passed: '#34d399'  
 };
 
 // Custom Tooltip for Charts
@@ -78,13 +78,13 @@ interface TooltipProps {
 const CustomTooltip = ({ active, payload, label }: TooltipProps) => {
     if (active && payload && payload.length) {
         return (
-            <div className="bg-white p-4 rounded-xl shadow-xl border border-gray-100">
-                <p className="font-bold text-gray-800 mb-2">{label}</p>
+            <div className="bg-white dark:bg-card-dark p-4 rounded-xl shadow-xl border border-slate-200 dark:border-slate-800">
+                <p className="font-bold text-slate-800 dark:text-white mb-2">{label}</p>
                 {payload.map((entry, index) => (
                     <div key={index} className="flex items-center gap-2 text-sm mb-1">
                         <div className="w-3 h-3 rounded-full" style={{ backgroundColor: entry.color }}></div>
-                        <span className="text-gray-500 capitalize">{entry.name}:</span>
-                        <span className="font-bold text-gray-800">{entry.value}</span>
+                        <span className="text-slate-500 dark:text-[#929bc9] capitalize">{entry.name}:</span>
+                        <span className="font-bold text-slate-800 dark:text-white">{entry.value}</span>
                     </div>
                 ))}
             </div>
@@ -94,7 +94,6 @@ const CustomTooltip = ({ active, payload, label }: TooltipProps) => {
 };
 
 const FacilitatorDashboard: React.FC = () => {
-    // State for expanded accordion items (default all expanded for visibility)
     const [expandedMajors, setExpandedMajors] = useState<Record<string, boolean>>({
         'bapm': true,
         'bscba': true,
@@ -108,7 +107,6 @@ const FacilitatorDashboard: React.FC = () => {
         }));
     };
 
-    // Helper to calculate totals for a major
     const getMajorTotals = (major: MajorGroup) => {
         return major.intakes.reduce((acc, curr) => ({
             level1: acc.level1 + curr.level1,
@@ -118,7 +116,6 @@ const FacilitatorDashboard: React.FC = () => {
         }), { level1: 0, level2: 0, passed: 0, total: 0 });
     };
 
-    // Prepare Data for Charts
     const chartData = DASHBOARD_DATA.map(major => {
         const totals = getMajorTotals(major);
         return {
@@ -132,298 +129,284 @@ const FacilitatorDashboard: React.FC = () => {
 
     return (
         <>
-            {/* Top Bar / Header */}
-            <header className="flex-none p-6 md:px-10 md:py-6 bg-white border-b border-[#cfe7df]">
-                <div className="max-w-7xl mx-auto w-full">
-                    <div className="flex flex-col gap-4">
-                        <div className="flex items-center justify-between">
-                            <h2 className="text-[#0d1b17] text-2xl md:text-3xl font-bold leading-tight">Instructor Progress Snapshot</h2>
-                            <button className="relative p-2 text-gray-500 hover:bg-gray-100 rounded-full transition-colors md:hidden">
-                                <span className="material-symbols-outlined icon-filled">notifications</span>
-                                <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full border-2 border-white"></span>
-                            </button>
-                        </div>
-
-                        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                            <div className="relative w-full md:w-64 md:ml-auto">
-                                <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-[20px]">search</span>
-                                <input
-                                    className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-200 bg-gray-50 text-sm focus:ring-2 focus:ring-facilitator-primary/20 focus:border-facilitator-primary outline-none transition-all"
-                                    placeholder="Search intake or major..."
-                                    type="text"
-                                />
-                            </div>
-                            <button className="relative p-2 text-gray-500 hover:bg-gray-100 rounded-full transition-colors hidden md:block">
-                                <span className="material-symbols-outlined icon-filled">notifications</span>
-                                <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full border-2 border-white"></span>
-                            </button>
+            {/* Hero Banner Header - Perfect Aesthetic Connection to Student Portal */}
+            <header className="relative w-full rounded-2xl overflow-hidden bg-gradient-to-r from-emerald-600 to-teal-700 p-6 md:p-8 text-white shadow-xl glow-primary">
+                <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-2xl -translate-y-12 translate-x-12 pointer-events-none"></div>
+                <div className="absolute bottom-0 left-1/3 w-32 h-32 bg-emerald-400/20 rounded-full blur-xl pointer-events-none"></div>
+                <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+                    <div className="flex flex-col gap-2">
+                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/20 text-white text-xs font-bold uppercase tracking-wider w-fit">
+                            <span className="material-symbols-outlined text-[14px]">analytics</span>
+                            Instructor Snapshot
+                        </span>
+                        <h1 className="text-3xl md:text-5xl font-black tracking-tight mt-1 font-heading">
+                            Welcome back, Instructor!
+                        </h1>
+                        <p className="text-emerald-100/90 text-sm md:text-base font-normal max-w-xl">
+                            Track student coordinates, intake levels, and progress parameters in real-time.
+                        </p>
+                    </div>
+                    <div className="flex items-center gap-4 bg-black/15 backdrop-blur-md rounded-xl p-4 border border-white/15">
+                        <span className="material-symbols-outlined text-yellow-400 text-4xl animate-pulse">groups</span>
+                        <div>
+                            <p className="text-xs text-emerald-200 uppercase tracking-widest font-bold">Total Supervised</p>
+                            <p className="text-2xl font-black font-heading">382 Students</p>
                         </div>
                     </div>
                 </div>
             </header>
 
-            {/* Scrollable Content */}
-            <div className="flex-1 overflow-y-auto p-6 md:p-10 custom-scrollbar bg-[#f8fcfa]">
-                <div className="max-w-7xl mx-auto w-full flex flex-col gap-8">
-
-                    {/* KPI Cards */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                        {/* Card 1: Total Students */}
-                        <div className="bg-white rounded-xl p-6 border border-gray-100 shadow-sm flex flex-col justify-between h-32 relative overflow-hidden group hover:shadow-md transition-shadow">
-                            <div className="flex justify-between items-start z-10">
-                                <div>
-                                    <p className="text-gray-500 text-sm font-medium mb-1">Total Students</p>
-                                    <h3 className="text-[#0d1b17] text-4xl font-bold">382</h3>
-                                </div>
-                                <div className="p-2 bg-gray-100 rounded-lg text-gray-600 group-hover:bg-gray-200 transition-colors">
-                                    <span className="material-symbols-outlined icon-filled">group</span>
-                                </div>
-                            </div>
-                            <div className="flex items-center gap-1 text-xs font-bold text-green-600 z-10">
-                                <span className="material-symbols-outlined text-sm">trending_up</span>
-                                <span>+12% vs last term</span>
-                            </div>
+            {/* KPI Cards Row */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                {/* Card 1: Total Students */}
+                <div className="bg-white dark:bg-card-dark rounded-2xl p-6 border border-slate-200 dark:border-[#323b67] shadow-sm flex flex-col justify-between h-36 relative overflow-hidden group hover:shadow-md transition-shadow">
+                    <div className="absolute top-0 right-0 w-20 h-20 bg-primary/5 rounded-full blur-lg pointer-events-none"></div>
+                    <div className="flex justify-between items-start z-10">
+                        <div>
+                            <p className="text-slate-400 dark:text-[#929bc9] text-xs font-bold uppercase tracking-wider mb-1">Total Students</p>
+                            <h3 className="text-slate-900 dark:text-white text-4.5xl font-black tracking-tight font-heading">382</h3>
                         </div>
-
-                        {/* Card 2: Level 1 Active */}
-                        <div className="bg-white rounded-xl p-6 border border-gray-100 shadow-sm flex flex-col justify-between h-32 group hover:shadow-md transition-shadow">
-                            <div className="flex justify-between items-start">
-                                <div>
-                                    <p className="text-gray-500 text-sm font-medium mb-1">Level 1 Active</p>
-                                    <h3 className="text-[#0d1b17] text-4xl font-bold">62</h3>
-                                </div>
-                                <div className="p-2 bg-yellow-50 rounded-lg text-yellow-600 group-hover:bg-yellow-100 transition-colors">
-                                    <span className="material-symbols-outlined icon-filled">keyboard</span>
-                                </div>
-                            </div>
-                            <p className="text-yellow-600 text-xs font-medium">Beginner Typing</p>
-                        </div>
-
-                        {/* Card 3: Level 2 Active */}
-                        <div className="bg-white rounded-xl p-6 border border-gray-100 shadow-sm flex flex-col justify-between h-32 group hover:shadow-md transition-shadow">
-                            <div className="flex justify-between items-start">
-                                <div>
-                                    <p className="text-gray-500 text-sm font-medium mb-1">Level 2 Active</p>
-                                    <h3 className="text-[#0d1b17] text-4xl font-bold">316</h3>
-                                </div>
-                                <div className="p-2 bg-blue-50 rounded-lg text-blue-600 group-hover:bg-blue-100 transition-colors">
-                                    <span className="material-symbols-outlined icon-filled">speed</span>
-                                </div>
-                            </div>
-                            <p className="text-gray-400 text-xs font-medium">Advanced Typing</p>
-                        </div>
-
-                        {/* Card 4: Passed Threshold */}
-                        <div className="bg-white rounded-xl p-6 border border-gray-100 shadow-sm flex flex-col justify-between h-32 border-l-4 border-l-green-500 group hover:shadow-md transition-shadow">
-                            <div className="flex justify-between items-start">
-                                <div>
-                                    <p className="text-gray-500 text-sm font-medium mb-1">Passed Threshold</p>
-                                    <h3 className="text-green-600 text-4xl font-bold">4</h3>
-                                </div>
-                                <div className="p-2 bg-green-50 rounded-lg text-green-600 group-hover:bg-green-100 transition-colors">
-                                    <span className="material-symbols-outlined icon-filled">emoji_events</span>
-                                </div>
-                            </div>
-                            <p className="text-gray-400 text-xs font-medium">Avg 50+ WPM</p>
+                        <div className="p-3 bg-slate-100 dark:bg-[#323b67] rounded-xl text-slate-600 dark:text-slate-300 group-hover:bg-primary group-hover:text-white transition-all duration-300 shadow-sm">
+                            <span className="material-symbols-outlined text-xl flex items-center justify-center">group</span>
                         </div>
                     </div>
-
-                    {/* Charts Section */}
-                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                        {/* Main Progress Chart */}
-                        <div className="lg:col-span-2 bg-white rounded-2xl p-8 border border-gray-100 shadow-sm relative overflow-hidden">
-                            <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">
-                                <div>
-                                    <h3 className="text-[#0d1b17] text-xl font-bold mb-2">Program Proficiency</h3>
-                                    <p className="text-gray-500 text-sm max-w-md">
-                                        Tracking student progression through proficiency levels.
-                                        Monitor the transition from <span className="text-yellow-600 font-medium">Level 1</span> to <span className="text-green-600 font-medium">Passed</span> status.
-                                    </p>
-                                </div>
-
-                                {/* Custom Key/Legend */}
-                                <div className="flex items-center gap-4 bg-gray-50 px-4 py-2 rounded-lg border border-gray-100">
-                                    <div className="flex items-center gap-2">
-                                        <div className="w-3 h-3 rounded-full bg-yellow-400"></div>
-                                        <span className="text-xs font-medium text-gray-600">Lvl 1</span>
-                                    </div>
-                                    <div className="flex items-center gap-2">
-                                        <div className="w-3 h-3 rounded-full bg-blue-400"></div>
-                                        <span className="text-xs font-medium text-gray-600">Lvl 2</span>
-                                    </div>
-                                    <div className="flex items-center gap-2">
-                                        <div className="w-3 h-3 rounded-full bg-emerald-400"></div>
-                                        <span className="text-xs font-medium text-gray-600">Passed</span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* Reduced Height from h-80 to h-64 */}
-                            <div className="h-64 w-full">
-                                <ResponsiveContainer width="100%" height="100%">
-                                    <BarChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }} barSize={40}>
-                                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f3f4f6" />
-                                        <XAxis
-                                            dataKey="name"
-                                            axisLine={false}
-                                            tickLine={false}
-                                            tick={{ fill: '#9ca3af', fontSize: 12, fontWeight: 500 }}
-                                            dy={10}
-                                        />
-                                        <YAxis
-                                            axisLine={false}
-                                            tickLine={false}
-                                            tick={{ fill: '#9ca3af', fontSize: 12 }}
-                                        />
-                                        <Tooltip content={<CustomTooltip />} cursor={{ fill: '#f9fafb' }} />
-                                        <Bar dataKey="Level 1" stackId="a" fill={LEVEL_COLORS.level1} radius={[0, 0, 4, 4]} />
-                                        <Bar dataKey="Level 2" stackId="a" fill={LEVEL_COLORS.level2} radius={[0, 0, 0, 0]} />
-                                        <Bar dataKey="Passed" stackId="a" fill={LEVEL_COLORS.passed} radius={[4, 4, 0, 0]} />
-                                    </BarChart>
-                                </ResponsiveContainer>
-                            </div>
-                        </div>
-
-                        {/* Distribution Chart */}
-                        <div className="bg-white rounded-2xl p-8 border border-gray-100 shadow-sm flex flex-col">
-                            <h3 className="text-[#0d1b17] text-xl font-bold mb-2">Enrollment Share</h3>
-                            <p className="text-gray-500 text-sm mb-6">Total student distribution across active majors.</p>
-
-                            {/* Reduced Min-Height from 250px to 200px */}
-                            <div className="flex-1 min-h-[200px] relative">
-                                <ResponsiveContainer width="100%" height="100%">
-                                    <PieChart>
-                                        <Pie
-                                            data={chartData}
-                                            cx="50%"
-                                            cy="50%"
-                                            innerRadius={60}
-                                            outerRadius={80}
-                                            paddingAngle={5}
-                                            dataKey="total"
-                                            stroke="none"
-                                        >
-                                            {chartData.map((_, index) => (
-                                                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                                            ))}
-                                        </Pie>
-                                        <Tooltip content={<CustomTooltip />} />
-                                    </PieChart>
-                                </ResponsiveContainer>
-                                {/* Center Text Overlay - Reduced font size */}
-                                <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                                    <div className="text-center">
-                                        <span className="block text-2xl font-bold text-gray-800">382</span>
-                                        <span className="text-xs text-gray-400 uppercase tracking-wider font-bold">Students</span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* Custom Legend for Pie - Reduced font weight */}
-                            <div className="mt-6 space-y-3">
-                                {chartData.map((entry, index) => (
-                                    <div key={entry.name} className="flex items-center justify-between text-sm">
-                                        <div className="flex items-center gap-3">
-                                            <div className="w-3 h-3 rounded-full" style={{ backgroundColor: COLORS[index % COLORS.length] }}></div>
-                                            <span className="font-medium text-gray-600">{entry.name}</span>
-                                        </div>
-                                        <span className="font-medium text-gray-800">{entry.total}</span>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
+                    <div className="flex items-center gap-1 text-xs font-bold text-emerald-600 dark:text-emerald-400 z-10 mt-2">
+                        <span className="material-symbols-outlined text-sm font-bold">trending_up</span>
+                        <span>+12% vs last term</span>
                     </div>
-
-                    {/* Program Breakdown Table */}
-                    <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-                        <div className="p-6 border-b border-gray-100 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                            <div>
-                                <h3 className="text-[#0d1b17] text-lg font-bold">Detailed Breakdown</h3>
-                                <p className="text-gray-500 text-sm">Detailed student counts by Major and Intake period.</p>
-                            </div>
-                            <div className="flex gap-3">
-                                <button className="flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-200 text-gray-600 text-sm font-bold hover:bg-gray-50 transition-colors">
-                                    <span className="material-symbols-outlined text-[18px]">filter_list</span>
-                                    Filter
-                                </button>
-                                <button className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[#22c55e] text-white text-sm font-bold hover:bg-[#16a34a] transition-colors shadow-sm">
-                                    <span className="material-symbols-outlined text-[18px]">download</span>
-                                    Export
-                                </button>
-                            </div>
-                        </div>
-
-                        <div className="overflow-x-auto">
-                            <table className="w-full text-left border-collapse">
-                                <thead>
-                                    <tr className="bg-[#0f253a] text-white text-xs uppercase tracking-wider font-bold">
-                                        <th className="px-6 py-4 w-1/3">Major / Intake</th>
-                                        <th className="px-6 py-4 text-center">Level 1</th>
-                                        <th className="px-6 py-4 text-center">Level 2</th>
-                                        <th className="px-6 py-4 text-center text-[#4ade80]">Passed</th>
-                                        <th className="px-6 py-4 text-right">Grand Total</th>
-                                    </tr>
-                                </thead>
-                                <tbody className="divide-y divide-gray-100 text-sm">
-                                    {DASHBOARD_DATA.map((major) => {
-                                        const isExpanded = expandedMajors[major.id];
-                                        const totals = getMajorTotals(major);
-
-                                        return (
-                                            <React.Fragment key={major.id}>
-                                                {/* Major Header Row */}
-                                                <tr
-                                                    className="bg-gray-50/50 hover:bg-gray-50 cursor-pointer transition-colors"
-                                                    onClick={() => toggleMajor(major.id)}
-                                                >
-                                                    <td className="px-6 py-4 font-bold text-[#0d1b17] flex items-center gap-2">
-                                                        <span className={`material-symbols-outlined text-gray-400 transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`}>
-                                                            expand_more
-                                                        </span>
-                                                        {major.name}
-                                                        <span className="ml-2 px-2 py-0.5 rounded-full bg-gray-100 text-gray-500 text-[10px] font-medium border border-gray-200">
-                                                            {major.intakes.length} Intakes
-                                                        </span>
-                                                    </td>
-                                                    <td className="px-6 py-4 text-center text-gray-400">-</td>
-                                                    <td className="px-6 py-4 text-center text-gray-400">-</td>
-                                                    <td className="px-6 py-4 text-center text-gray-400">-</td>
-                                                    <td className="px-6 py-4 text-right font-bold text-[#0d1b17]">{totals.total}</td>
-                                                </tr>
-
-                                                {/* Intake Rows (Expanded) */}
-                                                {isExpanded && (
-                                                    <>
-                                                        {major.intakes.map((intake) => (
-                                                            <tr key={intake.id} className="hover:bg-gray-50/30 transition-colors">
-                                                                <td className="px-6 py-3 pl-14 text-gray-600">{intake.name}</td>
-                                                                <td className="px-6 py-3 text-center text-gray-600 font-medium">{intake.level1 > 0 ? intake.level1 : '-'}</td>
-                                                                <td className="px-6 py-3 text-center text-gray-600 font-medium">{intake.level2 > 0 ? intake.level2 : '-'}</td>
-                                                                <td className="px-6 py-3 text-center font-bold text-[#22c55e]">{intake.passed > 0 ? intake.passed : '-'}</td>
-                                                                <td className="px-6 py-3 text-right font-bold text-[#0d1b17]">{intake.total}</td>
-                                                            </tr>
-                                                        ))}
-                                                        {/* Major Total Summary Row */}
-                                                        <tr className="bg-[#f0fdf4]/50 border-t border-gray-100">
-                                                            <td className="px-6 py-3 pl-14 font-bold text-[#16a34a]">{major.name} Total</td>
-                                                            <td className="px-6 py-3 text-center font-bold text-[#0d1b17]">{totals.level1}</td>
-                                                            <td className="px-6 py-3 text-center font-bold text-[#0d1b17]">{totals.level2}</td>
-                                                            <td className="px-6 py-3 text-center font-bold text-[#16a34a]">{totals.passed}</td>
-                                                            <td className="px-6 py-3 text-right font-bold text-[#0d1b17]">{totals.total}</td>
-                                                        </tr>
-                                                    </>
-                                                )}
-                                            </React.Fragment>
-                                        );
-                                    })}
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-
                 </div>
-                {/* Footer Space */}
-                <div className="h-10"></div>
+
+                {/* Card 2: Level 1 Active */}
+                <div className="bg-white dark:bg-card-dark rounded-2xl p-6 border border-slate-200 dark:border-[#323b67] shadow-sm flex flex-col justify-between h-36 group hover:shadow-md transition-shadow">
+                    <div className="flex justify-between items-start">
+                        <div>
+                            <p className="text-slate-400 dark:text-[#929bc9] text-xs font-bold uppercase tracking-wider mb-1">Level 1 Active</p>
+                            <h3 className="text-slate-900 dark:text-white text-4.5xl font-black tracking-tight font-heading">62</h3>
+                        </div>
+                        <div className="p-3 bg-yellow-100/30 dark:bg-yellow-500/10 rounded-xl text-yellow-600 dark:text-yellow-400 shadow-sm">
+                            <span className="material-symbols-outlined text-xl flex items-center justify-center">keyboard</span>
+                        </div>
+                    </div>
+                    <p className="text-yellow-600 dark:text-yellow-400 text-xs font-bold uppercase tracking-wider mt-2">Beginner Typing</p>
+                </div>
+
+                {/* Card 3: Level 2 Active */}
+                <div className="bg-white dark:bg-card-dark rounded-2xl p-6 border border-slate-200 dark:border-[#323b67] shadow-sm flex flex-col justify-between h-36 group hover:shadow-md transition-shadow">
+                    <div className="flex justify-between items-start">
+                        <div>
+                            <p className="text-slate-400 dark:text-[#929bc9] text-xs font-bold uppercase tracking-wider mb-1">Level 2 Active</p>
+                            <h3 className="text-slate-900 dark:text-white text-4.5xl font-black tracking-tight font-heading">316</h3>
+                        </div>
+                        <div className="p-3 bg-blue-100/30 dark:bg-blue-500/10 rounded-xl text-blue-600 dark:text-blue-400 shadow-sm">
+                            <span className="material-symbols-outlined text-xl flex items-center justify-center">speed</span>
+                        </div>
+                    </div>
+                    <p className="text-slate-400 dark:text-[#929bc9] text-xs font-bold uppercase tracking-wider mt-2">Advanced Typing</p>
+                </div>
+
+                {/* Card 4: Passed Threshold */}
+                <div className="bg-white dark:bg-card-dark rounded-2xl p-6 border border-slate-200 dark:border-[#323b67] shadow-sm flex flex-col justify-between h-36 border-l-4 border-l-emerald-500 group hover:shadow-md transition-shadow">
+                    <div className="flex justify-between items-start">
+                        <div>
+                            <p className="text-slate-400 dark:text-[#929bc9] text-xs font-bold uppercase tracking-wider mb-1">Passed Target</p>
+                            <h3 className="text-emerald-600 dark:text-emerald-400 text-4.5xl font-black tracking-tight font-heading">4</h3>
+                        </div>
+                        <div className="p-3 bg-emerald-100/30 dark:bg-emerald-500/10 rounded-xl text-emerald-600 dark:text-emerald-400 shadow-sm">
+                            <span className="material-symbols-outlined text-xl flex items-center justify-center">emoji_events</span>
+                        </div>
+                    </div>
+                    <p className="text-slate-400 dark:text-[#929bc9] text-xs font-bold uppercase tracking-wider mt-2">Avg 50+ WPM</p>
+                </div>
+            </div>
+
+            {/* Charts Section */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                {/* Main Progress Chart */}
+                <div className="lg:col-span-2 bg-white dark:bg-card-dark rounded-2xl p-6 md:p-8 border border-slate-200 dark:border-[#323b67] shadow-sm relative overflow-hidden">
+                    <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">
+                        <div>
+                            <h3 className="text-slate-900 dark:text-white text-xl font-black tracking-tight mb-1 font-heading">Program Proficiency</h3>
+                            <p className="text-slate-500 dark:text-[#929bc9] text-xs font-normal">
+                                Student counts distributed by active progress standings.
+                            </p>
+                        </div>
+
+                        {/* Custom Key/Legend */}
+                        <div className="flex items-center gap-4 bg-slate-50 dark:bg-[#232948] px-4 py-2 rounded-lg border border-slate-200/50 dark:border-slate-800 shadow-sm">
+                            <div className="flex items-center gap-2">
+                                <div className="w-2.5 h-2.5 rounded-full bg-yellow-400"></div>
+                                <span className="text-[10px] font-bold text-slate-500 dark:text-[#929bc9] uppercase tracking-wider">Level 1</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <div className="w-2.5 h-2.5 rounded-full bg-blue-400"></div>
+                                <span className="text-[10px] font-bold text-slate-500 dark:text-[#929bc9] uppercase tracking-wider">Level 2</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <div className="w-2.5 h-2.5 rounded-full bg-emerald-400"></div>
+                                <span className="text-[10px] font-bold text-slate-500 dark:text-[#929bc9] uppercase tracking-wider">Passed</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="h-64 w-full text-slate-900 dark:text-white select-none">
+                        <ResponsiveContainer width="100%" height="100%">
+                            <BarChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }} barSize={40}>
+                                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f3f4f6" />
+                                <XAxis
+                                    dataKey="name"
+                                    axisLine={false}
+                                    tickLine={false}
+                                    tick={{ fill: '#9ca3af', fontSize: 11, fontWeight: 700 }}
+                                    dy={10}
+                                />
+                                <YAxis
+                                    axisLine={false}
+                                    tickLine={false}
+                                    tick={{ fill: '#9ca3af', fontSize: 11, fontWeight: 700 }}
+                                />
+                                <Tooltip content={<CustomTooltip />} cursor={{ fill: '#f9fafb', opacity: 0.05 }} />
+                                <Bar dataKey="Level 1" stackId="a" fill={LEVEL_COLORS.level1} radius={[0, 0, 4, 4]} />
+                                <Bar dataKey="Level 2" stackId="a" fill={LEVEL_COLORS.level2} radius={[0, 0, 0, 0]} />
+                                <Bar dataKey="Passed" stackId="a" fill={LEVEL_COLORS.passed} radius={[4, 4, 0, 0]} />
+                            </BarChart>
+                        </ResponsiveContainer>
+                    </div>
+                </div>
+
+                {/* Distribution Share Chart */}
+                <div className="bg-white dark:bg-card-dark rounded-2xl p-6 md:p-8 border border-slate-200 dark:border-[#323b67] shadow-sm flex flex-col">
+                    <h3 className="text-slate-900 dark:text-white text-xl font-black tracking-tight mb-1 font-heading">Enrollment Share</h3>
+                    <p className="text-slate-500 dark:text-[#929bc9] text-xs font-normal mb-6">Active students distributed across programs.</p>
+
+                    <div className="flex-1 min-h-[180px] relative select-none">
+                        <ResponsiveContainer width="100%" height="100%">
+                            <PieChart>
+                                <Pie
+                                    data={chartData}
+                                    cx="50%"
+                                    cy="50%"
+                                    innerRadius={55}
+                                    outerRadius={75}
+                                    paddingAngle={5}
+                                    dataKey="total"
+                                    stroke="none"
+                                >
+                                    {chartData.map((_, index) => (
+                                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                                    ))}
+                                </Pie>
+                                <Tooltip content={<CustomTooltip />} />
+                            </PieChart>
+                        </ResponsiveContainer>
+                        {/* Center Label Overlay */}
+                        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                            <div className="text-center">
+                                <span className="block text-2.5xl font-black text-slate-900 dark:text-white tracking-tight font-heading">382</span>
+                                <span className="text-[10px] text-slate-400 dark:text-[#929bc9] uppercase tracking-widest font-black mt-0.5">Students</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Custom Pie Legend */}
+                    <div className="mt-6 space-y-3">
+                        {chartData.map((entry, index) => (
+                            <div key={entry.name} className="flex items-center justify-between text-xs font-bold">
+                                <div className="flex items-center gap-2">
+                                    <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: COLORS[index % COLORS.length] }}></div>
+                                    <span className="text-slate-600 dark:text-[#929bc9] uppercase tracking-wider">{entry.name}</span>
+                                </div>
+                                <span className="text-slate-900 dark:text-white font-mono">{entry.total}</span>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            </div>
+
+            {/* Program Breakdown Table - Perfect styling connection to Student History */}
+            <div className="bg-white dark:bg-card-dark rounded-2xl border border-slate-200 dark:border-[#323b67] shadow-sm overflow-hidden flex flex-col">
+                <div className="p-6 border-b border-slate-100 dark:border-[#323b67]/45 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                    <div>
+                        <h3 className="text-slate-900 dark:text-white text-lg font-black tracking-tight font-heading">Detailed Breakdown</h3>
+                        <p className="text-slate-500 dark:text-[#929bc9] text-xs font-normal">Detailed student standing count parameters.</p>
+                    </div>
+                    <div className="flex gap-3">
+                        <button className="flex items-center gap-2 px-4 py-2 rounded-xl border border-slate-200 dark:border-[#323b67] text-slate-600 dark:text-slate-200 text-xs font-bold hover:bg-slate-50 dark:hover:bg-slate-800 hover-scale active-scale transition-all">
+                            <span className="material-symbols-outlined text-[18px]">filter_list</span>
+                            Filter
+                        </button>
+                        <button className="flex items-center gap-2 px-4 py-2 rounded-xl bg-primary text-white text-xs font-bold hover:bg-emerald-600 hover-scale active-scale transition-all shadow-md shadow-primary/10">
+                            <span className="material-symbols-outlined text-[18px]">download</span>
+                            Export
+                        </button>
+                    </div>
+                </div>
+
+                <div className="overflow-x-auto w-full">
+                    <table className="w-full text-left border-collapse min-w-[700px]">
+                        <thead>
+                            <tr className="border-b border-slate-100 dark:border-[#323b67] bg-slate-50/70 dark:bg-[#323b67]/25 pb-3">
+                                <th className="py-4.5 px-6 text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-[#929bc9] w-1/3">Major / Intake</th>
+                                <th className="py-4.5 px-6 text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-[#929bc9] text-center">Level 1</th>
+                                <th className="py-4.5 px-6 text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-[#929bc9] text-center">Level 2</th>
+                                <th className="py-4.5 px-6 text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-[#929bc9] text-center">Passed</th>
+                                <th className="py-4.5 px-6 text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-[#929bc9] text-right">Grand Total</th>
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-100 dark:divide-[#323b67]/45 text-sm">
+                            {DASHBOARD_DATA.map((major) => {
+                                const isExpanded = expandedMajors[major.id];
+                                const totals = getMajorTotals(major);
+
+                                return (
+                                    <React.Fragment key={major.id}>
+                                        {/* Major Header Row */}
+                                        <tr
+                                            className="bg-slate-50/40 dark:bg-[#232948]/30 hover:bg-slate-50 dark:hover:bg-[#232948] cursor-pointer transition-colors"
+                                            onClick={() => toggleMajor(major.id)}
+                                        >
+                                            <td className="px-6 py-4 font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                                                <span className={`material-symbols-outlined text-slate-400 transition-transform duration-250 ${isExpanded ? 'rotate-180' : ''}`}>
+                                                    expand_more
+                                                </span>
+                                                <span>{major.name}</span>
+                                                <span className="ml-2 px-2 py-0.5 rounded-full bg-slate-100 dark:bg-[#323b67] text-slate-500 dark:text-[#929bc9] text-[10px] font-bold border border-slate-200/50 dark:border-[#323b67]/50 uppercase">
+                                                    {major.intakes.length} Intakes
+                                                </span>
+                                            </td>
+                                            <td className="px-6 py-4 text-center text-slate-400 dark:text-[#636b95]">-</td>
+                                            <td className="px-6 py-4 text-center text-slate-400 dark:text-[#636b95]">-</td>
+                                            <td className="px-6 py-4 text-center text-slate-400 dark:text-[#636b95]">-</td>
+                                            <td className="px-6 py-4 text-right font-black text-slate-900 dark:text-white font-mono">{totals.total}</td>
+                                        </tr>
+
+                                        {/* Intake Rows (Expanded) */}
+                                        {isExpanded && (
+                                            <>
+                                                {major.intakes.map((intake) => (
+                                                    <tr key={intake.id} className="hover:bg-slate-50/30 dark:hover:bg-[#232948]/20 transition-colors">
+                                                        <td className="px-6 py-3.5 pl-14 text-slate-600 dark:text-slate-300 font-semibold">{intake.name}</td>
+                                                        <td className="px-6 py-3.5 text-center text-slate-600 dark:text-slate-300 font-mono font-bold">{intake.level1 > 0 ? intake.level1 : '-'}</td>
+                                                        <td className="px-6 py-3.5 text-center text-slate-600 dark:text-slate-300 font-mono font-bold">{intake.level2 > 0 ? intake.level2 : '-'}</td>
+                                                        <td className="px-6 py-3.5 text-center font-bold text-emerald-600 dark:text-emerald-400 font-mono">{intake.passed > 0 ? intake.passed : '-'}</td>
+                                                        <td className="px-6 py-3.5 text-right font-bold text-slate-900 dark:text-white font-mono">{intake.total}</td>
+                                                    </tr>
+                                                ))}
+                                                {/* Major Total Summary Row */}
+                                                <tr className="bg-emerald-500/5 dark:bg-emerald-500/10 border-t border-slate-100 dark:border-[#323b67]/45">
+                                                    <td className="px-6 py-3.5 pl-14 font-black text-emerald-700 dark:text-emerald-400 uppercase text-xs tracking-wider font-heading">{major.name} Total</td>
+                                                    <td className="px-6 py-3.5 text-center font-black text-slate-900 dark:text-white font-mono">{totals.level1}</td>
+                                                    <td className="px-6 py-3.5 text-center font-black text-slate-900 dark:text-white font-mono">{totals.level2}</td>
+                                                    <td className="px-6 py-3.5 text-center font-black text-emerald-600 dark:text-emerald-400 font-mono">{totals.passed}</td>
+                                                    <td className="px-6 py-3.5 text-right font-black text-slate-900 dark:text-white font-mono">{totals.total}</td>
+                                                </tr>
+                                            </>
+                                        )}
+                                    </React.Fragment>
+                                );
+                            })}
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </>
     );

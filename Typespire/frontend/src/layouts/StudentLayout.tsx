@@ -13,7 +13,7 @@ const StudentLayout: React.FC = () => {
     };
 
     return (
-        <div className="flex h-screen w-full flex-row overflow-hidden bg-background-light dark:bg-background-dark text-slate-900 dark:text-white font-display">
+        <div className="flex h-screen w-full flex-row overflow-hidden bg-background-light dark:bg-background-dark text-slate-900 dark:text-white font-sans">
             {/* Mobile Sidebar Overlay */}
             {isSidebarOpen && (
                 <div

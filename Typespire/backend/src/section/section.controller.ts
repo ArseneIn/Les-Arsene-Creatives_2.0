@@ -56,11 +56,22 @@ export class SectionController {
   }
   @Post(':id/students/bulk')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.INSTITUTION_ADMIN)
+  @Roles(UserRole.INSTITUTION_ADMIN, UserRole.FACILITATOR)
   bulkImport(
     @Param('id') id: string,
-    @Body() data: { students: { name: string; email: string }[] },
+    @Body() data: { students: { name: string; email?: string; username?: string; password?: string }[] },
   ) {
     return this.sectionService.bulkImportStudents(id, data.students);
+  }
+
+  @Patch(':id/students/:studentId/reset-password')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.INSTITUTION_ADMIN, UserRole.FACILITATOR)
+  resetPassword(
+    @Param('id') id: string,
+    @Param('studentId') studentId: string,
+    @Body('password') password?: string,
+  ) {
+    return this.sectionService.resetStudentPassword(id, studentId, password);
   }
 }

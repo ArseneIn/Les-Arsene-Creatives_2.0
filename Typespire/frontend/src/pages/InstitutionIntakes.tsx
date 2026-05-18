@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Plus, Calendar, ChevronDown, MoreHorizontal, Upload, X, CloudUpload, FileText, PlusCircle } from 'lucide-react';
 import { useInstitution } from '../context/InstitutionContext';
 import api from '../api/axios';
-import type { Intake } from '../types/institution';
+import type { Intake, Student } from '../types/institution';
 
 const InstitutionIntakes: React.FC = () => {
     const { intakes, addIntake, addSection, facilitators, assignFacilitatorToSection } = useInstitution();
@@ -11,6 +11,7 @@ const InstitutionIntakes: React.FC = () => {
     const [showBulkUploadModal, setShowBulkUploadModal] = useState<{ sectionId: string, intakeName: string, sectionName: string } | null>(null);
     const [assignFacilitatorModal, setAssignFacilitatorModal] = useState<{ sectionId: string, currentFacilitatorId?: string } | null>(null);
     const [selectedFacilitatorId, setSelectedFacilitatorId] = useState('');
+    const [showRosterModal, setShowRosterModal] = useState<{ sectionId: string, sectionName: string, students: Student[] } | null>(null);
 
     // Form States
     const [newIntakeName, setNewIntakeName] = useState('');
@@ -186,10 +187,13 @@ const InstitutionIntakes: React.FC = () => {
                                                     )}
                                                 </div>
                                                 <div className="flex items-end justify-between pt-3 border-t border-gray-50">
-                                                    <div>
-                                                        <span className="text-2xl font-bold text-gray-800">{section.students.length}</span>
-                                                        <span className="text-xs text-gray-500 ml-1">Students</span>
-                                                    </div>
+                                                    <button
+                                                        onClick={() => setShowRosterModal({ sectionId: section.id, sectionName: section.name, students: section.students })}
+                                                        className="text-left hover:opacity-85 transition-opacity"
+                                                    >
+                                                        <span className="text-2xl font-bold text-gray-800 hover:text-primary transition-colors">{section.students.length}</span>
+                                                        <span className="text-xs text-gray-500 ml-1 hover:underline block md:inline">Students</span>
+                                                    </button>
                                                     <button
                                                         onClick={() => setShowBulkUploadModal({ sectionId: section.id, intakeName: intake.name, sectionName: section.name })}
                                                         className="px-3 py-1.5 bg-gray-50 text-gray-600 text-xs font-bold rounded border border-gray-200 hover:bg-gray-100 hover:text-[#0d1b17] transition-colors flex items-center gap-1"
@@ -355,23 +359,36 @@ const InstitutionIntakes: React.FC = () => {
 
                                     const text = await file.text();
                                     const lines = text.split('\n');
-                                    const students: { name: string; email: string }[] = [];
+                                    const students: { name: string; email?: string; username?: string; password?: string }[] = [];
 
                                     // Skip header if present (simple check)
-                                    const startIndex = lines[0].toLowerCase().includes('email') ? 1 : 0;
+                                    const startIndex = lines[0].toLowerCase().includes('email') || lines[0].toLowerCase().includes('username') ? 1 : 0;
 
                                     for (let i = startIndex; i < lines.length; i++) {
                                         const line = lines[i].trim();
                                         if (!line) continue;
 
-                                        // Simple CSV parsing: assume Name, Email or Email, Name
-                                        // Let's assume Name, Email for now based on template
                                         const parts = line.split(',');
-                                        if (parts.length >= 2) {
+                                        if (parts.length >= 1) {
                                             const name = parts[0].trim();
-                                            const email = parts[1].trim();
-                                            if (name && email) {
-                                                students.push({ name, email });
+                                            let email: string | undefined = undefined;
+                                            let username: string | undefined = undefined;
+                                            let password: string | undefined = undefined;
+
+                                            if (parts.length >= 2) {
+                                                const credential = parts[1].trim();
+                                                if (credential.includes('@')) {
+                                                    email = credential;
+                                                } else {
+                                                    username = credential;
+                                                }
+                                            }
+                                            if (parts.length >= 3) {
+                                                password = parts[2].trim();
+                                            }
+
+                                            if (name) {
+                                                students.push({ name, email, username, password });
                                             }
                                         }
                                     }
@@ -432,6 +449,78 @@ const InstitutionIntakes: React.FC = () => {
                                 className="px-4 py-2 text-gray-600 font-bold hover:bg-gray-100 rounded-lg"
                             >
                                 Cancel
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+            {/* Roster Modal */}
+            {showRosterModal && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+                    <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+                        <div className="p-6 border-b border-gray-100 flex justify-between items-center">
+                            <div>
+                                <h3 className="text-xl font-bold text-[#0d1b17]">{showRosterModal.sectionName} — Roster</h3>
+                                <p className="text-xs text-gray-500 mt-0.5">Manage students and reset PINs/passwords instantly.</p>
+                            </div>
+                            <button onClick={() => setShowRosterModal(null)} className="text-gray-400 hover:text-gray-600">
+                                <X className="w-6 h-6" />
+                            </button>
+                        </div>
+                        <div className="p-6 max-h-[400px] overflow-y-auto">
+                            {showRosterModal.students.length > 0 ? (
+                                <table className="w-full text-left border-collapse text-sm">
+                                    <thead>
+                                        <tr className="border-b border-gray-100 text-gray-400 text-xs font-bold uppercase tracking-wider">
+                                            <th className="pb-3 w-1/3">Name</th>
+                                            <th className="pb-3 w-1/3">Username / Email</th>
+                                            <th className="pb-3 text-right">Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="divide-y divide-gray-50">
+                                        {showRosterModal.students.map((student) => (
+                                            <tr key={student.id} className="hover:bg-gray-50/50 transition-colors">
+                                                <td className="py-3.5 font-bold text-[#0d1b17]">{student.name}</td>
+                                                <td className="py-3.5 text-gray-600 font-medium">
+                                                    {student.email || student.username || <span className="text-red-400 italic">No credentials</span>}
+                                                </td>
+                                                <td className="py-3.5 text-right">
+                                                    <button
+                                                        onClick={async () => {
+                                                            const newPin = prompt(`Enter a new password/PIN for ${student.name} (leave empty to reset to default "1234"):`);
+                                                            if (newPin === null) return; // user cancelled
+                                                            
+                                                            try {
+                                                                await api.patch(`/section/${showRosterModal.sectionId}/students/${student.id}/reset-password`, {
+                                                                    password: newPin || '1234'
+                                                                });
+                                                                alert(`Successfully reset password for ${student.name} to "${newPin || '1234'}".`);
+                                                            } catch (err) {
+                                                                console.error(err);
+                                                                alert(`Failed to reset password: ${err instanceof Error ? err.message : 'Unknown error'}`);
+                                                            }
+                                                        }}
+                                                        className="px-2.5 py-1 text-xs font-bold text-red-600 bg-red-50 hover:bg-red-100 rounded border border-red-200 transition-colors"
+                                                    >
+                                                        Reset PIN
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            ) : (
+                                <div className="text-center py-10 text-gray-400">
+                                    No students enrolled in this section.
+                                </div>
+                            )}
+                        </div>
+                        <div className="p-6 border-t border-gray-100 flex justify-end bg-gray-50">
+                            <button
+                                onClick={() => setShowRosterModal(null)}
+                                className="px-4 py-2 text-gray-600 font-bold hover:bg-gray-100 rounded-lg"
+                            >
+                                Close
                             </button>
                         </div>
                     </div>

@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { CreateSectionDto } from './dto/create-section.dto';
 import { UpdateSectionDto } from './dto/update-section.dto';
 import { PrismaService } from '../prisma/prisma.service';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class SectionService {
@@ -67,9 +68,26 @@ export class SectionService {
       data: { facilitatorId },
     });
   }
+
+  async generateUniqueUsername(name: string, institutionId: string): Promise<string> {
+    const base = name.toLowerCase().replace(/[^a-z0-9]/g, '.').replace(/\.+/g, '.');
+    let username = base;
+    let count = 1;
+    while (true) {
+      const existing = await this.prisma.user.findFirst({
+        where: { username, institutionId },
+      });
+      if (!existing) {
+        return username;
+      }
+      username = `${base}${count}`;
+      count++;
+    }
+  }
+
   async bulkImportStudents(
     sectionId: string,
-    students: { name: string; email: string }[],
+    students: { name: string; email?: string; username?: string; password?: string }[],
   ) {
     const section = await this.prisma.section.findUnique({
       where: { id: sectionId },
@@ -87,21 +105,39 @@ export class SectionService {
 
     for (const student of students) {
       try {
-        // Check if user exists
-        let user = await this.prisma.user.findUnique({
-          where: { email: student.email },
-        });
+        let user: any = null;
+
+        // 1. Try to find existing student by email
+        if (student.email) {
+          user = await this.prisma.user.findUnique({
+            where: { email: student.email },
+          });
+        }
+
+        // 2. Try to find existing student by username in this institution
+        if (!user && student.username) {
+          user = await this.prisma.user.findFirst({
+            where: {
+              username: student.username,
+              institutionId: section.intake.institutionId,
+            },
+          });
+        }
 
         if (!user) {
           // Create new user (student)
-          // In a real app, we'd generate a random password and email them
-          const hashedPassword = '$2b$10$EpIx.5v.5v.5v.5v.5v.5e'; // Placeholder hash
+          const rawPassword = student.password || '1234';
+          const hashedPassword = await bcrypt.hash(rawPassword, 10);
+          
           const [firstName, ...lastNameParts] = student.name.split(' ');
           const lastName = lastNameParts.join(' ');
 
+          const username = student.username || await this.generateUniqueUsername(student.name, section.intake.institutionId);
+
           user = await this.prisma.user.create({
             data: {
-              email: student.email,
+              email: student.email || null,
+              username,
               password: hashedPassword,
               firstName: firstName || 'Student',
               lastName: lastName || '',
@@ -124,17 +160,39 @@ export class SectionService {
             results.added++;
           } else {
             results.errors.push(
-              `User ${student.email} exists but is not a student`,
+              `User ${student.email || student.username} exists but is not a student`,
             );
           }
         }
       } catch (error) {
         const message =
           error instanceof Error ? error.message : 'Unknown error';
-        results.errors.push(`Failed to add ${student.email}: ${message}`);
+        results.errors.push(`Failed to add ${student.name}: ${message}`);
       }
     }
 
     return results;
+  }
+
+  async resetStudentPassword(sectionId: string, studentId: string, newPassword?: string) {
+    const student = await this.prisma.user.findFirst({
+      where: {
+        id: studentId,
+        sectionId,
+        role: 'STUDENT',
+      },
+    });
+
+    if (!student) {
+      throw new Error('Student not found in this section');
+    }
+
+    const passwordToHash = newPassword || '1234';
+    const hashedPassword = await bcrypt.hash(passwordToHash, 10);
+
+    return this.prisma.user.update({
+      where: { id: studentId },
+      data: { password: hashedPassword },
+    });
   }
 }

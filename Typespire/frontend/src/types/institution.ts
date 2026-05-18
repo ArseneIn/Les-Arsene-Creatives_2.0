@@ -2,6 +2,7 @@ export interface Student {
     id: string;
     name: string;
     email: string;
+    username?: string;
 }
 
 export interface Facilitator {

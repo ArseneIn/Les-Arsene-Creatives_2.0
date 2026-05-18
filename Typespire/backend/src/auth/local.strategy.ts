@@ -14,9 +14,10 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
   }
 
   async validate(req: Request, email: string, pass: string): Promise<any> {
+    const emailOrUsername = req.body?.email || req.body?.username || email;
     const institutionSlug = req.body?.institution;
     const user = await this.authService.validateUser(
-      email,
+      emailOrUsername,
       pass,
       institutionSlug,
     );

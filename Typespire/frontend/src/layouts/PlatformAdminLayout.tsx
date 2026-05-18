@@ -1,12 +1,15 @@
 import React from 'react';
-import { Outlet, Link, useNavigate } from 'react-router-dom';
+import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-
 import { Keyboard, Building2, BarChart, Receipt, ScrollText, Settings, LogOut } from 'lucide-react';
 
 const PlatformAdminLayout: React.FC = () => {
+    const location = useLocation();
+    const isActive = (path: string) => location.pathname === path;
+
     const { user, logout } = useAuth();
     const navigate = useNavigate();
+    const [isSidebarOpen, setIsSidebarOpen] = React.useState(false);
 
     const handleLogout = () => {
         logout();
@@ -14,73 +17,142 @@ const PlatformAdminLayout: React.FC = () => {
     };
 
     return (
-        <div className="flex h-screen w-full flex-row overflow-hidden bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100">
+        <div className="flex h-screen w-full flex-row overflow-hidden bg-background-light dark:bg-background-dark font-sans text-slate-900 dark:text-slate-100">
+            {/* Mobile Sidebar Overlay */}
+            {isSidebarOpen && (
+                <div
+                    className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+                    onClick={() => setIsSidebarOpen(false)}
+                />
+            )}
+
             {/* Sidebar Navigation */}
-            <aside className="w-64 bg-navy-blue text-white flex flex-col h-full flex-shrink-0">
+            <aside className={`
+                fixed lg:static inset-y-0 left-0 z-50 w-64 border-r border-[#323b67] bg-[#111422] text-white flex flex-col h-full flex-shrink-0 transition-transform duration-300 ease-in-out
+                ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
+            `}>
                 <div className="p-6">
-                    <div className="flex items-center gap-3 mb-10">
-                        <div className="bg-admin-primary rounded-lg p-2 flex items-center justify-center">
-                            <Keyboard className="text-navy-blue w-6 h-6" />
+                    <div className="flex items-center justify-between mb-10">
+                        <div className="flex items-center gap-3">
+                            <div className="bg-primary rounded-lg p-2 flex items-center justify-center text-[#111422]">
+                                <Keyboard className="w-5 h-5" />
+                            </div>
+                            <div>
+                                <h1 className="text-xl font-bold tracking-tight">Typespire</h1>
+                                <p className="text-xs text-primary uppercase tracking-widest font-bold">Super Admin</p>
+                            </div>
                         </div>
-                        <div>
-                            <h1 className="text-xl font-bold tracking-tight">Typespire</h1>
-                            <p className="text-xs text-slate-400 uppercase tracking-widest font-semibold">Super Admin</p>
-                        </div>
+                        <button
+                            className="lg:hidden text-slate-400 hover:text-white"
+                            onClick={() => setIsSidebarOpen(false)}
+                        >
+                            <span className="material-symbols-outlined">close</span>
+                        </button>
                     </div>
                     <nav className="space-y-1">
-                        <Link to="/super-admin" className="flex items-center gap-3 px-4 py-3 rounded-lg bg-admin-primary/10 text-admin-primary border-l-4 border-admin-primary">
-                            <Building2 className="w-6 h-6" />
-                            <span className="font-medium">Institutions</span>
+                        <Link 
+                            to="/super-admin" 
+                            onClick={() => setIsSidebarOpen(false)} 
+                            className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all border-l-4 ${isActive('/super-admin')
+                                ? 'bg-primary/10 text-primary border-primary'
+                                : 'text-[#929bc9] hover:text-white hover:bg-white/5 border-transparent'
+                                }`}
+                        >
+                            <Building2 className="w-5 h-5" />
+                            <span className="font-medium text-sm">Institutions</span>
                         </Link>
-                        <Link to="/super-admin/analytics" className="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-400 hover:text-white hover:bg-white/5 transition-colors border-l-4 border-transparent">
-                            <BarChart className="w-6 h-6" />
-                            <span className="font-medium">Global Analytics</span>
+                        <Link 
+                            to="/super-admin/analytics" 
+                            onClick={() => setIsSidebarOpen(false)} 
+                            className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all border-l-4 ${isActive('/super-admin/analytics')
+                                ? 'bg-primary/10 text-primary border-primary'
+                                : 'text-[#929bc9] hover:text-white hover:bg-white/5 border-transparent'
+                                }`}
+                        >
+                            <BarChart className="w-5 h-5" />
+                            <span className="font-medium text-sm">Global Analytics</span>
                         </Link>
-                        <Link to="/super-admin/billing" className="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-400 hover:text-white hover:bg-white/5 transition-colors border-l-4 border-transparent">
-                            <Receipt className="w-6 h-6" />
-                            <span className="font-medium">Billing & Plans</span>
+                        <Link 
+                            to="/super-admin/billing" 
+                            onClick={() => setIsSidebarOpen(false)} 
+                            className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all border-l-4 ${isActive('/super-admin/billing')
+                                ? 'bg-primary/10 text-primary border-primary'
+                                : 'text-[#929bc9] hover:text-white hover:bg-white/5 border-transparent'
+                                }`}
+                        >
+                            <Receipt className="w-5 h-5" />
+                            <span className="font-medium text-sm">Billing & Plans</span>
                         </Link>
-                        <Link to="/super-admin/logs" className="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-400 hover:text-white hover:bg-white/5 transition-colors border-l-4 border-transparent">
-                            <ScrollText className="w-6 h-6" />
-                            <span className="font-medium">System Logs</span>
+                        <Link 
+                            to="/super-admin/logs" 
+                            onClick={() => setIsSidebarOpen(false)} 
+                            className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all border-l-4 ${isActive('/super-admin/logs')
+                                ? 'bg-primary/10 text-primary border-primary'
+                                : 'text-[#929bc9] hover:text-white hover:bg-white/5 border-transparent'
+                                }`}
+                        >
+                            <ScrollText className="w-5 h-5" />
+                            <span className="font-medium text-sm">System Logs</span>
                         </Link>
-                        <Link to="/super-admin/settings" className="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-400 hover:text-white hover:bg-white/5 transition-colors border-l-4 border-transparent">
-                            <Settings className="w-6 h-6" />
-                            <span className="font-medium">Platform Settings</span>
+                        <Link 
+                            to="/super-admin/settings" 
+                            onClick={() => setIsSidebarOpen(false)} 
+                            className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all border-l-4 ${isActive('/super-admin/settings')
+                                ? 'bg-primary/10 text-primary border-primary'
+                                : 'text-[#929bc9] hover:text-white hover:bg-white/5 border-transparent'
+                                }`}
+                        >
+                            <Settings className="w-5 h-5" />
+                            <span className="font-medium text-sm">Platform Settings</span>
                         </Link>
                     </nav>
                 </div>
-                <div className="mt-auto p-6 space-y-4">
-                    <div className="bg-slate-800/50 rounded-xl p-4 border border-slate-700">
-                        <p className="text-xs text-slate-400 mb-2 uppercase font-bold">Server Load</p>
-                        <div className="w-full bg-slate-700 h-1.5 rounded-full overflow-hidden">
-                            <div className="bg-admin-primary h-full w-[42%]"></div>
+                <div className="mt-auto p-4 space-y-4">
+                    <div className="bg-slate-800/40 rounded-xl p-4 border border-slate-700/60 hidden lg:block">
+                        <p className="text-xs text-slate-400 mb-1.5 uppercase font-bold tracking-wider">Server Load</p>
+                        <div className="w-full bg-slate-700/60 h-1.5 rounded-full overflow-hidden">
+                            <div className="bg-primary h-full w-[42%]"></div>
                         </div>
-                        <p className="text-xs text-slate-300 mt-2">Running optimally</p>
+                        <p className="text-[10px] text-slate-400 mt-1.5 font-bold uppercase tracking-wider">Running optimally</p>
                     </div>
                     <div className="flex items-center gap-3 p-2">
-                        <div className="size-10 rounded-full bg-admin-primary/20 border-2 border-admin-primary/50 flex items-center justify-center text-admin-primary font-bold">
+                        <div className="size-10 rounded-full bg-primary/20 border border-[#323b67] flex items-center justify-center text-primary font-bold">
                             {user?.firstName?.[0] || 'P'}
                         </div>
                         <div className="flex-1 overflow-hidden">
-                            <p className="text-sm font-bold truncate">
+                            <p className="text-sm font-bold truncate text-white">
                                 {user ? `${user.firstName || ''} ${user.lastName || ''}` : 'Platform Admin'}
                             </p>
-                            <p className="text-xs text-slate-400 truncate">{user?.email || 'Loading...'}</p>
+                            <p className="text-xs text-[#929bc9] truncate">{user?.email || 'Loading...'}</p>
                         </div>
-                        <button
-                            onClick={handleLogout}
-                            className="text-slate-400 cursor-pointer hover:text-white"
-                        >
-                            <LogOut className="w-6 h-6" />
-                        </button>
                     </div>
+                    <button
+                        onClick={handleLogout}
+                        className="w-full flex items-center justify-center gap-2 rounded-lg h-10 px-4 bg-white/5 hover:bg-white/10 text-white text-sm font-medium transition-colors border border-white/10"
+                    >
+                        <span className="material-symbols-outlined text-[18px]">logout</span>
+                        <span>Log Out</span>
+                    </button>
                 </div>
             </aside>
 
             {/* Main Content */}
             <main className="flex-1 flex flex-col h-full overflow-y-auto bg-background-light dark:bg-background-dark relative">
-                <Outlet />
+                {/* Mobile Header Toggle */}
+                <div className="lg:hidden p-4 bg-white dark:bg-[#111422] border-b border-gray-200 dark:border-[#323b67] flex items-center gap-3">
+                    <button
+                        onClick={() => setIsSidebarOpen(true)}
+                        className="p-2 -ml-2 text-slate-600 dark:text-white hover:bg-gray-100 dark:hover:bg-white/10 rounded-lg"
+                    >
+                        <span className="material-symbols-outlined">menu</span>
+                    </button>
+                    <span className="font-bold text-lg text-slate-900 dark:text-white font-heading">Typespire Super Admin</span>
+                </div>
+                <div className="w-full flex-1 py-8 px-6 sm:px-8 md:px-10 lg:px-12 flex flex-col items-center">
+                    <div className="max-w-[1280px] w-full flex flex-col gap-6">
+                        <Outlet />
+                    </div>
+                </div>
             </main>
         </div>
     );
