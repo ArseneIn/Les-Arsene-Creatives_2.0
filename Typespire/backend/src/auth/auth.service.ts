@@ -84,6 +84,7 @@ export class AuthService {
         lastName: user.lastName,
         role: user.role,
         institutionId: user.institutionId,
+        sectionId: user.sectionId,
       },
     };
   }

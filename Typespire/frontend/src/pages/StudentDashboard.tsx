@@ -2,14 +2,15 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { useUserProgress } from '../context/UserProgressContext';
 import { useFacilitator } from '../context/FacilitatorContext';
+import { useAuth } from '../context/AuthContext';
 
 const StudentDashboard: React.FC = () => {
     const { stats, recentResults } = useUserProgress();
     const { assignments } = useFacilitator();
+    const { user } = useAuth();
 
-    // Mock current user ID for demonstration
-    const currentUserId = '1';
-    const currentUserSectionId = '10A';
+    const currentUserId = user?.id || '';
+    const currentUserSectionId = user?.sectionId || '';
 
     // Get the latest active assignment for this student
     const latestAssignment = assignments.find(a =>
@@ -33,8 +34,8 @@ const StudentDashboard: React.FC = () => {
                                 <span className="material-symbols-outlined text-[14px]">local_fire_department</span>
                                 {stats.streakDays}-Day Streak!
                             </span>
-                            <h1 className="text-3xl md:text-5xl font-black tracking-tight mt-1">
-                                Welcome back, Alex!
+                            <h1 className="text-3xl md:text-5xl font-black tracking-tight mt-1 font-heading">
+                                Welcome back, {user?.firstName || 'Student'}!
                             </h1>
                             <p className="text-emerald-100/90 text-sm md:text-base font-normal max-w-xl">
                                 Your finger coordination is peaking today. Let's beat your personal target and climb to Level {stats.level + 1}!
@@ -44,7 +45,7 @@ const StudentDashboard: React.FC = () => {
                             <span className="material-symbols-outlined text-yellow-400 text-4xl animate-pulse">workspace_premium</span>
                             <div>
                                 <p className="text-xs text-emerald-200 uppercase tracking-widest font-bold">Current Standing</p>
-                                <p className="text-2xl font-black">Level {stats.level}</p>
+                                <p className="text-2xl font-black font-heading">Level {stats.level}</p>
                             </div>
                         </div>
                     </div>
@@ -68,7 +69,7 @@ const StudentDashboard: React.FC = () => {
                                         </span>
                                     )}
                                 </div>
-                                <h2 className="text-2xl font-black tracking-tight text-slate-900 dark:text-white mt-1">
+                                <h2 className="text-2xl font-black tracking-tight text-slate-900 dark:text-white mt-1 font-heading">
                                     {latestAssignment ? latestAssignment.title : 'All caught up, ready for practice!'}
                                 </h2>
                                 <p className="text-slate-500 dark:text-[#929bc9] text-sm md:text-base font-normal leading-relaxed max-w-xl">
@@ -78,8 +79,8 @@ const StudentDashboard: React.FC = () => {
                                 </p>
                             </div>
                             <Link 
-                                to={latestAssignment ? "/test" : "/practice"} 
-                                className="w-full md:w-auto shrink-0 flex items-center justify-center gap-2 bg-primary hover:bg-emerald-600 text-white font-bold py-3.5 px-7 rounded-xl transition-all duration-200 shadow-lg shadow-primary/20 hover-scale active-scale"
+                                to={latestAssignment ? `/test?assignmentId=${latestAssignment.id}` : "/practice"} 
+                                className="w-full md:w-auto shrink-0 flex items-center justify-center gap-2 bg-primary hover:bg-emerald-600 text-white font-bold py-3.5 px-7 rounded-xl transition-all duration-200 shadow-lg shadow-primary/20 hover-scale active-scale font-heading"
                             >
                                 <span className="material-symbols-outlined text-[20px]">{latestAssignment ? 'play_arrow' : 'keyboard'}</span>
                                 <span>{latestAssignment ? 'Start Assignment' : 'Go to Practice'}</span>
@@ -90,7 +91,7 @@ const StudentDashboard: React.FC = () => {
                     {/* Goal Progress (Stats Gauge) */}
                     <div className="rounded-2xl border border-slate-200 dark:border-[#323b67] bg-white dark:bg-card-dark p-6 shadow-md flex flex-col items-center justify-center relative overflow-hidden hover:shadow-lg transition-shadow duration-300">
                         <h3 className="w-full text-left text-sm font-bold text-slate-500 dark:text-[#929bc9] mb-4 flex justify-between">
-                            <span>GOAL PROGRESS</span>
+                            <span className="uppercase tracking-wider">GOAL PROGRESS</span>
                             <span className="text-xs bg-yellow-accent/15 text-yellow-600 dark:text-yellow-accent px-2 py-0.5 rounded-full font-bold">Level {stats.level}</span>
                         </h3>
                         {/* CSS/SVG Gauge */}
@@ -110,7 +111,7 @@ const StudentDashboard: React.FC = () => {
                                 ></path>
                             </svg>
                             <div className="absolute inset-0 flex flex-col items-center justify-center">
-                                <span className="text-4xl font-black text-slate-900 dark:text-white tracking-tight">{stats.currentWpm}</span>
+                                <span className="text-4xl font-black text-slate-900 dark:text-white tracking-tight font-heading">{stats.currentWpm}</span>
                                 <span className="text-[10px] font-bold text-slate-400 dark:text-[#929bc9] uppercase tracking-widest mt-0.5">WPM</span>
                             </div>
                         </div>
@@ -132,17 +133,17 @@ const StudentDashboard: React.FC = () => {
                 <div className="rounded-2xl border border-slate-200 dark:border-[#323b67] bg-white dark:bg-card-dark p-6 md:p-8 shadow-md flex flex-col">
                     <div className="flex flex-wrap items-center justify-between mb-6 gap-4">
                         <div>
-                            <h3 className="text-xl font-black text-slate-900 dark:text-white">Performance Trends</h3>
+                            <h3 className="text-xl font-black text-slate-900 dark:text-white font-heading">Performance Trends</h3>
                             <p className="text-sm text-slate-500 dark:text-[#929bc9]">Last 30 Days Typing Activity</p>
                         </div>
                         <div className="flex gap-4">
                             <div className="flex items-center gap-2 bg-slate-100 dark:bg-[#232948] px-3 py-1.5 rounded-lg border border-slate-200/50 dark:border-slate-700/50">
                                 <div className="w-2.5 h-2.5 rounded-full bg-yellow-accent"></div>
-                                <span className="text-xs font-semibold text-slate-600 dark:text-[#929bc9]">Speed (WPM)</span>
+                                <span className="text-xs font-semibold text-slate-600 dark:text-[#929bc9] uppercase">Speed (WPM)</span>
                             </div>
                             <div className="flex items-center gap-2 bg-slate-100 dark:bg-[#232948] px-3 py-1.5 rounded-lg border border-slate-200/50 dark:border-slate-700/50">
                                 <div className="w-2.5 h-2.5 rounded-full bg-emerald-accent"></div>
-                                <span className="text-xs font-semibold text-slate-600 dark:text-[#929bc9]">Accuracy (%)</span>
+                                <span className="text-xs font-semibold text-slate-600 dark:text-[#929bc9] uppercase">Accuracy (%)</span>
                             </div>
                         </div>
                     </div>
@@ -207,7 +208,7 @@ const StudentDashboard: React.FC = () => {
                 {/* Bottom Row: Trial History */}
                 <div className="rounded-2xl border border-slate-200 dark:border-[#323b67] bg-white dark:bg-card-dark p-6 md:p-8 shadow-md overflow-hidden flex flex-col">
                     <div className="flex items-center justify-between mb-6">
-                        <h3 className="text-xl font-black text-slate-900 dark:text-white">Recent Activity</h3>
+                        <h3 className="text-xl font-black text-slate-900 dark:text-white font-heading">Recent Activity</h3>
                         <Link to="/history" className="text-sm font-bold text-primary hover:text-emerald-500 transition-colors flex items-center gap-1">
                             <span>View All</span>
                             <span className="material-symbols-outlined text-[16px]">arrow_forward</span>

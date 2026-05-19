@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { useAuth } from '../context/AuthContext';
+import { useFacilitator } from '../context/FacilitatorContext';
 import {
     BarChart,
     Bar,
@@ -12,52 +14,8 @@ import {
     Cell
 } from 'recharts';
 
-// --- Types for the new dashboard structure ---
-interface IntakeStat {
-    id: string;
-    name: string;
-    level1: number;
-    level2: number;
-    passed: number;
-    total: number;
-}
-
-interface MajorGroup {
-    id: string;
-    name: string;
-    intakes: IntakeStat[];
-}
-
-// --- Mock Data ---
-const DASHBOARD_DATA: MajorGroup[] = [
-    {
-        id: 'bapm',
-        name: 'BAPM',
-        intakes: [
-            { id: 'jan25', name: 'Jan 2025', level1: 30, level2: 91, passed: 4, total: 125 },
-            { id: 'sept24', name: 'Sept 2024', level1: 5, level2: 28, passed: 0, total: 33 },
-            { id: 'sept25', name: 'Sept 2025', level1: 9, level2: 47, passed: 0, total: 56 },
-        ]
-    },
-    {
-        id: 'bscba',
-        name: 'BScBA',
-        intakes: [
-            { id: 'may24', name: 'May 2024', level1: 0, level2: 4, passed: 0, total: 4 },
-            { id: 'jan25b', name: 'Jan 2025', level1: 0, level2: 10, passed: 0, total: 10 },
-            { id: 'sept25b', name: 'Sept 2025', level1: 1, level2: 24, passed: 0, total: 25 },
-        ]
-    },
-    {
-        id: 'snhu',
-        name: 'SNHU',
-        intakes: [
-            { id: 'may25', name: 'May 2025', level1: 17, level2: 112, passed: 0, total: 129 },
-        ]
-    }
-];
-
-const COLORS = ['#3b82f6', '#8b5cf6', '#ec4899', '#10b981']; 
+// Define standard colors for visual consistency
+const COLORS = ['#10b981', '#3b82f6', '#8b5cf6', '#ec4899']; 
 const LEVEL_COLORS = {
     level1: '#fbbf24', 
     level2: '#60a5fa', 
@@ -94,42 +52,91 @@ const CustomTooltip = ({ active, payload, label }: TooltipProps) => {
 };
 
 const FacilitatorDashboard: React.FC = () => {
-    const [expandedMajors, setExpandedMajors] = useState<Record<string, boolean>>({
-        'bapm': true,
-        'bscba': true,
-        'snhu': true
-    });
+    const { user } = useAuth();
+    const { students, sections } = useFacilitator();
 
-    const toggleMajor = (majorId: string) => {
-        setExpandedMajors(prev => ({
+    // Dynamic states for accordion collapse
+    const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({});
+
+    const toggleSection = (sectionId: string) => {
+        setExpandedSections(prev => ({
             ...prev,
-            [majorId]: !prev[majorId]
+            [sectionId]: !prev[sectionId]
         }));
     };
 
-    const getMajorTotals = (major: MajorGroup) => {
-        return major.intakes.reduce((acc, curr) => ({
-            level1: acc.level1 + curr.level1,
-            level2: acc.level2 + curr.level2,
-            passed: acc.passed + curr.passed,
-            total: acc.total + curr.total
-        }), { level1: 0, level2: 0, passed: 0, total: 0 });
-    };
+    // Calculate dynamic aggregates in real-time from the reactive students list
+    const totalStudentsCount = students.length;
+    
+    // Typing levels thresholds:
+    // Level 1: < 40 WPM
+    // Level 2: >= 40 and < 50 WPM
+    // Passed: >= 50 WPM
+    const level1Count = students.filter(s => s.currentWpm < 40).length; 
+    const level2Count = students.filter(s => s.currentWpm >= 40 && s.currentWpm < 50).length;
+    const passedCount = students.filter(s => s.currentWpm >= 50).length;
 
-    const chartData = DASHBOARD_DATA.map(major => {
-        const totals = getMajorTotals(major);
+    // Group students by intake (major) to build dynamic chart data
+    const intakeGroups: Record<string, typeof students> = {};
+    students.forEach(s => {
+        if (!intakeGroups[s.major]) {
+            intakeGroups[s.major] = [];
+        }
+        intakeGroups[s.major].push(s);
+    });
+
+    const chartData = Object.entries(intakeGroups).map(([intakeName, list]) => {
+        const l1 = list.filter(s => s.currentWpm < 40).length;
+        const l2 = list.filter(s => s.currentWpm >= 40 && s.currentWpm < 50).length;
+        const p = list.filter(s => s.currentWpm >= 50).length;
+
         return {
-            name: major.name,
-            'Level 1': totals.level1,
-            'Level 2': totals.level2,
-            'Passed': totals.passed,
-            total: totals.total
+            name: intakeName,
+            'Level 1': l1,
+            'Level 2': l2,
+            'Passed': p,
+            total: list.length
         };
     });
 
+    // If there is no data seeded yet, render a beautiful blank state
+    if (sections.length === 0) {
+        return (
+            <>
+                <header className="relative w-full rounded-2xl overflow-hidden bg-gradient-to-r from-emerald-600 to-teal-700 p-6 md:p-8 text-white shadow-xl glow-primary">
+                    <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-2xl -translate-y-12 translate-x-12 pointer-events-none"></div>
+                    <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+                        <div className="flex flex-col gap-2">
+                            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/20 text-white text-xs font-bold uppercase tracking-wider w-fit">
+                                <span className="material-symbols-outlined text-[14px]">analytics</span>
+                                Instructor Snapshot
+                            </span>
+                            <h1 className="text-3xl md:text-5xl font-black tracking-tight mt-1 font-heading">
+                                Welcome, {user?.firstName || 'Instructor'}!
+                            </h1>
+                            <p className="text-emerald-100/90 text-sm md:text-base font-normal max-w-xl">
+                                You do not have any class sections assigned to you in the database yet.
+                            </p>
+                        </div>
+                    </div>
+                </header>
+
+                <div className="bg-white dark:bg-card-dark rounded-2xl border border-slate-200 dark:border-[#323b67] shadow-sm p-12 flex flex-col items-center justify-center min-h-[400px]">
+                    <div className="p-4 bg-slate-100 dark:bg-slate-800 rounded-full mb-4 text-slate-400">
+                        <span className="material-symbols-outlined text-5xl">supervised_user_circle</span>
+                    </div>
+                    <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2 font-heading">No Assigned Sections</h3>
+                    <p className="text-slate-500 dark:text-[#929bc9] text-center max-w-md">
+                        Please ask your Institution Administrator to assign you to a class section under their active Intakes. Once assigned, your student rosters and proficiency stats will render here automatically in real-time!
+                    </p>
+                </div>
+            </>
+        );
+    }
+
     return (
         <>
-            {/* Hero Banner Header - Perfect Aesthetic Connection to Student Portal */}
+            {/* Hero Banner Header - Dynamic greeting */}
             <header className="relative w-full rounded-2xl overflow-hidden bg-gradient-to-r from-emerald-600 to-teal-700 p-6 md:p-8 text-white shadow-xl glow-primary">
                 <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-2xl -translate-y-12 translate-x-12 pointer-events-none"></div>
                 <div className="absolute bottom-0 left-1/3 w-32 h-32 bg-emerald-400/20 rounded-full blur-xl pointer-events-none"></div>
@@ -140,7 +147,7 @@ const FacilitatorDashboard: React.FC = () => {
                             Instructor Snapshot
                         </span>
                         <h1 className="text-3xl md:text-5xl font-black tracking-tight mt-1 font-heading">
-                            Welcome back, Instructor!
+                            Welcome back, {user?.firstName || 'Instructor'}!
                         </h1>
                         <p className="text-emerald-100/90 text-sm md:text-base font-normal max-w-xl">
                             Track student coordinates, intake levels, and progress parameters in real-time.
@@ -150,13 +157,13 @@ const FacilitatorDashboard: React.FC = () => {
                         <span className="material-symbols-outlined text-yellow-400 text-4xl animate-pulse">groups</span>
                         <div>
                             <p className="text-xs text-emerald-200 uppercase tracking-widest font-bold">Total Supervised</p>
-                            <p className="text-2xl font-black font-heading">382 Students</p>
+                            <p className="text-2xl font-black font-heading">{totalStudentsCount} Students</p>
                         </div>
                     </div>
                 </div>
             </header>
 
-            {/* KPI Cards Row */}
+            {/* KPI Cards Row - Bind to live database calculations */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                 {/* Card 1: Total Students */}
                 <div className="bg-white dark:bg-card-dark rounded-2xl p-6 border border-slate-200 dark:border-[#323b67] shadow-sm flex flex-col justify-between h-36 relative overflow-hidden group hover:shadow-md transition-shadow">
@@ -164,16 +171,13 @@ const FacilitatorDashboard: React.FC = () => {
                     <div className="flex justify-between items-start z-10">
                         <div>
                             <p className="text-slate-400 dark:text-[#929bc9] text-xs font-bold uppercase tracking-wider mb-1">Total Students</p>
-                            <h3 className="text-slate-900 dark:text-white text-4.5xl font-black tracking-tight font-heading">382</h3>
+                            <h3 className="text-slate-900 dark:text-white text-4.5xl font-black tracking-tight font-heading">{totalStudentsCount}</h3>
                         </div>
                         <div className="p-3 bg-slate-100 dark:bg-[#323b67] rounded-xl text-slate-600 dark:text-slate-300 group-hover:bg-primary group-hover:text-white transition-all duration-300 shadow-sm">
                             <span className="material-symbols-outlined text-xl flex items-center justify-center">group</span>
                         </div>
                     </div>
-                    <div className="flex items-center gap-1 text-xs font-bold text-emerald-600 dark:text-emerald-400 z-10 mt-2">
-                        <span className="material-symbols-outlined text-sm font-bold">trending_up</span>
-                        <span>+12% vs last term</span>
-                    </div>
+                    <p className="text-slate-400 dark:text-[#929bc9] text-xs font-bold uppercase tracking-wider mt-2">Active in sections</p>
                 </div>
 
                 {/* Card 2: Level 1 Active */}
@@ -181,7 +185,7 @@ const FacilitatorDashboard: React.FC = () => {
                     <div className="flex justify-between items-start">
                         <div>
                             <p className="text-slate-400 dark:text-[#929bc9] text-xs font-bold uppercase tracking-wider mb-1">Level 1 Active</p>
-                            <h3 className="text-slate-900 dark:text-white text-4.5xl font-black tracking-tight font-heading">62</h3>
+                            <h3 className="text-slate-900 dark:text-white text-4.5xl font-black tracking-tight font-heading">{level1Count}</h3>
                         </div>
                         <div className="p-3 bg-yellow-100/30 dark:bg-yellow-500/10 rounded-xl text-yellow-600 dark:text-yellow-400 shadow-sm">
                             <span className="material-symbols-outlined text-xl flex items-center justify-center">keyboard</span>
@@ -195,7 +199,7 @@ const FacilitatorDashboard: React.FC = () => {
                     <div className="flex justify-between items-start">
                         <div>
                             <p className="text-slate-400 dark:text-[#929bc9] text-xs font-bold uppercase tracking-wider mb-1">Level 2 Active</p>
-                            <h3 className="text-slate-900 dark:text-white text-4.5xl font-black tracking-tight font-heading">316</h3>
+                            <h3 className="text-slate-900 dark:text-white text-4.5xl font-black tracking-tight font-heading">{level2Count}</h3>
                         </div>
                         <div className="p-3 bg-blue-100/30 dark:bg-blue-500/10 rounded-xl text-blue-600 dark:text-blue-400 shadow-sm">
                             <span className="material-symbols-outlined text-xl flex items-center justify-center">speed</span>
@@ -209,7 +213,7 @@ const FacilitatorDashboard: React.FC = () => {
                     <div className="flex justify-between items-start">
                         <div>
                             <p className="text-slate-400 dark:text-[#929bc9] text-xs font-bold uppercase tracking-wider mb-1">Passed Target</p>
-                            <h3 className="text-emerald-600 dark:text-emerald-400 text-4.5xl font-black tracking-tight font-heading">4</h3>
+                            <h3 className="text-emerald-600 dark:text-emerald-400 text-4.5xl font-black tracking-tight font-heading">{passedCount}</h3>
                         </div>
                         <div className="p-3 bg-emerald-100/30 dark:bg-emerald-500/10 rounded-xl text-emerald-600 dark:text-emerald-400 shadow-sm">
                             <span className="material-symbols-outlined text-xl flex items-center justify-center">emoji_events</span>
@@ -219,7 +223,7 @@ const FacilitatorDashboard: React.FC = () => {
                 </div>
             </div>
 
-            {/* Charts Section */}
+            {/* Charts Section - Dynamically binds to database outputs */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 {/* Main Progress Chart */}
                 <div className="lg:col-span-2 bg-white dark:bg-card-dark rounded-2xl p-6 md:p-8 border border-slate-200 dark:border-[#323b67] shadow-sm relative overflow-hidden">
@@ -263,9 +267,10 @@ const FacilitatorDashboard: React.FC = () => {
                                     axisLine={false}
                                     tickLine={false}
                                     tick={{ fill: '#9ca3af', fontSize: 11, fontWeight: 700 }}
+                                    allowDecimals={false}
                                 />
                                 <Tooltip content={<CustomTooltip />} cursor={{ fill: '#f9fafb', opacity: 0.05 }} />
-                                <Bar dataKey="Level 1" stackId="a" fill={LEVEL_COLORS.level1} radius={[0, 0, 4, 4]} />
+                                <Bar dataKey="Level 1" stackId="a" fill={LEVEL_COLORS.level1} radius={[4, 4, 4, 4]} />
                                 <Bar dataKey="Level 2" stackId="a" fill={LEVEL_COLORS.level2} radius={[0, 0, 0, 0]} />
                                 <Bar dataKey="Passed" stackId="a" fill={LEVEL_COLORS.passed} radius={[4, 4, 0, 0]} />
                             </BarChart>
@@ -301,7 +306,7 @@ const FacilitatorDashboard: React.FC = () => {
                         {/* Center Label Overlay */}
                         <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
                             <div className="text-center">
-                                <span className="block text-2.5xl font-black text-slate-900 dark:text-white tracking-tight font-heading">382</span>
+                                <span className="block text-2.5xl font-black text-slate-900 dark:text-white tracking-tight font-heading">{totalStudentsCount}</span>
                                 <span className="text-[10px] text-slate-400 dark:text-[#929bc9] uppercase tracking-widest font-black mt-0.5">Students</span>
                             </div>
                         </div>
@@ -322,15 +327,15 @@ const FacilitatorDashboard: React.FC = () => {
                 </div>
             </div>
 
-            {/* Program Breakdown Table - Perfect styling connection to Student History */}
+            {/* Detailed Roster Table - Binds sections to actual database rosters (Mary Jane, John Doe) */}
             <div className="bg-white dark:bg-card-dark rounded-2xl border border-slate-200 dark:border-[#323b67] shadow-sm overflow-hidden flex flex-col">
                 <div className="p-6 border-b border-slate-100 dark:border-[#323b67]/45 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                     <div>
-                        <h3 className="text-slate-900 dark:text-white text-lg font-black tracking-tight font-heading">Detailed Breakdown</h3>
-                        <p className="text-slate-500 dark:text-[#929bc9] text-xs font-normal">Detailed student standing count parameters.</p>
+                        <h3 className="text-slate-900 dark:text-white text-lg font-black tracking-tight font-heading">Class Roster & Directory</h3>
+                        <p className="text-slate-500 dark:text-[#929bc9] text-xs font-normal">Manage class sections and expand to view live student performance coordinates.</p>
                     </div>
                     <div className="flex gap-3">
-                        <button className="flex items-center gap-2 px-4 py-2 rounded-xl border border-slate-200 dark:border-[#323b67] text-slate-600 dark:text-slate-200 text-xs font-bold hover:bg-slate-50 dark:hover:bg-slate-800 hover-scale active-scale transition-all">
+                        <button className="flex items-center gap-2 px-4 py-2 rounded-xl border border-slate-200 dark:border-[#323b67] text-slate-600 dark:text-slate-200 text-xs font-bold hover:bg-slate-55 dark:hover:bg-slate-800 hover-scale active-scale transition-all">
                             <span className="material-symbols-outlined text-[18px]">filter_list</span>
                             Filter
                         </button>
@@ -342,63 +347,119 @@ const FacilitatorDashboard: React.FC = () => {
                 </div>
 
                 <div className="overflow-x-auto w-full">
-                    <table className="w-full text-left border-collapse min-w-[700px]">
+                    <table className="w-full text-left border-collapse min-w-[800px]">
                         <thead>
                             <tr className="border-b border-slate-100 dark:border-[#323b67] bg-slate-50/70 dark:bg-[#323b67]/25 pb-3">
-                                <th className="py-4.5 px-6 text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-[#929bc9] w-1/3">Major / Intake</th>
-                                <th className="py-4.5 px-6 text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-[#929bc9] text-center">Level 1</th>
-                                <th className="py-4.5 px-6 text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-[#929bc9] text-center">Level 2</th>
-                                <th className="py-4.5 px-6 text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-[#929bc9] text-center">Passed</th>
-                                <th className="py-4.5 px-6 text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-[#929bc9] text-right">Grand Total</th>
+                                <th className="py-4.5 px-6 text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-[#929bc9] w-1/3">Intake / Section</th>
+                                <th className="py-4.5 px-6 text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-[#929bc9] text-center">Assigned Roster</th>
+                                <th className="py-4.5 px-6 text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-[#929bc9] text-center">Avg. Speed</th>
+                                <th className="py-4.5 px-6 text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-[#929bc9] text-center">Avg. Accuracy</th>
+                                <th className="py-4.5 px-6 text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-[#929bc9] text-right">Roster Status</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-100 dark:divide-[#323b67]/45 text-sm">
-                            {DASHBOARD_DATA.map((major) => {
-                                const isExpanded = expandedMajors[major.id];
-                                const totals = getMajorTotals(major);
+                            {sections.map((section) => {
+                                const isExpanded = !!expandedSections[section.id];
+                                const sectionStudents = students.filter(s => s.sectionId === section.id);
+                                const studentCount = sectionStudents.length;
+
+                                const avgWpm = studentCount > 0
+                                    ? Math.round(sectionStudents.reduce((sum, s) => sum + s.currentWpm, 0) / studentCount)
+                                    : 0;
+
+                                const avgAccuracy = studentCount > 0
+                                    ? Math.round(sectionStudents.reduce((sum, s) => sum + s.accuracy, 0) / studentCount)
+                                    : 0;
 
                                 return (
-                                    <React.Fragment key={major.id}>
-                                        {/* Major Header Row */}
+                                    <React.Fragment key={section.id}>
+                                        {/* Section Header Row */}
                                         <tr
                                             className="bg-slate-50/40 dark:bg-[#232948]/30 hover:bg-slate-50 dark:hover:bg-[#232948] cursor-pointer transition-colors"
-                                            onClick={() => toggleMajor(major.id)}
+                                            onClick={() => toggleSection(section.id)}
                                         >
                                             <td className="px-6 py-4 font-bold text-slate-900 dark:text-white flex items-center gap-2">
                                                 <span className={`material-symbols-outlined text-slate-400 transition-transform duration-250 ${isExpanded ? 'rotate-180' : ''}`}>
                                                     expand_more
                                                 </span>
-                                                <span>{major.name}</span>
-                                                <span className="ml-2 px-2 py-0.5 rounded-full bg-slate-100 dark:bg-[#323b67] text-slate-500 dark:text-[#929bc9] text-[10px] font-bold border border-slate-200/50 dark:border-[#323b67]/50 uppercase">
-                                                    {major.intakes.length} Intakes
+                                                <div className="flex flex-col">
+                                                    <span className="text-slate-900 dark:text-white font-bold">{section.name}</span>
+                                                </div>
+                                            </td>
+                                            <td className="px-6 py-4 text-center">
+                                                <span className="inline-flex px-3 py-1 rounded-full bg-slate-100 dark:bg-[#323b67] text-slate-600 dark:text-[#929bc9] text-xs font-bold border border-slate-200/50 dark:border-[#323b67]/50 uppercase">
+                                                    {studentCount} Students
                                                 </span>
                                             </td>
-                                            <td className="px-6 py-4 text-center text-slate-400 dark:text-[#636b95]">-</td>
-                                            <td className="px-6 py-4 text-center text-slate-400 dark:text-[#636b95]">-</td>
-                                            <td className="px-6 py-4 text-center text-slate-400 dark:text-[#636b95]">-</td>
-                                            <td className="px-6 py-4 text-right font-black text-slate-900 dark:text-white font-mono">{totals.total}</td>
+                                            <td className="px-6 py-4 text-center font-mono font-bold text-slate-700 dark:text-slate-350">{avgWpm > 0 ? `${avgWpm} WPM` : '--'}</td>
+                                            <td className="px-6 py-4 text-center font-mono font-bold text-slate-700 dark:text-slate-350">{avgAccuracy > 0 ? `${avgAccuracy}%` : '--'}</td>
+                                            <td className="px-6 py-4 text-right">
+                                                <span className="inline-flex px-2 py-0.5 text-[10px] font-black uppercase tracking-wider rounded-md bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
+                                                    Active
+                                                </span>
+                                            </td>
                                         </tr>
 
-                                        {/* Intake Rows (Expanded) */}
+                                        {/* Expanded Student Rows */}
                                         {isExpanded && (
                                             <>
-                                                {major.intakes.map((intake) => (
-                                                    <tr key={intake.id} className="hover:bg-slate-50/30 dark:hover:bg-[#232948]/20 transition-colors">
-                                                        <td className="px-6 py-3.5 pl-14 text-slate-600 dark:text-slate-300 font-semibold">{intake.name}</td>
-                                                        <td className="px-6 py-3.5 text-center text-slate-600 dark:text-slate-300 font-mono font-bold">{intake.level1 > 0 ? intake.level1 : '-'}</td>
-                                                        <td className="px-6 py-3.5 text-center text-slate-600 dark:text-slate-300 font-mono font-bold">{intake.level2 > 0 ? intake.level2 : '-'}</td>
-                                                        <td className="px-6 py-3.5 text-center font-bold text-emerald-600 dark:text-emerald-400 font-mono">{intake.passed > 0 ? intake.passed : '-'}</td>
-                                                        <td className="px-6 py-3.5 text-right font-bold text-slate-900 dark:text-white font-mono">{intake.total}</td>
+                                                {/* Header for Nesting Roster */}
+                                                <tr className="bg-slate-50/20 dark:bg-black/10">
+                                                    <td colSpan={5} className="px-14 py-2 border-b border-slate-100 dark:border-slate-800">
+                                                        <p className="text-[10px] font-black text-slate-400 dark:text-[#929bc9] uppercase tracking-widest">Supervised Student Directory</p>
+                                                    </td>
+                                                </tr>
+
+                                                {sectionStudents.map((student) => (
+                                                    <tr key={student.id} className="hover:bg-slate-50/30 dark:hover:bg-[#232948]/20 transition-colors">
+                                                        {/* Student Name Detail */}
+                                                        <td className="px-6 py-3.5 pl-14 flex items-center gap-3">
+                                                            <div className="size-8 rounded-full bg-primary/20 border border-[#323b67] flex items-center justify-center text-primary font-bold text-xs uppercase shadow-sm">
+                                                                {student.name?.[0] || 'S'}
+                                                            </div>
+                                                            <div className="flex flex-col">
+                                                                <span className="text-sm font-bold text-slate-900 dark:text-white">{student.name}</span>
+                                                                <span className="text-[10px] text-slate-400 dark:text-[#929bc9] font-medium lowercase">{student.email || student.username}</span>
+                                                            </div>
+                                                        </td>
+
+                                                        {/* Student Section Label */}
+                                                        <td className="px-6 py-3.5 text-center text-slate-500 dark:text-slate-400 font-semibold uppercase text-[11px]">
+                                                            {section.name}
+                                                        </td>
+
+                                                        {/* Student Speed */}
+                                                        <td className="px-6 py-3.5 text-center font-bold text-slate-700 dark:text-slate-350 font-mono">
+                                                            {student.currentWpm > 0 ? `${student.currentWpm} WPM` : '--'}
+                                                        </td>
+
+                                                        {/* Student Accuracy */}
+                                                        <td className="px-6 py-3.5 text-center font-bold text-slate-700 dark:text-slate-350 font-mono">
+                                                            {student.accuracy > 0 ? `${student.accuracy}%` : '--'}
+                                                        </td>
+
+                                                        {/* Student Status */}
+                                                        <td className="px-6 py-3.5 text-right font-bold">
+                                                            <span className={`inline-flex px-2 py-0.5 text-[10px] font-black uppercase tracking-wider rounded border shadow-sm ${
+                                                                student.currentWpm === 0 
+                                                                    ? 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/10'
+                                                                    : student.status === 'On Track'
+                                                                    ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/10'
+                                                                    : 'bg-red-500/10 text-red-600 dark:text-red-400 border-red-500/10'
+                                                            }`}>
+                                                                {student.currentWpm === 0 ? 'No Runs Yet' : student.status}
+                                                            </span>
+                                                        </td>
                                                     </tr>
                                                 ))}
-                                                {/* Major Total Summary Row */}
-                                                <tr className="bg-emerald-500/5 dark:bg-emerald-500/10 border-t border-slate-100 dark:border-[#323b67]/45">
-                                                    <td className="px-6 py-3.5 pl-14 font-black text-emerald-700 dark:text-emerald-400 uppercase text-xs tracking-wider font-heading">{major.name} Total</td>
-                                                    <td className="px-6 py-3.5 text-center font-black text-slate-900 dark:text-white font-mono">{totals.level1}</td>
-                                                    <td className="px-6 py-3.5 text-center font-black text-slate-900 dark:text-white font-mono">{totals.level2}</td>
-                                                    <td className="px-6 py-3.5 text-center font-black text-emerald-600 dark:text-emerald-400 font-mono">{totals.passed}</td>
-                                                    <td className="px-6 py-3.5 text-right font-black text-slate-900 dark:text-white font-mono">{totals.total}</td>
-                                                </tr>
+
+                                                {sectionStudents.length === 0 && (
+                                                    <tr>
+                                                        <td colSpan={5} className="px-14 py-6 text-center text-slate-400 dark:text-slate-500 font-medium">
+                                                            No student records are currently enrolled in this section.
+                                                        </td>
+                                                    </tr>
+                                                )}
                                             </>
                                         )}
                                     </React.Fragment>

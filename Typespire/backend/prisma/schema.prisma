@@ -84,6 +84,8 @@ model Section {
   facilitatorId String?
   facilitator   User?    @relation("SectionFacilitator", fields: [facilitatorId], references: [id])
 
+  assignments   Assignment[]
+
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 }
@@ -130,4 +132,19 @@ model SystemSettings {
   emailSenderName    String   @default("Typespire Team")
   emailReplyTo       String   @default("no-reply@typespire.com")
   updatedAt          DateTime @updatedAt
+}
+
+model Assignment {
+  id             String      @id @default(uuid())
+  title          String
+  dueDate        DateTime
+  status         String      @default("ACTIVE") // ACTIVE, ARCHIVED
+  
+  sectionId      String?
+  section        Section?    @relation(fields: [sectionId], references: [id])
+  
+  studentIds     String[]    // List of targeted student IDs (optional)
+  
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
 }

@@ -1,36 +1,176 @@
-import React, { createContext, useContext, useState, type ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
 import type { Student, Assignment, Section } from '../types/facilitator';
-import { MOCK_STUDENTS, MOCK_ASSIGNMENTS, MOCK_SECTIONS } from '../data/facilitatorMock';
-
-// Re-export types for convenience if needed, or consumers should import from types/facilitator
-// export type { Student, Assignment, Section };
+import { useAuth } from './AuthContext';
+import { useInstitution } from './InstitutionContext';
+import api from '../api/axios';
 
 interface FacilitatorContextType {
     students: Student[];
     assignments: Assignment[];
     sections: Section[];
-    publishAssignment: (assignment: Omit<Assignment, 'id' | 'status' | 'completionRate'>) => void;
+    publishAssignment: (assignment: Omit<Assignment, 'id' | 'status' | 'completionRate'>) => Promise<void>;
+    submitTestResult: (studentId: string, wpm: number, accuracy: number) => void;
 }
 
 const FacilitatorContext = createContext<FacilitatorContextType | undefined>(undefined);
 
 export const FacilitatorProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-    const [students] = useState<Student[]>(MOCK_STUDENTS);
-    const [assignments, setAssignments] = useState<Assignment[]>(MOCK_ASSIGNMENTS);
-    const [sections] = useState<Section[]>(MOCK_SECTIONS);
+    const { user } = useAuth();
+    const { intakes } = useInstitution();
+    
+    // Manage published assignments dynamically from database
+    const [assignments, setAssignments] = useState<Assignment[]>([]);
+    
+    // Manage students reactive list
+    const [studentsList, setStudentsList] = useState<Student[]>([]);
 
-    const publishAssignment = (newAssignment: Omit<Assignment, 'id' | 'status' | 'completionRate'>) => {
-        const assignment: Assignment = {
-            ...newAssignment,
-            id: Date.now().toString(),
-            status: 'Active',
-            completionRate: 0
+    // 1. Map live sections assigned to this facilitator
+    const facilitatedSections: Section[] = intakes.flatMap(intake => 
+        (intake.sections || [])
+            .filter(section => section.facilitator?.id === user?.id)
+            .map(section => {
+                const sectionStudents = studentsList.filter(s => s.sectionId === section.id);
+                const avgWpm = sectionStudents.length > 0 
+                    ? Math.round(sectionStudents.reduce((sum, s) => sum + s.currentWpm, 0) / sectionStudents.length)
+                    : 0;
+
+                return {
+                    id: section.id,
+                    name: section.name,
+                    studentCount: section.students?.length || 0,
+                    avgWpm
+                };
+            })
+    );
+
+    // Sync student directories when intakes/user changes
+    useEffect(() => {
+        const mapped: Student[] = intakes.flatMap(intake => 
+            (intake.sections || [])
+                .filter(section => section.facilitator?.id === user?.id)
+                .flatMap(section => 
+                    (section.students || []).map(student => ({
+                        id: student.id,
+                        name: student.name,
+                        avatarUrl: '',
+                        major: intake.name, // Using Intake Name as cohort/major
+                        sectionId: section.id,
+                        currentWpm: 0,
+                        accuracy: 0,
+                        levelProgress: 0,
+                        status: 'On Track' as const,
+                        lastActive: 'Active'
+                    }))
+                )
+        );
+        setStudentsList(mapped);
+    }, [intakes, user]);
+
+    // Fetch persistent database assignments
+    useEffect(() => {
+        const fetchAssignments = async () => {
+            if (!user) return;
+            try {
+                let response;
+                if (user.role === 'STUDENT' && user.sectionId) {
+                    response = await api.get(`/assignment/section/${user.sectionId}`);
+                } else if (user.role === 'FACILITATOR') {
+                    response = await api.get(`/assignment/facilitator/${user.id}`);
+                }
+
+                if (response && response.data) {
+                    interface DBResponse {
+                        id: string;
+                        title: string;
+                        dueDate: string;
+                        status: string;
+                        sectionId?: string | null;
+                        studentIds?: string[];
+                    }
+
+                    const mapped: Assignment[] = response.data.map((item: DBResponse) => ({
+                        id: item.id,
+                        title: item.title,
+                        dueDate: new Date(item.dueDate).toLocaleDateString(),
+                        status: item.status === 'ACTIVE' ? 'Active' : 'Completed',
+                        completionRate: 0,
+                        sectionId: item.sectionId || undefined,
+                        studentIds: item.studentIds || []
+                    }));
+                    setAssignments(mapped);
+                }
+            } catch (error) {
+                console.error('Failed to fetch assignments from database', error);
+            }
         };
-        setAssignments(prev => [assignment, ...prev]);
+
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
+        fetchAssignments();
+    }, [user]);
+
+    const publishAssignment = async (newAssignment: Omit<Assignment, 'id' | 'status' | 'completionRate'>) => {
+        try {
+            const formattedDate = newAssignment.dueDate.includes('/')
+                ? new Date(newAssignment.dueDate.split('/').reverse().join('-')).toISOString()
+                : new Date(newAssignment.dueDate).toISOString();
+
+            const response = await api.post('/assignment', {
+                title: newAssignment.title,
+                dueDate: formattedDate,
+                sectionId: newAssignment.sectionId || null,
+                studentIds: newAssignment.studentIds || []
+            });
+
+            interface DBResponse {
+                id: string;
+                title: string;
+                dueDate: string;
+                status: string;
+                sectionId?: string | null;
+                studentIds?: string[];
+            }
+
+            const created: DBResponse = response.data;
+            const mapped: Assignment = {
+                id: created.id,
+                title: created.title,
+                dueDate: new Date(created.dueDate).toLocaleDateString(),
+                status: created.status === 'ACTIVE' ? 'Active' : 'Completed',
+                completionRate: 0,
+                sectionId: created.sectionId || undefined,
+                studentIds: created.studentIds || []
+            };
+
+            setAssignments(prev => [mapped, ...prev]);
+        } catch (error) {
+            console.error('Failed to publish assignment to database', error);
+        }
+    };
+
+    const submitTestResult = (studentId: string, wpm: number, accuracy: number) => {
+        setStudentsList(prev => prev.map(student => {
+            if (student.id === studentId) {
+                return {
+                    ...student,
+                    currentWpm: wpm,
+                    accuracy: accuracy,
+                    levelProgress: Math.min(100, Math.round((wpm / 50) * 100)), // Map progress relative to target 50 WPM
+                    status: wpm > 40 ? 'On Track' : wpm > 20 ? 'Near Threshold' : 'At Risk',
+                    lastActive: 'Just Now'
+                };
+            }
+            return student;
+        }));
     };
 
     return (
-        <FacilitatorContext.Provider value={{ students, assignments, sections, publishAssignment }}>
+        <FacilitatorContext.Provider value={{ 
+            students: studentsList, 
+            assignments, 
+            sections: facilitatedSections, 
+            publishAssignment,
+            submitTestResult
+        }}>
             {children}
         </FacilitatorContext.Provider>
     );

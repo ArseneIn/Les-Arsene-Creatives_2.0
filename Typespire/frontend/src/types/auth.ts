@@ -14,6 +14,7 @@ export interface User {
     lastName?: string;
     role: UserRole;
     institutionId?: string;
+    sectionId?: string;
 }
 
 export interface AuthResponse {
