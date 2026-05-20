@@ -1,33 +1,33 @@
 @import "tailwindcss";
 
 @theme {
-  --color-primary: #39E079;
-  --color-secondary: #3BB46D;
+  --color-primary: #094A71;
+  --color-secondary: #33B974;
   /* Keeping this for now as fallback */
-  --color-accent: #FFC107;
+  --color-accent: #33B974;
   /* Keeping this for now */
 
   /* New colors from design */
-  --color-background-light: #f6f8f7;
-  --color-background-dark: #122017;
-  --color-card-dark: #1c2136;
-  --color-emerald-accent: #10b981;
+  --color-background-light: #f4f7f9;
+  --color-background-dark: #061824;
+  --color-card-dark: #0b2536;
+  --color-emerald-accent: #33B974;
   --color-yellow-accent: #eab308;
 
   /* Facilitator colors */
-  --color-facilitator-primary: #11d493;
-  --color-facilitator-primary-dark: #0b8a5f;
-  --color-facilitator-bg-dark: #10221c;
-  --color-brand-navy: #0f172a;
+  --color-facilitator-primary: #33B974;
+  --color-facilitator-primary-dark: #26955d;
+  --color-facilitator-bg-dark: #051d2b;
+  --color-brand-navy: #094A71;
 
   /* Institution Admin colors */
-  --color-admin-primary: #38e07b;
-  --color-secondary-navy: #0e1a13;
+  --color-admin-primary: #094A71;
+  --color-secondary-navy: #061824;
   --color-accent-yellow: #facc15;
-  --color-border-light: #d1e6d9;
+  --color-border-light: #dbe4eb;
 
   /* Platform Admin colors */
-  --color-navy-blue: #0f172a;
+  --color-navy-blue: #094A71;
 
   --font-sans: "Avenir", "Avenir Next", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   --font-display: "Space Grotesk", sans-serif;
@@ -88,8 +88,23 @@ h1, h2, h3, h4, h5, h6 {
   transform: scale(0.98);
 }
 .glow-primary {
-  box-shadow: 0 10px 30px -10px rgba(57, 224, 121, 0.3);
+  box-shadow: 0 10px 30px -10px rgba(9, 74, 113, 0.3);
 }
 .glow-primary:hover {
-  box-shadow: 0 20px 40px -10px rgba(57, 224, 121, 0.5);
+  box-shadow: 0 20px 40px -10px rgba(9, 74, 113, 0.5);
+}
+
+/* Practice typing area animations */
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0; }
+}
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25%       { transform: translateX(-3px); }
+  75%       { transform: translateX(3px); }
+}
+@keyframes flash {
+  0%, 100% { background-color: transparent; }
+  50%       { background-color: rgba(239, 68, 68, 0.15); }
 }

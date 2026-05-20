@@ -85,7 +85,7 @@ const Register: React.FC = () => {
                                         value={firstName}
                                         onChange={(e) => setFirstName(e.target.value)}
                                         placeholder="John"
-                                        className="w-full pl-9 pr-4 py-2.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition-all placeholder:text-slate-400 text-sm"
+                                        className="w-full pl-9 pr-4 py-2.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-[#33B974]/50 focus:border-[#33B974] outline-none transition-all placeholder:text-slate-400 text-sm"
                                         required
                                     />
                                 </div>
@@ -99,7 +99,7 @@ const Register: React.FC = () => {
                                         value={lastName}
                                         onChange={(e) => setLastName(e.target.value)}
                                         placeholder="Doe"
-                                        className="w-full pl-9 pr-4 py-2.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition-all placeholder:text-slate-400 text-sm"
+                                        className="w-full pl-9 pr-4 py-2.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-[#33B974]/50 focus:border-[#33B974] outline-none transition-all placeholder:text-slate-400 text-sm"
                                         required
                                     />
                                 </div>
@@ -113,7 +113,7 @@ const Register: React.FC = () => {
                                 <select
                                     value={institution}
                                     onChange={(e) => setInstitution(e.target.value)}
-                                    className="w-full pl-9 pr-4 py-2.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition-all placeholder:text-slate-400 text-sm appearance-none"
+                                    className="w-full pl-9 pr-4 py-2.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-[#33B974]/50 focus:border-[#33B974] outline-none transition-all placeholder:text-slate-400 text-sm appearance-none"
                                     required
                                 >
                                     <option value="" disabled>Select your institution</option>
@@ -136,7 +136,7 @@ const Register: React.FC = () => {
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
                                     placeholder="john.doe@example.com"
-                                    className="w-full pl-9 pr-4 py-2.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition-all placeholder:text-slate-400 text-sm"
+                                    className="w-full pl-9 pr-4 py-2.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-[#33B974]/50 focus:border-[#33B974] outline-none transition-all placeholder:text-slate-400 text-sm"
                                     required
                                     autoComplete="username"
                                 />
@@ -152,7 +152,7 @@ const Register: React.FC = () => {
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
                                     placeholder="••••••••"
-                                    className="w-full pl-9 pr-9 py-2.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition-all placeholder:text-slate-400 text-sm"
+                                    className="w-full pl-9 pr-9 py-2.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-[#33B974]/50 focus:border-[#33B974] outline-none transition-all placeholder:text-slate-400 text-sm"
                                     required
                                     autoComplete="new-password"
                                 />
@@ -168,7 +168,7 @@ const Register: React.FC = () => {
                                     value={confirmPassword}
                                     onChange={(e) => setConfirmPassword(e.target.value)}
                                     placeholder="••••••••"
-                                    className="w-full pl-9 pr-9 py-2.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition-all placeholder:text-slate-400 text-sm"
+                                    className="w-full pl-9 pr-9 py-2.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-[#33B974]/50 focus:border-[#33B974] outline-none transition-all placeholder:text-slate-400 text-sm"
                                     required
                                     autoComplete="new-password"
                                 />
@@ -178,7 +178,7 @@ const Register: React.FC = () => {
                         <button
                             type="submit"
                             disabled={loading}
-                            className="w-full bg-primary hover:bg-primary/90 text-white font-bold py-3 rounded-lg shadow-lg shadow-primary/25 transition-all transform active:scale-[0.98] flex items-center justify-center gap-2 text-sm disabled:opacity-70 disabled:cursor-not-allowed mt-2"
+                            className="w-full bg-[#094A71] hover:bg-[#094A71]/90 text-white font-bold py-3 rounded-lg shadow-lg shadow-[#094A71]/25 transition-all transform active:scale-[0.98] flex items-center justify-center gap-2 text-sm disabled:opacity-70 disabled:cursor-not-allowed mt-2"
                         >
                             {loading ? (
                                 <span>Creating Account...</span>
@@ -192,7 +192,7 @@ const Register: React.FC = () => {
                     </form>
 
                     <p className="text-center text-xs text-slate-500 dark:text-slate-400 mt-6">
-                        Already have an account? <Link to="/login" className="font-bold text-primary hover:underline">Sign in</Link>
+                        Already have an account? <Link to="/login" className="font-bold text-[#33B974] hover:underline">Sign in</Link>
                     </p>
                 </div>
             </div>

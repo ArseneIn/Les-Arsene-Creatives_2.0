@@ -13,6 +13,8 @@ export class AssignmentController {
       dueDate: string;
       sectionId?: string;
       studentIds?: string[];
+      level?: number;
+      duration?: number;
     },
   ) {
     return this.assignmentService.create(body);
@@ -29,10 +31,7 @@ export class AssignmentController {
   }
 
   @Patch(':id/status')
-  async updateStatus(
-    @Param('id') id: string,
-    @Body('status') status: string,
-  ) {
+  async updateStatus(@Param('id') id: string, @Body('status') status: string) {
     return this.assignmentService.updateStatus(id, status);
   }
 }

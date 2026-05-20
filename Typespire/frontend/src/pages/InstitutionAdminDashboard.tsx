@@ -132,8 +132,8 @@ const InstitutionAdminDashboard: React.FC = () => {
         const pending = facilitators.filter(f => f.status === 'Pending').length;
         const inactive = facilitators.filter(f => f.status === 'Inactive').length;
         return [
-            { name: 'Active', value: active, color: '#22c55e' },
-            { name: 'Pending', value: pending, color: '#eab308' },
+            { name: 'Active', value: active, color: '#33B974' },
+            { name: 'Pending', value: pending, color: '#094A71' },
             { name: 'Inactive', value: inactive, color: '#94a3b8' },
         ].filter(d => d.value > 0);
     }, [facilitators]);
@@ -153,7 +153,7 @@ const InstitutionAdminDashboard: React.FC = () => {
                             <ChevronRight className="w-3 h-3" />
                             <span className="font-medium text-gray-700">Dashboard</span>
                         </div>
-                        <h2 className="text-[#0d1b17] text-3xl font-bold leading-tight">Institution Hub</h2>
+                        <h2 className="text-[#061824] text-3xl font-bold leading-tight">Institution Hub</h2>
                     </div>
 
                     <div className="flex flex-wrap gap-3">
@@ -161,7 +161,7 @@ const InstitutionAdminDashboard: React.FC = () => {
                             <Download className="w-5 h-5" />
                             Export Data
                         </button>
-                        <button className="flex items-center gap-2 px-4 py-2 bg-[#0d1b17] text-white rounded-lg text-sm font-bold hover:bg-[#1a2e28] transition-colors shadow-lg shadow-gray-200">
+                        <button className="flex items-center gap-2 px-4 py-2 bg-[#094A71] text-white rounded-lg text-sm font-bold hover:bg-[#094A71]/90 transition-colors shadow-lg shadow-[#094A71]/10">
                             <UserPlus className="w-5 h-5" />
                             Invite Facilitator
                         </button>
@@ -176,13 +176,13 @@ const InstitutionAdminDashboard: React.FC = () => {
                     <div className="flex justify-between items-start">
                         <div>
                             <p className="text-gray-500 text-sm font-medium mb-1">Total Facilitators</p>
-                            <h3 className="text-[#0d1b17] text-4xl font-bold">{stats.totalFacilitators}</h3>
+                            <h3 className="text-[#061824] text-4xl font-bold">{stats.totalFacilitators}</h3>
                         </div>
-                        <div className="p-2 bg-blue-50 rounded-lg text-blue-600 group-hover:bg-blue-100 transition-colors">
+                        <div className="p-2 bg-[#094A71]/10 rounded-lg text-[#094A71] group-hover:bg-[#094A71]/20 transition-colors">
                             <Users className="w-6 h-6 icon-filled" />
                         </div>
                     </div>
-                    <div className="flex items-center gap-1 text-xs font-bold text-green-600">
+                    <div className="flex items-center gap-1 text-xs font-bold text-[#33B974]">
                         <TrendingUp className="w-4 h-4" />
                         <span>+2% this month</span>
                     </div>
@@ -193,9 +193,9 @@ const InstitutionAdminDashboard: React.FC = () => {
                     <div className="flex justify-between items-start">
                         <div>
                             <p className="text-gray-500 text-sm font-medium mb-1">Active Intakes</p>
-                            <h3 className="text-[#0d1b17] text-4xl font-bold">{stats.activeIntakes}</h3>
+                            <h3 className="text-[#061824] text-4xl font-bold">{stats.activeIntakes}</h3>
                         </div>
-                        <div className="p-2 bg-purple-50 rounded-lg text-purple-600 group-hover:bg-purple-100 transition-colors">
+                        <div className="p-2 bg-[#33B974]/10 rounded-lg text-[#33B974] group-hover:bg-[#33B974]/20 transition-colors">
                             <Folder className="w-6 h-6 icon-filled" />
                         </div>
                     </div>
@@ -207,13 +207,13 @@ const InstitutionAdminDashboard: React.FC = () => {
                     <div className="flex justify-between items-start">
                         <div>
                             <p className="text-gray-500 text-sm font-medium mb-1">Avg. School WPM</p>
-                            <h3 className="text-[#0d1b17] text-4xl font-bold">{stats.avgWpm}</h3>
+                            <h3 className="text-[#061824] text-4xl font-bold">{stats.avgWpm}</h3>
                         </div>
-                        <div className="p-2 bg-green-50 rounded-lg text-green-600 group-hover:bg-green-100 transition-colors">
+                        <div className="p-2 bg-[#33B974]/10 rounded-lg text-[#33B974] group-hover:bg-[#33B974]/20 transition-colors">
                             <Zap className="w-6 h-6 icon-filled" />
                         </div>
                     </div>
-                    <div className="flex items-center gap-1 text-xs font-bold text-green-600">
+                    <div className="flex items-center gap-1 text-xs font-bold text-[#33B974]">
                         <TrendingUp className="w-4 h-4" />
                         <span>+5% vs last sem</span>
                     </div>
@@ -224,9 +224,9 @@ const InstitutionAdminDashboard: React.FC = () => {
                     <div className="flex justify-between items-start">
                         <div>
                             <p className="text-gray-500 text-sm font-medium mb-1">Avg. Accuracy</p>
-                            <h3 className="text-[#0d1b17] text-4xl font-bold">{stats.avgAccuracy}%</h3>
+                            <h3 className="text-[#061824] text-4xl font-bold">{stats.avgAccuracy}%</h3>
                         </div>
-                        <div className="p-2 bg-yellow-50 rounded-lg text-yellow-600 group-hover:bg-yellow-100 transition-colors">
+                        <div className="p-2 bg-[#094A71]/10 rounded-lg text-[#094A71] group-hover:bg-[#094A71]/20 transition-colors">
                             <Target className="w-6 h-6 icon-filled" />
                         </div>
                     </div>
@@ -243,7 +243,7 @@ const InstitutionAdminDashboard: React.FC = () => {
                 <div className="lg:col-span-2 bg-white rounded-2xl p-8 border border-gray-100 shadow-sm">
                     <div className="flex items-center justify-between mb-6">
                         <div>
-                            <h3 className="text-[#0d1b17] text-xl font-bold">Intake Performance</h3>
+                            <h3 className="text-[#061824] text-xl font-bold">Intake Performance</h3>
                             <p className="text-gray-500 text-sm">Average WPM comparison across recent intakes.</p>
                         </div>
                     </div>
@@ -264,8 +264,8 @@ const InstitutionAdminDashboard: React.FC = () => {
                                     tick={{ fill: '#9ca3af', fontSize: 12 }}
                                 />
                                 <Tooltip content={<CustomTooltip />} cursor={{ fill: '#f9fafb' }} />
-                                <Bar dataKey="avgWpm" name="Avg WPM" fill="#0d1b17" radius={[4, 4, 0, 0]} />
-                                <Bar dataKey="target" name="Target WPM" fill="#e5e7eb" radius={[4, 4, 0, 0]} />
+                                <Bar dataKey="avgWpm" name="Avg WPM" fill="#094A71" radius={[4, 4, 0, 0]} />
+                                <Bar dataKey="target" name="Target WPM" fill="#33B974" radius={[4, 4, 0, 0]} />
                                 <Legend iconType="circle" wrapperStyle={{ paddingTop: '20px' }} />
                             </BarChart>
                         </ResponsiveContainer>
@@ -274,7 +274,7 @@ const InstitutionAdminDashboard: React.FC = () => {
 
                 {/* Facilitator Status Chart */}
                 <div className="bg-white rounded-2xl p-8 border border-gray-100 shadow-sm flex flex-col">
-                    <h3 className="text-[#0d1b17] text-xl font-bold mb-2">Facilitator Status</h3>
+                    <h3 className="text-[#061824] text-xl font-bold mb-2">Facilitator Status</h3>
                     <p className="text-gray-500 text-sm mb-6">Overview of staff account statuses.</p>
 
                     <div className="flex-1 min-h-[200px] relative">
@@ -323,7 +323,7 @@ const InstitutionAdminDashboard: React.FC = () => {
             <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden mb-10">
                 <div className="p-6 border-b border-gray-100 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                     <div>
-                        <h3 className="text-[#0d1b17] text-lg font-bold">Facilitator Directory</h3>
+                        <h3 className="text-[#061824] text-lg font-bold">Facilitator Directory</h3>
                         <p className="text-gray-500 text-sm">Manage your school's staff and their assigned intakes.</p>
                     </div>
                     <div className="flex gap-3">
@@ -337,7 +337,7 @@ const InstitutionAdminDashboard: React.FC = () => {
                 <div className="overflow-x-auto">
                     <table className="w-full text-left border-collapse">
                         <thead>
-                            <tr className="bg-[#0f253a] text-white text-xs uppercase tracking-wider font-bold">
+                            <tr className="bg-[#094A71] text-white text-xs uppercase tracking-wider font-bold">
                                 <th className="px-6 py-4">Facilitator</th>
                                 <th className="px-6 py-4">Role</th>
                                 <th className="px-6 py-4">Assigned Intakes</th>
@@ -356,11 +356,11 @@ const InstitutionAdminDashboard: React.FC = () => {
                                     <tr key={facilitator.id} className="hover:bg-gray-50 transition-colors">
                                         <td className="px-6 py-4">
                                             <div className="flex items-center gap-3">
-                                                <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-[#0d1b17] font-bold border border-gray-200">
+                                                <div className="w-10 h-10 rounded-full bg-[#094A71]/5 flex items-center justify-center text-[#094A71] font-bold border border-[#094A71]/15">
                                                     {facilitator.name.charAt(0)}
                                                 </div>
                                                 <div>
-                                                    <p className="font-bold text-[#0d1b17]">{facilitator.name}</p>
+                                                    <p className="font-bold text-[#061824]">{facilitator.name}</p>
                                                     <p className="text-xs text-gray-500">{facilitator.email}</p>
                                                 </div>
                                             </div>
@@ -377,15 +377,15 @@ const InstitutionAdminDashboard: React.FC = () => {
                                         </td>
                                         <td className="px-6 py-4 text-gray-600 font-bold">{facilitator.students}</td>
                                         <td className="px-6 py-4 text-center">
-                                            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold ${facilitator.status === 'Active' ? 'bg-green-100 text-green-700' :
-                                                facilitator.status === 'Pending' ? 'bg-yellow-100 text-yellow-700' :
+                                            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold ${facilitator.status === 'Active' ? 'bg-[#33B974]/15 text-[#33B974]' :
+                                                facilitator.status === 'Pending' ? 'bg-[#094A71]/15 text-[#094A71]' :
                                                     'bg-gray-100 text-gray-600'
                                                 }`}>
                                                 {facilitator.status}
                                             </span>
                                         </td>
                                         <td className="px-6 py-4 text-right">
-                                            <button className="p-2 text-gray-400 hover:text-[#0d1b17] transition-colors">
+                                            <button className="p-2 text-gray-400 hover:text-[#33B974] transition-colors">
                                                 <MoreVertical className="w-5 h-5" />
                                             </button>
                                         </td>

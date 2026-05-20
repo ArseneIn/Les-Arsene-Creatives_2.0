@@ -18,7 +18,7 @@ import { UserRole } from '@prisma/client';
 
 @Controller('section')
 export class SectionController {
-  constructor(private readonly sectionService: SectionService) { }
+  constructor(private readonly sectionService: SectionService) {}
 
   @Post()
   create(@Body() createSectionDto: CreateSectionDto) {
@@ -59,7 +59,15 @@ export class SectionController {
   @Roles(UserRole.INSTITUTION_ADMIN, UserRole.FACILITATOR)
   bulkImport(
     @Param('id') id: string,
-    @Body() data: { students: { name: string; email?: string; username?: string; password?: string }[] },
+    @Body()
+    data: {
+      students: {
+        name: string;
+        email?: string;
+        username?: string;
+        password?: string;
+      }[];
+    },
   ) {
     return this.sectionService.bulkImportStudents(id, data.students);
   }

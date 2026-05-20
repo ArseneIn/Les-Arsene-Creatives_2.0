@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 
 interface TypingAreaProps {
     targetText: string;
@@ -16,6 +16,15 @@ export const TypingArea: React.FC<TypingAreaProps> = ({
     onInputChange
 }) => {
     const inputRef = useRef<HTMLTextAreaElement>(null);
+    const [capsLockWarning, setCapsLockWarning] = useState(false);
+
+    const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+        if (e.getModifierState('CapsLock')) {
+            e.preventDefault();
+            setCapsLockWarning(true);
+            setTimeout(() => setCapsLockWarning(false), 2000);
+        }
+    };
 
     // Auto-focus input on mount and when not finished, and especially when started
     useEffect(() => {
@@ -80,6 +89,14 @@ export const TypingArea: React.FC<TypingAreaProps> = ({
             `}
             onClick={() => inputRef.current?.focus()}
         >
+            {/* CAPS LOCK WARNING OVERLAY */}
+            {capsLockWarning && (
+                <div className="absolute top-4 left-1/2 -translate-x-1/2 z-50 bg-red-500 text-white px-6 py-3 rounded-full shadow-lg font-bold text-sm flex items-center gap-2 animate-bounce">
+                    <span className="material-symbols-outlined">warning</span>
+                    Caps Lock is ON! Please turn it off and use the Shift key.
+                </div>
+            )}
+
             {/* Overlay Text (The Target) */}
             <div className="absolute top-12 left-12 right-12 bottom-12 pointer-events-none select-none">
                 <h3 className="text-3xl font-display leading-relaxed text-left break-words whitespace-pre-wrap tracking-wide">
@@ -92,6 +109,7 @@ export const TypingArea: React.FC<TypingAreaProps> = ({
                 ref={inputRef}
                 value={userInput}
                 onChange={onInputChange}
+                onKeyDown={handleKeyDown}
                 className="w-full h-full absolute inset-0 opacity-0 cursor-text z-20 resize-none"
                 autoFocus
                 spellCheck="false"

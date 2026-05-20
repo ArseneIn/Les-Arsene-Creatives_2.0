@@ -1,210 +1,406 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect, useRef, useCallback } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useTypingEngine } from '../hooks/useTypingEngine';
 import { useUserProgress } from '../context/UserProgressContext';
 import { useAuth } from '../context/AuthContext';
 import { useFacilitator } from '../context/FacilitatorContext';
 import { TypingArea } from '../components/TypingTest/TypingArea';
+import { PracticeTypingArea } from '../components/TypingTest/PracticeTypingArea';
 import { TestStats } from '../components/TypingTest/TestStats';
-import { PRACTICE_MODULES_CONTENT, DEFAULT_TEXT } from '../data/practiceModules';
+import { SurvivalStrikeBar } from '../components/TypingTest/SurvivalStrikeBar';
+import { PRACTICE_STAGES_MAP, DEFAULT_TEXT } from '../data/practiceModules';
+
+// ─── Level 2 complex mixed-case passage ──────────────────────────────────────
+const LEVEL2_TEXT = "The Quick brown fox ran past Mary Johnson's garden, leaving 12 footprints before sunset. Alice said Hello to Dr. Kim every single Monday. In 2024, Real Madrid won the Champions League again. James wrote: Dear Friend, Thank you for everything. Sarah visited Paris, London, and Tokyo in one summer. The river runs North, past Oak Street and into the Sea.";
+
+// ─── Level 1 default passage ─────────────────────────────────────────────────
+const LEVEL1_TEXT = "The rapid development of digital communication has transformed how we share information. Mastering the keyboard is a fundamental skill for academic and professional success. Students who practice consistently achieve both speed and precision, giving them a critical advantage in every field they pursue. Accuracy builds the foundation; speed follows with dedication and daily effort.";
 
 const TypingTest: React.FC = () => {
     const [searchParams] = useSearchParams();
-    const { saveResult } = useUserProgress();
+    const { saveResult, isStageUnlocked, isStagePassed, getBenchmark, updateKeyStats } = useUserProgress();
     const { user } = useAuth();
     const { submitTestResult, assignments } = useFacilitator();
 
-    const moduleId = searchParams.get('moduleId');
+    const stageId     = searchParams.get('stageId');
     const assignmentId = searchParams.get('assignmentId');
+    const testLevel   = (searchParams.get('level') as '1' | '2') ?? '1';
+    const customText  = searchParams.get('customText');
+    const mode        = searchParams.get('mode') ?? 'test'; // 'practice' | 'test' | 'drill'
 
+    const customTitle = searchParams.get('title');
+
+    // ── Resolve test configuration ─────────────────────────────────────────
     const testConfig = useMemo(() => {
-        // 1. Check if assignment is targeted
+        // Facilitator-assigned test
         if (assignmentId) {
             const assignment = assignments.find(a => a.id === assignmentId);
             if (assignment) {
-                if (assignment.title === 'The Velveteen Rabbit') {
-                    return {
-                        text: "What is REAL? asked the Rabbit one day, when they were lying side by side near the nursery fender, before the Nana came to tidy the room. Does it mean having things that buzz inside you and a spoon-shaped handle? Real isn't how you are made, said the Skin Horse. It's a thing that happens to you. When a child loves you for a long, long time, not just to play with, but REALLY loves you, then you become Real.",
-                        duration: 120,
-                        title: 'The Velveteen Rabbit'
-                    };
-                } else if (assignment.title === 'The Scale of the Universe') {
-                    return {
-                        text: "The universe is vast beyond comprehension. To understand its scale, we must first look at our own solar system as a mere speck of dust in the Milky Way galaxy. There are hundreds of billions of galaxies in the observable universe, each hosting trillions of stars and planets. When we look up at the night sky, we are looking back in time, seeing light that has traveled for billions of years to reach our eyes.",
-                        duration: 180,
-                        title: 'The Scale of the Universe'
-                    };
-                } else if (assignment.title === 'Introduction to Python') {
-                    return {
-                        text: "def calculate_area(radius): return 3.14159 * radius ** 2. This function demonstrates basic syntax in Python. It includes a function definition, parameter passing, mathematical exponentiation using the double asterisk operator, and returning a value. Python is widely celebrated for its clean readability and simple indentations, making it an excellent first language for computer science.",
-                        duration: 300,
-                        title: 'Introduction to Python'
-                    };
-                }
+                return {
+                    text: assignment.text ?? LEVEL1_TEXT,
+                    duration: assignment.duration ?? 120,
+                    title: assignment.title ?? 'Assigned Test',
+                    level: (assignment.level ?? 1) as 1 | 2,
+                    stageId: undefined,
+                };
             }
         }
 
-        // 2. Standard practice content lookup
-        if (moduleId && PRACTICE_MODULES_CONTENT[moduleId]) {
+        // Randomised 1-Minute Sprint
+        if (mode === 'random') {
+            const baseText = testLevel === '2' ? LEVEL2_TEXT : LEVEL1_TEXT;
+            // Shuffle words for true randomness
+            const words = baseText.split(/\s+/).filter(w => w.length > 0);
+            for (let i = words.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [words[i], words[j]] = [words[j], words[i]];
+            }
             return {
-                text: PRACTICE_MODULES_CONTENT[moduleId].text,
-                duration: PRACTICE_MODULES_CONTENT[moduleId].duration,
-                title: PRACTICE_MODULES_CONTENT[moduleId].title
+                text: words.join(' '),
+                duration: 60,
+                title: customTitle || `Level ${testLevel} Random Sprint`,
+                level: (testLevel === '2' ? 2 : 1) as 1 | 2,
+                stageId: undefined
             };
         }
 
-        return {
-            text: DEFAULT_TEXT,
-            duration: 60,
-            title: 'Standardized Trial 1'
-        };
-    }, [moduleId, assignmentId, assignments]);
+        // Level 2 survival test (fallback for older links)
+        if (testLevel === '2') {
+            return { text: LEVEL2_TEXT, duration: 60, title: 'Level 2 — Survival Speedrun', level: 2 as const, stageId: undefined };
+        }
 
+        // Personalized drill from custom text
+        if (customText) {
+            return { text: decodeURIComponent(customText), duration: 60, title: 'Personalized Key Drill', level: 1 as const, stageId: undefined };
+        }
+
+        // Progressive practice stage
+        if (stageId && PRACTICE_STAGES_MAP[stageId]) {
+            const stage = PRACTICE_STAGES_MAP[stageId];
+            return { text: stage.practiceText, duration: stage.duration, title: stage.title, level: 1 as const, stageId };
+        }
+
+        // Default Level 1 standard test
+        return { text: LEVEL1_TEXT, duration: 120, title: 'Level 1 — Standard Proficiency Test', level: 1 as const, stageId: undefined };
+    }, [stageId, assignmentId, testLevel, customText, assignments, mode, customTitle]);
+
+    const isLevel2 = testConfig.level === 2;
+    // Practice and personalized drill modes are untimed
+    const isPractice = mode === 'practice' || mode === 'drill';
+
+    // ── Format Text for 2x2 Grid (Practice Only) ─────────────────────────
+    const formattedTargetText = useMemo(() => {
+        if (!isPractice) return testConfig.text;
+        const words = testConfig.text.split(/\s+/).filter(w => w.length > 0);
+        let result = '';
+        for (let i = 0; i < words.length; i++) {
+            result += words[i];
+            if (i < words.length - 1) {
+                if ((i + 1) % 2 === 0) {
+                    result += '\n'; // Every 2nd word gets an Enter
+                } else {
+                    result += ' ';  // Every 1st word gets a Space
+                }
+            }
+        }
+        return result;
+    }, [testConfig.text, isPractice]);
+
+    // ── Benchmark for pass/fail feedback ──────────────────────────────────
+    const benchmark = useMemo(() => {
+        if (testConfig.stageId) return getBenchmark(testConfig.stageId);
+        if (isLevel2) return { wpm: 50, accuracy: 92 };
+        return { wpm: 50, accuracy: 90 };
+    }, [testConfig, isLevel2, getBenchmark]);
+
+    // ── Level 2 strike system ──────────────────────────────────────────────
+    const [strikes, setStrikes] = useState(0);
+    const [terminated, setTerminated] = useState(false);
+    const [screenFlash, setScreenFlash] = useState(false);
+    const [showConfetti, setShowConfetti] = useState(false);
+    const prevErrorsRef = useRef(0);
+    const MAX_STRIKES = 3;
+
+    // ── Typing engine ──────────────────────────────────────────────────────
     const {
-        started,
-        timeLeft,
-        userInput,
-        wpm,
-        accuracy,
-        isFinished,
-        strugglingKeys,
-        startTest,
-        handleInputChange
+        started, timeLeft, userInput, wpm, accuracy, isFinished,
+        strugglingKeys, startTest, handleInputChange
     } = useTypingEngine({
-        targetText: testConfig.text,
+        targetText: formattedTargetText,
         duration: testConfig.duration,
+        untimed: isPractice || testConfig.duration === 0, // no countdown for practice or unlimited tests
         onFinish: (results) => {
+            // Build per-key stats for heatmap
+            const keyBreakdown: Record<string, { hits: number; misses: number }> = {};
+            for (let i = 0; i < userInput.length; i++) {
+                const expected = formattedTargetText[i];
+                if (!expected) continue;
+                const key = expected.toLowerCase();
+                if (!keyBreakdown[key]) keyBreakdown[key] = { hits: 0, misses: 0 };
+                if (userInput[i] === expected) keyBreakdown[key].hits++;
+                else keyBreakdown[key].misses++;
+            }
+            updateKeyStats(keyBreakdown);
+
             saveResult({
                 testName: testConfig.title,
                 wpm: results.wpm,
                 accuracy: results.accuracy,
                 duration: testConfig.duration,
                 strugglingKeys: results.strugglingKeys,
+                stageId: testConfig.stageId,
+                testLevel: testConfig.level,
             });
-            if (user?.id) {
-                submitTestResult(user.id, results.wpm, results.accuracy);
+
+            if (user?.id) submitTestResult(user.id, results.wpm, results.accuracy);
+
+            // Victory confetti for Level 2 pass
+            if (isLevel2 && results.wpm >= benchmark.wpm && results.accuracy >= benchmark.accuracy) {
+                setShowConfetti(true);
             }
         }
     });
 
+    // ── Level 2: detect new errors → add strikes ──────────────────────────
+    const currentErrors = useMemo(() => {
+        let count = 0;
+        for (let i = 0; i < userInput.length; i++) {
+            if (userInput[i] !== testConfig.text[i]) count++;
+        }
+        return count;
+    }, [userInput, testConfig.text]);
+
+    useEffect(() => {
+        if (!isLevel2 || !started) return;
+        if (currentErrors > prevErrorsRef.current) {
+            const newStrikes = Math.min(currentErrors, MAX_STRIKES);
+            setStrikes(newStrikes);
+            // TEMP DISABLED: 3-strike instant failure
+            // if (newStrikes >= MAX_STRIKES && !terminated) {
+            //     setTerminated(true);
+            //     setScreenFlash(true);
+            //     setTimeout(() => setScreenFlash(false), 600);
+            // }
+        }
+        prevErrorsRef.current = currentErrors;
+    }, [currentErrors, isLevel2, started, terminated]);
+
+    // ── Input handler ───────────────────────────────────────────
+    const handleInput = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
+        handleInputChange(e);
+    }, [handleInputChange]);
+
+    // ── Countdown overlay ──────────────────────────────────────────────────
     const [isCountingDown, setIsCountingDown] = useState(false);
     const [countdown, setCountdown] = useState(3);
 
     const handleStart = () => {
+        setStrikes(0);
+        setTerminated(false);
+        setShowConfetti(false);
+        prevErrorsRef.current = 0;
         setIsCountingDown(true);
         setCountdown(3);
-
         const interval = setInterval(() => {
-            setCountdown((prev) => {
-                if (prev <= 1) {
-                    clearInterval(interval);
-                    setIsCountingDown(false);
-                    startTest(); // Start the actual test logic
-                    return 0;
-                }
+            setCountdown(prev => {
+                if (prev <= 1) { clearInterval(interval); setIsCountingDown(false); startTest(); return 0; }
                 return prev - 1;
             });
         }, 1000);
     };
 
-    // Format time
-    const formatTime = (seconds: number) => {
-        const mins = Math.floor(seconds / 60);
-        const secs = seconds % 60;
-        return {
-            mins: mins.toString().padStart(2, '0'),
-            secs: secs.toString().padStart(2, '0')
-        };
-    };
-
+    const formatTime = (seconds: number) => ({
+        mins: Math.floor(seconds / 60).toString().padStart(2, '0'),
+        secs: (seconds % 60).toString().padStart(2, '0'),
+    });
     const { mins, secs } = formatTime(timeLeft);
 
+    const passed = wpm >= benchmark.wpm && accuracy >= benchmark.accuracy;
+
     return (
-        <div className="text-[#0e1a13] dark:text-white transition-colors duration-200 min-h-screen font-sans relative overflow-hidden">
-            {/* Solid Background Layer */}
-            <div className="fixed inset-0 -z-30 bg-background-light dark:bg-background-dark transition-colors duration-200"></div>
-            {/* Start Test Overlay */}
-            {!started && !isFinished && !isCountingDown && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-background-dark/80 backdrop-blur-sm">
-                    <div className="bg-white/90 dark:bg-[#1a2e21]/90 backdrop-blur-2xl p-12 rounded-3xl shadow-2xl max-w-lg w-full text-center border border-white/20 dark:border-white/10 relative overflow-hidden ring-1 ring-black/5">
-                        {/* Doodle Background for Modal */}
-                        <div className="absolute inset-0 z-0 opacity-[0.1] pointer-events-none" style={{ backgroundImage: "url('/assets/login_doodle_bg.png')", backgroundSize: '300px' }}></div>
+        <div className={`text-[#0e1a13] dark:text-white transition-colors duration-200 min-h-screen font-sans relative overflow-hidden ${screenFlash ? 'animate-[flash_0.3s_ease]' : ''}`}>
+            {/* Background */}
+            <div className="fixed inset-0 -z-30 bg-background-light dark:bg-background-dark transition-colors duration-200" />
 
-                        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-admin-primary to-transparent opacity-50 z-10"></div>
-
-                        <div className="relative z-10 mb-8 inline-flex h-24 w-24 items-center justify-center rounded-full bg-admin-primary/5 text-admin-primary ring-1 ring-admin-primary/20 shadow-[0_0_40px_-10px_rgba(16,185,129,0.3)]">
-                            <span className="material-symbols-outlined text-5xl">keyboard</span>
+            {/* ── START OVERLAY ── */}
+            {!started && !isFinished && !isCountingDown && !terminated && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#061824]/80 backdrop-blur-sm">
+                    <div className="bg-white dark:bg-[#0b1e2d] p-10 rounded-3xl shadow-2xl max-w-md w-full text-center border border-white/10 relative overflow-hidden">
+                        {/* Level badge */}
+                        <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider mb-6 ${
+                            isLevel2 ? 'bg-red-500/10 text-red-500 border border-red-500/20'
+                            : isPractice ? 'bg-[#33B974]/10 text-[#33B974] border border-[#33B974]/20'
+                            : 'bg-[#094A71]/10 text-[#094A71] border border-[#094A71]/20'
+                        }`}>
+                            <span className="material-symbols-outlined text-sm">{isLevel2 ? 'flash_on' : isPractice ? 'school' : 'quiz'}</span>
+                            {isLevel2 ? 'Level 2 — Survival Speedrun' : isPractice ? 'Practice Mode' : 'Level 1 — Standard Test'}
                         </div>
-                        <h2 className="relative z-10 text-4xl font-bold mb-3 tracking-tight text-gray-900 dark:text-white font-heading">Ready to start?</h2>
-                        <p className="relative z-10 text-gray-500 dark:text-gray-400 mb-10 text-lg leading-relaxed">
-                            This is a <span className="font-bold text-gray-900 dark:text-white">{testConfig.duration}-second</span> {moduleId ? 'test' : 'practice session'}.
-                            <br />Focus on accuracy and rhythm.
+
+                        <div className={`inline-flex h-20 w-20 items-center justify-center rounded-full mb-5 ${
+                            isLevel2 ? 'bg-red-500/10 text-red-500'
+                            : isPractice ? 'bg-[#33B974]/10 text-[#33B974]'
+                            : 'bg-[#094A71]/10 text-[#094A71]'
+                        }`}>
+                            <span className="material-symbols-outlined text-5xl">{isLevel2 ? 'emergency' : isPractice ? 'keyboard' : 'quiz'}</span>
+                        </div>
+                        <h2 className="text-3xl font-bold mb-2 text-[#061824] dark:text-white">{testConfig.title}</h2>
+                        <p className="text-gray-500 dark:text-gray-400 mb-4 text-sm">
+                            {isPractice ? (
+                                <span className="inline-flex items-center gap-1.5 text-[#33B974] font-semibold">
+                                    <span className="material-symbols-outlined text-base">all_inclusive</span>
+                                    No time limit — complete at your own pace
+                                </span>
+                            ) : (
+                                <>
+                                    <strong className="text-gray-700 dark:text-gray-200">{testConfig.duration}s</strong>
+                                    {' '}· Goal: <strong className="text-gray-700 dark:text-gray-200">{benchmark.wpm} WPM</strong> / <strong className="text-gray-700 dark:text-gray-200">{benchmark.accuracy}%</strong> accuracy
+                                </>
+                            )}
                         </p>
+
+                        {isPractice && (
+                            <div className="bg-[#33B974]/5 border border-[#33B974]/20 rounded-xl p-4 mb-6 text-left">
+                                <p className="text-xs font-bold text-[#33B974] uppercase tracking-wider mb-1.5">🎯 How Practice Works</p>
+                                <ul className="text-xs text-gray-500 dark:text-gray-400 space-y-1">
+                                    <li>• Each letter appears in its own box — <strong>type them one by one</strong></li>
+                                    <li>• <strong>Green</strong> = correct · <strong>Red</strong> = mistake · <strong>Glowing blue</strong> = next key</li>
+                                    <li>• No timer pressure — focus on accuracy first, speed will follow</li>
+                                    <li>• Complete all characters to finish and unlock the next stage</li>
+                                </ul>
+                            </div>
+                        )}
+
+                        {isLevel2 && (
+                            <div className="bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 rounded-xl p-4 mb-6 text-left">
+                                <p className="text-xs font-bold text-red-600 dark:text-red-400 uppercase tracking-wider mb-1.5">⚠ Survival Rules</p>
+                                <ul className="text-xs text-red-500 dark:text-red-400 space-y-1">
+                                    <li>• <strong>No backspace</strong> — every keystroke is final</li>
+                                    <li>• <strong>3 errors max</strong> — the test terminates on your 3rd mistake</li>
+                                    <li>• <strong>60-second timer</strong> — type as fast and clean as possible</li>
+                                </ul>
+                            </div>
+                        )}
 
                         <button
                             onClick={handleStart}
-                            className="relative z-10 w-full bg-admin-primary hover:bg-admin-primary/90 text-white font-bold py-5 rounded-xl text-xl transition-all duration-300 shadow-[0_10px_30px_-10px_rgba(16,185,129,0.4)] hover:shadow-[0_20px_40px_-10px_rgba(16,185,129,0.6)] hover:-translate-y-1 mb-6 font-heading"
+                            className={`w-full font-bold py-4 rounded-xl text-lg transition-all shadow-lg mb-3 ${isLevel2 ? 'bg-red-500 hover:bg-red-400 text-white shadow-red-500/20' : 'bg-[#33B974] hover:bg-[#33B974]/90 text-white shadow-[#33B974]/20'}`}
                         >
-                            {moduleId ? 'Start Test' : 'Start Practice'}
+                            {mode === 'practice' ? 'Start Practice' : isLevel2 ? '⚡ Begin Survival Test' : 'Start Test'}
                         </button>
-
-                        <button
-                            onClick={() => window.history.back()}
-                            className="relative z-10 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 text-sm font-bold tracking-widest uppercase transition-colors py-2 font-heading"
-                        >
-                            Not ready? Go back
+                        <button onClick={() => window.history.back()} className="text-gray-400 hover:text-gray-600 text-sm font-medium transition-colors">
+                            ← Go back
                         </button>
-
-                        <div className="relative z-10 mt-8 pt-8 border-t border-gray-100 dark:border-white/5">
-                            <p className="text-xs text-gray-400 uppercase tracking-widest font-medium font-heading">{testConfig.title}</p>
+                        <div className="mt-6 pt-5 border-t border-gray-100 dark:border-white/5">
+                            <p className="text-[10px] text-gray-400 uppercase tracking-widest">{testConfig.title}</p>
                         </div>
                     </div>
                 </div>
             )}
 
-            {/* Countdown Overlay */}
+            {/* ── COUNTDOWN OVERLAY ── */}
             {isCountingDown && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-background-dark/90 backdrop-blur-md">
-                    <div className="text-9xl font-bold text-admin-primary animate-bounce font-heading">
-                        {countdown}
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#061824]/90 backdrop-blur-md">
+                    <div className={`text-9xl font-bold animate-bounce ${isLevel2 ? 'text-red-400' : 'text-[#33B974]'}`}>{countdown}</div>
+                </div>
+            )}
+
+            {/* ── TERMINATED (Level 2 failure) ── */}
+            {terminated && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#061824]/90 backdrop-blur-md">
+                    <div className="bg-[#0b1e2d] p-10 rounded-2xl shadow-2xl max-w-sm w-full text-center border border-red-500/30 animate-in fade-in zoom-in duration-300">
+                        <div className="inline-flex h-20 w-20 items-center justify-center rounded-full bg-red-500/10 text-red-500 mb-4">
+                            <span className="material-symbols-outlined text-5xl">report</span>
+                        </div>
+                        <h2 className="text-3xl font-bold mb-2 text-white">Session Terminated</h2>
+                        <p className="text-red-400 mb-6 text-sm">3 strikes reached. Your attempt has ended.</p>
+                        <div className="grid grid-cols-2 gap-3 mb-6">
+                            <div className="p-3 bg-white/5 rounded-lg">
+                                <p className="text-xs text-gray-500">WPM</p>
+                                <p className="text-2xl font-bold text-white font-mono">{wpm}</p>
+                            </div>
+                            <div className="p-3 bg-white/5 rounded-lg">
+                                <p className="text-xs text-gray-500">Accuracy</p>
+                                <p className="text-2xl font-bold text-white font-mono">{accuracy}%</p>
+                            </div>
+                        </div>
+                        <button onClick={handleStart} className="w-full bg-red-500 hover:bg-red-400 text-white font-bold py-3 rounded-xl mb-3 transition-all">
+                            ⚡ Try Again
+                        </button>
+                        <button onClick={() => window.history.back()} className="text-gray-500 hover:text-gray-300 text-sm transition-colors">
+                            Back to Practice
+                        </button>
                     </div>
                 </div>
             )}
 
-            {/* Finished Overlay */}
-            {isFinished && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-background-dark/90 backdrop-blur-md">
-                    <div className="bg-white dark:bg-[#1a2e21] p-10 rounded-xl shadow-2xl max-w-md w-full text-center border border-admin-primary/20 animate-in fade-in zoom-in duration-300">
-                        <div className="mb-6 inline-flex h-20 w-20 items-center justify-center rounded-full bg-green-500/10 text-green-500">
-                            <span className="material-symbols-outlined text-4xl">flag</span>
+            {/* ── FINISHED OVERLAY ── */}
+            {isFinished && !terminated && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#061824]/90 backdrop-blur-md">
+                    {/* Confetti for Level 2 victory */}
+                    {showConfetti && (
+                        <div className="absolute inset-0 pointer-events-none overflow-hidden">
+                            {Array.from({ length: 40 }).map((_, i) => (
+                                <div
+                                    key={i}
+                                    className="absolute w-2 h-2 rounded-sm animate-bounce"
+                                    style={{
+                                        left: `${Math.random() * 100}%`,
+                                        top: `${Math.random() * 100}%`,
+                                        backgroundColor: ['#33B974', '#094A71', '#FFD700', '#FF6B6B', '#4ECDC4'][i % 5],
+                                        animationDelay: `${Math.random() * 1}s`,
+                                        animationDuration: `${0.5 + Math.random() * 1}s`,
+                                    }}
+                                />
+                            ))}
                         </div>
-                        <h2 className="text-3xl font-bold mb-2 font-heading">Test Complete!</h2>
+                    )}
 
-                        <div className="grid grid-cols-2 gap-4 my-6">
-                            <div className="p-4 bg-gray-50 dark:bg-white/5 rounded-lg">
-                                <p className="text-sm text-gray-500">WPM</p>
-                                <p className="text-3xl font-bold text-admin-primary font-mono">{wpm}</p>
+                    <div className={`bg-white dark:bg-[#0b1e2d] p-10 rounded-2xl shadow-2xl max-w-md w-full text-center border animate-in fade-in zoom-in duration-300 ${passed ? (isLevel2 ? 'border-yellow-500/30' : 'border-[#33B974]/20') : 'border-red-500/20'}`}>
+                        <div className={`inline-flex h-20 w-20 items-center justify-center rounded-full mb-4 ${passed ? (isLevel2 ? 'bg-yellow-500/10 text-yellow-500' : 'bg-[#33B974]/10 text-[#33B974]') : 'bg-red-500/10 text-red-500'}`}>
+                            <span className="material-symbols-outlined text-5xl">
+                                {passed ? (isLevel2 ? 'workspace_premium' : 'flag') : 'replay'}
+                            </span>
+                        </div>
+
+                        {passed && isLevel2 && (
+                            <div className="text-yellow-500 font-bold text-sm mb-2 uppercase tracking-wider">🏆 Level 2 Master!</div>
+                        )}
+                        <h2 className="text-3xl font-bold mb-1 text-[#061824] dark:text-white">
+                            {(assignmentId || stageId) 
+                                ? (passed ? 'Test Passed!' : 'Not Quite There') 
+                                : `${wpm} WPM!`}
+                        </h2>
+                        <p className="text-gray-400 text-sm mb-5">
+                            {(assignmentId || stageId)
+                                ? (passed
+                                    ? (testConfig.stageId ? 'Next stage unlocked! Keep going.' : 'Excellent performance!')
+                                    : `Goal was ${benchmark.wpm} WPM / ${benchmark.accuracy}% accuracy`)
+                                : "Great effort! Here is what you achieved."}
+                        </p>
+
+                        <div className="grid grid-cols-2 gap-4 mb-6">
+                            <div className="p-4 bg-gray-50 dark:bg-white/5 rounded-xl">
+                                <p className="text-xs text-gray-400 mb-1">WPM</p>
+                                <p className={`text-3xl font-bold font-mono ${wpm >= benchmark.wpm ? 'text-[#33B974]' : 'text-red-400'}`}>{wpm}</p>
+                                <p className="text-[10px] text-gray-400">Goal: {benchmark.wpm}</p>
                             </div>
-                            <div className="p-4 bg-gray-50 dark:bg-white/5 rounded-lg">
-                                <p className="text-sm text-gray-500">Accuracy</p>
-                                <p className="text-3xl font-bold text-admin-primary font-mono">{accuracy}%</p>
+                            <div className="p-4 bg-gray-50 dark:bg-white/5 rounded-xl">
+                                <p className="text-xs text-gray-400 mb-1">Accuracy</p>
+                                <p className={`text-3xl font-bold font-mono ${accuracy >= benchmark.accuracy ? 'text-[#33B974]' : 'text-red-400'}`}>{accuracy}%</p>
+                                <p className="text-[10px] text-gray-400">Goal: {benchmark.accuracy}%</p>
                             </div>
                         </div>
 
-                        {/* Struggling Keys Section */}
                         {Object.keys(strugglingKeys).length > 0 && (
-                            <div className="mb-8">
-                                <p className="text-sm text-gray-500 mb-3">Struggling Keys</p>
-                                <div className="flex flex-wrap justify-center gap-2">
-                                    {Object.entries(strugglingKeys)
-                                        .sort(([, a], [, b]) => b - a)
-                                        .slice(0, 5)
-                                        .map(([key, count]) => (
-                                            <div key={key} className="flex flex-col items-center bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-900/30 px-3 py-2 rounded-lg">
-                                                <span className="text-lg font-bold text-red-600 dark:text-red-400 font-mono">{key === ' ' ? 'Space' : key}</span>
-                                                <span className="text-xs text-red-400 dark:text-red-500 font-medium">{count} miss{count > 1 ? 'es' : ''}</span>
-                                            </div>
-                                        ))}
+                            <div className="mb-5 text-left">
+                                <p className="text-xs text-gray-400 uppercase tracking-wider mb-2">Keys to practice</p>
+                                <div className="flex flex-wrap gap-2">
+                                    {Object.entries(strugglingKeys).sort(([, a], [, b]) => b - a).slice(0, 5).map(([key, count]) => (
+                                        <div key={key} className="flex items-center gap-1.5 bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-900/30 px-2.5 py-1.5 rounded-lg">
+                                            <span className="text-sm font-bold text-red-600 dark:text-red-400 font-mono">{key === ' ' ? 'Space' : key}</span>
+                                            <span className="text-[10px] text-red-400">{count}×</span>
+                                        </div>
+                                    ))}
                                 </div>
                             </div>
                         )}
@@ -212,15 +408,13 @@ const TypingTest: React.FC = () => {
                         <div className="flex flex-col gap-3">
                             <Link
                                 to="/results"
-                                state={{ wpm, accuracy, strugglingKeys }}
-                                className="w-full bg-admin-primary hover:bg-admin-primary/90 text-[#0e1a13] font-bold py-4 rounded-lg text-lg transition-all transform hover:scale-[1.02] font-heading flex items-center justify-center"
+                                state={{ wpm, accuracy, strugglingKeys, passed, benchmark }}
+                                className="w-full bg-[#094A71] hover:bg-[#094A71]/90 text-white font-bold py-3 rounded-xl text-sm transition-all flex items-center justify-center gap-2"
                             >
+                                <span className="material-symbols-outlined text-base">analytics</span>
                                 View Detailed Results
                             </Link>
-                            <button
-                                onClick={startTest}
-                                className="w-full bg-transparent border border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-300 font-bold py-3 rounded-lg hover:bg-gray-100 dark:hover:bg-white/5 transition-all font-heading"
-                            >
+                            <button onClick={handleStart} className="w-full border border-gray-200 dark:border-slate-700 text-gray-600 dark:text-gray-300 font-bold py-3 rounded-xl hover:bg-gray-50 dark:hover:bg-white/5 transition-all text-sm">
                                 Try Again
                             </button>
                         </div>
@@ -228,100 +422,123 @@ const TypingTest: React.FC = () => {
                 </div>
             )}
 
+            {/* ── MAIN TEST UI ── */}
             <div className="relative flex min-h-screen flex-col">
-                <header className="flex items-center justify-between border-b border-solid border-slate-800 px-10 py-3 bg-[#111422] border-b-[#323b67] text-white shadow-md">
+                {/* Navbar */}
+                <header className={`flex items-center justify-between border-b px-10 py-3 text-white shadow-md ${isLevel2 ? 'bg-[#1a0808] border-red-900/40' : 'bg-[#094A71] border-[#094A71]/40'}`}>
                     <div className="flex items-center gap-4">
                         <Link to="/" className="flex items-center gap-3 group">
-                            <div className="bg-admin-primary rounded-lg p-2 flex items-center justify-center group-hover:bg-admin-primary/90 transition-colors shadow-lg shadow-admin-primary/20">
-                                <span className="material-symbols-outlined text-navy-blue text-2xl">keyboard</span>
+                            <div className={`rounded-lg p-2 flex items-center justify-center transition-colors ${isLevel2 ? 'bg-red-500/20 group-hover:bg-red-500/30' : 'bg-[#33B974]/20 group-hover:bg-[#33B974]/30'}`}>
+                                <span className="material-symbols-outlined text-white text-2xl">keyboard</span>
                             </div>
                         </Link>
-                        <h2 className="text-xl font-bold leading-tight tracking-[-0.015em] text-white font-heading">Typespire</h2>
-                        <div className="h-6 w-px bg-slate-700 mx-2"></div>
-                        <span className="text-sm font-medium text-slate-400">Academic Portal</span>
+                        <h2 className="text-xl font-bold text-white">Typespire</h2>
+                        <div className="h-6 w-px bg-white/20 mx-2" />
+                        <span className={`text-xs font-bold uppercase tracking-wider px-2 py-0.5 rounded-full ${
+                            isLevel2 ? 'bg-red-500/20 text-red-300'
+                            : isPractice ? 'bg-[#33B974]/20 text-[#33B974]'
+                            : 'bg-white/15 text-white'
+                        }`}>
+                            {isLevel2 ? '⚡ Survival Mode' : isPractice ? '🎯 Practice' : '📚 Standard Test'}
+                        </span>
                     </div>
-                    <div className="flex flex-1 justify-end items-center gap-6">
+                    <div className="flex items-center gap-6">
+                        {isLevel2 && started && !isFinished && (
+                            <SurvivalStrikeBar strikes={strikes} maxStrikes={MAX_STRIKES} />
+                        )}
                         <div className="text-right">
-                            <p className="text-sm font-bold text-white">
-                                {user?.firstName ? `${user.firstName} ${user.lastName || ''}`.trim() : 'Student'}
-                            </p>
-                            <p className="text-[10px] uppercase text-slate-400">
-                                Username: {user?.username || 'Unknown'}
-                            </p>
+                            <p className="text-sm font-bold text-white">{user?.firstName ? `${user.firstName} ${user.lastName || ''}`.trim() : 'Student'}</p>
+                            <p className="text-[10px] text-white/50 uppercase">{user?.username ?? ''}</p>
                         </div>
-                        <div
-                            className="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10 border-2 border-admin-primary flex items-center justify-center font-bold text-sm bg-primary/20 text-primary uppercase"
-                        >
-                            {user?.firstName?.[0] || 'S'}
+                        <div className={`w-9 h-9 rounded-full border-2 flex items-center justify-center font-bold text-sm ${isLevel2 ? 'border-red-400 bg-red-400/20 text-red-300' : 'border-[#33B974] bg-[#33B974]/20 text-[#33B974]'}`}>
+                            {user?.firstName?.[0] ?? 'S'}
                         </div>
                     </div>
                 </header>
 
                 <main className="flex-1 max-w-6xl mx-auto w-full px-8 py-12 flex flex-col items-center">
-                    <div className="w-full flex justify-between items-center mb-12">
+                    {/* Title + Timer */}
+                    <div className="w-full flex justify-between items-center mb-10">
                         <div className="flex flex-col gap-2">
-                            <div className="flex items-center gap-3">
-                                <div className={`h-2.5 w-2.5 rounded-full ${started ? 'bg-admin-primary animate-pulse' : 'bg-gray-300 dark:bg-gray-600'}`}></div>
-                                <span className="text-xs font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500 font-heading">
+                            <div className="flex items-center gap-2">
+                                <div className={`h-2.5 w-2.5 rounded-full ${started ? (isLevel2 ? 'bg-red-400 animate-pulse' : 'bg-[#33B974] animate-pulse') : 'bg-gray-300'}`} />
+                                <span className="text-xs font-bold uppercase tracking-widest text-gray-400">
                                     {started ? 'In Progress' : 'Ready to Start'}
                                 </span>
                             </div>
-                            <h2 className="text-4xl font-bold tracking-tight text-gray-900 dark:text-white font-heading">{testConfig.title}</h2>
+                            <h2 className="text-3xl font-bold tracking-tight text-[#061824] dark:text-white">{testConfig.title}</h2>
                         </div>
 
-                        <div className="flex items-center gap-10">
-                            <div className="flex items-baseline gap-1 font-variant-numeric tabular-nums font-mono">
-                                <span className="text-6xl font-light tracking-tighter text-gray-900 dark:text-white">{mins}</span>
-                                <span className="text-2xl text-gray-300 dark:text-gray-600 font-light">:</span>
-                                <span className="text-6xl font-light tracking-tighter text-gray-900 dark:text-white">{secs}</span>
-                            </div>
-
+                        <div className="flex items-center gap-8">
+                            {isPractice ? (
+                                /* Practice: no clock, just a relaxed cue */
+                                <div className="flex flex-col items-end gap-1">
+                                    <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-[#33B974]/10 text-[#33B974] font-bold text-sm">
+                                        <span className="material-symbols-outlined text-lg">all_inclusive</span>
+                                        <span>No Time Limit</span>
+                                    </div>
+                                    <span className="text-[10px] text-gray-400 text-right">Take your time — finish the text at your own pace</span>
+                                </div>
+                            ) : (
+                                <div className="flex items-baseline gap-1 font-mono">
+                                    <span className={`text-6xl font-light tracking-tighter ${timeLeft <= 10 && started ? 'text-red-400 animate-pulse' : 'text-[#061824] dark:text-white'}`}>{mins}</span>
+                                    <span className="text-2xl text-gray-300 dark:text-gray-600">:</span>
+                                    <span className={`text-6xl font-light tracking-tighter ${timeLeft <= 10 && started ? 'text-red-400 animate-pulse' : 'text-[#061824] dark:text-white'}`}>{secs}</span>
+                                </div>
+                            )}
                             <button
-                                onClick={startTest}
-                                className="group p-4 rounded-full bg-gray-50 dark:bg-white/5 hover:bg-admin-primary hover:text-[#111422] text-gray-400 transition-all duration-300 shadow-sm hover:shadow-lg hover:shadow-admin-primary/30"
-                                title="Restart Test"
+                                onClick={handleStart}
+                                className={`group p-4 rounded-full bg-gray-50 dark:bg-white/5 hover:text-white text-gray-400 transition-all duration-300 shadow-sm ${isLevel2 ? 'hover:bg-red-500' : 'hover:bg-[#33B974]'}`}
+                                title="Restart"
                             >
                                 <span className="material-symbols-outlined text-xl group-hover:rotate-180 transition-transform duration-500">refresh</span>
                             </button>
                         </div>
                     </div>
 
-                    <TestStats wpm={wpm} accuracy={accuracy} />
+                    {/* Live stats hidden as per request. Only final results will be visible. */}
 
                     <div className="w-full mb-8">
-                        <TypingArea
-                            targetText={testConfig.text}
-                            userInput={userInput}
-                            started={started}
-                            isFinished={isFinished}
-                            onInputChange={handleInputChange}
-                        />
+                        {isPractice ? (
+                            <PracticeTypingArea
+                                targetText={formattedTargetText}
+                                userInput={userInput}
+                                started={started && !terminated}
+                                isFinished={isFinished || terminated}
+                                onInputChange={handleInput}
+                                elapsedSeconds={timeLeft} // counts up in untimed mode
+                            />
+                        ) : (
+                            <TypingArea
+                                targetText={formattedTargetText}
+                                userInput={userInput}
+                                started={started && !terminated}
+                                isFinished={isFinished || terminated}
+                                onInputChange={handleInput}
+                            />
+                        )}
                     </div>
 
-                    <div className="w-full flex justify-between items-center text-gray-400 dark:text-gray-500 text-sm mt-auto px-4">
-                        <div className="flex gap-8">
-                            <div className="flex items-center gap-2 transition-colors hover:text-gray-600 dark:hover:text-gray-300">
-                                <span className="material-symbols-outlined text-lg">keyboard_capslock</span>
-                                <span className="uppercase tracking-wider text-xs font-bold font-heading">Caps Lock is OFF</span>
-                            </div>
-                            <div className="flex items-center gap-2 text-admin-primary">
+                    {/* Footer hints */}
+                    <div className="w-full flex justify-between items-center text-gray-400 text-sm mt-auto px-4">
+                        <div className="flex gap-6">
+                            {isLevel2 && (
+                                <div className="flex items-center gap-2 text-red-400 font-bold">
+                                    <span className="material-symbols-outlined text-lg">block</span>
+                                    <span className="text-xs uppercase tracking-wider">Backspace Disabled</span>
+                                </div>
+                            )}
+                            <div className="flex items-center gap-2 text-[#33B974]">
                                 <span className="material-symbols-outlined text-lg">check_circle</span>
-                                <span className="tracking-wider text-xs font-bold font-heading">System Ready</span>
+                                <span className="text-xs uppercase tracking-wider">System Ready</span>
                             </div>
                         </div>
-                        <div className="flex gap-6 text-xs font-bold tracking-widest uppercase font-heading">
-                            <button className="hover:text-admin-primary transition-colors">Accessibility</button>
-                            <button className="hover:text-admin-primary transition-colors">Shortcuts</button>
+                        <div className="text-xs text-gray-400">
+                            Goal: <strong className="text-gray-600 dark:text-gray-300">{benchmark.wpm} WPM</strong> / <strong className="text-gray-600 dark:text-gray-300">{benchmark.accuracy}%</strong>
                         </div>
                     </div>
                 </main>
             </div>
-
-            <div className="fixed top-0 right-0 -z-10 opacity-10 pointer-events-none translate-x-1/2 -translate-y-1/2">
-                <div className="w-[800px] h-[800px] rounded-full bg-admin-primary blur-[120px]"></div>
-            </div>
-
-            <div className="fixed inset-0 -z-20 pointer-events-none opacity-[0.1] dark:opacity-[0.15]" style={{ backgroundImage: "url('/assets/login_doodle_bg.png')", backgroundSize: '400px' }}></div>
         </div>
     );
 };

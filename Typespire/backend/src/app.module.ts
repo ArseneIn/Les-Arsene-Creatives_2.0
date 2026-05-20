@@ -11,6 +11,7 @@ import { TestModule } from './test/test.module';
 import { AnalyticsModule } from './analytics/analytics.module';
 import { SettingsModule } from './settings/settings.module';
 import { AssignmentModule } from './assignment/assignment.module';
+import { TestResultModule } from './test-result/test-result.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { AssignmentModule } from './assignment/assignment.module';
     AnalyticsModule,
     SettingsModule,
     AssignmentModule,
+    TestResultModule,
   ],
   controllers: [AppController],
   providers: [AppService],

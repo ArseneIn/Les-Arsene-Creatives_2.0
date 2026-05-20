@@ -14,6 +14,8 @@ const FacilitatorTestLaunch: React.FC = () => {
     const [selectedStudentIds, setSelectedStudentIds] = useState<string[]>([]);
     const [timeLimit, setTimeLimit] = useState('1');
     const [allowedTrials, setAllowedTrials] = useState('');
+    const [testLevel, setTestLevel] = useState<1 | 2>(1);
+    const [accessWindow, setAccessWindow] = useState('1440'); // default: 1 day in minutes
 
     const handlePublish = (e: React.FormEvent) => {
         e.preventDefault();
@@ -32,7 +34,9 @@ const FacilitatorTestLaunch: React.FC = () => {
             title: selectedText,
             sectionId: assignmentMode === 'section' ? targetSection : undefined,
             studentIds: assignmentMode === 'students' ? selectedStudentIds : undefined,
-            dueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toLocaleDateString(), // Due in 1 week
+            dueDate: new Date(Date.now() + parseInt(accessWindow) * 60 * 1000).toISOString(), // access window in minutes
+            level: testLevel,
+            duration: timeLimit === '0' ? 0 : parseInt(timeLimit) * 60,
         });
 
         navigate('/facilitator');
@@ -213,6 +217,44 @@ const FacilitatorTestLaunch: React.FC = () => {
                             <h3 className="text-slate-900 dark:text-white font-black text-lg tracking-tight font-heading">Session Parameters</h3>
                         </div>
                         <form className="flex flex-col gap-6" onSubmit={handlePublish}>
+                            {/* Test Level */}
+                            <div className="flex flex-col gap-2">
+                                <label className="text-xs font-bold text-slate-400 dark:text-[#929bc9] uppercase tracking-wider">Test Level</label>
+                                <div className="grid grid-cols-2 gap-2">
+                                    <button
+                                        type="button"
+                                        onClick={() => setTestLevel(1)}
+                                        className={`flex flex-col items-center gap-1 p-3 rounded-xl border-2 transition-all text-left ${
+                                            testLevel === 1
+                                                ? 'border-[#094A71] bg-[#094A71]/5 dark:bg-[#094A71]/10'
+                                                : 'border-slate-200 dark:border-[#323b67] hover:border-[#094A71]/30'
+                                        }`}
+                                    >
+                                        <span className={`material-symbols-outlined text-xl ${testLevel === 1 ? 'text-[#094A71]' : 'text-slate-400'}`}>school</span>
+                                        <span className={`text-xs font-bold ${testLevel === 1 ? 'text-[#094A71]' : 'text-slate-500 dark:text-slate-400'}`}>Level 1</span>
+                                        <span className="text-[9px] text-slate-400 font-medium">Standard Test</span>
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => setTestLevel(2)}
+                                        className={`flex flex-col items-center gap-1 p-3 rounded-xl border-2 transition-all text-left ${
+                                            testLevel === 2
+                                                ? 'border-red-500 bg-red-500/5 dark:bg-red-500/10'
+                                                : 'border-slate-200 dark:border-[#323b67] hover:border-red-300'
+                                        }`}
+                                    >
+                                        <span className={`material-symbols-outlined text-xl ${testLevel === 2 ? 'text-red-500' : 'text-slate-400'}`}>flash_on</span>
+                                        <span className={`text-xs font-bold ${testLevel === 2 ? 'text-red-500' : 'text-slate-500 dark:text-slate-400'}`}>Level 2</span>
+                                        <span className="text-[9px] text-slate-400 font-medium">Survival Mode</span>
+                                    </button>
+                                </div>
+                                {testLevel === 2 && (
+                                    <p className="text-[10px] text-red-500 bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 rounded-lg px-3 py-2">
+                                        ⚡ Students get 60s, no backspace, and only 3 errors allowed.
+                                    </p>
+                                )}
+                            </div>
+
                             {/* Assignment Mode */}
                             <div className="flex flex-col gap-2">
                                 <label className="text-xs font-bold text-slate-400 dark:text-[#929bc9] uppercase tracking-wider">Assign Target</label>
@@ -343,6 +385,33 @@ const FacilitatorTestLaunch: React.FC = () => {
                                     />
                                     <span className="text-[10px] text-slate-400 uppercase tracking-widest font-black shrink-0 ml-2">Attempts</span>
                                 </div>
+                            </div>
+
+                            {/* Access Window */}
+                            <div className="flex flex-col gap-2">
+                                <label className="text-xs font-bold text-slate-400 dark:text-[#929bc9] uppercase tracking-wider flex items-center gap-1">
+                                    <span>Access Window</span>
+                                    <span className="material-symbols-outlined text-sm text-slate-400 cursor-help" title="How long students have to access and complete this test from now">info</span>
+                                </label>
+                                <div className="relative">
+                                    <select
+                                        className="w-full appearance-none rounded-xl bg-slate-50 dark:bg-[#232948] border border-slate-200 dark:border-[#323b67] focus:border-primary/60 text-slate-900 dark:text-white py-3 px-4 pr-10 text-sm font-semibold outline-none"
+                                        value={accessWindow}
+                                        onChange={(e) => setAccessWindow(e.target.value)}
+                                    >
+                                        <option value="10">10 Minutes</option>
+                                        <option value="30">30 Minutes</option>
+                                        <option value="60">1 Hour</option>
+                                        <option value="180">3 Hours</option>
+                                        <option value="1440">1 Day</option>
+                                        <option value="4320">3 Days</option>
+                                        <option value="10080">1 Week</option>
+                                    </select>
+                                    <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-slate-400 dark:text-[#929bc9]">
+                                        <span className="material-symbols-outlined text-sm">event_available</span>
+                                    </div>
+                                </div>
+                                <p className="text-[10px] text-slate-400 dark:text-[#929bc9] font-semibold">After this period, the test locks and marks absent students as <span className="text-rose-500 font-black">Missing</span>.</p>
                             </div>
 
                             {/* Divider */}

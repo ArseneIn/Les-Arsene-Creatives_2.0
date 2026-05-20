@@ -1,8 +1,11 @@
 import React from 'react';
-import { Outlet, Link, useNavigate } from 'react-router-dom';
+import { Outlet, Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
 const StudentLayout: React.FC = () => {
+    const location = useLocation();
+    const isActive = (path: string) => location.pathname === path;
+
     const [isSidebarOpen, setIsSidebarOpen] = React.useState(false);
     const { user, logout } = useAuth();
     const navigate = useNavigate();
@@ -24,21 +27,21 @@ const StudentLayout: React.FC = () => {
 
             {/* Sidebar */}
             <aside className={`
-                fixed md:static inset-y-0 left-0 z-50 w-64 h-full border-r border-[#323b67] bg-[#111422] flex flex-col flex-shrink-0 transition-transform duration-300 ease-in-out
+                fixed md:static inset-y-0 left-0 z-50 w-64 h-full border-r border-white/10 bg-[#094A71] flex flex-col flex-shrink-0 transition-transform duration-300 ease-in-out
                 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
             `}>
                 <div className="p-6 flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                        <div className="bg-primary rounded-lg p-2 flex items-center justify-center text-[#111422]">
-                            <span className="material-symbols-outlined icon-filled">school</span>
+                        <div className="bg-secondary rounded-lg p-2 flex items-center justify-center text-white">
+                            <span className="material-symbols-outlined icon-filled text-xl">school</span>
                         </div>
                         <div className="flex flex-col">
                             <h1 className="text-lg font-bold leading-none tracking-tight text-white">Typespire</h1>
-                            <span className="text-xs text-primary font-medium opacity-80">Student Portal</span>
+                            <span className="text-xs text-secondary font-medium opacity-90">Student Portal</span>
                         </div>
                     </div>
                     <button
-                        className="md:hidden text-slate-400 hover:text-white"
+                        className="md:hidden text-white/60 hover:text-white"
                         onClick={() => setIsSidebarOpen(false)}
                     >
                         <span className="material-symbols-outlined">close</span>
@@ -49,49 +52,72 @@ const StudentLayout: React.FC = () => {
                     <Link
                         to="/"
                         onClick={() => setIsSidebarOpen(false)}
-                        className="flex items-center gap-3 px-4 py-3 rounded-lg bg-primary/10 text-primary border-l-4 border-primary transition-all"
+                        className={`flex items-center gap-3 px-4 py-3 rounded-lg border-l-4 group transition-all duration-200 ${isActive('/')
+                            ? 'bg-white/10 text-[#33B974] border-[#33B974]'
+                            : 'text-white/90 hover:bg-white/10 hover:text-[#33B974] border-transparent hover:border-[#33B974]'
+                            }`}
                     >
-                        <span className="material-symbols-outlined icon-filled">dashboard</span>
+                        <span className={`material-symbols-outlined transition-colors ${isActive('/') ? 'text-[#33B974] icon-filled' : 'text-white/70 group-hover:text-[#33B974]'}`}>dashboard</span>
                         <p className="text-sm font-medium leading-normal">Dashboard</p>
+                    </Link>
+                    <Link
+                        to="/tests"
+                        onClick={() => setIsSidebarOpen(false)}
+                        className={`flex items-center gap-3 px-4 py-3 rounded-lg border-l-4 group transition-all duration-200 ${isActive('/tests')
+                            ? 'bg-white/10 text-[#33B974] border-[#33B974]'
+                            : 'text-white/90 hover:bg-white/10 hover:text-[#33B974] border-transparent hover:border-[#33B974]'
+                            }`}
+                    >
+                        <span className={`material-symbols-outlined transition-colors ${isActive('/tests') ? 'text-[#33B974] icon-filled' : 'text-white/70 group-hover:text-[#33B974]'}`}>quiz</span>
+                        <p className="text-sm font-medium leading-normal">Tests</p>
                     </Link>
                     <Link
                         to="/practice"
                         onClick={() => setIsSidebarOpen(false)}
-                        className="flex items-center gap-3 px-4 py-3 rounded-lg text-[#929bc9] hover:bg-white/5 hover:text-white transition-colors duration-200 border-l-4 border-transparent"
+                        className={`flex items-center gap-3 px-4 py-3 rounded-lg border-l-4 group transition-all duration-200 ${isActive('/practice')
+                            ? 'bg-white/10 text-[#33B974] border-[#33B974]'
+                            : 'text-white/90 hover:bg-white/10 hover:text-[#33B974] border-transparent hover:border-[#33B974]'
+                            }`}
                     >
-                        <span className="material-symbols-outlined">keyboard</span>
+                        <span className={`material-symbols-outlined transition-colors ${isActive('/practice') ? 'text-[#33B974] icon-filled' : 'text-white/70 group-hover:text-[#33B974]'}`}>keyboard</span>
                         <p className="text-sm font-medium leading-normal">Practice</p>
                     </Link>
                     <Link
                         to="/history"
                         onClick={() => setIsSidebarOpen(false)}
-                        className="flex items-center gap-3 px-4 py-3 rounded-lg text-[#929bc9] hover:bg-white/5 hover:text-white transition-colors duration-200 border-l-4 border-transparent"
+                        className={`flex items-center gap-3 px-4 py-3 rounded-lg border-l-4 group transition-all duration-200 ${isActive('/history')
+                            ? 'bg-white/10 text-[#33B974] border-[#33B974]'
+                            : 'text-white/90 hover:bg-white/10 hover:text-[#33B974] border-transparent hover:border-[#33B974]'
+                            }`}
                     >
-                        <span className="material-symbols-outlined">history</span>
+                        <span className={`material-symbols-outlined transition-colors ${isActive('/history') ? 'text-[#33B974] icon-filled' : 'text-white/70 group-hover:text-[#33B974]'}`}>history</span>
                         <p className="text-sm font-medium leading-normal">History</p>
                     </Link>
                     <Link
-                        to="/settings"
+                        to="/results"
                         onClick={() => setIsSidebarOpen(false)}
-                        className="flex items-center gap-3 px-4 py-3 rounded-lg text-[#929bc9] hover:bg-white/5 hover:text-white transition-colors duration-200 border-l-4 border-transparent"
+                        className={`flex items-center gap-3 px-4 py-3 rounded-lg border-l-4 group transition-all duration-200 ${isActive('/results')
+                            ? 'bg-white/10 text-[#33B974] border-[#33B974]'
+                            : 'text-white/90 hover:bg-white/10 hover:text-[#33B974] border-transparent hover:border-[#33B974]'
+                            }`}
                     >
-                        <span className="material-symbols-outlined">settings</span>
-                        <p className="text-sm font-medium leading-normal">Settings</p>
+                        <span className={`material-symbols-outlined transition-colors ${isActive('/results') ? 'text-[#33B974] icon-filled' : 'text-white/70 group-hover:text-[#33B974]'}`}>emoji_events</span>
+                        <p className="text-sm font-medium leading-normal">Results</p>
                     </Link>
                 </nav>
 
                 {/* Bottom Profile Section */}
-                <div className="p-4 border-t border-[#323b67]">
+                <div className="p-4 border-t border-white/10">
                     <div className="flex items-center gap-3 mb-4">
                         <div
-                            className="bg-center bg-no-repeat bg-cover rounded-full h-10 w-10 border border-[#323b67]"
+                            className="bg-center bg-no-repeat bg-cover rounded-full h-10 w-10 border border-white/10"
                             style={{ backgroundImage: 'url("https://lh3.googleusercontent.com/aida-public/AB6AXuBZkSKXQ6p812ruveY9CRkth1Agia_3BUKkC-yHBsap_klO7GEdemi-i7lElNzWx8RKRq_brGQsPYwJZTpaOZ2zhwlIhVIRXzp7N-NWIBz5Ukw3XvQxhQ3Yf9zSMff9tGUBACp6xmgJrAEUXppWAVq_pjIDFBkK1uLzkVareMHQfzO9vYDOoODHGLZnMfwax9VMiTWjiKq-31_pru2xSPlXMZ-Ss-jZ3TOlJIqdo7L5-pWgsnwAcBja8Bq0ZcBzNQI4iebNB1BoWVok")' }}
                         ></div>
                         <div className="flex flex-col">
                             <h1 className="text-white text-sm font-bold leading-normal tracking-wide">
                                 {user ? `${user.firstName || ''} ${user.lastName || ''}` : 'Student'}
                             </h1>
-                            <p className="text-[#929bc9] text-xs font-normal">{user?.email || 'Loading...'}</p>
+                            <p className="text-white/60 text-xs font-normal">{user?.email || 'Loading...'}</p>
                         </div>
                     </div>
                     <button
@@ -107,7 +133,7 @@ const StudentLayout: React.FC = () => {
             {/* Main Content */}
             <main className="flex-1 flex flex-col h-full overflow-y-auto bg-background-light dark:bg-background-dark relative">
                 {/* Mobile Header Toggle */}
-                <div className="md:hidden p-4 bg-white dark:bg-[#111422] border-b border-gray-200 dark:border-[#323b67] flex items-center gap-3">
+                <div className="md:hidden p-4 bg-white dark:bg-[#094A71] border-b border-gray-200 dark:border-white/10 flex items-center gap-3">
                     <button
                         onClick={() => setIsSidebarOpen(true)}
                         className="p-2 -ml-2 text-slate-600 dark:text-white hover:bg-gray-100 dark:hover:bg-white/10 rounded-lg"

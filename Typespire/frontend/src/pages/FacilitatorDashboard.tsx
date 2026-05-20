@@ -15,11 +15,11 @@ import {
 } from 'recharts';
 
 // Define standard colors for visual consistency
-const COLORS = ['#10b981', '#3b82f6', '#8b5cf6', '#ec4899']; 
+const COLORS = ['#33B974', '#094A71', '#8b5cf6', '#ec4899']; 
 const LEVEL_COLORS = {
     level1: '#fbbf24', 
     level2: '#60a5fa', 
-    passed: '#34d399'  
+    passed: '#33B974'  
 };
 
 // Custom Tooltip for Charts
@@ -103,7 +103,7 @@ const FacilitatorDashboard: React.FC = () => {
     if (sections.length === 0) {
         return (
             <>
-                <header className="relative w-full rounded-2xl overflow-hidden bg-gradient-to-r from-emerald-600 to-teal-700 p-6 md:p-8 text-white shadow-xl glow-primary">
+                <header className="relative w-full rounded-2xl overflow-hidden bg-gradient-to-r from-primary to-secondary p-6 md:p-8 text-white shadow-xl glow-primary">
                     <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-2xl -translate-y-12 translate-x-12 pointer-events-none"></div>
                     <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
                         <div className="flex flex-col gap-2">
@@ -114,7 +114,7 @@ const FacilitatorDashboard: React.FC = () => {
                             <h1 className="text-3xl md:text-5xl font-black tracking-tight mt-1 font-heading">
                                 Welcome, {user?.firstName || 'Instructor'}!
                             </h1>
-                            <p className="text-emerald-100/90 text-sm md:text-base font-normal max-w-xl">
+                            <p className="text-white/90 text-sm md:text-base font-normal max-w-xl">
                                 You do not have any class sections assigned to you in the database yet.
                             </p>
                         </div>
@@ -137,9 +137,9 @@ const FacilitatorDashboard: React.FC = () => {
     return (
         <>
             {/* Hero Banner Header - Dynamic greeting */}
-            <header className="relative w-full rounded-2xl overflow-hidden bg-gradient-to-r from-emerald-600 to-teal-700 p-6 md:p-8 text-white shadow-xl glow-primary">
+            <header className="relative w-full rounded-2xl overflow-hidden bg-gradient-to-r from-primary to-secondary p-6 md:p-8 text-white shadow-xl glow-primary">
                 <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-2xl -translate-y-12 translate-x-12 pointer-events-none"></div>
-                <div className="absolute bottom-0 left-1/3 w-32 h-32 bg-emerald-400/20 rounded-full blur-xl pointer-events-none"></div>
+                <div className="absolute bottom-0 left-1/3 w-32 h-32 bg-secondary/20 rounded-full blur-xl pointer-events-none"></div>
                 <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
                     <div className="flex flex-col gap-2">
                         <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/20 text-white text-xs font-bold uppercase tracking-wider w-fit">
@@ -149,14 +149,14 @@ const FacilitatorDashboard: React.FC = () => {
                         <h1 className="text-3xl md:text-5xl font-black tracking-tight mt-1 font-heading">
                             Welcome back, {user?.firstName || 'Instructor'}!
                         </h1>
-                        <p className="text-emerald-100/90 text-sm md:text-base font-normal max-w-xl">
+                        <p className="text-white/90 text-sm md:text-base font-normal max-w-xl">
                             Track student coordinates, intake levels, and progress parameters in real-time.
                         </p>
                     </div>
                     <div className="flex items-center gap-4 bg-black/15 backdrop-blur-md rounded-xl p-4 border border-white/15">
                         <span className="material-symbols-outlined text-yellow-400 text-4xl animate-pulse">groups</span>
                         <div>
-                            <p className="text-xs text-emerald-200 uppercase tracking-widest font-bold">Total Supervised</p>
+                            <p className="text-xs text-white/80 uppercase tracking-widest font-bold">Total Supervised</p>
                             <p className="text-2xl font-black font-heading">{totalStudentsCount} Students</p>
                         </div>
                     </div>

@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
-import type { Student, Assignment, Section } from '../types/facilitator';
+import type { Student, Assignment, Section, AssignmentStudentResult } from '../types/facilitator';
 import { useAuth } from './AuthContext';
 import { useInstitution } from './InstitutionContext';
 import api from '../api/axios';
@@ -10,6 +10,7 @@ interface FacilitatorContextType {
     sections: Section[];
     publishAssignment: (assignment: Omit<Assignment, 'id' | 'status' | 'completionRate'>) => Promise<void>;
     submitTestResult: (studentId: string, wpm: number, accuracy: number) => void;
+    fetchAssignmentResults: (assignmentId: string) => Promise<AssignmentStudentResult[]>;
 }
 
 const FacilitatorContext = createContext<FacilitatorContextType | undefined>(undefined);
@@ -45,25 +46,52 @@ export const FacilitatorProvider: React.FC<{ children: ReactNode }> = ({ childre
 
     // Sync student directories when intakes/user changes
     useEffect(() => {
-        const mapped: Student[] = intakes.flatMap(intake => 
-            (intake.sections || [])
-                .filter(section => section.facilitator?.id === user?.id)
-                .flatMap(section => 
-                    (section.students || []).map(student => ({
-                        id: student.id,
-                        name: student.name,
-                        avatarUrl: '',
-                        major: intake.name, // Using Intake Name as cohort/major
-                        sectionId: section.id,
-                        currentWpm: 0,
-                        accuracy: 0,
-                        levelProgress: 0,
-                        status: 'On Track' as const,
-                        lastActive: 'Active'
-                    }))
-                )
-        );
-        setStudentsList(mapped);
+        const fetchStudentStats = async () => {
+            if (user?.role === 'FACILITATOR') {
+                try {
+                    const res = await api.get(`/analytics/facilitator/${user.id}`);
+                    if (res.data && res.data.students) {
+                        const mapped: Student[] = res.data.students.map((s: Record<string, any>) => ({
+                            id: s.id,
+                            name: s.name,
+                            avatarUrl: '',
+                            major: s.sectionName,
+                            sectionId: s.sectionId || '', // Mapped correctly from backend
+                            currentWpm: s.avgWpm,
+                            accuracy: s.avgAccuracy,
+                            levelProgress: s.testsTaken > 0 ? 50 : 0, // Mock progress
+                            status: s.avgWpm >= 30 ? 'On Track' : 'Needs Support',
+                            lastActive: s.lastActive ? new Date(s.lastActive).toLocaleDateString() : 'Inactive'
+                        }));
+                        setStudentsList(mapped);
+                    }
+                } catch (e) {
+                    console.error("Failed to fetch facilitator stats", e);
+                }
+            } else {
+                // Fallback for non-facilitators or if needed
+                const mapped: Student[] = intakes.flatMap(intake => 
+                    (intake.sections || [])
+                        .filter(section => section.facilitator?.id === user?.id)
+                        .flatMap(section => 
+                            (section.students || []).map(student => ({
+                                id: student.id,
+                                name: student.name,
+                                avatarUrl: '',
+                                major: intake.name,
+                                sectionId: section.id,
+                                currentWpm: 0,
+                                accuracy: 0,
+                                levelProgress: 0,
+                                status: 'On Track' as const,
+                                lastActive: 'Active'
+                            }))
+                        )
+                );
+                setStudentsList(mapped);
+            }
+        };
+        fetchStudentStats();
     }, [intakes, user]);
 
     // Fetch persistent database assignments
@@ -86,16 +114,23 @@ export const FacilitatorProvider: React.FC<{ children: ReactNode }> = ({ childre
                         status: string;
                         sectionId?: string | null;
                         studentIds?: string[];
+                        test?: {
+                            duration: number;
+                            difficulty: string;
+                        };
                     }
 
                     const mapped: Assignment[] = response.data.map((item: DBResponse) => ({
                         id: item.id,
                         title: item.title,
                         dueDate: new Date(item.dueDate).toLocaleDateString(),
+                        dueDateISO: item.dueDate, // Keep ISO for countdown timers
                         status: item.status === 'ACTIVE' ? 'Active' : 'Completed',
                         completionRate: 0,
                         sectionId: item.sectionId || undefined,
-                        studentIds: item.studentIds || []
+                        studentIds: item.studentIds || [],
+                        duration: item.test?.duration,
+                        level: item.test?.difficulty === 'HARD' ? 2 : 1
                     }));
                     setAssignments(mapped);
                 }
@@ -104,7 +139,7 @@ export const FacilitatorProvider: React.FC<{ children: ReactNode }> = ({ childre
             }
         };
 
-        // eslint-disable-next-line @typescript-eslint/no-floating-promises
+         
         fetchAssignments();
     }, [user]);
 
@@ -118,7 +153,9 @@ export const FacilitatorProvider: React.FC<{ children: ReactNode }> = ({ childre
                 title: newAssignment.title,
                 dueDate: formattedDate,
                 sectionId: newAssignment.sectionId || null,
-                studentIds: newAssignment.studentIds || []
+                studentIds: newAssignment.studentIds || [],
+                level: newAssignment.level,
+                duration: newAssignment.duration
             });
 
             interface DBResponse {
@@ -163,13 +200,24 @@ export const FacilitatorProvider: React.FC<{ children: ReactNode }> = ({ childre
         }));
     };
 
+    const fetchAssignmentResults = async (assignmentId: string): Promise<AssignmentStudentResult[]> => {
+        try {
+            const response = await api.get<AssignmentStudentResult[]>(`/test-result/assignment/${assignmentId}`);
+            return response.data;
+        } catch (error) {
+            console.error('Failed to fetch assignment results', error);
+            return [];
+        }
+    };
+
     return (
         <FacilitatorContext.Provider value={{ 
             students: studentsList, 
             assignments, 
             sections: facilitatedSections, 
             publishAssignment,
-            submitTestResult
+            submitTestResult,
+            fetchAssignmentResults
         }}>
             {children}
         </FacilitatorContext.Provider>

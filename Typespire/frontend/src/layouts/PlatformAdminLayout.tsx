@@ -28,22 +28,22 @@ const PlatformAdminLayout: React.FC = () => {
 
             {/* Sidebar Navigation */}
             <aside className={`
-                fixed lg:static inset-y-0 left-0 z-50 w-64 border-r border-[#323b67] bg-[#111422] text-white flex flex-col h-full flex-shrink-0 transition-transform duration-300 ease-in-out
+                fixed lg:static inset-y-0 left-0 z-50 w-64 border-r border-white/10 bg-[#094A71] text-white flex flex-col h-full flex-shrink-0 transition-transform duration-300 ease-in-out
                 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
             `}>
                 <div className="p-6">
                     <div className="flex items-center justify-between mb-10">
                         <div className="flex items-center gap-3">
-                            <div className="bg-primary rounded-lg p-2 flex items-center justify-center text-[#111422]">
+                            <div className="bg-secondary rounded-lg p-2 flex items-center justify-center text-white">
                                 <Keyboard className="w-5 h-5" />
                             </div>
                             <div>
                                 <h1 className="text-xl font-bold tracking-tight">Typespire</h1>
-                                <p className="text-xs text-primary uppercase tracking-widest font-bold">Super Admin</p>
+                                <p className="text-xs text-secondary uppercase tracking-widest font-bold">Super Admin</p>
                             </div>
                         </div>
                         <button
-                            className="lg:hidden text-slate-400 hover:text-white"
+                            className="lg:hidden text-white/60 hover:text-white"
                             onClick={() => setIsSidebarOpen(false)}
                         >
                             <span className="material-symbols-outlined">close</span>
@@ -53,77 +53,77 @@ const PlatformAdminLayout: React.FC = () => {
                         <Link 
                             to="/super-admin" 
                             onClick={() => setIsSidebarOpen(false)} 
-                            className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all border-l-4 ${isActive('/super-admin')
-                                ? 'bg-primary/10 text-primary border-primary'
-                                : 'text-[#929bc9] hover:text-white hover:bg-white/5 border-transparent'
+                            className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all border-l-4 group ${isActive('/super-admin')
+                                ? 'bg-white/10 text-[#33B974] border-[#33B974]'
+                                : 'text-white/90 hover:text-[#33B974] hover:bg-white/10 border-transparent hover:border-[#33B974]'
                                 }`}
                         >
-                            <Building2 className="w-5 h-5" />
+                            <Building2 className={`w-5 h-5 transition-colors ${isActive('/super-admin') ? 'text-[#33B974]' : 'text-white/70 group-hover:text-[#33B974]'}`} />
                             <span className="font-medium text-sm">Institutions</span>
                         </Link>
                         <Link 
                             to="/super-admin/analytics" 
                             onClick={() => setIsSidebarOpen(false)} 
-                            className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all border-l-4 ${isActive('/super-admin/analytics')
-                                ? 'bg-primary/10 text-primary border-primary'
-                                : 'text-[#929bc9] hover:text-white hover:bg-white/5 border-transparent'
+                            className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all border-l-4 group ${isActive('/super-admin/analytics')
+                                ? 'bg-white/10 text-[#33B974] border-[#33B974]'
+                                : 'text-white/90 hover:text-[#33B974] hover:bg-white/10 border-transparent hover:border-[#33B974]'
                                 }`}
                         >
-                            <BarChart className="w-5 h-5" />
+                            <BarChart className={`w-5 h-5 transition-colors ${isActive('/super-admin/analytics') ? 'text-[#33B974]' : 'text-white/70 group-hover:text-[#33B974]'}`} />
                             <span className="font-medium text-sm">Global Analytics</span>
                         </Link>
                         <Link 
                             to="/super-admin/billing" 
                             onClick={() => setIsSidebarOpen(false)} 
-                            className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all border-l-4 ${isActive('/super-admin/billing')
-                                ? 'bg-primary/10 text-primary border-primary'
-                                : 'text-[#929bc9] hover:text-white hover:bg-white/5 border-transparent'
+                            className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all border-l-4 group ${isActive('/super-admin/billing')
+                                ? 'bg-white/10 text-[#33B974] border-[#33B974]'
+                                : 'text-white/90 hover:text-[#33B974] hover:bg-white/10 border-transparent hover:border-[#33B974]'
                                 }`}
                         >
-                            <Receipt className="w-5 h-5" />
+                            <Receipt className={`w-5 h-5 transition-colors ${isActive('/super-admin/billing') ? 'text-[#33B974]' : 'text-white/70 group-hover:text-[#33B974]'}`} />
                             <span className="font-medium text-sm">Billing & Plans</span>
                         </Link>
                         <Link 
                             to="/super-admin/logs" 
                             onClick={() => setIsSidebarOpen(false)} 
-                            className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all border-l-4 ${isActive('/super-admin/logs')
-                                ? 'bg-primary/10 text-primary border-primary'
-                                : 'text-[#929bc9] hover:text-white hover:bg-white/5 border-transparent'
+                            className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all border-l-4 group ${isActive('/super-admin/logs')
+                                ? 'bg-white/10 text-[#33B974] border-[#33B974]'
+                                : 'text-white/90 hover:text-[#33B974] hover:bg-white/10 border-transparent hover:border-[#33B974]'
                                 }`}
                         >
-                            <ScrollText className="w-5 h-5" />
+                            <ScrollText className={`w-5 h-5 transition-colors ${isActive('/super-admin/logs') ? 'text-[#33B974]' : 'text-white/70 group-hover:text-[#33B974]'}`} />
                             <span className="font-medium text-sm">System Logs</span>
                         </Link>
                         <Link 
                             to="/super-admin/settings" 
                             onClick={() => setIsSidebarOpen(false)} 
-                            className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all border-l-4 ${isActive('/super-admin/settings')
-                                ? 'bg-primary/10 text-primary border-primary'
-                                : 'text-[#929bc9] hover:text-white hover:bg-white/5 border-transparent'
+                            className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all border-l-4 group ${isActive('/super-admin/settings')
+                                ? 'bg-white/10 text-[#33B974] border-[#33B974]'
+                                : 'text-white/90 hover:text-[#33B974] hover:bg-white/10 border-transparent hover:border-[#33B974]'
                                 }`}
                         >
-                            <Settings className="w-5 h-5" />
+                            <Settings className={`w-5 h-5 transition-colors ${isActive('/super-admin/settings') ? 'text-[#33B974]' : 'text-white/70 group-hover:text-[#33B974]'}`} />
                             <span className="font-medium text-sm">Platform Settings</span>
                         </Link>
                     </nav>
                 </div>
                 <div className="mt-auto p-4 space-y-4">
-                    <div className="bg-slate-800/40 rounded-xl p-4 border border-slate-700/60 hidden lg:block">
-                        <p className="text-xs text-slate-400 mb-1.5 uppercase font-bold tracking-wider">Server Load</p>
-                        <div className="w-full bg-slate-700/60 h-1.5 rounded-full overflow-hidden">
-                            <div className="bg-primary h-full w-[42%]"></div>
+                    <div className="bg-white/5 rounded-xl p-4 border border-white/10 hidden lg:block">
+                        <p className="text-xs text-white/60 mb-1.5 uppercase font-bold tracking-wider">Server Load</p>
+                        <div className="w-full bg-white/10 h-1.5 rounded-full overflow-hidden">
+                            <div className="bg-secondary h-full w-[42%]"></div>
                         </div>
-                        <p className="text-[10px] text-slate-400 mt-1.5 font-bold uppercase tracking-wider">Running optimally</p>
+                        <p className="text-[10px] text-white/60 mt-1.5 font-bold uppercase tracking-wider">Running optimally</p>
                     </div>
                     <div className="flex items-center gap-3 p-2">
-                        <div className="size-10 rounded-full bg-primary/20 border border-[#323b67] flex items-center justify-center text-primary font-bold">
+                        <div className="size-10 rounded-full bg-secondary/20 border border-white/10 flex items-center justify-center text-secondary font-bold">
                             {user?.firstName?.[0] || 'P'}
                         </div>
                         <div className="flex-1 overflow-hidden">
                             <p className="text-sm font-bold truncate text-white">
                                 {user ? `${user.firstName || ''} ${user.lastName || ''}` : 'Platform Admin'}
                             </p>
-                            <p className="text-xs text-[#929bc9] truncate">{user?.email || 'Loading...'}</p>
+                            <p className="text-xs text-white/60 truncate">{user?.email || 'Loading...'}</p>
                         </div>
                     </div>
                     <button
@@ -139,7 +139,7 @@ const PlatformAdminLayout: React.FC = () => {
             {/* Main Content */}
             <main className="flex-1 flex flex-col h-full overflow-y-auto bg-background-light dark:bg-background-dark relative">
                 {/* Mobile Header Toggle */}
-                <div className="lg:hidden p-4 bg-white dark:bg-[#111422] border-b border-gray-200 dark:border-[#323b67] flex items-center gap-3">
+                <div className="lg:hidden p-4 bg-white dark:bg-[#094A71] border-b border-gray-200 dark:border-white/10 flex items-center gap-3">
                     <button
                         onClick={() => setIsSidebarOpen(true)}
                         className="p-2 -ml-2 text-slate-600 dark:text-white hover:bg-gray-100 dark:hover:bg-white/10 rounded-lg"

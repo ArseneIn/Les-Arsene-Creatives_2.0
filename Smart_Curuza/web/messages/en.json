@@ -143,5 +143,130 @@
                 "plate": "Plate"
             }
         }
+    },
+    "Landing": {
+        "nav": {
+            "features": "Features",
+            "howItWorks": "How It Works",
+            "benefits": "Why Us",
+            "login": "Log In",
+            "getStarted": "Get Started Free"
+        },
+        "hero": {
+            "tagline": "The Smart Way to Run Your Shop",
+            "headline1": "Sell Smarter.",
+            "headline2": "Track Everything.",
+            "headline3": "Grow Faster.",
+            "description": "Smart-Curuza is the all-in-one POS, inventory & CRM system built for African traders. Works offline, syncs everywhere.",
+            "cta": "Start Free Today",
+            "ctaSecondary": "See How It Works",
+            "badge": "Offline-First • Mobile Ready • Built for Africa"
+        },
+        "stats": {
+            "merchants": "Merchants",
+            "transactions": "Transactions",
+            "countries": "Countries",
+            "uptime": "Uptime"
+        },
+        "howItWorks": {
+            "title": "Get Started in Minutes",
+            "subtitle": "Three simple steps to transform your business",
+            "step1Title": "Register Your Shop",
+            "step1Desc": "Create your account in under 2 minutes. Add your business name, location, and you're ready to go.",
+            "step2Title": "Add Your Products",
+            "step2Desc": "Scan barcodes or manually add inventory. Set prices, track batches, and monitor your stock levels.",
+            "step3Title": "Start Selling",
+            "step3Desc": "Process sales, accept mobile money, manage credit customers, and watch your profits grow in real time."
+        },
+        "features": {
+            "title": "Everything You Need to Run Your Business",
+            "subtitle": "Powerful tools designed for the way you already work",
+            "pos": {
+                "title": "Point of Sale",
+                "desc": "Fast checkout with barcode scanning, multiple payment methods including Mobile Money, and automatic receipt printing."
+            },
+            "inventory": {
+                "title": "Inventory & Yield Tracking",
+                "desc": "Break bulk items, track batch profitability, get low-stock alerts, and know exactly how much profit each sack earns you."
+            },
+            "crm": {
+                "title": "Customer & Debt Book",
+                "desc": "Digital 'Madeni' book to track credit sales, send SMS reminders, and build customer loyalty with points."
+            },
+            "security": {
+                "title": "Device Security",
+                "desc": "Built-in device management with kiosk mode, payment-linked auto-lock, and remote monitoring for financed devices."
+            }
+        },
+        "benefits": {
+            "title": "Why Smart-Curuza?",
+            "subtitle": "Built by Africans, for African businesses",
+            "offline": {
+                "title": "Works Offline",
+                "desc": "No internet? No problem. Sell without interruption and sync when you reconnect."
+            },
+            "mobile": {
+                "title": "Mobile Money Ready",
+                "desc": "Accept MTN & Airtel Mobile Money with instant STK Push confirmation."
+            },
+            "sync": {
+                "title": "Real-Time Sync",
+                "desc": "Your data syncs across all devices — phone, POS terminal, and web dashboard."
+            },
+            "language": {
+                "title": "Multi-Language",
+                "desc": "Use the app in English or Kinyarwanda. More languages coming soon."
+            },
+            "analytics": {
+                "title": "Business Intelligence",
+                "desc": "Revenue charts, profit margins, and daily reports to make smarter decisions."
+            },
+            "team": {
+                "title": "Team Management",
+                "desc": "Add cashiers, manage shifts, and approve team logins from your phone."
+            }
+        },
+        "testimonials": {
+            "title": "Loved by Merchants",
+            "subtitle": "See what shop owners are saying",
+            "t1": {
+                "quote": "Smart-Curuza changed how I run my shop. I know exactly what I sold, who owes me, and my daily profit — even without internet.",
+                "name": "Marie Uwimana",
+                "role": "Grocery Store Owner, Kigali"
+            },
+            "t2": {
+                "quote": "The debt tracking feature alone saved me thousands. No more forgotten credit sales. My customers respect the SMS reminders.",
+                "name": "Jean-Baptiste Habimana",
+                "role": "Electronics Dealer, Musanze"
+            },
+            "t3": {
+                "quote": "I love that it works in Kinyarwanda. My cashier picked it up on day one. The batch tracking shows me which products actually make money.",
+                "name": "Grace Mukamana",
+                "role": "Agricultural Supplies, Huye"
+            }
+        },
+        "cta": {
+            "title": "Ready to Grow Your Business?",
+            "subtitle": "Join hundreds of merchants already using Smart-Curuza to sell smarter and earn more.",
+            "button": "Create Your Free Account",
+            "note": "No credit card required • Setup in 2 minutes"
+        },
+        "footer": {
+            "tagline": "The smart way to run your shop.",
+            "product": "Product",
+            "company": "Company",
+            "support": "Support",
+            "about": "About Us",
+            "contact": "Contact",
+            "helpCenter": "Help Center",
+            "terms": "Terms of Service",
+            "privacy": "Privacy Policy",
+            "rights": "All rights reserved."
+        },
+        "mockup": {
+            "webAlt": "Smart-Curuza web dashboard showing sales analytics and inventory management",
+            "mobileAlt": "Smart-Curuza mobile POS app for processing sales on the go",
+            "crmAlt": "Smart-Curuza CRM showing customer debt tracking and loyalty points"
+        }
     }
 }

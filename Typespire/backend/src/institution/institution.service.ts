@@ -7,7 +7,7 @@ import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class InstitutionService {
-  constructor(private prisma: PrismaService) { }
+  constructor(private prisma: PrismaService) {}
 
   async create(createInstitutionDto: CreateInstitutionDto) {
     const {

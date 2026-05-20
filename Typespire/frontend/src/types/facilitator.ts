@@ -18,7 +18,12 @@ export interface Assignment {
     studentIds?: string[]; // Optional list of specific student IDs
     status: 'Active' | 'Scheduled' | 'Completed';
     dueDate: string;
+    dueDateISO?: string;     // ISO string for precise countdown computation
     completionRate: number; // 0-100
+    level?: 1 | 2;          // Test level: 1 = Standard, 2 = Survival
+    text?: string;           // Custom test text (optional, falls back to system default)
+    duration?: number;       // Duration in seconds (optional)
+    facilitatorName?: string; // Display name of assigning facilitator
 }
 
 export interface Section {
@@ -26,4 +31,18 @@ export interface Section {
     name: string;
     studentCount: number;
     avgWpm: number;
+}
+
+export interface AssignmentStudentResult {
+    userId: string;
+    firstName: string | null;
+    lastName: string | null;
+    email: string | null;
+    username: string | null;
+    attempts: number;
+    bestWpm: number;
+    bestAccuracy: number;
+    durationSec: number;
+    passed: boolean;
+    submittedAt: string;
 }

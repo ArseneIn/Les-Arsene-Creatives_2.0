@@ -6,7 +6,7 @@ import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class SectionService {
-  constructor(private prisma: PrismaService) { }
+  constructor(private prisma: PrismaService) {}
 
   create(createSectionDto: CreateSectionDto) {
     return this.prisma.section.create({
@@ -69,8 +69,14 @@ export class SectionService {
     });
   }
 
-  async generateUniqueUsername(name: string, institutionId: string): Promise<string> {
-    const base = name.toLowerCase().replace(/[^a-z0-9]/g, '.').replace(/\.+/g, '.');
+  async generateUniqueUsername(
+    name: string,
+    institutionId: string,
+  ): Promise<string> {
+    const base = name
+      .toLowerCase()
+      .replace(/[^a-z0-9]/g, '.')
+      .replace(/\.+/g, '.');
     let username = base;
     let count = 1;
     while (true) {
@@ -87,7 +93,12 @@ export class SectionService {
 
   async bulkImportStudents(
     sectionId: string,
-    students: { name: string; email?: string; username?: string; password?: string }[],
+    students: {
+      name: string;
+      email?: string;
+      username?: string;
+      password?: string;
+    }[],
   ) {
     const section = await this.prisma.section.findUnique({
       where: { id: sectionId },
@@ -128,11 +139,16 @@ export class SectionService {
           // Create new user (student)
           const rawPassword = student.password || '1234';
           const hashedPassword = await bcrypt.hash(rawPassword, 10);
-          
+
           const [firstName, ...lastNameParts] = student.name.split(' ');
           const lastName = lastNameParts.join(' ');
 
-          const username = student.username || await this.generateUniqueUsername(student.name, section.intake.institutionId);
+          const username =
+            student.username ||
+            (await this.generateUniqueUsername(
+              student.name,
+              section.intake.institutionId,
+            ));
 
           user = await this.prisma.user.create({
             data: {
@@ -174,7 +190,11 @@ export class SectionService {
     return results;
   }
 
-  async resetStudentPassword(sectionId: string, studentId: string, newPassword?: string) {
+  async resetStudentPassword(
+    sectionId: string,
+    studentId: string,
+    newPassword?: string,
+  ) {
     const student = await this.prisma.user.findFirst({
       where: {
         id: studentId,

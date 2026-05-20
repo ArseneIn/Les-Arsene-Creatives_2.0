@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { useFacilitator } from '../context/FacilitatorContext';
 import { useInstitution } from '../context/InstitutionContext';
+import type { AssignmentStudentResult } from '../types/facilitator';
 import api from '../api/axios';
 
 const FacilitatorClasses: React.FC = () => {
-    const { sections, students } = useFacilitator();
+    const { sections, students, assignments, fetchAssignmentResults } = useFacilitator();
     const { intakes } = useInstitution();
 
     const [selectedSectionId, setSelectedSectionId] = useState<string>(sections[0]?.id || '');
@@ -13,6 +14,11 @@ const FacilitatorClasses: React.FC = () => {
     const [newStudentEmail, setNewStudentEmail] = useState<string>('');
     const [resettingPasswordUserId, setResettingPasswordUserId] = useState<string | null>(null);
     const [isSaving, setIsSaving] = useState<boolean>(false);
+
+    // Reports state
+    const [expandedReportId, setExpandedReportId] = useState<string | null>(null);
+    const [reportResults, setReportResults] = useState<Record<string, AssignmentStudentResult[]>>({});
+    const [loadingReportId, setLoadingReportId] = useState<string | null>(null);
 
     // Active Section Details
     const activeSection = sections.find(s => s.id === selectedSectionId) || sections[0];
@@ -66,6 +72,27 @@ const FacilitatorClasses: React.FC = () => {
         } finally {
             setResettingPasswordUserId(null);
         }
+    };
+
+    const handleToggleReport = useCallback(async (assignmentId: string) => {
+        if (expandedReportId === assignmentId) {
+            setExpandedReportId(null);
+            return;
+        }
+        setExpandedReportId(assignmentId);
+        if (!reportResults[assignmentId]) {
+            setLoadingReportId(assignmentId);
+            const results = await fetchAssignmentResults(assignmentId);
+            setReportResults(prev => ({ ...prev, [assignmentId]: results }));
+            setLoadingReportId(null);
+        }
+    }, [expandedReportId, reportResults, fetchAssignmentResults]);
+
+    // Format seconds as mm:ss
+    const fmtDuration = (secs: number) => {
+        const m = Math.floor(secs / 60);
+        const s = secs % 60;
+        return `${m}m ${s}s`;
     };
 
     return (
@@ -192,7 +219,181 @@ const FacilitatorClasses: React.FC = () => {
                 </div>
             )}
 
+            {/* ─── Published Tests History ─────────────────────────────── */}
+            {activeSection && (() => {
+                const sectionAssignments = assignments
+                    .filter(a => a.sectionId === activeSection.id)
+                    .sort((a, b) => new Date(b.dueDateISO || b.dueDate).getTime() - new Date(a.dueDateISO || a.dueDate).getTime());
+
+                if (sectionAssignments.length === 0) return null;
+
+                // Group by date (YYYY-MM-DD)
+                const byDate: Record<string, typeof sectionAssignments> = {};
+                for (const a of sectionAssignments) {
+                    const dateKey = new Date(a.dueDateISO || a.dueDate).toLocaleDateString('en-GB', { year: 'numeric', month: 'long', day: 'numeric' });
+                    if (!byDate[dateKey]) byDate[dateKey] = [];
+                    byDate[dateKey].push(a);
+                }
+
+                return (
+                    <div className="mt-8 flex flex-col gap-4">
+                        <div className="flex items-center gap-3 border-b border-slate-100 dark:border-[#323b67]/45 pb-4">
+                            <div className="p-2.5 bg-violet-500/10 rounded-xl text-violet-600 dark:text-violet-400">
+                                <span className="material-symbols-outlined text-xl">assignment_turned_in</span>
+                            </div>
+                            <div>
+                                <h3 className="text-slate-900 dark:text-white text-lg font-black tracking-tight font-heading">Published Tests History</h3>
+                                <p className="text-slate-500 dark:text-[#929bc9] text-xs">Click any assignment to expand the full results report.</p>
+                            </div>
+                        </div>
+
+                        {Object.entries(byDate).map(([dateLabel, dateAssignments]) => (
+                            <div key={dateLabel}>
+                                <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-[#929bc9] mb-2 flex items-center gap-1.5">
+                                    <span className="material-symbols-outlined text-[14px]">calendar_today</span>
+                                    {dateLabel}
+                                </p>
+                                <div className="flex flex-col gap-3">
+                                    {dateAssignments.map(assignment => {
+                                        const isExpanded = expandedReportId === assignment.id;
+                                        const isLoading = loadingReportId === assignment.id;
+                                        const results = reportResults[assignment.id] || [];
+                                        const completedIds = new Set(results.map(r => r.userId));
+                                        const missingStudents = sectionStudents.filter(s => !completedIds.has(s.id));
+                                        const passedCount = results.filter(r => r.passed).length;
+                                        const isExpired = assignment.dueDateISO ? new Date(assignment.dueDateISO) < new Date() : false;
+
+                                        return (
+                                            <div key={assignment.id} className="bg-white dark:bg-card-dark rounded-2xl border border-slate-200 dark:border-[#323b67] overflow-hidden shadow-sm">
+                                                {/* Assignment header row — clickable */}
+                                                <button
+                                                    onClick={() => handleToggleReport(assignment.id)}
+                                                    className="w-full flex items-center justify-between p-5 hover:bg-slate-50/40 dark:hover:bg-[#323b67]/10 transition-colors text-left gap-4"
+                                                >
+                                                    <div className="flex items-center gap-3 min-w-0">
+                                                        <div className={`p-2 rounded-xl flex-shrink-0 ${isExpired ? 'bg-slate-100 dark:bg-slate-700/40 text-slate-400' : 'bg-violet-500/10 text-violet-600 dark:text-violet-400'}`}>
+                                                            <span className="material-symbols-outlined text-lg">{isExpired ? 'lock_clock' : 'quiz'}</span>
+                                                        </div>
+                                                        <div className="min-w-0">
+                                                            <p className="font-bold text-sm text-slate-900 dark:text-white truncate">{assignment.title}</p>
+                                                            <p className="text-[10px] text-slate-400 dark:text-[#929bc9] font-semibold uppercase tracking-wider">
+                                                                Level {assignment.level ?? 1} · Due {assignment.dueDate}
+                                                                {isExpired ? ' · Closed' : ' · Open'}
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                    <div className="flex items-center gap-3 flex-shrink-0">
+                                                        {isExpanded && !isLoading && (
+                                                            <div className="hidden sm:flex items-center gap-2">
+                                                                <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-[10px] font-black uppercase">
+                                                                    <span className="material-symbols-outlined text-[12px]">check_circle</span>
+                                                                    {passedCount} Passed
+                                                                </span>
+                                                                {missingStudents.length > 0 && (
+                                                                    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-rose-500/10 text-rose-600 dark:text-rose-400 text-[10px] font-black uppercase">
+                                                                        <span className="material-symbols-outlined text-[12px]">cancel</span>
+                                                                        {missingStudents.length} Missing
+                                                                    </span>
+                                                                )}
+                                                            </div>
+                                                        )}
+                                                        <span className={`material-symbols-outlined text-slate-400 transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`}>expand_more</span>
+                                                    </div>
+                                                </button>
+
+                                                {/* Expanded report */}
+                                                {isExpanded && (
+                                                    <div className="border-t border-slate-100 dark:border-[#323b67]/45">
+                                                        {isLoading ? (
+                                                            <div className="p-8 flex items-center justify-center gap-2 text-slate-400 dark:text-[#929bc9]">
+                                                                <span className="material-symbols-outlined animate-spin text-xl">progress_activity</span>
+                                                                <span className="text-sm font-semibold">Loading results...</span>
+                                                            </div>
+                                                        ) : (
+                                                            <>
+                                                                {/* Completed Students Table */}
+                                                                {results.length > 0 ? (
+                                                                    <div className="overflow-x-auto">
+                                                                        <table className="w-full text-left border-collapse min-w-[680px]">
+                                                                            <thead>
+                                                                                <tr className="bg-slate-50/70 dark:bg-[#323b67]/25 border-b border-slate-100 dark:border-[#323b67]">
+                                                                                    <th className="py-3 px-5 text-[10px] font-black uppercase tracking-wider text-slate-400 dark:text-[#929bc9] w-1/3">Student</th>
+                                                                                    <th className="py-3 px-5 text-[10px] font-black uppercase tracking-wider text-slate-400 dark:text-[#929bc9] text-center">Attempts</th>
+                                                                                    <th className="py-3 px-5 text-[10px] font-black uppercase tracking-wider text-slate-400 dark:text-[#929bc9] text-center">Best WPM</th>
+                                                                                    <th className="py-3 px-5 text-[10px] font-black uppercase tracking-wider text-slate-400 dark:text-[#929bc9] text-center">Accuracy</th>
+                                                                                    <th className="py-3 px-5 text-[10px] font-black uppercase tracking-wider text-slate-400 dark:text-[#929bc9] text-center">Duration</th>
+                                                                                    <th className="py-3 px-5 text-[10px] font-black uppercase tracking-wider text-slate-400 dark:text-[#929bc9] text-right">Result</th>
+                                                                                </tr>
+                                                                            </thead>
+                                                                            <tbody className="divide-y divide-slate-100 dark:divide-[#323b67]/45 text-sm">
+                                                                                {results.map(r => (
+                                                                                    <tr key={r.userId} className="hover:bg-slate-50/30 dark:hover:bg-[#232948]/20 transition-colors">
+                                                                                        <td className="px-5 py-3 flex items-center gap-2.5">
+                                                                                            <div className="size-8 rounded-full bg-primary/20 border border-[#323b67] flex items-center justify-center text-primary font-bold text-xs uppercase shadow-sm flex-shrink-0">
+                                                                                                {(r.firstName?.[0] || r.username?.[0] || 'S')}
+                                                                                            </div>
+                                                                                            <div>
+                                                                                                <p className="font-bold text-slate-900 dark:text-white text-sm">{[r.firstName, r.lastName].filter(Boolean).join(' ') || r.username || 'Student'}</p>
+                                                                                                <p className="text-[10px] text-slate-400 dark:text-[#929bc9]">{r.email || r.username}</p>
+                                                                                            </div>
+                                                                                        </td>
+                                                                                        <td className="px-5 py-3 text-center font-mono font-bold text-slate-700 dark:text-slate-300">{r.attempts}</td>
+                                                                                        <td className="px-5 py-3 text-center font-mono font-bold text-slate-700 dark:text-slate-300">{r.bestWpm} <span className="text-slate-400 font-normal text-xs">WPM</span></td>
+                                                                                        <td className="px-5 py-3 text-center font-mono font-bold text-slate-700 dark:text-slate-300">{r.bestAccuracy.toFixed(1)}%</td>
+                                                                                        <td className="px-5 py-3 text-center font-mono font-bold text-slate-700 dark:text-slate-300">{fmtDuration(r.durationSec)}</td>
+                                                                                        <td className="px-5 py-3 text-right">
+                                                                                            {r.passed ? (
+                                                                                                <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-[10px] font-black uppercase">
+                                                                                                    <span className="material-symbols-outlined text-[12px]">check_circle</span> Passed
+                                                                                                </span>
+                                                                                            ) : (
+                                                                                                <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 text-[10px] font-black uppercase">
+                                                                                                    <span className="material-symbols-outlined text-[12px]">pending</span> Attempted
+                                                                                                </span>
+                                                                                            )}
+                                                                                        </td>
+                                                                                    </tr>
+                                                                                ))}
+                                                                            </tbody>
+                                                                        </table>
+                                                                    </div>
+                                                                ) : (
+                                                                    <p className="p-6 text-sm text-slate-400 dark:text-[#929bc9] text-center">No submissions yet for this assignment.</p>
+                                                                )}
+
+                                                                {/* Missing Students */}
+                                                                {missingStudents.length > 0 && (
+                                                                    <div className="border-t border-slate-100 dark:border-[#323b67]/45 p-5 bg-rose-50/40 dark:bg-rose-500/5">
+                                                                        <p className="text-xs font-black uppercase tracking-widest text-rose-600 dark:text-rose-400 mb-3 flex items-center gap-1.5">
+                                                                            <span className="material-symbols-outlined text-[15px]">person_off</span>
+                                                                            {missingStudents.length} Student{missingStudents.length > 1 ? 's' : ''} — No Submission
+                                                                        </p>
+                                                                        <div className="flex flex-wrap gap-2">
+                                                                            {missingStudents.map(s => (
+                                                                                <span key={s.id} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white dark:bg-card-dark border border-rose-200 dark:border-rose-500/30 text-xs font-bold text-slate-700 dark:text-slate-300">
+                                                                                    <span className="size-5 rounded-full bg-rose-100 dark:bg-rose-500/15 text-rose-500 text-[10px] flex items-center justify-center font-black">{s.name[0]}</span>
+                                                                                    {s.name}
+                                                                                </span>
+                                                                            ))}
+                                                                        </div>
+                                                                    </div>
+                                                                )}
+                                                            </>
+                                                        )}
+                                                    </div>
+                                                )}
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                );
+            })()}
+
             {/* Modal: Add Student */}
+
             {showAddStudentModal && activeSection && (
                 <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
                     <div className="bg-white dark:bg-card-dark rounded-2xl max-w-md w-full shadow-2xl border border-slate-200 dark:border-[#323b67] overflow-hidden transform transition-all">

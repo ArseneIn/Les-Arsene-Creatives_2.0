@@ -143,5 +143,130 @@
                 "plate": "Isahani"
             }
         }
+    },
+    "Landing": {
+        "nav": {
+            "features": "Ibirimo",
+            "howItWorks": "Uko Bikora",
+            "benefits": "Kubera Iki",
+            "login": "Injira",
+            "getStarted": "Tangira Kubuntu"
+        },
+        "hero": {
+            "tagline": "Uburyo Bwiza bwo Gucuruza",
+            "headline1": "Curuza Neza.",
+            "headline2": "Kurikirana Byose.",
+            "headline3": "Kura Vuba.",
+            "description": "Smart-Curuza ni sisitemu yose hamwe y'igurisha, ububiko n'abakiliya yubatse ku bacuruzi b'Afurika. Ikora nta interineti, isangiza hose.",
+            "cta": "Tangira Kubuntu Uyu munsi",
+            "ctaSecondary": "Reba Uko Bikora",
+            "badge": "Ikora nta Interineti • Telefoni igendanwa • Yubatswe ku Bafurika"
+        },
+        "stats": {
+            "merchants": "Abacuruzi",
+            "transactions": "Ubwishyu",
+            "countries": "Ibihugu",
+            "uptime": "Igihe ikora"
+        },
+        "howItWorks": {
+            "title": "Tangira mu Minota Mike",
+            "subtitle": "Intambwe 3 zoroshye zo guhindura ubucuruzi bwawe",
+            "step1Title": "Andikisha Iduka Ryawe",
+            "step1Desc": "Fungura konti yawe mu minota 2. Ongeramo izina ry'ubucuruzi, aho uherereye, ubundi umeze neza.",
+            "step2Title": "Ongeramo Ibicuruzwa",
+            "step2Desc": "Sikana barikode cyangwa wongereho ibicuruzwa ku maboko. Shyiraho ibiciro, kurikirana ububiko, n'umubare w'ibicuruzwa.",
+            "step3Title": "Tangira Gucuruza",
+            "step3Desc": "Kora ubwishyu, Emera Mobile Money, genzura abakiliya b'ideni, urebe inyungu zawe zikura mu gihe nyacyo."
+        },
+        "features": {
+            "title": "Ibyo Ukeneye Byose kugirango Ucuruze",
+            "subtitle": "Ibikoresho bikomeye byubatswe ku buryo ukora",
+            "pos": {
+                "title": "Kwishyuza (POS)",
+                "desc": "Kwishyuza byihuse ukoresheje barikode, uburyo butandukanye bwo kwishyura harimo Mobile Money, no gucapa resiti ku buryo bwikora."
+            },
+            "inventory": {
+                "title": "Ububiko n'Inyungu",
+                "desc": "Gabanya ibicuruzwa binini, kurikirana inyungu ku bwoko, kubona impuruza z'ibicuruzwa bike, no kumenya inyungu buri mufuka ukugenerera."
+            },
+            "crm": {
+                "title": "Abakiliya n'Igitabo cy'Ideni",
+                "desc": "Igitabo cy'uburyo bwa digitale cyo gukurikirana ibigurishijwe ku deni, kohereza ubutumwa bwo kwibuka, no kubaka ubudahemuka bw'abakiliya."
+            },
+            "security": {
+                "title": "Umutekano w'Ibyuma",
+                "desc": "Igenzura ry'ibyuma ryubatsemo hamwe n'uburyo bwo gufunga, kwishyura bifunguye, no gukurikirana kure ibikoresho bifite ideni."
+            }
+        },
+        "benefits": {
+            "title": "Kubera Iki Smart-Curuza?",
+            "subtitle": "Yubatswe n'Abafurika, ku bacuruzi b'Abafurika",
+            "offline": {
+                "title": "Ikora nta Interineti",
+                "desc": "Nta interineti? Nta kibazo. Curuza udahagarikwa usangize igihe wongera guhuza."
+            },
+            "mobile": {
+                "title": "Mobile Money Imeze Neza",
+                "desc": "Emera MTN na Airtel Mobile Money bifite STK Push yo kwemeza byihuse."
+            },
+            "sync": {
+                "title": "Gusangiza mu Gihe Nyacyo",
+                "desc": "Amakuru yawe asangirwa ku byuma byose — telefoni, POS, na murandasi."
+            },
+            "language": {
+                "title": "Indimi Nyinshi",
+                "desc": "Koresha porogaramu mu Cyongereza cyangwa Ikinyarwanda. Izindi ndimi ziraje vuba."
+            },
+            "analytics": {
+                "title": "Ubumenyi bw'Ubucuruzi",
+                "desc": "Igishushanyo cy'amafaranga yinjiye, inyungu, na raporo z'iminsi kugirango ufate ibyemezo byiza."
+            },
+            "team": {
+                "title": "Gucunga Ikipe",
+                "desc": "Ongeraho abakozi, genzura ibihe by'akazi, kandi wemeze kwinjira kw'ikipe ukurikije telefoni yawe."
+            }
+        },
+        "testimonials": {
+            "title": "Ikunzwe n'Abacuruzi",
+            "subtitle": "Reba ibyo banyir'amaduka bavuga",
+            "t1": {
+                "quote": "Smart-Curuza yahinduye uko ncuruza. Nzi neza ibyo ngurishije, undi nfitiye, n'inyungu yanjye ya buri munsi — ndetse nta interineti.",
+                "name": "Marie Uwimana",
+                "role": "Nyir'iduka ry'ibiribwa, Kigali"
+            },
+            "t2": {
+                "quote": "Igikoresho cyo gukurikirana ideni cyonyine cyantunganiye ibihumbi. Nta bigurishijwe ku deni byibagiranwa. Abakiliya banjye bubaha ubutumwa bwo kwibuka.",
+                "name": "Jean-Baptiste Habimana",
+                "role": "Umucuruzi w'ibikoresho bya elegitoroniki, Musanze"
+            },
+            "t3": {
+                "quote": "Nkunda ko ikora mu Kinyarwanda. Umukozi wanjye wayimenye ku munsi wa mbere. Igenzura ry'ibicuruzwa rigaragaza ibicuruzwa bikunganira amafaranga.",
+                "name": "Grace Mukamana",
+                "role": "Ibikoresho by'ubuhinzi, Huye"
+            }
+        },
+        "cta": {
+            "title": "Witeguye Gukuza Ubucuruzi Bwawe?",
+            "subtitle": "Ifatanye n'amagana y'abacuruzi bakoresha Smart-Curuza kugirango bacuruze neza kandi binjize byinshi.",
+            "button": "Fungura Konti Yawe Kubuntu",
+            "note": "Nta karita y'amabanki isabwa • Gutangira mu minota 2"
+        },
+        "footer": {
+            "tagline": "Uburyo bwiza bwo gucuruza.",
+            "product": "Ibicuruzwa",
+            "company": "Isosiyete",
+            "support": "Ubufasha",
+            "about": "Turi Bande",
+            "contact": "Twandikire",
+            "helpCenter": "Ikigo cy'Ubufasha",
+            "terms": "Amategeko y'Ikoreshwa",
+            "privacy": "Politiki y'Ibanga",
+            "rights": "Uburenganzira bwose burarinzwe."
+        },
+        "mockup": {
+            "webAlt": "Smart-Curuza dashbord ku murandasi igaragaza imibare y'ubucuruzi no gucunga ububiko",
+            "mobileAlt": "Smart-Curuza kuri telefoni igendanwa yo gucuruza",
+            "crmAlt": "Smart-Curuza CRM igaragaza igenzura ry'ideni ry'abakiliya n'amanota y'ubudahemuka"
+        }
     }
 }

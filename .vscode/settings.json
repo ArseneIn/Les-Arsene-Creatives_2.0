@@ -31,12 +31,5 @@
             "username": "postgres"
         }
     ],
-    "java.configuration.updateBuildConfiguration": "automatic",
-    "java.import.exclusions": [
-        "**/node_modules/**",
-        "**/.git/**",
-        "**/mobile_flutter_backup/**",
-        "**/S_Curuza_2.0/**",
-        "**/mobile_temp/**"
-    ]
+    "java.configuration.updateBuildConfiguration": "automatic"
 }

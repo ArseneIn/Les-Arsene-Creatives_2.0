@@ -65,26 +65,26 @@ const Login: React.FC = () => {
     return (
         <div className="h-screen w-full grid lg:grid-cols-2 bg-background-light dark:bg-background-dark font-display overflow-hidden">
             {/* Left Side - Visual & Branding */}
-            <div className="hidden lg:flex flex-col justify-between relative bg-[#0f172a] text-white p-12 overflow-hidden">
+            <div className="hidden lg:flex flex-col justify-between relative bg-[#061824] text-white p-12 overflow-hidden">
                 {/* Background Effects */}
                 <div className="absolute inset-0 z-0">
-                    <div className="absolute inset-0 bg-[url('/assets/students_typing.png')] bg-cover bg-center opacity-20 mix-blend-overlay"></div>
-                    <div className="absolute inset-0 bg-gradient-to-br from-[#0f172a] via-[#0f172a]/95 to-primary/20"></div>
+                    <div className="absolute inset-0 bg-[url('/assets/students_typing.png')] bg-cover bg-center opacity-45 mix-blend-overlay"></div>
+                    <div className="absolute inset-0 bg-gradient-to-br from-[#061824] via-[#061824]/90 to-[#33B974]/45"></div>
                     {/* Animated shapes */}
-                    <div className="absolute top-[-10%] right-[-10%] w-[500px] h-[500px] bg-primary/10 rounded-full blur-3xl animate-pulse"></div>
-                    <div className="absolute bottom-[-10%] left-[-10%] w-[500px] h-[500px] bg-blue-500/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
+                    <div className="absolute top-[-10%] right-[-10%] w-[500px] h-[500px] bg-[#33B974]/10 rounded-full blur-3xl animate-pulse"></div>
+                    <div className="absolute bottom-[-10%] left-[-10%] w-[500px] h-[500px] bg-[#094A71]/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
                 </div>
 
                 {/* Content */}
                 <div className="relative z-10">
                     <div className="flex items-center gap-3 mb-6">
-                        <div className="bg-primary/20 p-2 rounded-lg backdrop-blur-sm border border-primary/30">
-                            <Keyboard className="text-primary w-6 h-6" />
+                        <div className="bg-[#33B974]/20 p-2 rounded-lg backdrop-blur-sm border border-[#33B974]/30">
+                            <Keyboard className="text-[#33B974] w-6 h-6" />
                         </div>
                         <h1 className="text-2xl font-bold tracking-tight text-white">Typespire</h1>
                     </div>
                     <div className="max-w-md">
-                        <h2 className="text-3xl font-bold leading-tight mb-4">Master the Art of <span className="text-primary">Professional Typing</span></h2>
+                        <h2 className="text-3xl font-bold leading-tight mb-4">Master the Art of <span className="text-[#33B974]">Professional Typing</span></h2>
                         <p className="text-slate-300 text-base leading-relaxed">
                             Join thousands of students and professionals enhancing their productivity through our advanced typing analytics and adaptive learning platform.
                         </p>
@@ -124,7 +124,7 @@ const Login: React.FC = () => {
                 <div className="w-full max-w-[420px] flex flex-col gap-6">
                     {/* Mobile Logo (visible only on small screens) */}
                     <div className="lg:hidden flex items-center gap-2 mb-2">
-                        <Keyboard className="text-primary w-8 h-8" />
+                        <Keyboard className="text-[#33B974] w-8 h-8" />
                         <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Typespire</h1>
                     </div>
 
@@ -148,7 +148,7 @@ const Login: React.FC = () => {
                                 <select
                                     value={institution}
                                     onChange={(e) => setInstitution(e.target.value)}
-                                    className="w-full pl-9 pr-4 py-2.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition-all appearance-none cursor-pointer text-sm"
+                                    className="w-full pl-9 pr-4 py-2.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-[#33B974]/50 focus:border-[#33B974] outline-none transition-all appearance-none cursor-pointer text-sm"
                                 >
                                     <option value="" disabled>Select your institution</option>
                                     {institutions.map((inst) => (
@@ -172,7 +172,7 @@ const Login: React.FC = () => {
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
                                     placeholder="Enter your ID or email"
-                                    className="w-full pl-9 pr-4 py-2.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition-all placeholder:text-slate-400 text-sm"
+                                    className="w-full pl-9 pr-4 py-2.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-[#33B974]/50 focus:border-[#33B974] outline-none transition-all placeholder:text-slate-400 text-sm"
                                     required
                                 />
                             </div>
@@ -182,7 +182,7 @@ const Login: React.FC = () => {
                         <div className="flex flex-col gap-1">
                             <div className="flex justify-between items-center">
                                 <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">Password</label>
-                                <a href="#" className="text-xs font-medium text-primary hover:text-primary/80 transition-colors">Forgot password?</a>
+                                <a href="#" className="text-xs font-medium text-[#094A71] hover:text-[#094A71]/80 transition-colors">Forgot password?</a>
                             </div>
                             <div className="relative">
                                 <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-[18px] h-[18px]" />
@@ -191,7 +191,7 @@ const Login: React.FC = () => {
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
                                     placeholder="••••••••"
-                                    className="w-full pl-9 pr-9 py-2.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition-all placeholder:text-slate-400 text-sm"
+                                    className="w-full pl-9 pr-9 py-2.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-[#33B974]/50 focus:border-[#33B974] outline-none transition-all placeholder:text-slate-400 text-sm"
                                     required
                                 />
                                 <button type="button" className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors">
@@ -202,14 +202,14 @@ const Login: React.FC = () => {
 
                         {/* Actions */}
                         <div className="flex items-center gap-2">
-                            <input type="checkbox" id="remember" className="w-3.5 h-3.5 rounded border-slate-300 text-primary focus:ring-primary" />
+                            <input type="checkbox" id="remember" className="w-3.5 h-3.5 rounded border-slate-300 text-[#33B974] focus:ring-[#33B974]" />
                             <label htmlFor="remember" className="text-xs text-slate-600 dark:text-slate-400 cursor-pointer select-none">Remember for 30 days</label>
                         </div>
 
                         <button
                             type="submit"
                             disabled={loading}
-                            className="w-full bg-primary hover:bg-primary/90 text-white font-bold py-3 rounded-lg shadow-lg shadow-primary/25 transition-all transform active:scale-[0.98] flex items-center justify-center gap-2 text-sm disabled:opacity-70 disabled:cursor-not-allowed"
+                            className="w-full bg-[#094A71] hover:bg-[#094A71]/90 text-white font-bold py-3 rounded-lg shadow-lg shadow-[#094A71]/25 transition-all transform active:scale-[0.98] flex items-center justify-center gap-2 text-sm disabled:opacity-70 disabled:cursor-not-allowed"
                         >
                             {loading ? (
                                 <span>Signing in...</span>
@@ -232,11 +232,10 @@ const Login: React.FC = () => {
                                     setEmail('student@example.com');
                                     setPassword('password123');
                                 }}
-                                className="flex flex-col items-center justify-center gap-1 p-2 rounded-lg border border-slate-200 dark:border-slate-700 hover:border-primary hover:bg-primary/5 transition-all group"
+                                className="flex flex-col items-center justify-center gap-1 p-2 rounded-lg border border-slate-200 dark:border-slate-700 hover:border-[#33B974] hover:bg-[#33B974]/5 transition-all group"
                             >
-
-                                <GraduationCap className="text-slate-400 group-hover:text-primary transition-colors w-5 h-5" />
-                                <span className="text-[10px] font-medium text-slate-600 dark:text-slate-300 group-hover:text-primary">Student</span>
+                                <GraduationCap className="text-slate-400 group-hover:text-[#33B974] transition-colors w-5 h-5" />
+                                <span className="text-[10px] font-medium text-slate-600 dark:text-slate-300 group-hover:text-[#33B974]">Student</span>
                             </button>
                             <button
                                 type="button"
@@ -244,11 +243,10 @@ const Login: React.FC = () => {
                                     setEmail('facilitator@example.com');
                                     setPassword('password123');
                                 }}
-                                className="flex flex-col items-center justify-center gap-1 p-2 rounded-lg border border-slate-200 dark:border-slate-700 hover:border-facilitator-primary hover:bg-facilitator-primary/5 transition-all group"
+                                className="flex flex-col items-center justify-center gap-1 p-2 rounded-lg border border-slate-200 dark:border-slate-700 hover:border-[#33B974] hover:bg-[#33B974]/5 transition-all group"
                             >
-
-                                <Presentation className="text-slate-400 group-hover:text-facilitator-primary transition-colors w-5 h-5" />
-                                <span className="text-[10px] font-medium text-slate-600 dark:text-slate-300 group-hover:text-facilitator-primary">Facilitator</span>
+                                <Presentation className="text-slate-400 group-hover:text-[#33B974] transition-colors w-5 h-5" />
+                                <span className="text-[10px] font-medium text-slate-600 dark:text-slate-300 group-hover:text-[#33B974]">Facilitator</span>
                             </button>
                             <button
                                 type="button"
@@ -256,11 +254,10 @@ const Login: React.FC = () => {
                                     setEmail('admin@example.com');
                                     setPassword('password123');
                                 }}
-                                className="flex flex-col items-center justify-center gap-1 p-2 rounded-lg border border-slate-200 dark:border-slate-700 hover:border-admin-primary hover:bg-admin-primary/5 transition-all group"
+                                className="flex flex-col items-center justify-center gap-1 p-2 rounded-lg border border-slate-200 dark:border-slate-700 hover:border-[#094A71] hover:bg-[#094A71]/5 transition-all group"
                             >
-
-                                <Building2 className="text-slate-400 group-hover:text-admin-primary transition-colors w-5 h-5" />
-                                <span className="text-[10px] font-medium text-slate-600 dark:text-slate-300 group-hover:text-admin-primary">Inst.</span>
+                                <Building2 className="text-slate-400 group-hover:text-[#094A71] transition-colors w-5 h-5" />
+                                <span className="text-[10px] font-medium text-slate-600 dark:text-slate-300 group-hover:text-[#094A71]">Inst.</span>
                             </button>
                             <button
                                 type="button"
@@ -269,17 +266,16 @@ const Login: React.FC = () => {
                                     setPassword('password123');
                                     setInstitution(''); // Clear institution for Super Admin
                                 }}
-                                className="flex flex-col items-center justify-center gap-1 p-2 rounded-lg border border-slate-200 dark:border-slate-700 hover:border-blue-500 hover:bg-blue-500/5 transition-all group"
+                                className="flex flex-col items-center justify-center gap-1 p-2 rounded-lg border border-slate-200 dark:border-slate-700 hover:border-[#094A71] hover:bg-[#094A71]/5 transition-all group"
                             >
-
-                                <ShieldCheck className="text-slate-400 group-hover:text-blue-500 transition-colors w-5 h-5" />
-                                <span className="text-[10px] font-medium text-slate-600 dark:text-slate-300 group-hover:text-blue-500">Admin</span>
+                                <ShieldCheck className="text-slate-400 group-hover:text-[#094A71] transition-colors w-5 h-5" />
+                                <span className="text-[10px] font-medium text-slate-600 dark:text-slate-300 group-hover:text-[#094A71]">Admin</span>
                             </button>
                         </div>
                     </div>
 
                     <p className="text-center text-xs text-slate-500 dark:text-slate-400">
-                        Don't have an account? <Link to="/register" className="font-bold text-primary hover:underline">Create an account</Link>
+                        Don't have an account? <Link to="/register" className="font-bold text-[#33B974] hover:underline">Create an account</Link>
                     </p>
                 </div>
 

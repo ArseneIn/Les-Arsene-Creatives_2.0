@@ -113,7 +113,7 @@ export const InstitutionProvider: React.FC<{ children: ReactNode }> = ({ childre
                 await fetchFacilitators(user.institutionId);
             }
         };
-        // eslint-disable-next-line @typescript-eslint/no-floating-promises
+         
         loadData();
     }, [user?.institutionId, fetchIntakes, fetchFacilitators]);
 

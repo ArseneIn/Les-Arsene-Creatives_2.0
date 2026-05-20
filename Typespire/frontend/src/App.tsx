@@ -31,6 +31,7 @@ import { InstitutionProvider } from './context/InstitutionContext';
 import { AuthProvider } from './context/AuthProvider';
 import StudentHistory from './pages/StudentHistory';
 import StudentPractice from './pages/StudentPractice';
+import StudentTests from './pages/StudentTests';
 
 import FacilitatorClasses from './pages/FacilitatorClasses';
 import FacilitatorReports from './pages/FacilitatorReports';
@@ -60,6 +61,7 @@ function App() {
                 <Route element={<RequireAuth allowedRoles={[UserRole.STUDENT]} />}>
                   <Route path="/" element={<StudentLayout />}>
                     <Route index element={<StudentDashboard />} />
+                    <Route path="tests" element={<StudentTests />} />
                     <Route path="results" element={<StudentResults />} />
                     <Route path="practice" element={<StudentPractice />} />
                     <Route path="history" element={<StudentHistory />} />

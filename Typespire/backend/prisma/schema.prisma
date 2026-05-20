@@ -101,6 +101,7 @@ model Test {
   institution   Institution? @relation(fields: [institutionId], references: [id])
   
   results       TestResult[]
+  assignments   Assignment[]
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 }
@@ -118,6 +119,9 @@ model TestResult {
   
   testId         String
   test           Test     @relation(fields: [testId], references: [id])
+  
+  assignmentId   String?
+  assignment     Assignment? @relation(fields: [assignmentId], references: [id])
 }
 
 model SystemSettings {
@@ -143,7 +147,13 @@ model Assignment {
   sectionId      String?
   section        Section?    @relation(fields: [sectionId], references: [id])
   
+  testId         String?
+  test           Test?       @relation(fields: [testId], references: [id])
+  
   studentIds     String[]    // List of targeted student IDs (optional)
+  
+  testResults    TestResult[]
+
   
   createdAt      DateTime    @default(now())
   updatedAt      DateTime    @updatedAt
