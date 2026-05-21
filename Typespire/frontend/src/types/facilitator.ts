@@ -29,6 +29,7 @@ export interface Assignment {
 export interface Section {
     id: string;
     name: string;
+    intakeName?: string;
     studentCount: number;
     avgWpm: number;
 }
