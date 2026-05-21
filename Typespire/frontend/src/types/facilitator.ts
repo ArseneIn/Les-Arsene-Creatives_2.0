@@ -23,6 +23,7 @@ export interface Assignment {
     level?: 1 | 2;          // Test level: 1 = Standard, 2 = Survival
     text?: string;           // Custom test text (optional, falls back to system default)
     duration?: number;       // Duration in seconds (optional)
+    maxAttempts?: number;    // Number of attempts allowed (optional, defaults to 1)
     facilitatorName?: string; // Display name of assigning facilitator
 }
 

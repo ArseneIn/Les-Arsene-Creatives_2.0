@@ -1,8 +1,11 @@
 import React, { useState } from 'react';
 import { Palette, Zap, CloudUpload, Plus, Building2, School, ArrowRight, Info, BadgeCheck, Eye, TrendingUp, Check, Star, Lightbulb } from 'lucide-react';
 
+import { useInstitution } from '../context/InstitutionContext';
+
 const InstitutionSettings: React.FC = () => {
     const [activeTab, setActiveTab] = useState<'branding' | 'benchmarks'>('branding');
+    const { settings, updateSettings } = useInstitution();
 
     return (
         <div className="flex-1 w-full max-w-7xl mx-auto px-6 py-8 lg:px-10">
@@ -211,7 +214,14 @@ const InstitutionSettings: React.FC = () => {
                                         <div className="absolute inset-y-0 start-0 flex items-center ps-3.5 pointer-events-none">
                                             <Zap className="text-slate-400 w-5 h-5" />
                                         </div>
-                                        <input className="bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-600 text-slate-900 dark:text-white text-sm rounded-lg focus:ring-admin-primary focus:border-admin-primary block w-full ps-10 p-2.5 font-display font-semibold" id="level1" placeholder="30" type="number" defaultValue="35" />
+                                        <input 
+                                            className="bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-600 text-slate-900 dark:text-white text-sm rounded-lg focus:ring-admin-primary focus:border-admin-primary block w-full ps-10 p-2.5 font-display font-semibold" 
+                                            id="level1" 
+                                            placeholder="30" 
+                                            type="number" 
+                                            value={settings.level1Wpm}
+                                            onChange={(e) => updateSettings({ level1Wpm: parseInt(e.target.value) || 0 })}
+                                        />
                                         <div className="absolute inset-y-0 end-0 flex items-center pe-3.5 pointer-events-none">
                                             <span className="text-sm text-slate-500 font-medium">WPM</span>
                                         </div>
@@ -231,7 +241,14 @@ const InstitutionSettings: React.FC = () => {
                                         <div className="absolute inset-y-0 start-0 flex items-center ps-3.5 pointer-events-none">
                                             <BadgeCheck className="text-emerald-600 dark:text-emerald-500 w-5 h-5" />
                                         </div>
-                                        <input className="bg-emerald-50/50 dark:bg-emerald-900/10 border border-emerald-200 dark:border-emerald-800 text-slate-900 dark:text-white text-sm rounded-lg focus:ring-emerald-500 focus:border-emerald-500 block w-full ps-10 p-2.5 font-display font-semibold shadow-sm" id="level2" placeholder="50" type="number" defaultValue="55" />
+                                        <input 
+                                            className="bg-emerald-50/50 dark:bg-emerald-900/10 border border-emerald-200 dark:border-emerald-800 text-slate-900 dark:text-white text-sm rounded-lg focus:ring-emerald-500 focus:border-emerald-500 block w-full ps-10 p-2.5 font-display font-semibold shadow-sm" 
+                                            id="level2" 
+                                            placeholder="50" 
+                                            type="number" 
+                                            value={settings.level2Wpm}
+                                            onChange={(e) => updateSettings({ level2Wpm: parseInt(e.target.value) || 0 })}
+                                        />
                                         <div className="absolute inset-y-0 end-0 flex items-center pe-3.5 pointer-events-none">
                                             <span className="text-sm text-emerald-700 dark:text-emerald-400 font-medium">WPM</span>
                                         </div>
@@ -242,9 +259,17 @@ const InstitutionSettings: React.FC = () => {
                                 <div className="pt-4 border-t border-border-light dark:border-white/10">
                                     <div className="flex justify-between items-center mb-4">
                                         <label className="text-sm font-medium text-slate-900 dark:text-white" htmlFor="accuracy">Required Accuracy</label>
-                                        <span className="text-sm font-bold text-admin-primary dark:text-white bg-blue-50 dark:bg-admin-primary/20 px-2 py-1 rounded">96%</span>
+                                        <span className="text-sm font-bold text-admin-primary dark:text-white bg-blue-50 dark:bg-admin-primary/20 px-2 py-1 rounded">{settings.requiredAccuracy}%</span>
                                     </div>
-                                    <input className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer dark:bg-slate-700 accent-admin-primary" id="accuracy" max="100" min="80" type="range" defaultValue="96" />
+                                    <input 
+                                        className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer dark:bg-slate-700 accent-admin-primary" 
+                                        id="accuracy" 
+                                        max="100" 
+                                        min="80" 
+                                        type="range" 
+                                        value={settings.requiredAccuracy}
+                                        onChange={(e) => updateSettings({ requiredAccuracy: parseInt(e.target.value) })}
+                                    />
                                     <div className="flex justify-between text-xs text-slate-400 mt-1">
                                         <span>80% (Lenient)</span>
                                         <span>100% (Strict)</span>
@@ -294,7 +319,7 @@ const InstitutionSettings: React.FC = () => {
                                                     <Check className="w-[14px] h-[14px]" />
                                                 </div>
                                                 <span className="text-[10px] font-bold text-slate-500 mt-1 uppercase tracking-wide">Lvl 1</span>
-                                                <span className="text-xs font-bold text-slate-700 dark:text-slate-300">35</span>
+                                                <span className="text-xs font-bold text-slate-700 dark:text-slate-300">{settings.level1Wpm}</span>
                                             </div>
                                         </div>
                                         {/* Level 2 Marker */}
@@ -304,7 +329,7 @@ const InstitutionSettings: React.FC = () => {
                                                     <Star className="w-[14px] h-[14px]" />
                                                 </div>
                                                 <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 mt-1 uppercase tracking-wide">Goal</span>
-                                                <span className="text-xs font-bold text-slate-700 dark:text-slate-300">55</span>
+                                                <span className="text-xs font-bold text-slate-700 dark:text-slate-300">{settings.level2Wpm}</span>
                                             </div>
                                         </div>
                                     </div>
@@ -316,7 +341,7 @@ const InstitutionSettings: React.FC = () => {
                                         <div className="text-sm">
                                             <p className="font-medium text-slate-800 dark:text-white mb-1">Keep pushing!</p>
                                             <p className="text-slate-600 dark:text-slate-400 leading-relaxed">
-                                                You've passed the <span className="font-semibold text-slate-900 dark:text-white">Level 1</span> benchmark (35 WPM). You are <span className="font-bold text-admin-primary">10 WPM</span> away from Master Status.
+                                                You've passed the <span className="font-semibold text-slate-900 dark:text-white">Level 1</span> benchmark ({settings.level1Wpm} WPM). You are <span className="font-bold text-admin-primary">{Math.max(0, settings.level2Wpm - 45)} WPM</span> away from Master Status.
                                             </p>
                                         </div>
                                     </div>

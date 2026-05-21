@@ -7,17 +7,28 @@ import { useUserProgress } from '../context/UserProgressContext';
 export const StudentTests: React.FC = () => {
     const { user } = useAuth();
     const { assignments } = useFacilitator();
-    const { stats } = useUserProgress();
+    const { stats, recentResults, isStagePassed } = useUserProgress();
     const navigate = useNavigate();
+    const [now] = React.useState(Date.now());
 
     const currentUserId = user?.id || '';
     const currentUserSectionId = user?.sectionId || '';
 
     // 1. Assigned Tests
-    const assignedTests = assignments.filter(a =>
+    const allAssignedTests = assignments.filter(a =>
         a.status === 'Active' &&
-        ((a.sectionId === currentUserSectionId) || (a.studentIds && a.studentIds.includes(currentUserId)))
+        ((a.sectionId === currentUserSectionId) || (a.studentIds && a.studentIds.includes(currentUserId))) &&
+        a.level === stats.level
     );
+
+    const pendingTests = allAssignedTests.filter(a => {
+        const isExpired = a.dueDateISO ? new Date(a.dueDateISO).getTime() < now : false;
+        const attemptsMade = recentResults.filter(r => r.assignmentId === a.id).length;
+        const isCompleted = attemptsMade >= (a.maxAttempts || 1);
+        return !isExpired && !isCompleted;
+    });
+
+
 
     // 2. Randomised Tests for current level
     const randomisedTests = useMemo(() => {
@@ -35,7 +46,7 @@ export const StudentTests: React.FC = () => {
         ];
         
         // Exclude names already assigned
-        const assignedTitles = assignedTests.map(a => a.title);
+        const assignedTitles = allAssignedTests.map(a => a.title);
         const availableNames = allPossibleNames.filter(name => !assignedTitles.includes(name || ''));
         
         // Pick 3 random tests (or less if not enough)
@@ -48,7 +59,7 @@ export const StudentTests: React.FC = () => {
             icon,
             duration: '1 minute'
         }));
-    }, [stats.level, assignedTests]);
+    }, [stats.level, allAssignedTests]);
 
     return (
         <div className="w-full py-8 px-4 sm:px-6 md:px-8 lg:px-12 flex flex-col items-center">
@@ -59,17 +70,34 @@ export const StudentTests: React.FC = () => {
                     <p className="text-slate-500 dark:text-slate-400">Complete assignments from your facilitator or take randomized 1-minute sprints to improve your metrics.</p>
                 </div>
 
-                {/* Assigned Tests Section */}
-                <section>
-                    <div className="flex items-center gap-2 mb-4">
+                {!isStagePassed('stage-12') ? (
+                    <div className="bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 rounded-2xl p-8 flex flex-col items-center justify-center text-center">
+                        <span className="material-symbols-outlined text-5xl text-red-500 mb-4">lock</span>
+                        <h2 className="text-2xl font-bold text-red-600 dark:text-red-400 mb-2">Tests Hub Locked</h2>
+                        <p className="text-red-500 dark:text-red-300 max-w-lg mb-6">
+                            You must complete all 12 stages of the <strong>Learning Path</strong> in the Practice Arena before you can access formal tests and 1-minute sprints.
+                        </p>
+                        <button
+                            onClick={() => navigate('/practice')}
+                            className="px-6 py-3 bg-red-500 hover:bg-red-600 text-white font-bold rounded-xl shadow-lg transition-colors flex items-center gap-2"
+                        >
+                            <span className="material-symbols-outlined text-xl">school</span>
+                            Go to Practice Arena
+                        </button>
+                    </div>
+                ) : (
+                    <>
+                        {/* Assigned Tests Section */}
+                        <section>
+                            <div className="flex items-center gap-2 mb-4">
                         <span className="material-symbols-outlined text-[#094A71] text-xl">assignment</span>
                         <h2 className="text-xl font-bold text-slate-800 dark:text-slate-200">Facilitator Assigned Tests</h2>
                         <span className="ml-2 inline-flex items-center justify-center px-2 py-0.5 rounded-full bg-[#094A71]/10 text-[#094A71] text-xs font-bold">
-                            {assignedTests.length} Pending
+                            {pendingTests.length} Pending
                         </span>
                     </div>
 
-                    {assignedTests.length === 0 ? (
+                    {pendingTests.length === 0 ? (
                         <div className="bg-white dark:bg-card-dark border border-slate-200 dark:border-[#323b67] rounded-xl p-8 text-center">
                             <span className="material-symbols-outlined text-4xl text-slate-300 dark:text-slate-600 mb-3">check_circle</span>
                             <h3 className="text-lg font-bold text-slate-700 dark:text-slate-300 mb-1">All caught up!</h3>
@@ -77,7 +105,7 @@ export const StudentTests: React.FC = () => {
                         </div>
                     ) : (
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                            {assignedTests.map(assignment => {
+                            {pendingTests.map(assignment => {
                                 const isLevel2 = assignment.level === 2;
                                 return (
                                     <div key={assignment.id} className={`relative rounded-xl border p-5 overflow-hidden flex flex-col gap-4 transition-all hover:shadow-lg ${
@@ -96,11 +124,16 @@ export const StudentTests: React.FC = () => {
                                             )}
                                         </div>
                                         <div className="relative z-10">
-                                            <span className={`text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full mb-2 inline-block ${
-                                                isLevel2 ? 'bg-red-100 dark:bg-red-500/15 text-red-600 dark:text-red-400' : 'bg-slate-100 dark:bg-[#323b67] text-slate-500 dark:text-slate-400'
-                                            }`}>
-                                                {isLevel2 ? 'Level 2' : 'Level 1'}
-                                            </span>
+                                            <div className="flex flex-wrap items-center gap-2 mb-2">
+                                                <span className={`text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full inline-block ${
+                                                    isLevel2 ? 'bg-red-100 dark:bg-red-500/15 text-red-600 dark:text-red-400' : 'bg-slate-100 dark:bg-[#323b67] text-slate-500 dark:text-slate-400'
+                                                }`}>
+                                                    {isLevel2 ? 'Level 2' : 'Level 1'}
+                                                </span>
+                                                <span className="text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full inline-block bg-primary/10 text-primary border border-primary/20">
+                                                    {assignment.maxAttempts ? `${assignment.maxAttempts} Attempts` : 'Unlimited Attempts'}
+                                                </span>
+                                            </div>
                                             <h3 className="font-bold text-base text-slate-900 dark:text-white mb-1 leading-tight">{assignment.title}</h3>
                                         </div>
                                         <button 
@@ -115,6 +148,8 @@ export const StudentTests: React.FC = () => {
                         </div>
                     )}
                 </section>
+
+
 
                 {/* Randomised Tests Section */}
                 <section>
@@ -156,6 +191,8 @@ export const StudentTests: React.FC = () => {
                         ))}
                     </div>
                 </section>
+                </>
+                )}
             </div>
         </div>
     );

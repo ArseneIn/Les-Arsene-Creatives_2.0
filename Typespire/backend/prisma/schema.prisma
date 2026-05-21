@@ -39,6 +39,7 @@ model User {
   facilitatedSections Section[] @relation("SectionFacilitator")
   
   testResults   TestResult[]
+  stageOverrides StudentStageRequirementOverride[]
 
   @@unique([username, institutionId])
 }
@@ -85,6 +86,7 @@ model Section {
   facilitator   User?    @relation("SectionFacilitator", fields: [facilitatorId], references: [id])
 
   assignments   Assignment[]
+  stageRequirements StageRequirement[]
 
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
@@ -157,4 +159,30 @@ model Assignment {
   
   createdAt      DateTime    @default(now())
   updatedAt      DateTime    @updatedAt
+}
+
+model StageRequirement {
+  id            String   @id @default(uuid())
+  sectionId     String
+  section       Section  @relation(fields: [sectionId], references: [id])
+  stageId       String
+  wpm           Int
+  accuracy      Float
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@unique([sectionId, stageId])
+}
+
+model StudentStageRequirementOverride {
+  id            String   @id @default(uuid())
+  studentId     String
+  student       User     @relation(fields: [studentId], references: [id])
+  stageId       String
+  wpm           Int
+  accuracy      Float
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@unique([studentId, stageId])
 }

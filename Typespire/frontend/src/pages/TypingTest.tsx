@@ -1,14 +1,13 @@
 import React, { useMemo, useState, useEffect, useRef, useCallback } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
+import { Link, useSearchParams, useNavigate } from 'react-router-dom';
 import { useTypingEngine } from '../hooks/useTypingEngine';
 import { useUserProgress } from '../context/UserProgressContext';
 import { useAuth } from '../context/AuthContext';
 import { useFacilitator } from '../context/FacilitatorContext';
 import { TypingArea } from '../components/TypingTest/TypingArea';
 import { PracticeTypingArea } from '../components/TypingTest/PracticeTypingArea';
-import { TestStats } from '../components/TypingTest/TestStats';
 import { SurvivalStrikeBar } from '../components/TypingTest/SurvivalStrikeBar';
-import { PRACTICE_STAGES_MAP, DEFAULT_TEXT } from '../data/practiceModules';
+import { PRACTICE_STAGES_MAP } from '../data/practiceModules';
 
 // ─── Level 2 complex mixed-case passage ──────────────────────────────────────
 const LEVEL2_TEXT = "The Quick brown fox ran past Mary Johnson's garden, leaving 12 footprints before sunset. Alice said Hello to Dr. Kim every single Monday. In 2024, Real Madrid won the Champions League again. James wrote: Dear Friend, Thank you for everything. Sarah visited Paris, London, and Tokyo in one summer. The river runs North, past Oak Street and into the Sea.";
@@ -18,17 +17,37 @@ const LEVEL1_TEXT = "The rapid development of digital communication has transfor
 
 const TypingTest: React.FC = () => {
     const [searchParams] = useSearchParams();
-    const { saveResult, isStageUnlocked, isStagePassed, getBenchmark, updateKeyStats } = useUserProgress();
+    const { saveResult, isStagePassed, getBenchmark, updateKeyStats, stats } = useUserProgress();
     const { user } = useAuth();
     const { submitTestResult, assignments } = useFacilitator();
+    const navigate = useNavigate();
 
     const stageId     = searchParams.get('stageId');
     const assignmentId = searchParams.get('assignmentId');
     const testLevel   = (searchParams.get('level') as '1' | '2') ?? '1';
     const customText  = searchParams.get('customText');
-    const mode        = searchParams.get('mode') ?? 'test'; // 'practice' | 'test' | 'drill'
-
+    const mode        = searchParams.get('mode') ?? 'test'; // 'practice' | 'test' | 'drill' | 'random'
     const customTitle = searchParams.get('title');
+
+    // Practice and personalized drill modes are untimed
+    const isPractice = mode === 'practice' || mode === 'drill';
+
+    // ── Security check: Must pass Stage 12 for formal tests ────────────────
+    useEffect(() => {
+        if (!isPractice && !isStagePassed('stage-12')) {
+            navigate('/practice', { replace: true });
+        }
+    }, [isPractice, isStagePassed, navigate]);
+
+    const [randomSprintText] = useState(() => {
+        const baseText = testLevel === '2' ? LEVEL2_TEXT : LEVEL1_TEXT;
+        const words = baseText.split(/\s+/).filter(w => w.length > 0);
+        for (let i = words.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [words[i], words[j]] = [words[j], words[i]];
+        }
+        return words.join(' ');
+    });
 
     // ── Resolve test configuration ─────────────────────────────────────────
     const testConfig = useMemo(() => {
@@ -48,15 +67,8 @@ const TypingTest: React.FC = () => {
 
         // Randomised 1-Minute Sprint
         if (mode === 'random') {
-            const baseText = testLevel === '2' ? LEVEL2_TEXT : LEVEL1_TEXT;
-            // Shuffle words for true randomness
-            const words = baseText.split(/\s+/).filter(w => w.length > 0);
-            for (let i = words.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [words[i], words[j]] = [words[j], words[i]];
-            }
             return {
-                text: words.join(' '),
+                text: randomSprintText,
                 duration: 60,
                 title: customTitle || `Level ${testLevel} Random Sprint`,
                 level: (testLevel === '2' ? 2 : 1) as 1 | 2,
@@ -71,23 +83,22 @@ const TypingTest: React.FC = () => {
 
         // Personalized drill from custom text
         if (customText) {
-            return { text: decodeURIComponent(customText), duration: 60, title: 'Personalized Key Drill', level: 1 as const, stageId: undefined };
+            const level = (stats?.level >= 2 ? 2 : 1) as 1 | 2;
+            return { text: decodeURIComponent(customText), duration: 60, title: 'Personalized Key Drill', level, stageId: undefined };
         }
 
         // Progressive practice stage
         if (stageId && PRACTICE_STAGES_MAP[stageId]) {
             const stage = PRACTICE_STAGES_MAP[stageId];
-            return { text: stage.practiceText, duration: stage.duration, title: stage.title, level: 1 as const, stageId };
+            const level = (stats?.level >= 2 ? 2 : 1) as 1 | 2;
+            return { text: stage.practiceText, duration: stage.duration, title: stage.title, level, stageId };
         }
 
         // Default Level 1 standard test
         return { text: LEVEL1_TEXT, duration: 120, title: 'Level 1 — Standard Proficiency Test', level: 1 as const, stageId: undefined };
-    }, [stageId, assignmentId, testLevel, customText, assignments, mode, customTitle]);
+    }, [stageId, assignmentId, testLevel, customText, assignments, mode, customTitle, stats?.level]);
 
     const isLevel2 = testConfig.level === 2;
-    // Practice and personalized drill modes are untimed
-    const isPractice = mode === 'practice' || mode === 'drill';
-
     // ── Format Text for 2x2 Grid (Practice Only) ─────────────────────────
     const formattedTargetText = useMemo(() => {
         if (!isPractice) return testConfig.text;
@@ -114,11 +125,8 @@ const TypingTest: React.FC = () => {
     }, [testConfig, isLevel2, getBenchmark]);
 
     // ── Level 2 strike system ──────────────────────────────────────────────
-    const [strikes, setStrikes] = useState(0);
     const [terminated, setTerminated] = useState(false);
-    const [screenFlash, setScreenFlash] = useState(false);
     const [showConfetti, setShowConfetti] = useState(false);
-    const prevErrorsRef = useRef(0);
     const MAX_STRIKES = 3;
 
     // ── Typing engine ──────────────────────────────────────────────────────
@@ -170,21 +178,8 @@ const TypingTest: React.FC = () => {
         return count;
     }, [userInput, testConfig.text]);
 
-    useEffect(() => {
-        if (!isLevel2 || !started) return;
-        if (currentErrors > prevErrorsRef.current) {
-            const newStrikes = Math.min(currentErrors, MAX_STRIKES);
-            setStrikes(newStrikes);
-            // TEMP DISABLED: 3-strike instant failure
-            // if (newStrikes >= MAX_STRIKES && !terminated) {
-            //     setTerminated(true);
-            //     setScreenFlash(true);
-            //     setTimeout(() => setScreenFlash(false), 600);
-            // }
-        }
-        prevErrorsRef.current = currentErrors;
-    }, [currentErrors, isLevel2, started, terminated]);
-
+    // Derived strikes
+    const strikes = isLevel2 ? Math.min(currentErrors, MAX_STRIKES) : 0;
     // ── Input handler ───────────────────────────────────────────
     const handleInput = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
         handleInputChange(e);
@@ -218,7 +213,7 @@ const TypingTest: React.FC = () => {
     const passed = wpm >= benchmark.wpm && accuracy >= benchmark.accuracy;
 
     return (
-        <div className={`text-[#0e1a13] dark:text-white transition-colors duration-200 min-h-screen font-sans relative overflow-hidden ${screenFlash ? 'animate-[flash_0.3s_ease]' : ''}`}>
+        <div className={`text-[#0e1a13] dark:text-white transition-colors duration-200 min-h-screen font-sans relative overflow-hidden`}>
             {/* Background */}
             <div className="fixed inset-0 -z-30 bg-background-light dark:bg-background-dark transition-colors duration-200" />
 
@@ -339,16 +334,16 @@ const TypingTest: React.FC = () => {
                     {/* Confetti for Level 2 victory */}
                     {showConfetti && (
                         <div className="absolute inset-0 pointer-events-none overflow-hidden">
-                            {Array.from({ length: 40 }).map((_, i) => (
+                            {confettiPieces.map((piece) => (
                                 <div
-                                    key={i}
+                                    key={piece.id}
                                     className="absolute w-2 h-2 rounded-sm animate-bounce"
                                     style={{
-                                        left: `${Math.random() * 100}%`,
-                                        top: `${Math.random() * 100}%`,
-                                        backgroundColor: ['#33B974', '#094A71', '#FFD700', '#FF6B6B', '#4ECDC4'][i % 5],
-                                        animationDelay: `${Math.random() * 1}s`,
-                                        animationDuration: `${0.5 + Math.random() * 1}s`,
+                                        left: piece.left,
+                                        top: piece.top,
+                                        backgroundColor: piece.backgroundColor,
+                                        animationDelay: piece.animationDelay,
+                                        animationDuration: piece.animationDuration,
                                     }}
                                 />
                             ))}
@@ -448,7 +443,7 @@ const TypingTest: React.FC = () => {
                         )}
                         <div className="text-right">
                             <p className="text-sm font-bold text-white">{user?.firstName ? `${user.firstName} ${user.lastName || ''}`.trim() : 'Student'}</p>
-                            <p className="text-[10px] text-white/50 uppercase">{user?.username ?? ''}</p>
+                            <p className="text-[10px] text-white/50 uppercase">{user?.email ?? ''}</p>
                         </div>
                         <div className={`w-9 h-9 rounded-full border-2 flex items-center justify-center font-bold text-sm ${isLevel2 ? 'border-red-400 bg-red-400/20 text-red-300' : 'border-[#33B974] bg-[#33B974]/20 text-[#33B974]'}`}>
                             {user?.firstName?.[0] ?? 'S'}

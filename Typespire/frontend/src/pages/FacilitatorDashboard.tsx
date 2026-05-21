@@ -57,6 +57,9 @@ const FacilitatorDashboard: React.FC = () => {
 
     // Dynamic states for accordion collapse
     const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({});
+    
+    // Filter State
+    const [selectedSectionId, setSelectedSectionId] = useState<string>('All');
 
     const toggleSection = (sectionId: string) => {
         setExpandedSections(prev => ({
@@ -65,20 +68,25 @@ const FacilitatorDashboard: React.FC = () => {
         }));
     };
 
-    // Calculate dynamic aggregates in real-time from the reactive students list
-    const totalStudentsCount = students.length;
+    // Apply Filter
+    const displayStudents = selectedSectionId === 'All' 
+        ? students 
+        : students.filter(s => s.sectionId === selectedSectionId);
+
+    // Calculate dynamic aggregates in real-time from the filtered students list
+    const totalStudentsCount = displayStudents.length;
     
     // Typing levels thresholds:
     // Level 1: < 40 WPM
     // Level 2: >= 40 and < 50 WPM
     // Passed: >= 50 WPM
-    const level1Count = students.filter(s => s.currentWpm < 40).length; 
-    const level2Count = students.filter(s => s.currentWpm >= 40 && s.currentWpm < 50).length;
-    const passedCount = students.filter(s => s.currentWpm >= 50).length;
+    const level1Count = displayStudents.filter(s => s.currentWpm < 40).length; 
+    const level2Count = displayStudents.filter(s => s.currentWpm >= 40 && s.currentWpm < 50).length;
+    const passedCount = displayStudents.filter(s => s.currentWpm >= 50).length;
 
     // Group students by intake (major) to build dynamic chart data
     const intakeGroups: Record<string, typeof students> = {};
-    students.forEach(s => {
+    displayStudents.forEach(s => {
         if (!intakeGroups[s.major]) {
             intakeGroups[s.major] = [];
         }
@@ -163,8 +171,30 @@ const FacilitatorDashboard: React.FC = () => {
                 </div>
             </header>
 
+            {/* Filter Row */}
+            <div className="flex justify-end mt-6">
+                <div className="flex items-center gap-3">
+                    <span className="text-sm font-bold text-slate-500 dark:text-[#929bc9] uppercase tracking-wider">View Data For:</span>
+                    <div className="relative">
+                        <select 
+                            value={selectedSectionId}
+                            onChange={(e) => setSelectedSectionId(e.target.value)}
+                            className="bg-white dark:bg-card-dark border border-slate-200 dark:border-[#323b67] text-slate-700 dark:text-white rounded-xl pl-4 pr-10 py-2.5 text-sm font-bold outline-none focus:border-primary/60 shadow-sm appearance-none cursor-pointer min-w-[220px]"
+                        >
+                            <option value="All">All Assigned Sections</option>
+                            {sections.map(sec => (
+                                <option key={sec.id} value={sec.id}>
+                                    {sec.intakeName ? `${sec.intakeName} - ` : ''}{sec.name}
+                                </option>
+                            ))}
+                        </select>
+                        <span className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none text-lg">expand_more</span>
+                    </div>
+                </div>
+            </div>
+
             {/* KPI Cards Row - Bind to live database calculations */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mt-6">
                 {/* Card 1: Total Students */}
                 <div className="bg-white dark:bg-card-dark rounded-2xl p-6 border border-slate-200 dark:border-[#323b67] shadow-sm flex flex-col justify-between h-36 relative overflow-hidden group hover:shadow-md transition-shadow">
                     <div className="absolute top-0 right-0 w-20 h-20 bg-primary/5 rounded-full blur-lg pointer-events-none"></div>

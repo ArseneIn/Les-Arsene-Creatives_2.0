@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useUserProgress } from '../context/UserProgressContext';
-import { PRACTICE_STAGES } from '../data/practiceModules';
+import { PRACTICE_STAGES, PRACTICE_MODULES } from '../data/practiceModules';
 import { KeyboardHeatmap } from '../components/Practice/KeyboardHeatmap';
 import { FunctionalKeyTutorial } from '../components/Practice/FunctionalKeyTutorial';
 
@@ -13,6 +13,7 @@ const StudentPractice: React.FC = () => {
     } = useUserProgress();
 
     const [showTutorial, setShowTutorial] = useState<string | null>(null);
+    const [expandedModule, setExpandedModule] = useState<string>(PRACTICE_MODULES[0]?.id || '');
 
     const handleStageClick = (stageId: string) => {
         const stage = PRACTICE_STAGES.find(s => s.id === stageId);
@@ -62,7 +63,7 @@ const StudentPractice: React.FC = () => {
                     </p>
                 </header>
 
-                <div className="grid grid-cols-1 xl:grid-cols-[1fr_380px] gap-8">
+                <div className="grid grid-cols-1 lg:grid-cols-[1fr_420px] xl:grid-cols-[1fr_500px] gap-8">
                     {/* ── LEFT: Skill Tree ── */}
                     <div className="flex flex-col gap-3">
                         <h2 className="text-base font-bold text-slate-700 dark:text-slate-300 flex items-center gap-2">
@@ -70,138 +71,137 @@ const StudentPractice: React.FC = () => {
                             Learning Path
                         </h2>
 
-                        {PRACTICE_STAGES.map((stage, index) => {
-                            const unlocked = isStageUnlocked(stage.id);
-                            const passed = isStagePassed(stage.id);
-                            const result = stageResults[stage.id];
-                            const benchmark = getBenchmark(stage.id);
-                            const isActive = unlocked && !passed;
-                            const prevStage = stage.unlockRequires
-                                ? PRACTICE_STAGES.find(s => s.id === stage.unlockRequires)
-                                : null;
+                        {PRACTICE_MODULES.map((mod, mIndex) => {
+                            const isExpanded = expandedModule === mod.id;
+                            
+                            // Check if module is fully locked (first stage locked)
+                            const firstStageLocked = !isStageUnlocked(mod.subLevels[0].id);
+                            
+                            // Calculate module progress
+                            const passedCount = mod.subLevels.filter(s => isStagePassed(s.id)).length;
+                            const progressPercent = Math.round((passedCount / mod.subLevels.length) * 100);
 
                             return (
-                                <div key={stage.id} className="flex items-stretch gap-4">
-                                    {/* Timeline connector */}
-                                    <div className="flex flex-col items-center gap-0 w-10 flex-shrink-0">
-                                        <div className={`
-                                            w-10 h-10 rounded-full border-2 flex items-center justify-center text-sm font-bold flex-shrink-0 transition-all duration-300
-                                            ${passed ? 'bg-[#33B974] border-[#33B974] text-white shadow-[0_0_12px_rgba(51,185,116,0.4)]' :
-                                              isActive ? 'bg-[#094A71] border-[#094A71] text-white shadow-[0_0_12px_rgba(9,74,113,0.4)] animate-pulse' :
-                                              'bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-400'}
-                                        `}>
-                                            {passed
-                                                ? <span className="material-symbols-outlined text-base">check</span>
-                                                : unlocked
-                                                    ? <span className="text-xs">{stage.stageNumber}</span>
-                                                    : <span className="material-symbols-outlined text-base">lock</span>
-                                            }
-                                        </div>
-                                        {index < PRACTICE_STAGES.length - 1 && (
-                                            <div className={`w-0.5 flex-1 min-h-[12px] transition-colors duration-300 ${passed ? 'bg-[#33B974]/40' : 'bg-slate-200 dark:bg-slate-700'}`} />
-                                        )}
-                                    </div>
-
-                                    {/* Stage Card */}
-                                    <div
-                                        onClick={() => handleStageClick(stage.id)}
-                                        className={`
-                                            flex-1 mb-3 p-5 rounded-2xl border transition-all duration-300 relative overflow-hidden
-                                            ${passed ? 'bg-[#33B974]/5 border-[#33B974]/20 dark:bg-[#33B974]/5 dark:border-[#33B974]/15' :
-                                              isActive ? 'bg-[#094A71]/5 border-[#094A71]/25 dark:bg-[#094A71]/10 dark:border-[#094A71]/25 cursor-pointer hover:shadow-lg hover:shadow-[#094A71]/10 hover:-translate-y-0.5' :
-                                              'bg-slate-50 dark:bg-slate-900/50 border-slate-200 dark:border-slate-800 opacity-60 cursor-not-allowed'}
-                                        `}
+                                <div key={mod.id} className="flex flex-col mb-4 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
+                                    {/* Module Header (Click to expand) */}
+                                    <div 
+                                        onClick={() => !firstStageLocked && setExpandedModule(isExpanded ? '' : mod.id)}
+                                        className={`p-5 flex items-center justify-between transition-colors ${firstStageLocked ? 'opacity-60 cursor-not-allowed bg-slate-50 dark:bg-slate-900/50' : 'cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/50'}`}
                                     >
-                                        {/* Active glow */}
-                                        {isActive && (
-                                            <div className="absolute inset-0 bg-gradient-to-r from-[#094A71]/5 to-transparent pointer-events-none" />
-                                        )}
-
-                                        <div className="flex items-start justify-between gap-4 relative z-10">
-                                            <div className="flex items-start gap-3 flex-1">
-                                                <div className={`
-                                                    p-2.5 rounded-xl flex-shrink-0
-                                                    ${passed ? 'bg-[#33B974]/10 text-[#33B974]' :
-                                                      isActive ? 'bg-[#094A71]/10 text-[#094A71]' :
-                                                      'bg-slate-100 dark:bg-slate-800 text-slate-400'}
-                                                `}>
-                                                    <span className="material-symbols-outlined text-xl">{stage.icon}</span>
-                                                </div>
-                                                <div className="flex-1 min-w-0">
-                                                    <div className="flex items-center gap-2 flex-wrap mb-1">
-                                                        <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400">
-                                                            Stage {stage.stageNumber}
-                                                        </span>
-                                                        {stage.isFunctionalKey && (
-                                                            <span className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 bg-[#094A71]/10 text-[#094A71] dark:text-[#5aacdf] rounded-full">
-                                                                Tutorial
-                                                            </span>
-                                                        )}
-                                                        {passed && (
-                                                            <span className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 bg-[#33B974]/10 text-[#33B974] rounded-full">
-                                                                ✓ Passed
-                                                            </span>
-                                                        )}
-                                                    </div>
-                                                    <h3 className={`font-bold text-sm mb-0.5 ${passed ? 'text-[#33B974]' : isActive ? 'text-[#061824] dark:text-white' : 'text-slate-400'}`}>
-                                                        {stage.title}
-                                                    </h3>
-                                                    <p className="text-xs text-slate-400 leading-relaxed line-clamp-2">{stage.description}</p>
-
-                                                    {/* Key tags */}
-                                                    {stage.keysTaught.length > 0 && (
-                                                        <div className="flex flex-wrap gap-1 mt-2">
-                                                            {stage.keysTaught.slice(0, 8).map(key => (
-                                                                <span key={key} className="text-[9px] font-mono font-bold px-1.5 py-0.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-slate-500">
-                                                                    {key}
-                                                                </span>
-                                                            ))}
-                                                            {stage.keysTaught.length > 8 && (
-                                                                <span className="text-[9px] text-slate-400">+{stage.keysTaught.length - 8} more</span>
-                                                            )}
-                                                        </div>
-                                                    )}
-                                                </div>
+                                        <div className="flex items-center gap-4">
+                                            <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${firstStageLocked ? 'bg-slate-100 dark:bg-slate-800 text-slate-400' : progressPercent === 100 ? 'bg-[#33B974]/10 text-[#33B974]' : 'bg-[#094A71]/10 text-[#094A71]'}`}>
+                                                <span className="material-symbols-outlined text-2xl">{firstStageLocked ? 'lock' : mod.icon}</span>
                                             </div>
-
-                                            {/* Right side info */}
-                                            <div className="flex-shrink-0 text-right">
-                                                {passed && result ? (
-                                                    <div className="text-right">
-                                                        <div className="text-lg font-bold text-[#33B974]">{result.bestWpm}</div>
-                                                        <div className="text-[10px] text-gray-400">WPM best</div>
-                                                        <div className="text-xs text-gray-400">{result.bestAccuracy}% acc</div>
-                                                    </div>
-                                                ) : isActive ? (
-                                                    <div className="flex items-center gap-1 text-[#094A71] font-bold text-xs bg-[#094A71]/10 px-3 py-1.5 rounded-full">
-                                                        <span>Train Now</span>
-                                                        <span className="material-symbols-outlined text-sm">arrow_forward</span>
-                                                    </div>
-                                                ) : !unlocked ? (
-                                                    <div className="text-[10px] text-slate-400 max-w-[100px] text-right leading-tight">
-                                                        Req: {benchmark.wpm} WPM<br />{benchmark.accuracy}% acc
-                                                        {prevStage && <><br />in Stage {prevStage.stageNumber}</>}
-                                                    </div>
-                                                ) : null}
+                                            <div>
+                                                <div className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Module {mod.moduleNumber}</div>
+                                                <h3 className="text-lg font-bold text-slate-900 dark:text-white">{mod.title}</h3>
                                             </div>
                                         </div>
-
-                                        {/* Progress bar for active stage */}
-                                        {result && !passed && (
-                                            <div className="mt-3 pt-3 border-t border-[#094A71]/10 relative z-10">
-                                                <div className="flex justify-between text-[10px] text-gray-400 mb-1">
-                                                    <span>Best: {result.bestWpm} WPM / {result.bestAccuracy}% acc</span>
-                                                    <span>Goal: {benchmark.wpm} WPM / {benchmark.accuracy}%</span>
+                                        
+                                        {!firstStageLocked && (
+                                            <div className="flex items-center gap-6">
+                                                <div className="hidden sm:block text-right">
+                                                    <div className="text-xs font-bold text-slate-500 mb-1">{progressPercent}% Completed</div>
+                                                    <div className="w-32 h-2 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+                                                        <div className="h-full bg-[#33B974] rounded-full transition-all" style={{ width: `${progressPercent}%` }} />
+                                                    </div>
                                                 </div>
-                                                <div className="h-1 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
-                                                    <div
-                                                        className="h-full bg-[#094A71] rounded-full transition-all duration-700"
-                                                        style={{ width: `${Math.min(100, Math.round((result.bestWpm / benchmark.wpm) * 100))}%` }}
-                                                    />
-                                                </div>
+                                                <span className={`material-symbols-outlined text-slate-400 transition-transform duration-300 ${isExpanded ? 'rotate-180' : ''}`}>
+                                                    expand_more
+                                                </span>
                                             </div>
                                         )}
                                     </div>
+
+                                    {/* Expanded SubLevels */}
+                                    {isExpanded && !firstStageLocked && (
+                                        <div className="p-5 pt-0 bg-slate-50/50 dark:bg-slate-900/30 border-t border-slate-100 dark:border-slate-800">
+                                            <div className="mt-5 flex flex-col gap-0">
+                                                {mod.subLevels.map((stage, index) => {
+                                                    const unlocked = isStageUnlocked(stage.id);
+                                                    const passed = isStagePassed(stage.id);
+                                                    const result = stageResults[stage.id];
+                                                    const benchmark = getBenchmark(stage.id);
+                                                    const isActive = unlocked && !passed;
+
+                                                    return (
+                                                        <div key={stage.id} className="flex items-stretch gap-4 relative">
+                                                            {/* Timeline connector */}
+                                                            <div className="flex flex-col items-center gap-0 w-8 flex-shrink-0 relative z-10">
+                                                                <div className={`
+                                                                    w-8 h-8 rounded-full border-2 flex items-center justify-center text-xs font-bold flex-shrink-0 transition-all duration-300 bg-white dark:bg-slate-900
+                                                                    ${passed ? 'border-[#33B974] text-[#33B974]' :
+                                                                    isActive ? 'border-[#094A71] text-[#094A71] shadow-[0_0_8px_rgba(9,74,113,0.3)] animate-pulse' :
+                                                                    'border-slate-200 dark:border-slate-700 text-slate-400'}
+                                                                `}>
+                                                                    {passed ? <span className="material-symbols-outlined text-sm">check</span> : unlocked ? stage.stageNumber.split('.')[1] : <span className="material-symbols-outlined text-sm">lock</span>}
+                                                                </div>
+                                                                {index < mod.subLevels.length - 1 && (
+                                                                    <div className={`w-0.5 flex-1 min-h-[20px] transition-colors duration-300 ${passed ? 'bg-[#33B974]/40' : 'bg-slate-200 dark:bg-slate-700'}`} />
+                                                                )}
+                                                            </div>
+
+                                                            {/* Stage Card */}
+                                                            <div
+                                                                onClick={() => handleStageClick(stage.id)}
+                                                                className={`
+                                                                    flex-1 mb-4 p-4 rounded-xl border transition-all duration-300 relative overflow-hidden bg-white dark:bg-slate-800
+                                                                    ${passed ? 'border-[#33B974]/20' :
+                                                                    isActive ? 'border-[#094A71]/30 cursor-pointer shadow-md hover:-translate-y-0.5' :
+                                                                    'border-slate-100 dark:border-slate-700 opacity-60 cursor-not-allowed'}
+                                                                `}
+                                                            >
+                                                                <div className="flex items-start justify-between gap-4">
+                                                                    <div className="flex items-start gap-3 flex-1">
+                                                                        <div className={`
+                                                                            p-2 rounded-lg flex-shrink-0
+                                                                            ${passed ? 'bg-[#33B974]/10 text-[#33B974]' :
+                                                                            isActive ? 'bg-[#094A71]/10 text-[#094A71]' :
+                                                                            'bg-slate-100 dark:bg-slate-700 text-slate-400'}
+                                                                        `}>
+                                                                            <span className="material-symbols-outlined text-lg">{stage.icon}</span>
+                                                                        </div>
+                                                                        <div className="flex-1 min-w-0">
+                                                                            <h3 className={`font-bold text-sm mb-1 ${passed ? 'text-[#33B974]' : isActive ? 'text-slate-900 dark:text-white' : 'text-slate-500'}`}>
+                                                                                {stage.title}
+                                                                            </h3>
+                                                                            <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed line-clamp-1">{stage.description}</p>
+                                                                            
+                                                                            {/* Key tags */}
+                                                                            {stage.keysTaught.length > 0 && (
+                                                                                <div className="flex flex-wrap gap-1 mt-2">
+                                                                                    {stage.keysTaught.slice(0, 5).map(key => (
+                                                                                        <span key={key} className="text-[10px] font-mono font-bold px-1.5 py-0.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded text-slate-600 dark:text-slate-300">
+                                                                                            {key.toUpperCase()}
+                                                                                        </span>
+                                                                                    ))}
+                                                                                    {stage.keysTaught.length > 5 && (
+                                                                                        <span className="text-[10px] text-slate-400">+{stage.keysTaught.length - 5}</span>
+                                                                                    )}
+                                                                                </div>
+                                                                            )}
+                                                                        </div>
+                                                                    </div>
+                                                                    <div className="flex-shrink-0 text-right flex flex-col justify-center">
+                                                                        {passed && result ? (
+                                                                            <>
+                                                                                <div className="text-sm font-bold text-[#33B974]">{result.bestWpm} WPM</div>
+                                                                                <div className="text-[10px] text-slate-400">{result.bestAccuracy}% acc</div>
+                                                                            </>
+                                                                        ) : isActive ? (
+                                                                            <div className="text-xs font-bold text-[#094A71] bg-[#094A71]/10 px-2 py-1 rounded">Train</div>
+                                                                        ) : !unlocked ? (
+                                                                            <div className="text-[10px] text-slate-400 text-right leading-tight">Req: {benchmark.wpm} WPM</div>
+                                                                        ) : null}
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    );
+                                                })}
+                                            </div>
+                                        </div>
+                                    )}
                                 </div>
                             );
                         })}
@@ -209,6 +209,14 @@ const StudentPractice: React.FC = () => {
 
                     {/* ── RIGHT: Heatmap + Smart Recommendations ── */}
                     <div className="flex flex-col gap-6">
+                        {/* Keyboard Heatmap */}
+                        <div className="bg-white dark:bg-[#0b1e2d] rounded-2xl border border-gray-100 dark:border-white/5 p-6 shadow-sm flex flex-col items-center">
+                            <div className="flex items-center gap-2 mb-6 self-start">
+                                <span className="material-symbols-outlined text-[#094A71] dark:text-[#5aacdf]">grid_on</span>
+                                <h3 className="font-bold text-[#061824] dark:text-white text-base">Key Proficiency</h3>
+                            </div>
+                            <KeyboardHeatmap keyStats={keyStats} />
+                        </div>
 
                         {/* Smart Recommendations */}
                         <div className="bg-white dark:bg-[#0b1e2d] rounded-2xl border border-gray-100 dark:border-white/5 p-6 shadow-sm">

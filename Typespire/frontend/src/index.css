@@ -108,3 +108,27 @@ h1, h2, h3, h4, h5, h6 {
   0%, 100% { background-color: transparent; }
   50%       { background-color: rgba(239, 68, 68, 0.15); }
 }
+
+/* Typing Loader Animations */
+@keyframes keyPress {
+  0%, 100% {
+    transform: translateY(0);
+    box-shadow: 0 6px 0 0 var(--shadow-color, #e2e8f0);
+  }
+  50% {
+    transform: translateY(6px);
+    box-shadow: 0 0px 0 0 var(--shadow-color, #e2e8f0);
+  }
+}
+
+.dark .key-btn {
+  --shadow-color: #1a2245; /* Darker than border to simulate depth */
+}
+
+.key-btn {
+  --shadow-color: #cbd5e1;
+  animation: keyPress 1.5s infinite cubic-bezier(0.4, 0, 0.2, 1);
+}
+.key-delay-0 { animation-delay: 0s; }
+.key-delay-1 { animation-delay: 0.2s; }
+.key-delay-2 { animation-delay: 0.4s; }

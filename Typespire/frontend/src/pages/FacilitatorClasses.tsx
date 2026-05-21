@@ -3,17 +3,20 @@ import { useFacilitator } from '../context/FacilitatorContext';
 import { useInstitution } from '../context/InstitutionContext';
 import type { AssignmentStudentResult } from '../types/facilitator';
 import api from '../api/axios';
+import { StageRequirementsModal } from '../components/Facilitator/StageRequirementsModal';
 
 const FacilitatorClasses: React.FC = () => {
     const { sections, students, assignments, fetchAssignmentResults } = useFacilitator();
     const { intakes } = useInstitution();
 
     const [selectedSectionId, setSelectedSectionId] = useState<string>(sections[0]?.id || '');
-    const [showAddStudentModal, setShowAddStudentModal] = useState<boolean>(false);
-    const [newStudentName, setNewStudentName] = useState<string>('');
-    const [newStudentEmail, setNewStudentEmail] = useState<string>('');
+    const [selectedIntake, setSelectedIntake] = useState<string>('All');
     const [resettingPasswordUserId, setResettingPasswordUserId] = useState<string | null>(null);
     const [isSaving, setIsSaving] = useState<boolean>(false);
+
+    // Curriculum Modals
+    const [showSectionCurriculum, setShowSectionCurriculum] = useState(false);
+    const [editingStudentId, setEditingStudentId] = useState<string | null>(null);
 
     // Reports state
     const [expandedReportId, setExpandedReportId] = useState<string | null>(null);
@@ -21,40 +24,16 @@ const FacilitatorClasses: React.FC = () => {
     const [loadingReportId, setLoadingReportId] = useState<string | null>(null);
 
     // Active Section Details
-    const activeSection = sections.find(s => s.id === selectedSectionId) || sections[0];
+    const filteredSections = sections.filter(s => selectedIntake === 'All' || s.intakeName === selectedIntake);
+    
+    // Ensure selected section is valid within current filter, else pick first
+    const activeSection = filteredSections.find(s => s.id === selectedSectionId) || filteredSections[0] || sections[0];
     const sectionStudents = students.filter(student => student.sectionId === (activeSection?.id || ''));
 
-    // 1. Add Student Action (calls NestJS bulk import)
-    const handleAddStudentSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        if (!activeSection) return;
+    // Unique intakes for filter
+    const uniqueIntakes = Array.from(new Set(sections.map(s => s.intakeName).filter(Boolean))) as string[];
 
-        setIsSaving(true);
-        try {
-            await api.post(`/section/${activeSection.id}/students/bulk`, {
-                students: [
-                    {
-                        name: newStudentName,
-                        email: newStudentEmail || undefined,
-                        password: '1234' // Default initial password
-                    }
-                ]
-            });
-            alert(`Successfully added ${newStudentName} to the roster!`);
-            setShowAddStudentModal(false);
-            setNewStudentName('');
-            setNewStudentEmail('');
-            // Reload page to fetch updated rosters
-            window.location.reload();
-        } catch (error) {
-            console.error('Failed to add student:', error);
-            alert('Failed to add student to this section. Please try again.');
-        } finally {
-            setIsSaving(false);
-        }
-    };
-
-    // 2. Reset Student Password Action
+    // Reset Student Password Action
     const handleResetPassword = async (studentId: string, studentName: string) => {
         if (!activeSection) return;
         const confirmReset = window.confirm(`Are you sure you want to reset the password for ${studentName} to "1234"?`);
@@ -98,41 +77,57 @@ const FacilitatorClasses: React.FC = () => {
     return (
         <>
             {/* Page Heading */}
-            <div className="flex flex-wrap justify-between items-center gap-4 border-b border-slate-200 dark:border-slate-800 pb-6 mb-8">
+            <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-6 border-b border-slate-200 dark:border-slate-800 pb-6 mb-8">
                 <div className="flex flex-col gap-1.5">
                     <h1 className="text-slate-900 dark:text-white text-3xl md:text-4xl font-black leading-tight tracking-tight font-heading">Classes & Rosters</h1>
                     <p className="text-slate-500 dark:text-[#929bc9] text-sm md:text-base font-normal">
-                        Manage your assigned class sections, enroll students, and coordinate credentials.
+                        Manage your assigned class sections and coordinate credentials.
                     </p>
                 </div>
 
-                {activeSection && (
-                    <button 
-                        onClick={() => setShowAddStudentModal(true)}
-                        className="flex items-center gap-2 px-5 py-3 rounded-xl bg-primary text-white text-sm font-bold hover:bg-emerald-600 hover-scale active-scale transition-all shadow-lg shadow-primary/20 font-heading"
-                    >
-                        <span className="material-symbols-outlined text-[18px]">person_add</span>
-                        Add Student
-                    </button>
+                {sections.length > 0 && uniqueIntakes.length > 0 && (
+                    <div className="flex flex-col sm:items-end gap-1.5 shrink-0">
+                        <span className="text-[10px] font-black text-slate-400 dark:text-[#929bc9] uppercase tracking-widest">Filter by Cohort</span>
+                        <div className="relative">
+                            <select 
+                                value={selectedIntake}
+                                onChange={(e) => setSelectedIntake(e.target.value)}
+                                className="bg-white dark:bg-card-dark border border-slate-200 dark:border-[#323b67] text-slate-700 dark:text-white rounded-xl pl-4 pr-10 py-2.5 text-sm font-bold outline-none focus:border-primary/60 shadow-sm appearance-none cursor-pointer min-w-[180px] hover:bg-slate-50 dark:hover:bg-[#232948] transition-colors"
+                            >
+                                <option value="All">All Cohorts</option>
+                                {uniqueIntakes.map(intake => (
+                                    <option key={intake} value={intake}>{intake}</option>
+                                ))}
+                            </select>
+                            <span className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none text-lg">expand_more</span>
+                        </div>
+                    </div>
                 )}
             </div>
 
             {/* Quick Section Tabs */}
             {sections.length > 0 ? (
-                <div className="flex flex-wrap gap-3 mb-8">
-                    {sections.map(section => (
-                        <button
-                            key={section.id}
-                            onClick={() => setSelectedSectionId(section.id)}
-                            className={`px-5 py-2.5 rounded-xl border text-sm font-bold transition-all hover-scale active-scale ${
-                                selectedSectionId === section.id
-                                    ? 'bg-slate-900 dark:bg-primary border-transparent text-white dark:text-[#111422] shadow-md'
-                                    : 'border-slate-200 dark:border-[#323b67] bg-white dark:bg-card-dark text-slate-600 dark:text-[#929bc9]'
-                            }`}
-                        >
-                            {section.name}
-                        </button>
-                    ))}
+                <div className="flex flex-col gap-4 mb-8">
+                    
+                    {filteredSections.length > 0 ? (
+                        <div className="flex flex-wrap gap-3">
+                            {filteredSections.map(section => (
+                                <button
+                                    key={section.id}
+                                    onClick={() => setSelectedSectionId(section.id)}
+                                    className={`px-5 py-2.5 rounded-xl border text-sm font-bold transition-all hover-scale active-scale ${
+                                        (activeSection?.id === section.id)
+                                            ? 'bg-slate-900 dark:bg-primary border-transparent text-white dark:text-[#111422] shadow-md'
+                                            : 'border-slate-200 dark:border-[#323b67] bg-white dark:bg-card-dark text-slate-600 dark:text-[#929bc9]'
+                                    }`}
+                                >
+                                    {section.name}
+                                </button>
+                            ))}
+                        </div>
+                    ) : (
+                        <div className="text-sm text-slate-500 dark:text-[#929bc9] py-4">No sections match the selected cohort.</div>
+                    )}
                 </div>
             ) : (
                 <div className="bg-white dark:bg-card-dark rounded-2xl border border-slate-200 dark:border-[#323b67] shadow-sm p-12 flex flex-col items-center justify-center min-h-[300px]">
@@ -151,13 +146,23 @@ const FacilitatorClasses: React.FC = () => {
                 <div className="bg-white dark:bg-card-dark rounded-2xl border border-slate-200 dark:border-[#323b67] shadow-sm overflow-hidden flex flex-col">
                     <div className="p-6 border-b border-slate-100 dark:border-[#323b67]/45 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-slate-50/40 dark:bg-[#323b67]/10">
                         <div>
-                            <h3 className="text-slate-900 dark:text-white text-lg font-black tracking-tight font-heading">{activeSection.name}</h3>
+                            <div className="flex items-center gap-2 mb-1">
+                                <h3 className="text-slate-900 dark:text-white text-lg font-black tracking-tight font-heading">{activeSection.name}</h3>
+                                {activeSection.intakeName && (
+                                    <span className="px-2 py-0.5 rounded-md bg-blue-500/10 text-blue-600 dark:text-blue-400 text-[10px] font-black uppercase tracking-wider border border-blue-500/20">
+                                        {activeSection.intakeName}
+                                    </span>
+                                )}
+                            </div>
                             <p className="text-slate-500 dark:text-[#929bc9] text-xs font-normal">Active enrollment list and metrics coordinates.</p>
                         </div>
                         <div className="flex gap-2">
                             <span className="inline-flex px-3 py-1 rounded-full bg-slate-100 dark:bg-[#323b67] text-slate-600 dark:text-[#929bc9] text-xs font-bold border border-slate-200/50 dark:border-[#323b67]/50 uppercase">
                                 {sectionStudents.length} Students Enrolled
                             </span>
+                            <button onClick={() => setShowSectionCurriculum(true)} className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-600 font-bold text-xs uppercase hover:bg-emerald-500/20 transition-colors cursor-pointer">
+                                <span className="material-symbols-outlined text-[14px]">tune</span> Curriculum
+                            </button>
                         </div>
                     </div>
 
@@ -193,7 +198,14 @@ const FacilitatorClasses: React.FC = () => {
                                         <td className="px-6 py-4 text-center font-bold text-slate-700 dark:text-slate-300 font-mono">
                                             {student.accuracy > 0 ? `${student.accuracy}%` : '--'}
                                         </td>
-                                        <td className="px-6 py-4 text-right">
+                                        <td className="px-6 py-4 text-right flex justify-end gap-2">
+                                            <button
+                                                onClick={() => setEditingStudentId(student.id)}
+                                                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-bold rounded-lg border border-slate-200 dark:border-[#323b67] text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-all hover-scale active-scale"
+                                            >
+                                                <span className="material-symbols-outlined text-[15px]">settings_accessibility</span>
+                                                Overrides
+                                            </button>
                                             <button
                                                 disabled={resettingPasswordUserId === student.id}
                                                 onClick={() => handleResetPassword(student.id, student.name)}
@@ -209,7 +221,7 @@ const FacilitatorClasses: React.FC = () => {
                                 {sectionStudents.length === 0 && (
                                     <tr>
                                         <td colSpan={5} className="px-6 py-12 text-center text-slate-400 dark:text-slate-500 font-medium">
-                                            No student records are currently enrolled in this section. Click "Add Student" to expand your class roster!
+                                            No student records are currently enrolled in this section. Enrollments are managed by administrators.
                                         </td>
                                     </tr>
                                 )}
@@ -392,72 +404,20 @@ const FacilitatorClasses: React.FC = () => {
                 );
             })()}
 
-            {/* Modal: Add Student */}
+            <StageRequirementsModal 
+                isOpen={showSectionCurriculum}
+                onClose={() => setShowSectionCurriculum(false)}
+                sectionId={activeSection?.id}
+                title={`Curriculum: ${activeSection?.name}`}
+            />
 
-            {showAddStudentModal && activeSection && (
-                <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-                    <div className="bg-white dark:bg-card-dark rounded-2xl max-w-md w-full shadow-2xl border border-slate-200 dark:border-[#323b67] overflow-hidden transform transition-all">
-                        <div className="p-6 border-b border-slate-100 dark:border-[#323b67]/45 flex justify-between items-center bg-slate-50/40 dark:bg-[#323b67]/10">
-                            <div className="flex items-center gap-2 text-slate-900 dark:text-white">
-                                <span className="material-symbols-outlined text-primary text-xl font-bold">person_add</span>
-                                <h3 className="font-black text-lg tracking-tight font-heading">Enroll New Student</h3>
-                            </div>
-                            <button 
-                                onClick={() => setShowAddStudentModal(false)}
-                                className="p-1 rounded-lg text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-                            >
-                                <span className="material-symbols-outlined text-[20px]">close</span>
-                            </button>
-                        </div>
-                        <form onSubmit={handleAddStudentSubmit} className="p-6 flex flex-col gap-5">
-                            <p className="text-xs text-slate-400 dark:text-[#929bc9] leading-relaxed">
-                                Add a student to **{activeSection.name}**. By default, their password will be initialized to **"1234"**, which they can customize upon their first login.
-                            </p>
+            <StageRequirementsModal 
+                isOpen={!!editingStudentId}
+                onClose={() => setEditingStudentId(null)}
+                studentId={editingStudentId || undefined}
+                title={`Overrides: ${sectionStudents.find(s => s.id === editingStudentId)?.name || 'Student'}`}
+            />
 
-                            <div className="flex flex-col gap-1.5">
-                                <label className="text-xs font-bold text-slate-400 dark:text-[#929bc9] uppercase tracking-wider">Full Name</label>
-                                <input
-                                    required
-                                    type="text"
-                                    placeholder="e.g. Mary Jane"
-                                    value={newStudentName}
-                                    onChange={(e) => setNewStudentName(e.target.value)}
-                                    className="w-full rounded-xl bg-slate-50 dark:bg-[#232948] border border-slate-200 dark:border-[#323b67] text-slate-900 dark:text-white py-3 px-4 text-sm font-semibold outline-none focus:border-primary/60"
-                                />
-                            </div>
-
-                            <div className="flex flex-col gap-1.5">
-                                <label className="text-xs font-bold text-slate-400 dark:text-[#929bc9] uppercase tracking-wider">Email Address (Optional)</label>
-                                <input
-                                    type="email"
-                                    placeholder="e.g. mary@example.com"
-                                    value={newStudentEmail}
-                                    onChange={(e) => setNewStudentEmail(e.target.value)}
-                                    className="w-full rounded-xl bg-slate-50 dark:bg-[#232948] border border-slate-200 dark:border-[#323b67] text-slate-900 dark:text-white py-3 px-4 text-sm font-semibold outline-none focus:border-primary/60"
-                                />
-                            </div>
-
-                            <div className="flex gap-3 justify-end mt-2">
-                                <button
-                                    type="button"
-                                    onClick={() => setShowAddStudentModal(false)}
-                                    className="px-5 py-3 rounded-xl border border-slate-350 dark:border-[#323b67] text-slate-700 dark:text-slate-350 text-xs font-bold hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors font-heading"
-                                >
-                                    Cancel
-                                </button>
-                                <button
-                                    required
-                                    disabled={isSaving}
-                                    type="submit"
-                                    className="px-5 py-3 rounded-xl bg-primary text-white text-xs font-bold hover:bg-emerald-600 transition-colors font-heading shadow-md shadow-primary/10"
-                                >
-                                    {isSaving ? 'Enrolling...' : 'Enroll Student'}
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            )}
             <div className="h-20"></div>
         </>
     );

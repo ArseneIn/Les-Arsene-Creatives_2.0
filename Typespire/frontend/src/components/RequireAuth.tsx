@@ -2,6 +2,7 @@ import React from 'react';
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { UserRole } from '../types/auth';
+import TypingLoader from './common/TypingLoader';
 
 interface RequireAuthProps {
     allowedRoles: UserRole[];
@@ -12,11 +13,7 @@ const RequireAuth: React.FC<RequireAuthProps> = ({ allowedRoles }) => {
     const location = useLocation();
 
     if (isLoading) {
-        return (
-            <div className="flex items-center justify-center h-screen bg-slate-50 dark:bg-slate-900">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
-            </div>
-        );
+        return <TypingLoader />;
     }
 
     if (!isAuthenticated || !user) {

@@ -4,9 +4,17 @@ import { useAuth } from './AuthContext';
 import type { Intake, Facilitator } from '../types/institution';
 
 
+interface InstitutionSettings {
+    level1Wpm: number;
+    level2Wpm: number;
+    requiredAccuracy: number;
+}
+
 interface InstitutionContextType {
     intakes: Intake[];
     facilitators: Facilitator[];
+    settings: InstitutionSettings;
+    updateSettings: (newSettings: Partial<InstitutionSettings>) => void;
     addIntake: (intake: Intake) => void;
     addSection: (intakeId: string, sectionName: string) => void;
     assignFacilitatorToSection: (sectionId: string, facilitatorId: string) => Promise<void>;
@@ -18,6 +26,18 @@ export const InstitutionProvider: React.FC<{ children: ReactNode }> = ({ childre
     const { user } = useAuth();
     const [intakes, setIntakes] = useState<Intake[]>([]);
     const [facilitators, setFacilitators] = useState<Facilitator[]>([]);
+    
+    // Default system benchmarks
+    const [settings, setSettings] = useState<InstitutionSettings>({
+        level1Wpm: 30,
+        level2Wpm: 50,
+        requiredAccuracy: 95
+    });
+
+    const updateSettings = (newSettings: Partial<InstitutionSettings>) => {
+        setSettings(prev => ({ ...prev, ...newSettings }));
+        // TODO: In a real app, also sync this to the backend `api.put('/institution/settings', newSettings)`
+    };
 
     const fetchIntakes = useCallback(async (institutionId: string) => {
         try {
@@ -168,7 +188,7 @@ export const InstitutionProvider: React.FC<{ children: ReactNode }> = ({ childre
     };
 
     return (
-        <InstitutionContext.Provider value={{ intakes, facilitators, addIntake, addSection, assignFacilitatorToSection }}>
+        <InstitutionContext.Provider value={{ intakes, facilitators, settings, updateSettings, addIntake, addSection, assignFacilitatorToSection }}>
             {children}
         </InstitutionContext.Provider>
     );

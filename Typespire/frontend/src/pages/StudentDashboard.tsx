@@ -15,17 +15,22 @@ import { useFacilitator } from '../context/FacilitatorContext';
 import { useAuth } from '../context/AuthContext';
 
 const StudentDashboard: React.FC = () => {
-    const { stats, recentResults } = useUserProgress();
+    const { stats, recentResults, isStagePassed } = useUserProgress();
     const { assignments } = useFacilitator();
     const { user } = useAuth();
 
     const currentUserId = user?.id || '';
     const currentUserSectionId = user?.sectionId || '';
+    const [now] = useState(Date.now());
 
     const [sectionInfo, setSectionInfo] = useState<{ sectionName: string, intakeName: string } | null>(null);
 
     // Live countdowns: map of assignmentId -> seconds remaining
     const [countdowns, setCountdowns] = useState<Record<string, number>>({});
+    
+    // Pagination for recent activity
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 5;
 
     useEffect(() => {
         if (currentUserSectionId) {
@@ -41,25 +46,35 @@ const StudentDashboard: React.FC = () => {
     }, [currentUserSectionId]);
 
     // All active assignments for this student — memoised to avoid infinite re-render
-    const studentAssignments = useMemo(() => assignments.filter(a =>
+    const allStudentAssignments = useMemo(() => assignments.filter(a =>
         a.status === 'Active' &&
         (
             (a.sectionId === currentUserSectionId) ||
             (a.studentIds && a.studentIds.includes(currentUserId))
-        )
-    ), [assignments, currentUserSectionId, currentUserId]);
+        ) &&
+        a.level === stats.level
+    ), [assignments, currentUserSectionId, currentUserId, stats.level]);
+
+    const activePendingAssignments = useMemo(() => {
+        return allStudentAssignments.filter(a => {
+            const isExpired = a.dueDateISO ? new Date(a.dueDateISO).getTime() < now : false;
+            const attemptsMade = recentResults.filter(r => r.assignmentId === a.id).length;
+            const isCompleted = attemptsMade >= (a.maxAttempts || 1);
+            return !isExpired && !isCompleted;
+        });
+    }, [allStudentAssignments, recentResults, now]);
 
     // Initialise countdowns from dueDateISO
     useEffect(() => {
         const initial: Record<string, number> = {};
-        for (const a of studentAssignments) {
+        for (const a of activePendingAssignments) {
             if (a.dueDateISO) {
                 const diff = Math.floor((new Date(a.dueDateISO).getTime() - Date.now()) / 1000);
                 initial[a.id] = diff;
             }
         }
         setCountdowns(initial);
-    }, [studentAssignments]);
+    }, [activePendingAssignments]);
 
     // Tick every second
     useEffect(() => {
@@ -73,7 +88,7 @@ const StudentDashboard: React.FC = () => {
         return () => clearInterval(interval);
     }, []);
 
-    const latestAssignment = studentAssignments[0] ?? null;
+    const latestAssignment = activePendingAssignments[0] ?? null;
 
     // Map recent results to chart data
     const chartData = useMemo(() => {
@@ -95,6 +110,12 @@ const StudentDashboard: React.FC = () => {
             };
         });
     }, [recentResults]);
+
+    const totalPages = Math.ceil(recentResults.length / itemsPerPage) || 1;
+    const paginatedResults = useMemo(() => {
+        const start = (currentPage - 1) * itemsPerPage;
+        return recentResults.slice(start, start + itemsPerPage);
+    }, [recentResults, currentPage]);
 
     return (
         <div className="w-full py-8 px-4 sm:px-6 md:px-8 lg:px-12 flex flex-col items-center">
@@ -135,20 +156,35 @@ const StudentDashboard: React.FC = () => {
                 </header>
 
                 {/* ── Assigned Tests Section ── */}
-                {studentAssignments.length > 0 && (
+                {!isStagePassed('stage-12') ? (
+                    <div className="bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 rounded-2xl p-8 flex flex-col items-center justify-center text-center">
+                        <span className="material-symbols-outlined text-5xl text-red-500 mb-4">lock</span>
+                        <h2 className="text-2xl font-bold text-red-600 dark:text-red-400 mb-2">Assignments Locked</h2>
+                        <p className="text-red-500 dark:text-red-300 max-w-lg mb-6">
+                            You must complete all 12 stages of the <strong>Learning Path</strong> before you can access any assigned tasks.
+                        </p>
+                        <button
+                            onClick={() => window.location.href = '/practice'}
+                            className="px-6 py-3 bg-red-500 hover:bg-red-600 text-white font-bold rounded-xl shadow-lg transition-colors flex items-center gap-2"
+                        >
+                            <span className="material-symbols-outlined text-xl">school</span>
+                            Go to Practice Arena
+                        </button>
+                    </div>
+                ) : activePendingAssignments.length > 0 ? (
                     <section>
                         <div className="flex items-center justify-between mb-3">
                             <h2 className="text-base font-bold text-slate-700 dark:text-slate-300 flex items-center gap-2">
                                 <span className="material-symbols-outlined text-[#094A71] text-lg">assignment</span>
                                 Assigned Tests
                                 <span className="ml-1 inline-flex items-center justify-center w-5 h-5 rounded-full bg-[#094A71] text-white text-[10px] font-black">
-                                    {studentAssignments.length}
+                                    {activePendingAssignments.length}
                                 </span>
                             </h2>
                             <Link to="/practice" className="text-xs text-[#33B974] font-bold hover:underline">Go to Practice →</Link>
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            {studentAssignments.map(assignment => {
+                            {activePendingAssignments.map(assignment => {
                                 const isLevel2 = assignment.level === 2;
                                 const secsLeft = countdowns[assignment.id] ?? null;
                                 // Only lock if dueDateISO exists and time has passed
@@ -206,6 +242,12 @@ const StudentDashboard: React.FC = () => {
                                                             {formatCountdown(secsLeft)}
                                                         </span>
                                                     )}
+                                                    {/* Attempts indicator */}
+                                                    {!isExpired && (
+                                                        <span className="text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full inline-block bg-primary/10 text-primary border border-primary/20">
+                                                            {assignment.maxAttempts ? `${assignment.maxAttempts} Attempts` : 'Unlimited Attempts'}
+                                                        </span>
+                                                    )}
                                                 </div>
                                                 <h3 className="font-bold text-sm text-[#061824] dark:text-white truncate mb-0.5">{assignment.title}</h3>
                                                 <p className="text-xs text-gray-400">
@@ -239,7 +281,7 @@ const StudentDashboard: React.FC = () => {
                             })}
                         </div>
                     </section>
-                )}
+                ) : null}
 
                 {/* Top Row: Action & Stats */}
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -269,11 +311,11 @@ const StudentDashboard: React.FC = () => {
                                 </p>
                             </div>
                             <Link 
-                                to={latestAssignment ? `/test?assignmentId=${latestAssignment.id}` : "/practice"} 
-                                className="w-full md:w-auto shrink-0 flex items-center justify-center gap-2 bg-primary hover:bg-emerald-600 text-white font-bold py-3.5 px-7 rounded-xl transition-all duration-200 shadow-lg shadow-primary/20 hover-scale active-scale font-heading"
+                                to={!isStagePassed('stage-12') ? "/practice" : latestAssignment ? `/test?assignmentId=${latestAssignment.id}` : "/practice"} 
+                                className={`w-full md:w-auto shrink-0 flex items-center justify-center gap-2 ${!isStagePassed('stage-12') ? 'bg-red-500 hover:bg-red-600' : 'bg-primary hover:bg-emerald-600'} text-white font-bold py-3.5 px-7 rounded-xl transition-all duration-200 shadow-lg shadow-primary/20 hover-scale active-scale font-heading`}
                             >
-                                <span className="material-symbols-outlined text-[20px]">{latestAssignment ? 'play_arrow' : 'keyboard'}</span>
-                                <span>{latestAssignment ? 'Start Assignment' : 'Go to Practice'}</span>
+                                <span className="material-symbols-outlined text-[20px]">{!isStagePassed('stage-12') ? 'lock' : latestAssignment ? 'play_arrow' : 'keyboard'}</span>
+                                <span>{!isStagePassed('stage-12') ? 'Go to Practice' : latestAssignment ? 'Start Assignment' : 'Go to Practice'}</span>
                             </Link>
                         </div>
                     </div>
@@ -405,7 +447,7 @@ const StudentDashboard: React.FC = () => {
                                 </tr>
                             </thead>
                             <tbody className="text-sm">
-                                {recentResults.map((result) => (
+                                {paginatedResults.map((result) => (
                                     <tr key={result.id} className="group border-b border-slate-100 dark:border-[#323b67]/50 hover:bg-slate-50 dark:hover:bg-[#232948] transition-colors">
                                         <td className="py-4 px-4 text-slate-600 dark:text-slate-300 font-medium">{result.date}</td>
                                         <td className="py-4 px-4 font-bold text-slate-900 dark:text-white">{result.testName}</td>
@@ -434,6 +476,30 @@ const StudentDashboard: React.FC = () => {
                             </tbody>
                         </table>
                     </div>
+                    {/* Pagination Controls */}
+                    {totalPages > 1 && (
+                        <div className="flex items-center justify-between mt-4 pt-4 border-t border-slate-100 dark:border-[#323b67]">
+                            <div className="text-sm text-slate-500 dark:text-[#929bc9]">
+                                Showing <span className="font-bold text-slate-700 dark:text-white">{((currentPage - 1) * itemsPerPage) + 1}</span> to <span className="font-bold text-slate-700 dark:text-white">{Math.min(currentPage * itemsPerPage, recentResults.length)}</span> of <span className="font-bold text-slate-700 dark:text-white">{recentResults.length}</span> results
+                            </div>
+                            <div className="flex gap-2">
+                                <button 
+                                    onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                                    disabled={currentPage === 1}
+                                    className="px-3 py-1.5 rounded-lg border border-slate-200 dark:border-[#323b67] text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-[#232948] disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm font-bold flex items-center gap-1"
+                                >
+                                    <span className="material-symbols-outlined text-sm">chevron_left</span> Prev
+                                </button>
+                                <button 
+                                    onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                                    disabled={currentPage === totalPages}
+                                    className="px-3 py-1.5 rounded-lg border border-slate-200 dark:border-[#323b67] text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-[#232948] disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm font-bold flex items-center gap-1"
+                                >
+                                    Next <span className="material-symbols-outlined text-sm">chevron_right</span>
+                                </button>
+                            </div>
+                        </div>
+                    )}
                 </div>
             </div>
         </div>

@@ -1,21 +1,109 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useFacilitator } from '../context/FacilitatorContext';
 import { useInstitution } from '../context/InstitutionContext';
 
+const MOCK_LIBRARY_TEXTS = [
+    {
+        id: 'lib_1',
+        title: 'The Velveteen Rabbit',
+        source: 'Margery Williams',
+        level: 1,
+        complexity: 'Easy',
+        wordCount: 182,
+        estimatedTimeMin: 2,
+        coverImg: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBsB8B_l7JsRKngrUdfsAzNU1zSIoGhomjQppoX23ANXPj0fpcqv4v-NZCM89bj04YLo3Q9LY3zyyGXZ_1IfEo98_5tg9CNmzrAu-gvEbD6ZFrpQYjD_L_Y5YvDvw2m5ZCDc1Hugl2G8GGfIsEJJyri6JjdBno5uZWoEGJpT9b9v_-gatn-gRlKdLfDZdHxJVsOz3jQBS2iWOQw-xKMVaF9C1cQjwIXx1XdOK5rKhNXYQ16zJDgnN0lpLBRwJ0niHTidyWRr3SjoN9J',
+        excerpt: '"What is REAL?" asked the Rabbit one day, when they were lying side by side near the nursery fender...',
+        content: '"What is REAL?" asked the Rabbit one day, when they were lying side by side near the nursery fender...'
+    },
+    {
+        id: 'lib_2',
+        title: 'The Scale of the Universe',
+        source: 'NASA Science',
+        level: 1,
+        complexity: 'Medium',
+        wordCount: 345,
+        estimatedTimeMin: 3,
+        coverImg: 'https://lh3.googleusercontent.com/aida-public/AB6AXuC8-rmXu2ZtPul-xNuKjMxc7Q0pTR2COZUn8EQ6Pn22RALtntDwVBzHOkuS3FEDpjuEUqqZFi6r3scVmZJnx6II9ti_Nx6IRPO-FM7QmuiDkn_jWbiAbeXXiwyRApBiGIpG3xS7niw8MGsrKLbk5CkIGdBdG8FGzuY8Ls6OqAgk_G4iCmLU2T1JT50_LpmyvlhEmTkeCor3mGYalKar9ACq_2Q2jzZTXJx0VB4rUSWAEMb9aq6iDhGBudg0AbN8c7eVi4RhxmX4hiFv',
+        excerpt: 'The universe is vast beyond comprehension. To understand its scale, we must first look at our own solar system as a mere speck...',
+        content: 'The universe is vast beyond comprehension. To understand its scale, we must first look at our own solar system as a mere speck...'
+    },
+    {
+        id: 'lib_3',
+        title: 'Introduction to Python',
+        source: 'Technical Typing',
+        level: 2,
+        complexity: 'Hard',
+        wordCount: 410,
+        estimatedTimeMin: 5,
+        coverImg: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCskkYe5oA8piZHk9uIAyymNvBfIx0JZOIBZrosWzW7lClN_mXpawD3BQW435OmrAy70YSt0mYeLrysWHZxs6EF5emh-CuDF9Wt3BAIoByo9Uidkh0OvknKQLIqdvl-78G-7kuJKaBIx55Af8Z_9ZtN12g4u6ZNMjL_2TcbI4QAGY-zo8v2o5Me8lex33TXxyP7ZqKqDQ0LhOrctikV_ma_N8eEcZi8-fuXEEnmyLJBdQ0UeUL2Ok7v1gfpqWgFB-Xjq_bST9nX1FAk',
+        excerpt: 'def calculate_area(radius): return 3.14159 * radius ** 2. This function demonstrates basic syntax in Python...',
+        content: 'def calculate_area(radius): return 3.14159 * radius ** 2. This function demonstrates basic syntax in Python...'
+    },
+    {
+        id: 'lib_4',
+        title: 'Cybersecurity Principles',
+        source: 'InfoSec Basics',
+        level: 2,
+        complexity: 'Hard',
+        wordCount: 380,
+        estimatedTimeMin: 4,
+        coverImg: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCskkYe5oA8piZHk9uIAyymNvBfIx0JZOIBZrosWzW7lClN_mXpawD3BQW435OmrAy70YSt0mYeLrysWHZxs6EF5emh-CuDF9Wt3BAIoByo9Uidkh0OvknKQLIqdvl-78G-7kuJKaBIx55Af8Z_9ZtN12g4u6ZNMjL_2TcbI4QAGY-zo8v2o5Me8lex33TXxyP7ZqKqDQ0LhOrctikV_ma_N8eEcZi8-fuXEEnmyLJBdQ0UeUL2Ok7v1gfpqWgFB-Xjq_bST9nX1FAk',
+        excerpt: 'Authentication, Authorization, and Accounting (AAA) form the core of any secure system architecture...',
+        content: 'Authentication, Authorization, and Accounting (AAA) form the core of any secure system architecture...'
+    }
+];
+
 const FacilitatorTestLaunch: React.FC = () => {
     const navigate = useNavigate();
-    const { publishAssignment, students } = useFacilitator();
-    const { intakes } = useInstitution();
+    const { publishAssignment, students, sections } = useFacilitator();
+    const { settings } = useInstitution();
 
-    const [selectedText, setSelectedText] = useState('The Velveteen Rabbit');
+    const [testLevel, setTestLevel] = useState<1 | 2>(1);
+    
+    // Library vs Custom Mode
+    const [sourceMode, setSourceMode] = useState<'library' | 'custom'>('library');
+    const [selectedLibraryId, setSelectedLibraryId] = useState<string>('lib_1');
+    const [searchQuery, setSearchQuery] = useState('');
+    
+    // Custom Text State
+    const [customTitle, setCustomTitle] = useState('');
+    const [customContent, setCustomContent] = useState('');
+
     const [targetSection, setTargetSection] = useState('');
     const [assignmentMode, setAssignmentMode] = useState<'section' | 'students'>('section');
     const [selectedStudentIds, setSelectedStudentIds] = useState<string[]>([]);
     const [timeLimit, setTimeLimit] = useState('1');
     const [allowedTrials, setAllowedTrials] = useState('');
-    const [testLevel, setTestLevel] = useState<1 | 2>(1);
     const [accessWindow, setAccessWindow] = useState('1440'); // default: 1 day in minutes
+    
+    const [successPopup, setSuccessPopup] = useState<{show: boolean, count: number}>({show: false, count: 0});
+
+    // Derived states
+    const filteredLibrary = useMemo(() => {
+        return MOCK_LIBRARY_TEXTS.filter(t => 
+            t.level === testLevel && 
+            t.title.toLowerCase().includes(searchQuery.toLowerCase())
+        );
+    }, [testLevel, searchQuery]);
+
+    const activeLibraryText = MOCK_LIBRARY_TEXTS.find(t => t.id === selectedLibraryId);
+    
+    // Reset selection if test level changes and current selection doesn't match
+    React.useEffect(() => {
+        const firstMatch = MOCK_LIBRARY_TEXTS.find(t => t.level === testLevel);
+        if (firstMatch) {
+            setSelectedLibraryId(firstMatch.id);
+        }
+    }, [testLevel]);
+
+    const customWordCount = useMemo(() => {
+        return customContent.trim() ? customContent.trim().split(/\s+/).length : 0;
+    }, [customContent]);
+
+    const customEstimatedTime = useMemo(() => {
+        return Math.max(1, Math.ceil(customWordCount / 40));
+    }, [customWordCount]);
 
     const handlePublish = (e: React.FormEvent) => {
         e.preventDefault();
@@ -30,20 +118,98 @@ const FacilitatorTestLaunch: React.FC = () => {
             return;
         }
 
+        // Ensure we have a payload
+        let finalTitle = '';
+        let finalContent = '';
+
+        if (sourceMode === 'library') {
+            if (!activeLibraryText) return alert("Please select a library text.");
+            finalTitle = activeLibraryText.title;
+            finalContent = activeLibraryText.content;
+        } else {
+            if (!customTitle.trim() || !customContent.trim()) {
+                return alert("Please provide a Title and Text for your Custom Assignment.");
+            }
+            if (customWordCount < 10) {
+                return alert("Custom text must be at least 10 words long.");
+            }
+            finalTitle = customTitle;
+            finalContent = customContent;
+        }
+
+        let finalStudentIds: string[] | undefined = undefined;
+        let finalSectionId: string | undefined = undefined;
+
+        if (assignmentMode === 'section') {
+            finalSectionId = targetSection;
+            // BUSINESS LOGIC:
+            // - Beginners (Practicing) = Level 0
+            // - Completed Practice = Level 1
+            // - High Performers = Level 2
+            const eligibleStudents = students.filter(s => {
+                if (s.sectionId !== targetSection) return false;
+                
+                let studentLevel = 0; // Beginner
+
+                // If they have completed practice (mocked via levelProgress) or met the school's Level 1 threshold
+                if (s.levelProgress >= 100 || s.currentWpm >= settings.level1Wpm) {
+                    studentLevel = 1;
+                }
+                
+                // If they have met the school's Level 2 threshold
+                if (s.currentWpm >= settings.level2Wpm) {
+                    studentLevel = 2;
+                }
+
+                // Strictly match the test level being assigned
+                return studentLevel === testLevel;
+            });
+
+            if (eligibleStudents.length === 0) {
+                alert(`Cannot publish. No students in this section match Level ${testLevel} criteria.`);
+                return;
+            }
+            finalStudentIds = eligibleStudents.map(s => s.id);
+        } else {
+            finalStudentIds = selectedStudentIds;
+        }
+
         publishAssignment({
-            title: selectedText,
-            sectionId: assignmentMode === 'section' ? targetSection : undefined,
-            studentIds: assignmentMode === 'students' ? selectedStudentIds : undefined,
-            dueDate: new Date(Date.now() + parseInt(accessWindow) * 60 * 1000).toISOString(), // access window in minutes
+            title: finalTitle,
+            text: finalContent,
+            sectionId: finalSectionId,
+            studentIds: finalStudentIds,
+            dueDate: new Date(Date.now() + parseInt(accessWindow) * 60 * 1000).toISOString(),
             level: testLevel,
             duration: timeLimit === '0' ? 0 : parseInt(timeLimit) * 60,
+            maxAttempts: allowedTrials ? parseInt(allowedTrials) : undefined
         });
 
-        navigate('/facilitator');
+        setSuccessPopup({ show: true, count: finalStudentIds.length });
     };
 
     return (
         <>
+            {successPopup.show && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#061824]/80 backdrop-blur-sm animate-in fade-in duration-300">
+                    <div className="bg-white dark:bg-[#0b1e2d] p-8 rounded-3xl shadow-2xl max-w-sm w-full text-center border border-white/10 animate-in zoom-in-95 duration-300">
+                        <div className="inline-flex h-20 w-20 items-center justify-center rounded-full mb-5 bg-[#33B974]/10 text-[#33B974]">
+                            <span className="material-symbols-outlined text-5xl">check_circle</span>
+                        </div>
+                        <h2 className="text-2xl font-bold mb-2 text-slate-900 dark:text-white">Published Successfully</h2>
+                        <p className="text-slate-500 dark:text-slate-400 mb-6">
+                            This assignment has been successfully dispatched to <strong className="text-slate-900 dark:text-white">{successPopup.count}</strong> eligible students.
+                        </p>
+                        <button
+                            onClick={() => navigate('/facilitator')}
+                            className="w-full bg-[#094A71] hover:bg-[#094A71]/90 text-white font-bold py-3 rounded-xl transition-all shadow-lg"
+                        >
+                            Return to Dashboard
+                        </button>
+                    </div>
+                </div>
+            )}
+
             {/* Breadcrumbs */}
             <div className="flex flex-wrap gap-2 text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-[#929bc9]">
                 <Link to="/facilitator" className="hover:text-primary transition-colors">Dashboard</Link>
@@ -66,146 +232,141 @@ const FacilitatorTestLaunch: React.FC = () => {
                     {/* Tabs */}
                     <div className="border-b border-slate-200 dark:border-[#323b67]">
                         <div className="flex gap-6">
-                            <button className="flex items-center gap-2 border-b-2 border-primary text-slate-900 dark:text-white pb-3 px-1 font-bold text-sm transition-all">
+                            <button 
+                                onClick={() => setSourceMode('library')}
+                                className={`flex items-center gap-2 border-b-2 pb-3 px-1 font-bold text-sm transition-all ${sourceMode === 'library' ? 'border-primary text-slate-900 dark:text-white' : 'border-transparent text-slate-400 dark:text-[#929bc9] hover:text-slate-900 dark:hover:text-white'}`}
+                            >
                                 <span className="material-symbols-outlined text-lg">library_books</span>
                                 <span>Text Library</span>
                             </button>
-                            <button className="flex items-center gap-2 border-b-2 border-transparent text-slate-400 dark:text-[#929bc9] hover:text-slate-900 dark:hover:text-white pb-3 px-1 font-bold text-sm transition-all">
+                            <button 
+                                onClick={() => setSourceMode('custom')}
+                                className={`flex items-center gap-2 border-b-2 pb-3 px-1 font-bold text-sm transition-all ${sourceMode === 'custom' ? 'border-primary text-slate-900 dark:text-white' : 'border-transparent text-slate-400 dark:text-[#929bc9] hover:text-slate-900 dark:hover:text-white'}`}
+                            >
                                 <span className="material-symbols-outlined text-lg">edit_note</span>
                                 <span>Custom Text</span>
                             </button>
                         </div>
                     </div>
 
-                    {/* Search Bar */}
-                    <div className="flex flex-col gap-3">
-                        <div className="relative flex w-full items-stretch rounded-xl border border-slate-200 dark:border-[#323b67] bg-white dark:bg-card-dark focus-within:border-primary/60 transition-all p-1 shadow-sm">
-                            <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 dark:text-[#929bc9] text-[20px]">search</span>
-                            <input 
-                                className="w-full pl-11 pr-4 py-2.5 bg-transparent text-slate-900 dark:text-white focus:outline-0 placeholder:text-slate-400 dark:placeholder:text-[#929bc9] text-sm font-normal" 
-                                placeholder="Search library texts by title, author, or keywords..." 
-                            />
-                        </div>
-                        <div className="flex flex-wrap gap-2 items-center text-xs font-bold text-slate-400 dark:text-[#929bc9]">
-                            <span className="uppercase tracking-wider">Filters:</span>
-                            <span className="bg-slate-100 dark:bg-[#323b67] text-slate-600 dark:text-slate-200 px-3 py-1 rounded-full cursor-pointer hover:bg-primary/20 dark:hover:bg-primary/20 transition-all">Fiction</span>
-                            <span className="bg-slate-100 dark:bg-[#323b67] text-slate-600 dark:text-slate-200 px-3 py-1 rounded-full cursor-pointer hover:bg-primary/20 dark:hover:bg-primary/20 transition-all">Science</span>
-                            <span className="bg-slate-100 dark:bg-[#323b67] text-slate-600 dark:text-slate-200 px-3 py-1 rounded-full cursor-pointer hover:bg-primary/20 dark:hover:bg-primary/20 transition-all">History</span>
-                        </div>
-                    </div>
+                    {sourceMode === 'library' ? (
+                        <>
+                            {/* Search Bar */}
+                            <div className="flex flex-col gap-3">
+                                <div className="relative flex w-full items-stretch rounded-xl border border-slate-200 dark:border-[#323b67] bg-white dark:bg-card-dark focus-within:border-primary/60 transition-all p-1 shadow-sm">
+                                    <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 dark:text-[#929bc9] text-[20px]">search</span>
+                                    <input 
+                                        value={searchQuery}
+                                        onChange={e => setSearchQuery(e.target.value)}
+                                        className="w-full pl-11 pr-4 py-2.5 bg-transparent text-slate-900 dark:text-white focus:outline-0 placeholder:text-slate-400 dark:placeholder:text-[#929bc9] text-sm font-normal" 
+                                        placeholder={`Search Level ${testLevel} library texts by title...`}
+                                    />
+                                </div>
+                            </div>
 
-                    {/* Library Content List - Remade as premium cards matching Practice Arena */}
-                    <div className="flex flex-col gap-4">
-                        <p className="text-xs font-black text-slate-400 dark:text-[#929bc9] uppercase tracking-widest mb-1">Recommended Library Texts</p>
-                        
-                        {/* Card 1 (Selected) */}
-                        <div
-                            onClick={() => setSelectedText('The Velveteen Rabbit')}
-                            className={`relative group flex flex-col sm:flex-row gap-5 p-5 rounded-2xl border transition-all duration-300 cursor-pointer hover-scale active-scale shadow-sm hover:shadow-md ${
-                                selectedText === 'The Velveteen Rabbit' 
-                                        ? 'border-primary bg-primary/5 dark:bg-primary/5' 
-                                        : 'border-slate-200 dark:border-[#323b67] bg-white dark:bg-card-dark'
-                            }`}
-                        >
-                            {selectedText === 'The Velveteen Rabbit' && (
-                                <div className="absolute top-4 right-4">
-                                    <div className="w-6 h-6 rounded-full bg-primary flex items-center justify-center text-[#111422] shadow-sm">
-                                        <span className="material-symbols-outlined text-sm font-black">check</span>
+                            {/* Library Content List */}
+                            <div className="flex flex-col gap-4">
+                                <div className="flex justify-between items-center mb-1">
+                                    <p className="text-xs font-black text-slate-400 dark:text-[#929bc9] uppercase tracking-widest">Level {testLevel} Recommended Texts</p>
+                                    <span className="text-[10px] font-bold bg-slate-100 dark:bg-[#323b67] text-slate-500 dark:text-[#929bc9] px-2 py-0.5 rounded-full">{filteredLibrary.length} available</span>
+                                </div>
+                                
+                                {filteredLibrary.map(test => (
+                                    <div
+                                        key={test.id}
+                                        onClick={() => setSelectedLibraryId(test.id)}
+                                        className={`relative group flex flex-col sm:flex-row gap-5 p-5 rounded-2xl border transition-all duration-300 cursor-pointer hover-scale active-scale shadow-sm hover:shadow-md ${
+                                            selectedLibraryId === test.id 
+                                                    ? 'border-primary bg-primary/5 dark:bg-primary/5' 
+                                                    : 'border-slate-200 dark:border-[#323b67] bg-white dark:bg-card-dark'
+                                        }`}
+                                    >
+                                        {selectedLibraryId === test.id && (
+                                            <div className="absolute top-4 right-4">
+                                                <div className="w-6 h-6 rounded-full bg-primary flex items-center justify-center text-[#111422] shadow-sm">
+                                                    <span className="material-symbols-outlined text-sm font-black">check</span>
+                                                </div>
+                                            </div>
+                                        )}
+                                        <div
+                                            className="w-16 h-16 sm:w-20 sm:h-20 shrink-0 rounded-xl bg-slate-100 dark:bg-[#323b67] bg-cover bg-center border border-slate-200/50 dark:border-[#323b67]/50 shadow-sm"
+                                            style={{ backgroundImage: `url('${test.coverImg}')` }}
+                                        ></div>
+                                        <div className="flex flex-col gap-1.5 flex-1 pr-8">
+                                            <h3 className="text-slate-900 dark:text-white font-bold text-lg group-hover:text-primary transition-colors duration-200 tracking-tight font-heading">{test.title}</h3>
+                                            <p className="text-slate-400 dark:text-[#929bc9] text-xs font-semibold">by {test.source}</p>
+                                            <div className="flex flex-wrap items-center gap-3.5 mt-2">
+                                                <span className={`text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full shadow-sm ${
+                                                    test.complexity === 'Easy' ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-500/10 dark:text-emerald-400' :
+                                                    test.complexity === 'Medium' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-500/10 dark:text-yellow-400' :
+                                                    'bg-red-100 text-red-800 dark:bg-red-500/10 dark:text-red-400'
+                                                }`}>
+                                                    {test.complexity}
+                                                </span>
+                                                <span className="text-xs text-slate-400 dark:text-[#929bc9] flex items-center gap-1 font-bold">
+                                                    <span className="material-symbols-outlined text-[14px]">schedule</span> {test.estimatedTimeMin} min
+                                                </span>
+                                                <span className="text-xs text-slate-400 dark:text-[#929bc9] font-bold">{test.wordCount} words</span>
+                                            </div>
+                                            <p className={`text-slate-500 dark:text-[#929bc9]/80 text-sm mt-3 line-clamp-2 leading-relaxed ${test.level === 2 ? 'font-mono text-[13px] bg-slate-50 dark:bg-black/20 p-2.5 rounded-lg border border-slate-100 dark:border-slate-800' : ''}`}>
+                                                {test.excerpt}
+                                            </p>
+                                        </div>
+                                    </div>
+                                ))}
+                                {filteredLibrary.length === 0 && (
+                                    <div className="p-8 text-center text-slate-400 dark:text-[#929bc9] border border-dashed border-slate-200 dark:border-[#323b67] rounded-xl bg-slate-50/50 dark:bg-[#232948]/50">
+                                        No texts found for Level {testLevel} matching your search.
+                                    </div>
+                                )}
+                            </div>
+                        </>
+                    ) : (
+                        <>
+                            {/* Custom Text Mode */}
+                            <div className="flex flex-col gap-6 bg-white dark:bg-card-dark border border-slate-200 dark:border-[#323b67] p-6 rounded-2xl shadow-sm">
+                                <div>
+                                    <h3 className="text-lg font-black text-slate-900 dark:text-white font-heading">Custom Text Editor</h3>
+                                    <p className="text-sm text-slate-500 dark:text-[#929bc9]">Provide your own content for the typing test. The system will automatically calculate the metrics.</p>
+                                </div>
+                                
+                                <div className="flex flex-col gap-2">
+                                    <label className="text-xs font-bold text-slate-400 dark:text-[#929bc9] uppercase tracking-wider">Assignment Title</label>
+                                    <input 
+                                        type="text"
+                                        required
+                                        value={customTitle}
+                                        onChange={(e) => setCustomTitle(e.target.value)}
+                                        placeholder="e.g., Weekly Custom Assessment"
+                                        className="w-full rounded-xl bg-slate-50 dark:bg-[#232948] border border-slate-200 dark:border-[#323b67] text-slate-900 dark:text-white py-3 px-4 text-sm font-semibold outline-none focus:border-primary/60 transition-colors"
+                                    />
+                                </div>
+
+                                <div className="flex flex-col gap-2">
+                                    <label className="text-xs font-bold text-slate-400 dark:text-[#929bc9] uppercase tracking-wider">Text Content</label>
+                                    <textarea 
+                                        required
+                                        value={customContent}
+                                        onChange={(e) => setCustomContent(e.target.value)}
+                                        placeholder="Paste or type the text you want students to type here..."
+                                        rows={8}
+                                        className="w-full rounded-xl bg-slate-50 dark:bg-[#232948] border border-slate-200 dark:border-[#323b67] text-slate-900 dark:text-white py-3 px-4 text-sm font-mono outline-none focus:border-primary/60 transition-colors custom-scrollbar"
+                                    ></textarea>
+                                </div>
+
+                                <div className="flex justify-between items-center p-4 bg-slate-50 dark:bg-[#232948] rounded-xl border border-slate-100 dark:border-[#323b67]">
+                                    <div className="flex flex-col gap-1">
+                                        <span className="text-[10px] font-black text-slate-400 dark:text-[#929bc9] uppercase tracking-widest">Word Count</span>
+                                        <span className="text-xl font-black text-slate-900 dark:text-white font-mono">{customWordCount}</span>
+                                    </div>
+                                    <div className="flex flex-col gap-1 text-right">
+                                        <span className="text-[10px] font-black text-slate-400 dark:text-[#929bc9] uppercase tracking-widest">Estimated Time</span>
+                                        <span className="text-xl font-black text-slate-900 dark:text-white font-mono">{customEstimatedTime} min</span>
                                     </div>
                                 </div>
-                            )}
-                            <div
-                                className="w-16 h-16 sm:w-20 sm:h-20 shrink-0 rounded-xl bg-slate-100 dark:bg-[#323b67] bg-cover bg-center border border-slate-200/50 dark:border-[#323b67]/50 shadow-sm"
-                                style={{ backgroundImage: "url('https://lh3.googleusercontent.com/aida-public/AB6AXuBsB8B_l7JsRKngrUdfsAzNU1zSIoGhomjQppoX23ANXPj0fpcqv4v-NZCM89bj04YLo3Q9LY3zyyGXZ_1IfEo98_5tg9CNmzrAu-gvEbD6ZFrpQYjD_L_Y5YvDvw2m5ZCDc1Hugl2G8GGfIsEJJyri6JjdBno5uZWoEGJpT9b9v_-gatn-gRlKdLfDZdHxJVsOz3jQBS2iWOQw-xKMVaF9C1cQjwIXx1XdOK5rKhNXYQ16zJDgnN0lpLBRwJ0niHTidyWRr3SjoN9J')" }}
-                            ></div>
-                            <div className="flex flex-col gap-1.5 flex-1 pr-8">
-                                <h3 className="text-slate-900 dark:text-white font-bold text-lg group-hover:text-primary transition-colors duration-200 tracking-tight font-heading">The Velveteen Rabbit</h3>
-                                <p className="text-slate-400 dark:text-[#929bc9] text-xs font-semibold">by Margery Williams</p>
-                                <div className="flex flex-wrap items-center gap-3.5 mt-2">
-                                    <span className="text-[10px] font-black uppercase tracking-wider bg-emerald-100 text-emerald-800 dark:bg-emerald-500/10 dark:text-emerald-400 px-2.5 py-0.5 rounded-full shadow-sm">Easy</span>
-                                    <span className="text-xs text-slate-400 dark:text-[#929bc9] flex items-center gap-1 font-bold">
-                                        <span className="material-symbols-outlined text-[14px]">schedule</span> 2 min
-                                    </span>
-                                    <span className="text-xs text-slate-400 dark:text-[#929bc9] font-bold">182 words</span>
-                                </div>
-                                <p className="text-slate-500 dark:text-[#929bc9]/80 text-sm mt-3 line-clamp-2 leading-relaxed">
-                                    "What is REAL?" asked the Rabbit one day, when they were lying side by side near the nursery fender...
-                                </p>
                             </div>
-                        </div>
-
-                        {/* Card 2 */}
-                        <div
-                            onClick={() => setSelectedText('The Scale of the Universe')}
-                            className={`relative group flex flex-col sm:flex-row gap-5 p-5 rounded-2xl border transition-all duration-300 cursor-pointer hover-scale active-scale shadow-sm hover:shadow-md ${
-                                selectedText === 'The Scale of the Universe' 
-                                        ? 'border-primary bg-primary/5 dark:bg-primary/5' 
-                                        : 'border-slate-200 dark:border-[#323b67] bg-white dark:bg-card-dark'
-                            }`}
-                        >
-                            {selectedText === 'The Scale of the Universe' && (
-                                <div className="absolute top-4 right-4">
-                                    <div className="w-6 h-6 rounded-full bg-primary flex items-center justify-center text-[#111422] shadow-sm">
-                                        <span className="material-symbols-outlined text-sm font-black">check</span>
-                                    </div>
-                                </div>
-                            )}
-                            <div
-                                className="w-16 h-16 sm:w-20 sm:h-20 shrink-0 rounded-xl bg-slate-100 dark:bg-[#323b67] bg-cover bg-center border border-slate-200/50 dark:border-[#323b67]/50 shadow-sm"
-                                style={{ backgroundImage: "url('https://lh3.googleusercontent.com/aida-public/AB6AXuC8-rmXu2ZtPul-xNuKjMxc7Q0pTR2COZUn8EQ6Pn22RALtntDwVBzHOkuS3FEDpjuEUqqZFi6r3scVmZJnx6II9ti_Nx6IRPO-FM7QmuiDkn_jWbiAbeXXiwyRApBiGIpG3xS7niw8MGsrKLbk5CkIGdBdG8FGzuY8Ls6OqAgk_G4iCmLU2T1JT50_LpmyvlhEmTkeCor3mGYalKar9ACq_2Q2jzZTXJx0VB4rUSWAEMb9aq6iDhGBudg0AbN8c7eVi4RhxmX4hiFv')" }}
-                            ></div>
-                            <div className="flex flex-col gap-1.5 flex-1 pr-8">
-                                <h3 className="text-slate-900 dark:text-white font-bold text-lg group-hover:text-primary transition-colors duration-200 tracking-tight font-heading">The Scale of the Universe</h3>
-                                <p className="text-slate-400 dark:text-[#929bc9] text-xs font-semibold">by NASA Science</p>
-                                <div className="flex flex-wrap items-center gap-3.5 mt-2">
-                                    <span className="text-[10px] font-black uppercase tracking-wider bg-yellow-100 text-yellow-800 dark:bg-yellow-500/10 dark:text-yellow-400 px-2.5 py-0.5 rounded-full shadow-sm">Medium</span>
-                                    <span className="text-xs text-slate-400 dark:text-[#929bc9] flex items-center gap-1 font-bold">
-                                        <span className="material-symbols-outlined text-[14px]">schedule</span> 3 min
-                                    </span>
-                                    <span className="text-xs text-slate-400 dark:text-[#929bc9] font-bold">345 words</span>
-                                </div>
-                                <p className="text-slate-500 dark:text-[#929bc9]/80 text-sm mt-3 line-clamp-2 leading-relaxed">
-                                    The universe is vast beyond comprehension. To understand its scale, we must first look at our own solar system as a mere speck...
-                                </p>
-                            </div>
-                        </div>
-
-                        {/* Card 3 */}
-                        <div
-                            onClick={() => setSelectedText('Introduction to Python')}
-                            className={`relative group flex flex-col sm:flex-row gap-5 p-5 rounded-2xl border transition-all duration-300 cursor-pointer hover-scale active-scale shadow-sm hover:shadow-md ${
-                                selectedText === 'Introduction to Python' 
-                                        ? 'border-primary bg-primary/5 dark:bg-primary/5' 
-                                        : 'border-slate-200 dark:border-[#323b67] bg-white dark:bg-card-dark'
-                            }`}
-                        >
-                            {selectedText === 'Introduction to Python' && (
-                                <div className="absolute top-4 right-4">
-                                    <div className="w-6 h-6 rounded-full bg-primary flex items-center justify-center text-[#111422] shadow-sm">
-                                        <span className="material-symbols-outlined text-sm font-black">check</span>
-                                    </div>
-                                </div>
-                            )}
-                            <div
-                                className="w-16 h-16 sm:w-20 sm:h-20 shrink-0 rounded-xl bg-slate-100 dark:bg-[#323b67] bg-cover bg-center border border-slate-200/50 dark:border-[#323b67]/50 shadow-sm"
-                                style={{ backgroundImage: "url('https://lh3.googleusercontent.com/aida-public/AB6AXuCskkYe5oA8piZHk9uIAyymNvBfIx0JZOIBZrosWzW7lClN_mXpawD3BQW435OmrAy70YSt0mYeLrysWHZxs6EF5emh-CuDF9Wt3BAIoByo9Uidkh0OvknKQLIqdvl-78G-7kuJKaBIx55Af8Z_9ZtN12g4u6ZNMjL_2TcbI4QAGY-zo8v2o5Me8lex33TXxyP7ZqKqDQ0LhOrctikV_ma_N8eEcZi8-fuXEEnmyLJBdQ0UeUL2Ok7v1gfpqWgFB-Xjq_bST9nX1FAk')" }}
-                            ></div>
-                            <div className="flex flex-col gap-1.5 flex-1 pr-8">
-                                <h3 className="text-slate-900 dark:text-white font-bold text-lg group-hover:text-primary transition-colors duration-200 tracking-tight font-heading">Introduction to Python</h3>
-                                <p className="text-slate-400 dark:text-[#929bc9] text-xs font-semibold">Technical Typing</p>
-                                <div className="flex flex-wrap items-center gap-3.5 mt-2">
-                                    <span className="text-[10px] font-black uppercase tracking-wider bg-red-100 text-red-800 dark:bg-red-500/10 dark:text-red-400 px-2.5 py-0.5 rounded-full shadow-sm">Hard</span>
-                                    <span className="text-xs text-slate-400 dark:text-[#929bc9] flex items-center gap-1 font-bold">
-                                        <span className="material-symbols-outlined text-[14px]">schedule</span> 5 min
-                                    </span>
-                                    <span className="text-xs text-slate-400 dark:text-[#929bc9] font-bold">410 words</span>
-                                </div>
-                                <p className="text-slate-500 dark:text-[#929bc9]/80 text-sm mt-3 line-clamp-2 leading-relaxed font-mono text-[13px] bg-slate-50 dark:bg-black/20 p-2.5 rounded-lg border border-slate-100 dark:border-slate-800">
-                                    def calculate_area(radius): return 3.14159 * radius ** 2. This function demonstrates basic syntax in Python...
-                                </p>
-                            </div>
-                        </div>
-                    </div>
+                        </>
+                    )}
                 </div>
 
                 {/* RIGHT COLUMN: Configuration Form */}
@@ -296,13 +457,11 @@ const FacilitatorTestLaunch: React.FC = () => {
                                             required={assignmentMode === 'section'}
                                         >
                                             <option disabled value="">Select a class section...</option>
-                                            {intakes?.flatMap(intake =>
-                                                intake.sections?.map(section => (
-                                                    <option key={section.id} value={section.id}>
-                                                        {intake.name} - {section.name}
-                                                    </option>
-                                                ))
-                                            )}
+                                            {sections?.map(section => (
+                                                <option key={section.id} value={section.id}>
+                                                    {section.intakeName ? `${section.intakeName} - ` : ''}{section.name}
+                                                </option>
+                                            ))}
                                         </select>
                                         <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-slate-400 dark:text-[#929bc9]">
                                             <span className="material-symbols-outlined">expand_more</span>
@@ -420,10 +579,16 @@ const FacilitatorTestLaunch: React.FC = () => {
                             {/* Summary Box - Premium preview design */}
                             <div className="flex flex-col gap-2 bg-emerald-500/5 dark:bg-emerald-500/10 p-4 rounded-xl border border-emerald-500/15">
                                 <p className="text-[10px] font-black text-slate-400 dark:text-[#929bc9] uppercase tracking-widest">Live Summary</p>
-                                <p className="text-sm font-bold text-slate-900 dark:text-white truncate">{selectedText}</p>
+                                <p className="text-sm font-bold text-slate-900 dark:text-white truncate">
+                                    {sourceMode === 'library' ? (activeLibraryText?.title || 'No Selection') : (customTitle || 'Custom Text Title')}
+                                </p>
                                 <div className="flex gap-2 mt-1">
-                                    <span className="text-[10px] font-bold bg-white dark:bg-card-dark border border-slate-200 dark:border-slate-800 px-2 py-0.5 rounded text-slate-500 dark:text-[#929bc9]">182 words</span>
-                                    <span className="text-[10px] font-bold bg-white dark:bg-card-dark border border-slate-200 dark:border-slate-800 px-2 py-0.5 rounded text-slate-500 dark:text-[#929bc9]">Easy</span>
+                                    <span className="text-[10px] font-bold bg-white dark:bg-card-dark border border-slate-200 dark:border-slate-800 px-2 py-0.5 rounded text-slate-500 dark:text-[#929bc9]">
+                                        {sourceMode === 'library' ? activeLibraryText?.wordCount || 0 : customWordCount} words
+                                    </span>
+                                    <span className="text-[10px] font-bold bg-white dark:bg-card-dark border border-slate-200 dark:border-slate-800 px-2 py-0.5 rounded text-slate-500 dark:text-[#929bc9]">
+                                        {sourceMode === 'library' ? activeLibraryText?.complexity || 'N/A' : 'Custom'}
+                                    </span>
                                 </div>
                             </div>
 

@@ -38,6 +38,7 @@ export const FacilitatorProvider: React.FC<{ children: ReactNode }> = ({ childre
                 return {
                     id: section.id,
                     name: section.name,
+                    intakeName: intake.name,
                     studentCount: section.students?.length || 0,
                     avgWpm
                 };
@@ -117,6 +118,7 @@ export const FacilitatorProvider: React.FC<{ children: ReactNode }> = ({ childre
                         test?: {
                             duration: number;
                             difficulty: string;
+                            maxAttempts?: number;
                         };
                     }
 
@@ -130,6 +132,7 @@ export const FacilitatorProvider: React.FC<{ children: ReactNode }> = ({ childre
                         sectionId: item.sectionId || undefined,
                         studentIds: item.studentIds || [],
                         duration: item.test?.duration,
+                        maxAttempts: item.test?.maxAttempts || 1,
                         level: item.test?.difficulty === 'HARD' ? 2 : 1
                     }));
                     setAssignments(mapped);
@@ -155,7 +158,8 @@ export const FacilitatorProvider: React.FC<{ children: ReactNode }> = ({ childre
                 sectionId: newAssignment.sectionId || null,
                 studentIds: newAssignment.studentIds || [],
                 level: newAssignment.level,
-                duration: newAssignment.duration
+                duration: newAssignment.duration,
+                maxAttempts: newAssignment.maxAttempts || 1
             });
 
             interface DBResponse {

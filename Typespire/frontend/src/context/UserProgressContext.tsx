@@ -65,6 +65,10 @@ interface UserProgressContextType {
     // Personalized drills
     strugglingKeys: string[];
     generatePersonalizedDrill: () => string;
+
+    // Custom Benchmarks
+    sectionRequirements: Record<string, { wpm: number; accuracy: number }>;
+    studentOverrides: Record<string, { wpm: number; accuracy: number }>;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -123,21 +127,35 @@ export const UserProgressProvider: React.FC<{ children: ReactNode }> = ({ childr
     const { user, isAuthenticated } = useAuth();
     
     // ── Persisted state loaded from localStorage ──
-    const loadPersisted = () => {
+    const getLocalKey = (userId?: string) => userId ? `${LOCAL_KEY}_${userId}` : LOCAL_KEY;
+
+    const loadPersisted = (userId?: string) => {
         try {
-            const raw = localStorage.getItem(LOCAL_KEY);
+            const raw = localStorage.getItem(getLocalKey(userId));
             if (raw) return JSON.parse(raw);
         } catch { /* ignore */ }
         return null;
     };
 
-    const persisted = loadPersisted();
+    const persisted = loadPersisted(user?.id);
 
     const [stats, setStats] = useState<UserStats>(persisted?.stats ?? INITIAL_STATS);
     const [recentResults, setRecentResults] = useState<TestResult[]>(persisted?.recentResults ?? INITIAL_RESULTS);
-    const [unlockedStages, setUnlockedStages] = useState<string[]>(persisted?.unlockedStages ?? ['stage-01']);
+    const [unlockedStages, setUnlockedStages] = useState<string[]>(persisted?.unlockedStages ?? ['stage-1-1']);
     const [stageResults, setStageResults] = useState<Record<string, StageResult>>(persisted?.stageResults ?? {});
     const [keyStats, setKeyStats] = useState<Record<string, KeyStat>>(persisted?.keyStats ?? {});
+    
+    // Sync state when user changes
+    useEffect(() => {
+        const newData = loadPersisted(user?.id);
+        setStats(newData?.stats ?? INITIAL_STATS);
+        setRecentResults(newData?.recentResults ?? INITIAL_RESULTS);
+        setUnlockedStages(newData?.unlockedStages ?? ['stage-1-1']);
+        setStageResults(newData?.stageResults ?? {});
+        setKeyStats(newData?.keyStats ?? {});
+    }, [user?.id]);
+    const [sectionRequirements, setSectionRequirements] = useState<Record<string, { wpm: number; accuracy: number }>>({});
+    const [studentOverrides, setStudentOverrides] = useState<Record<string, { wpm: number; accuracy: number }>>({});
 
     // Fetch user formal records from backend
     useEffect(() => {
@@ -170,25 +188,45 @@ export const UserProgressProvider: React.FC<{ children: ReactNode }> = ({ childr
                     }
                 })
                 .catch(err => console.error("Failed to fetch formal test results:", err));
+
+            // Fetch custom requirements
+            if (user?.sectionId) {
+                api.get(`/requirements/section/${user.sectionId}`)
+                    .then(res => {
+                        const reqs: Record<string, { wpm: number; accuracy: number }> = {};
+                        res.data.forEach((r: any) => { reqs[r.stageId] = { wpm: r.wpm, accuracy: r.accuracy }; });
+                        setSectionRequirements(reqs);
+                    })
+                    .catch(err => console.error("Failed to fetch section requirements:", err));
+            }
+
+            api.get(`/requirements/student/${user.id}`)
+                .then(res => {
+                    const overrides: Record<string, { wpm: number; accuracy: number }> = {};
+                    res.data.forEach((r: any) => { overrides[r.stageId] = { wpm: r.wpm, accuracy: r.accuracy }; });
+                    setStudentOverrides(overrides);
+                })
+                .catch(err => console.error("Failed to fetch student overrides:", err));
         }
-    }, [isAuthenticated, user?.id]);
+    }, [isAuthenticated, user?.id, user?.sectionId]);
 
     // ── Persist to localStorage on every change ──
     useEffect(() => {
         try {
-            localStorage.setItem(LOCAL_KEY, JSON.stringify({
+            localStorage.setItem(getLocalKey(user?.id), JSON.stringify({
                 stats, recentResults, unlockedStages, stageResults, keyStats
-
             }));
         } catch { /* ignore quota errors */ }
-    }, [stats, recentResults, unlockedStages, stageResults, keyStats]);
+    }, [stats, recentResults, unlockedStages, stageResults, keyStats, user?.id]);
 
     // ── Benchmark resolution ──
-    // TODO: In the future, fetch institution's custom benchmarks and merge here
     const getBenchmark = useCallback((stageId: string) => {
+        // Priority: Student Override > Section Requirement > Default Hardcoded
+        if (studentOverrides[stageId]) return studentOverrides[stageId];
+        if (sectionRequirements[stageId]) return sectionRequirements[stageId];
         const stage = PRACTICE_STAGES.find(s => s.id === stageId);
         return { wpm: stage?.defaultWpm ?? 20, accuracy: stage?.defaultAccuracy ?? 90 };
-    }, []);
+    }, [studentOverrides, sectionRequirements]);
 
     // ── Stage status helpers ──
     const isStageUnlocked = useCallback((stageId: string) => {
@@ -256,10 +294,13 @@ export const UserProgressProvider: React.FC<{ children: ReactNode }> = ({ childr
                 }
                 // Advance the player's overall level
                 if (currentStage) {
-                    setStats(prev => ({
-                        ...prev,
-                        level: Math.max(prev.level, currentStage.stageNumber),
-                    }));
+                    const levelNum = parseFloat(currentStage.stageNumber);
+                    if (!isNaN(levelNum)) {
+                        setStats(prev => ({
+                            ...prev,
+                            level: Math.max(prev.level, levelNum),
+                        }));
+                    }
                 }
             }
         }
@@ -321,6 +362,8 @@ export const UserProgressProvider: React.FC<{ children: ReactNode }> = ({ childr
             getKeyAccuracy,
             strugglingKeys,
             generatePersonalizedDrill,
+            sectionRequirements,
+            studentOverrides,
         }}>
             {children}
         </UserProgressContext.Provider>
