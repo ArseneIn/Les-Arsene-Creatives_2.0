@@ -2,6 +2,7 @@
 
 import { useRouter, usePathname } from 'next/navigation';
 import { Store, Globe, ArrowRight } from 'lucide-react';
+import Image from 'next/image';
 import { useScrollReveal } from './useScrollReveal';
 import StatsBar from './StatsBar';
 import HowItWorks from './HowItWorks';
@@ -107,6 +108,21 @@ export default function LandingPage({ t, locale }: { t: (key: string) => string;
                         >
                             {t('hero.ctaSecondary')}
                         </a>
+                    </div>
+
+                    {/* Hero Image */}
+                    <div className="mt-16 md:mt-24 relative w-full max-w-5xl mx-auto reveal" style={{ transitionDelay: '0.4s' }}>
+                        <div className="absolute inset-0 bg-gold/10 blur-[100px] rounded-full pointer-events-none"></div>
+                        <div className="relative rounded-2xl md:rounded-[2rem] overflow-hidden border border-jet-600/50 shadow-2xl shadow-black/50">
+                            <Image 
+                                src="/SMARTCURUZA.png" 
+                                alt="Smart Curuza Interface" 
+                                width={1920} 
+                                height={1080} 
+                                className="w-full h-auto object-cover transform hover:scale-[1.02] transition-transform duration-700"
+                                priority
+                            />
+                        </div>
                     </div>
                 </div>
             </section>
