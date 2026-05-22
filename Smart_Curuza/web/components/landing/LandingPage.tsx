@@ -9,6 +9,7 @@ import HowItWorks from './HowItWorks';
 import Features from './Features';
 import Benefits from './Benefits';
 import Testimonials from './Testimonials';
+import MerchantCTA from './MerchantCTA';
 import { useEffect } from 'react';
 
 export default function LandingPage({ t, locale }: { t: (key: string) => string; locale: string }) {
@@ -157,6 +158,9 @@ export default function LandingPage({ t, locale }: { t: (key: string) => string;
 
             {/* ===== STATS ===== */}
             <StatsBar t={t} />
+
+            {/* ===== MERCHANT CTA ===== */}
+            <MerchantCTA />
 
             {/* ===== HOW IT WORKS ===== */}
             <HowItWorks t={t} />
