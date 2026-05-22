@@ -2,7 +2,6 @@ import React from 'react';
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { UserRole } from '../types/auth';
-import TypingLoader from './common/TypingLoader';
 
 interface RequireAuthProps {
     allowedRoles: UserRole[];
@@ -13,7 +12,7 @@ const RequireAuth: React.FC<RequireAuthProps> = ({ allowedRoles }) => {
     const location = useLocation();
 
     if (isLoading) {
-        return <TypingLoader />;
+        return null; // Handled by App.tsx AuthLoader
     }
 
     if (!isAuthenticated || !user) {

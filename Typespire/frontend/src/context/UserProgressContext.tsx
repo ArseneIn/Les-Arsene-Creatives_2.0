@@ -139,9 +139,15 @@ export const UserProgressProvider: React.FC<{ children: ReactNode }> = ({ childr
 
     const persisted = loadPersisted(user?.id);
 
+    const ensureStage1 = (stages: string[] | undefined) => {
+        if (!stages) return ['stage-1-1'];
+        if (!stages.includes('stage-1-1')) return [...stages, 'stage-1-1'];
+        return stages;
+    };
+
     const [stats, setStats] = useState<UserStats>(persisted?.stats ?? INITIAL_STATS);
     const [recentResults, setRecentResults] = useState<TestResult[]>(persisted?.recentResults ?? INITIAL_RESULTS);
-    const [unlockedStages, setUnlockedStages] = useState<string[]>(persisted?.unlockedStages ?? ['stage-1-1']);
+    const [unlockedStages, setUnlockedStages] = useState<string[]>(ensureStage1(persisted?.unlockedStages));
     const [stageResults, setStageResults] = useState<Record<string, StageResult>>(persisted?.stageResults ?? {});
     const [keyStats, setKeyStats] = useState<Record<string, KeyStat>>(persisted?.keyStats ?? {});
     
@@ -150,7 +156,7 @@ export const UserProgressProvider: React.FC<{ children: ReactNode }> = ({ childr
         const newData = loadPersisted(user?.id);
         setStats(newData?.stats ?? INITIAL_STATS);
         setRecentResults(newData?.recentResults ?? INITIAL_RESULTS);
-        setUnlockedStages(newData?.unlockedStages ?? ['stage-1-1']);
+        setUnlockedStages(ensureStage1(newData?.unlockedStages));
         setStageResults(newData?.stageResults ?? {});
         setKeyStats(newData?.keyStats ?? {});
     }, [user?.id]);

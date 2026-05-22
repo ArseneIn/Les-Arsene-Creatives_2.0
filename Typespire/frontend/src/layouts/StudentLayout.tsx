@@ -1,14 +1,23 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Outlet, Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import TypingLoader from '../components/common/TypingLoader';
 
 const StudentLayout: React.FC = () => {
     const location = useLocation();
     const isActive = (path: string) => location.pathname === path;
 
     const [isSidebarOpen, setIsSidebarOpen] = React.useState(false);
+    const [isNavigating, setIsNavigating] = useState(false);
     const { user, logout } = useAuth();
     const navigate = useNavigate();
+
+    useEffect(() => {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        setIsNavigating(true);
+        const timer = setTimeout(() => setIsNavigating(false), 1500); //show loader for 1.5s
+        return () => clearTimeout(timer);
+    }, [location.pathname]);
 
     const handleLogout = () => {
         logout();
@@ -142,7 +151,13 @@ const StudentLayout: React.FC = () => {
                     </button>
                     <span className="font-bold text-lg text-slate-900 dark:text-white">Typespire Student</span>
                 </div>
-                <Outlet />
+                {isNavigating ? (
+                    <div className="flex-1 flex items-center justify-center">
+                        <TypingLoader />
+                    </div>
+                ) : (
+                    <Outlet />
+                )}
             </main>
         </div>
     );

@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useEffect, useRef, useCallback } from 'react';
+import React, { useMemo, useState, useEffect, useCallback } from 'react';
 import { Link, useSearchParams, useNavigate } from 'react-router-dom';
 import { useTypingEngine } from '../hooks/useTypingEngine';
 import { useUserProgress } from '../context/UserProgressContext';
@@ -7,7 +7,7 @@ import { useFacilitator } from '../context/FacilitatorContext';
 import { TypingArea } from '../components/TypingTest/TypingArea';
 import { PracticeTypingArea } from '../components/TypingTest/PracticeTypingArea';
 import { SurvivalStrikeBar } from '../components/TypingTest/SurvivalStrikeBar';
-import { PRACTICE_STAGES_MAP } from '../data/practiceModules';
+import { PRACTICE_STAGES_MAP, PRACTICE_STAGES } from '../data/practiceModules';
 
 // ─── Level 2 complex mixed-case passage ──────────────────────────────────────
 const LEVEL2_TEXT = "The Quick brown fox ran past Mary Johnson's garden, leaving 12 footprints before sunset. Alice said Hello to Dr. Kim every single Monday. In 2024, Real Madrid won the Champions League again. James wrote: Dear Friend, Thank you for everything. Sarah visited Paris, London, and Tokyo in one summer. The river runs North, past Oak Street and into the Sea.";
@@ -39,15 +39,20 @@ const TypingTest: React.FC = () => {
         }
     }, [isPractice, isStagePassed, navigate]);
 
-    const [randomSprintText] = useState(() => {
-        const baseText = testLevel === '2' ? LEVEL2_TEXT : LEVEL1_TEXT;
-        const words = baseText.split(/\s+/).filter(w => w.length > 0);
-        for (let i = words.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [words[i], words[j]] = [words[j], words[i]];
+    const [randomSprintText, setRandomSprintText] = useState('');
+
+    useEffect(() => {
+        if (mode === 'random' && !randomSprintText) {
+            const baseText = testLevel === '2' ? LEVEL2_TEXT : LEVEL1_TEXT;
+            const words = baseText.split(/\s+/).filter(w => w.length > 0);
+            for (let i = words.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [words[i], words[j]] = [words[j], words[i]];
+            }
+            // eslint-disable-next-line react-hooks/set-state-in-effect
+            setRandomSprintText(words.join(' '));
         }
-        return words.join(' ');
-    });
+    }, [mode, testLevel, randomSprintText]);
 
     // ── Resolve test configuration ─────────────────────────────────────────
     const testConfig = useMemo(() => {
@@ -96,7 +101,7 @@ const TypingTest: React.FC = () => {
 
         // Default Level 1 standard test
         return { text: LEVEL1_TEXT, duration: 120, title: 'Level 1 — Standard Proficiency Test', level: 1 as const, stageId: undefined };
-    }, [stageId, assignmentId, testLevel, customText, assignments, mode, customTitle, stats?.level]);
+    }, [stageId, assignmentId, testLevel, customText, assignments, mode, customTitle, stats?.level, randomSprintText]);
 
     const isLevel2 = testConfig.level === 2;
     // ── Format Text for 2x2 Grid (Practice Only) ─────────────────────────
@@ -128,6 +133,23 @@ const TypingTest: React.FC = () => {
     const [terminated, setTerminated] = useState(false);
     const [showConfetti, setShowConfetti] = useState(false);
     const MAX_STRIKES = 3;
+
+    type ConfettiPiece = { id: number; left: string; top: string; backgroundColor: string; animationDelay: string; animationDuration: string; };
+    const [confettiPieces, setConfettiPieces] = useState<ConfettiPiece[]>([]);
+
+    useEffect(() => {
+        if (showConfetti && confettiPieces.length === 0) {
+            // eslint-disable-next-line react-hooks/set-state-in-effect
+            setConfettiPieces(Array.from({ length: 50 }).map((_, i) => ({
+                id: i,
+                left: `${Math.random() * 100}%`,
+                top: `-${Math.random() * 20}%`,
+                backgroundColor: ['#33B974', '#094A71', '#F59E0B', '#EF4444'][Math.floor(Math.random() * 4)],
+                animationDelay: `${Math.random() * 2}s`,
+                animationDuration: `${2 + Math.random() * 3}s`
+            })));
+        }
+    }, [showConfetti, confettiPieces.length]);
 
     // ── Typing engine ──────────────────────────────────────────────────────
     const {
@@ -190,10 +212,8 @@ const TypingTest: React.FC = () => {
     const [countdown, setCountdown] = useState(3);
 
     const handleStart = () => {
-        setStrikes(0);
         setTerminated(false);
         setShowConfetti(false);
-        prevErrorsRef.current = 0;
         setIsCountingDown(true);
         setCountdown(3);
         const interval = setInterval(() => {
@@ -211,6 +231,9 @@ const TypingTest: React.FC = () => {
     const { mins, secs } = formatTime(timeLeft);
 
     const passed = wpm >= benchmark.wpm && accuracy >= benchmark.accuracy;
+
+    const currentStageIndex = testConfig.stageId ? PRACTICE_STAGES.findIndex(s => s.id === testConfig.stageId) : -1;
+    const nextStageId = (currentStageIndex >= 0 && currentStageIndex < PRACTICE_STAGES.length - 1) ? PRACTICE_STAGES[currentStageIndex + 1].id : null;
 
     return (
         <div className={`text-[#0e1a13] dark:text-white transition-colors duration-200 min-h-screen font-sans relative overflow-hidden`}>
@@ -401,6 +424,15 @@ const TypingTest: React.FC = () => {
                         )}
 
                         <div className="flex flex-col gap-3">
+                            {passed && nextStageId && (
+                                <button
+                                    onClick={() => window.location.href = `/test?mode=practice&stageId=${nextStageId}`}
+                                    className="w-full bg-[#33B974] hover:bg-[#33B974]/90 text-white font-bold py-3 rounded-xl text-sm transition-all shadow-[0_4px_14px_rgba(51,185,116,0.25)] flex items-center justify-center gap-2"
+                                >
+                                    <span>Continue to Next Stage</span>
+                                    <span className="material-symbols-outlined text-base">arrow_forward</span>
+                                </button>
+                            )}
                             <Link
                                 to="/results"
                                 state={{ wpm, accuracy, strugglingKeys, passed, benchmark }}

@@ -9,17 +9,17 @@ export const StudentTests: React.FC = () => {
     const { assignments } = useFacilitator();
     const { stats, recentResults, isStagePassed } = useUserProgress();
     const navigate = useNavigate();
-    const [now] = React.useState(Date.now());
+    const [now] = React.useState(() => Date.now());
 
     const currentUserId = user?.id || '';
     const currentUserSectionId = user?.sectionId || '';
 
     // 1. Assigned Tests
-    const allAssignedTests = assignments.filter(a =>
+    const allAssignedTests = useMemo(() => assignments.filter(a =>
         a.status === 'Active' &&
         ((a.sectionId === currentUserSectionId) || (a.studentIds && a.studentIds.includes(currentUserId))) &&
         a.level === stats.level
-    );
+    ), [assignments, currentUserSectionId, currentUserId, stats.level]);
 
     const pendingTests = allAssignedTests.filter(a => {
         const isExpired = a.dueDateISO ? new Date(a.dueDateISO).getTime() < now : false;

@@ -13,17 +13,19 @@ import {
 import { useUserProgress } from '../context/UserProgressContext';
 import { useFacilitator } from '../context/FacilitatorContext';
 import { useAuth } from '../context/AuthContext';
+import { KeyboardHeatmap } from '../components/Practice/KeyboardHeatmap';
 
 const StudentDashboard: React.FC = () => {
-    const { stats, recentResults, isStagePassed } = useUserProgress();
+    const { stats, recentResults, isStagePassed, keyStats, getKeyAccuracy } = useUserProgress();
     const { assignments } = useFacilitator();
     const { user } = useAuth();
 
     const currentUserId = user?.id || '';
     const currentUserSectionId = user?.sectionId || '';
-    const [now] = useState(Date.now());
+    const [now] = useState(() => Date.now());
 
     const [sectionInfo, setSectionInfo] = useState<{ sectionName: string, intakeName: string } | null>(null);
+    const [isHeatmapOpen, setIsHeatmapOpen] = useState(false);
 
     // Live countdowns: map of assignmentId -> seconds remaining
     const [countdowns, setCountdowns] = useState<Record<string, number>>({});
@@ -69,12 +71,13 @@ const StudentDashboard: React.FC = () => {
         const initial: Record<string, number> = {};
         for (const a of activePendingAssignments) {
             if (a.dueDateISO) {
-                const diff = Math.floor((new Date(a.dueDateISO).getTime() - Date.now()) / 1000);
+                const diff = Math.floor((new Date(a.dueDateISO).getTime() - now) / 1000);
                 initial[a.id] = diff;
             }
         }
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setCountdowns(initial);
-    }, [activePendingAssignments]);
+    }, [activePendingAssignments, now]);
 
     // Tick every second
     useEffect(() => {
@@ -189,7 +192,7 @@ const StudentDashboard: React.FC = () => {
                                 const secsLeft = countdowns[assignment.id] ?? null;
                                 // Only lock if dueDateISO exists and time has passed
                                 const isExpired = assignment.dueDateISO
-                                    ? new Date(assignment.dueDateISO).getTime() < Date.now()
+                                    ? new Date(assignment.dueDateISO).getTime() < now
                                     : false;
 
                                 const formatCountdown = (secs: number) => {
@@ -377,6 +380,13 @@ const StudentDashboard: React.FC = () => {
                                 <div className="w-2.5 h-2.5 rounded-full bg-emerald-accent"></div>
                                 <span className="text-xs font-semibold text-slate-600 dark:text-[#929bc9] uppercase">Accuracy (%)</span>
                             </div>
+                            <button 
+                                onClick={() => setIsHeatmapOpen(true)}
+                                className="flex items-center gap-2 bg-primary hover:bg-emerald-600 px-4 py-1.5 rounded-lg text-white transition-colors hover-scale active-scale shadow-md shadow-primary/20"
+                            >
+                                <span className="material-symbols-outlined text-[18px]">grid_on</span>
+                                <span className="text-xs font-bold uppercase tracking-wider">Key Heatmap</span>
+                            </button>
                         </div>
                             {/* Recharts Performance Graph */}
                     <div className="w-full h-64 mt-4 select-none">
@@ -502,6 +512,34 @@ const StudentDashboard: React.FC = () => {
                     )}
                 </div>
             </div>
+
+            {/* Keyboard Heatmap Modal */}
+            {isHeatmapOpen && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-[#061824]/80 backdrop-blur-sm animate-in fade-in duration-200">
+                    <div className="bg-white dark:bg-[#0b1e2d] w-full max-w-4xl rounded-2xl shadow-2xl border border-slate-200 dark:border-[#323b67] flex flex-col overflow-hidden max-h-full">
+                        <div className="flex items-center justify-between p-6 border-b border-slate-100 dark:border-[#323b67]">
+                            <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+                                    <span className="material-symbols-outlined">grid_on</span>
+                                </div>
+                                <div>
+                                    <h2 className="text-xl font-bold text-slate-900 dark:text-white font-heading tracking-tight">Keyboard Heatmap</h2>
+                                    <p className="text-sm text-slate-500 dark:text-[#929bc9]">Your proficiency across all keys</p>
+                                </div>
+                            </div>
+                            <button 
+                                onClick={() => setIsHeatmapOpen(false)}
+                                className="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-[#232948] text-slate-400 hover:text-slate-600 dark:hover:text-white transition-colors"
+                            >
+                                <span className="material-symbols-outlined">close</span>
+                            </button>
+                        </div>
+                        <div className="p-8 overflow-y-auto flex items-center justify-center min-h-[400px]">
+                            <KeyboardHeatmap keyStats={keyStats} getKeyAccuracy={getKeyAccuracy} />
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

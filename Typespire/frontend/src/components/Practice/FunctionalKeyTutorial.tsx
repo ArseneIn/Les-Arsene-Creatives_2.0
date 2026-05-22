@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import type { PracticeModuleContent } from '../../data/practiceModules';
+import type { SubLevel } from '../../data/practiceModules';
 
 interface FunctionalKeyTutorialProps {
-    stage: PracticeModuleContent;
+    stage: SubLevel;
     onComplete: () => void; // user finished tutorial, start the drill
     onSkip: () => void;     // experienced user, skip straight to drill
 }
@@ -59,9 +59,18 @@ export const FunctionalKeyTutorial: React.FC<FunctionalKeyTutorialProps> = ({ st
     const [tryItDone, setTryItDone] = useState(false);
 
     const stepIndex = STEPS.indexOf(currentStep);
-    const highlightedKeys = STAGE_KEY_HIGHLIGHTS[stage.id] ?? [];
-    const fingerDiagram = FINGER_DIAGRAMS[stage.id];
-    const tryItPrompt = TRY_IT_PROMPTS[stage.id];
+    const highlightedKeys = stage.keysTaught ?? [];
+    const fingerDiagram = FINGER_DIAGRAMS[stage.id] ?? {
+        hand: '🤚',
+        finger: 'Focus Fingers',
+        detail: stage.fingerHint || `Focus on using the correct fingers for ${highlightedKeys.join(' and ')}. Keep your hands resting gently on the home row.`
+    };
+
+    const tryItPrompt = TRY_IT_PROMPTS[stage.id] ?? {
+        instruction: `Type the exact keys shown below to practice ${highlightedKeys.join(' and ')}.`,
+        targetWord: (stage.practiceText || highlightedKeys.join(' ')).substring(0, 5).trim(),
+        hint: 'Use the highlighted fingers from the previous step.'
+    };
 
     const goNext = () => {
         if (currentStep === 'done') {
@@ -88,6 +97,7 @@ export const FunctionalKeyTutorial: React.FC<FunctionalKeyTutorialProps> = ({ st
     // Render keyboard mini-diagram with highlighted keys
     const renderMiniKeyboard = () => {
         const rows = [
+            ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p'],
             ['CapsLock', 'a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', ';'],
             ['Shift', 'z', 'x', 'c', 'v', 'b', 'n', 'm', ',', '.', '/', 'RShift'],
         ];

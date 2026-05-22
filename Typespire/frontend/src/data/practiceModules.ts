@@ -75,8 +75,18 @@ function generateCumulativeWords(allowedKeys: string[], wordCount: number = 20):
     });
 
     if (validWords.length === 0) {
-        // Fallback if not enough keys are unlocked to form words
-        return generateDrillText(allowedKeys, wordCount * 5);
+        // Fallback if not enough keys are unlocked to form words (e.g., Module 1 only has f, j, d, k)
+        // Generate pseudo-words of lengths 2 to 4
+        let fallbackText = [];
+        for (let i = 0; i < wordCount; i++) {
+            const wordLen = Math.floor(Math.random() * 3) + 2; // 2, 3, or 4
+            let word = '';
+            for (let j = 0; j < wordLen; j++) {
+                word += allowedKeys[Math.floor(Math.random() * allowedKeys.length)];
+            }
+            fallbackText.push(word);
+        }
+        return fallbackText.join(' ');
     }
 
     let text = [];

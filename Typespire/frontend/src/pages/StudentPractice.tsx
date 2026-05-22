@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useUserProgress } from '../context/UserProgressContext';
 import { PRACTICE_STAGES, PRACTICE_MODULES } from '../data/practiceModules';
-import { KeyboardHeatmap } from '../components/Practice/KeyboardHeatmap';
 import { FunctionalKeyTutorial } from '../components/Practice/FunctionalKeyTutorial';
+import { KeyboardHeatmap } from '../components/Practice/KeyboardHeatmap';
 
 const StudentPractice: React.FC = () => {
     const navigate = useNavigate();
@@ -14,6 +14,7 @@ const StudentPractice: React.FC = () => {
 
     const [showTutorial, setShowTutorial] = useState<string | null>(null);
     const [expandedModule, setExpandedModule] = useState<string>(PRACTICE_MODULES[0]?.id || '');
+    const [isHeatmapOpen, setIsHeatmapOpen] = useState(false);
 
     const handleStageClick = (stageId: string) => {
         const stage = PRACTICE_STAGES.find(s => s.id === stageId);
@@ -50,17 +51,26 @@ const StudentPractice: React.FC = () => {
 
             <div className="max-w-[1400px] w-full flex flex-col gap-8">
                 {/* Header */}
-                <header className="flex flex-col gap-1 border-b border-slate-200 dark:border-slate-800 pb-5">
-                    <div className="flex items-center gap-2 text-xs text-gray-400 uppercase tracking-wider mb-1">
-                        <span className="material-symbols-outlined text-sm text-[#33B974]">school</span>
-                        <span>Practice Arena</span>
+                <header className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-slate-200 dark:border-slate-800 pb-5">
+                    <div className="flex flex-col gap-1">
+                        <div className="flex items-center gap-2 text-xs text-gray-400 uppercase tracking-wider mb-1">
+                            <span className="material-symbols-outlined text-sm text-[#33B974]">school</span>
+                            <span>Practice Arena</span>
+                        </div>
+                        <h1 className="text-3xl md:text-4xl font-black leading-tight tracking-tight text-slate-900 dark:text-white">
+                            Keyboard Mastery Path
+                        </h1>
+                        <p className="text-slate-500 dark:text-slate-400 text-sm max-w-xl">
+                            A progressive 12-stage journey from your first key press to full keyboard fluency. Complete each stage to unlock the next.
+                        </p>
                     </div>
-                    <h1 className="text-3xl md:text-4xl font-black leading-tight tracking-tight text-slate-900 dark:text-white">
-                        Keyboard Mastery Path
-                    </h1>
-                    <p className="text-slate-500 dark:text-slate-400 text-sm max-w-xl">
-                        A progressive 12-stage journey from your first key press to full keyboard fluency. Complete each stage to unlock the next.
-                    </p>
+                    <button 
+                        onClick={() => setIsHeatmapOpen(true)}
+                        className="flex items-center justify-center gap-2 bg-[#094A71] hover:bg-[#094A71]/90 px-5 py-2.5 rounded-xl text-white transition-colors shadow-md w-full md:w-auto"
+                    >
+                        <span className="material-symbols-outlined text-[20px]">grid_on</span>
+                        <span className="text-sm font-bold tracking-wide">Key Heatmap</span>
+                    </button>
                 </header>
 
                 <div className="grid grid-cols-1 lg:grid-cols-[1fr_420px] xl:grid-cols-[1fr_500px] gap-8">
@@ -71,7 +81,7 @@ const StudentPractice: React.FC = () => {
                             Learning Path
                         </h2>
 
-                        {PRACTICE_MODULES.map((mod, mIndex) => {
+                        {PRACTICE_MODULES.map((mod) => {
                             const isExpanded = expandedModule === mod.id;
                             
                             // Check if module is fully locked (first stage locked)
@@ -207,16 +217,8 @@ const StudentPractice: React.FC = () => {
                         })}
                     </div>
 
-                    {/* ── RIGHT: Heatmap + Smart Recommendations ── */}
+                    {/* ── RIGHT: Smart Recommendations ── */}
                     <div className="flex flex-col gap-6">
-                        {/* Keyboard Heatmap */}
-                        <div className="bg-white dark:bg-[#0b1e2d] rounded-2xl border border-gray-100 dark:border-white/5 p-6 shadow-sm flex flex-col items-center">
-                            <div className="flex items-center gap-2 mb-6 self-start">
-                                <span className="material-symbols-outlined text-[#094A71] dark:text-[#5aacdf]">grid_on</span>
-                                <h3 className="font-bold text-[#061824] dark:text-white text-base">Key Proficiency</h3>
-                            </div>
-                            <KeyboardHeatmap keyStats={keyStats} />
-                        </div>
 
                         {/* Smart Recommendations */}
                         <div className="bg-white dark:bg-[#0b1e2d] rounded-2xl border border-gray-100 dark:border-white/5 p-6 shadow-sm">
@@ -278,14 +280,38 @@ const StudentPractice: React.FC = () => {
                             )}
                         </div>
 
-                        {/* Keyboard Heatmap */}
-                        <KeyboardHeatmap
-                            getKeyAccuracy={getKeyAccuracy}
-                            keyStats={keyStats}
-                        />
+
                     </div>
                 </div>
             </div>
+
+            {/* Keyboard Heatmap Modal */}
+            {isHeatmapOpen && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-[#061824]/80 backdrop-blur-sm animate-in fade-in duration-200">
+                    <div className="bg-white dark:bg-[#0b1e2d] w-full max-w-4xl rounded-2xl shadow-2xl border border-slate-200 dark:border-[#323b67] flex flex-col overflow-hidden max-h-full">
+                        <div className="flex items-center justify-between p-6 border-b border-slate-100 dark:border-[#323b67]">
+                            <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 rounded-full bg-[#094A71]/10 flex items-center justify-center text-[#094A71] dark:text-[#5aacdf]">
+                                    <span className="material-symbols-outlined">grid_on</span>
+                                </div>
+                                <div>
+                                    <h2 className="text-xl font-bold text-slate-900 dark:text-white font-heading tracking-tight">Keyboard Heatmap</h2>
+                                    <p className="text-sm text-slate-500 dark:text-[#929bc9]">Your proficiency across all keys</p>
+                                </div>
+                            </div>
+                            <button 
+                                onClick={() => setIsHeatmapOpen(false)}
+                                className="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-[#232948] text-slate-400 hover:text-slate-600 dark:hover:text-white transition-colors"
+                            >
+                                <span className="material-symbols-outlined">close</span>
+                            </button>
+                        </div>
+                        <div className="p-8 overflow-y-auto flex items-center justify-center min-h-[400px]">
+                            <KeyboardHeatmap keyStats={keyStats} getKeyAccuracy={getKeyAccuracy} />
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

@@ -13,6 +13,7 @@ const SSOCallback: React.FC = () => {
         const token = searchParams.get('token');
 
         if (!token) {
+            // eslint-disable-next-line react-hooks/set-state-in-effect
             setError('No SSO token provided.');
             return;
         }
@@ -34,9 +35,11 @@ const SSOCallback: React.FC = () => {
                 } else {
                     navigate('/unauthorized'); // Or appropriate dashboard
                 }
-            } catch (err: any) {
+            } catch (err: unknown) {
                 console.error('SSO Login Failed', err);
-                setError(err.response?.data?.message || 'SSO Login Failed');
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                const axiosError = err as any;
+                setError(axiosError.response?.data?.message || 'SSO Login Failed');
             }
         };
 

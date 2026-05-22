@@ -39,10 +39,20 @@ import FacilitatorSettings from './pages/FacilitatorSettings';
 import FacilitatorAnalytics from './pages/FacilitatorAnalytics';
 import SSOCallback from './pages/SSOCallback';
 
+import TypingLoader from './components/common/TypingLoader';
+import { useAuth } from './context/AuthContext';
+
+const AuthLoader: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { isLoading } = useAuth();
+  if (isLoading) return <TypingLoader />;
+  return <>{children}</>;
+};
+
 function App() {
   return (
     <AuthProvider>
-      <UserProgressProvider>
+      <AuthLoader>
+        <UserProgressProvider>
         <InstitutionProvider>
           <FacilitatorProvider>
             <BrowserRouter>
@@ -104,6 +114,7 @@ function App() {
           </FacilitatorProvider>
         </InstitutionProvider>
       </UserProgressProvider>
+      </AuthLoader>
     </AuthProvider>
   );
 }
