@@ -49,8 +49,13 @@ export default function LandingPage({ t, locale }: { t: (key: string) => string;
                     </div>
 
                     <div className="flex items-center gap-3">
-                        <button onClick={toggleLanguage} className="text-platinum-700 hover:text-gold transition-colors p-2" aria-label="Switch language">
-                            <Globe className="w-4 h-4" />
+                        <button onClick={toggleLanguage} className="flex items-center gap-2 text-platinum-700 hover:text-gold transition-colors px-3 py-1.5 rounded-full border border-jet-600/30 hover:border-gold/30 bg-jet/20" aria-label="Switch language">
+                            <span className="text-sm font-medium">{t('nav.language') || 'Language'}</span>
+                            {currentLocale === 'en' ? (
+                                <Image src="/flags/gb.svg" alt="English" width={16} height={12} className="rounded-sm" />
+                            ) : (
+                                <Image src="/flags/rw.svg" alt="Kinyarwanda" width={16} height={12} className="rounded-sm" />
+                            )}
                         </button>
                         <button onClick={() => goTo('/login')} className="text-sm font-medium text-platinum-800 hover:text-gold transition-colors hidden sm:block">
                             {t('nav.login')}
@@ -143,6 +148,15 @@ export default function LandingPage({ t, locale }: { t: (key: string) => string;
                 </div>
 
                 <div className="relative max-w-6xl mx-auto px-6 z-10 reveal">
+                    <div className="text-center mb-12 md:mb-16">
+                        <h2 className="text-4xl sm:text-5xl md:text-6xl font-bold font-heading mb-6 text-onyx">
+                            {t('showcase.title1')} <span className="text-gold">{t('showcase.title2')}</span>
+                        </h2>
+                        <p className="text-jet-600 text-lg md:text-xl max-w-2xl mx-auto leading-relaxed">
+                            {t('showcase.subtitle')}
+                        </p>
+                    </div>
+
                     <div className="relative w-full flex justify-center">
                         <Image 
                             src="/SMARTCURUZA.png" 

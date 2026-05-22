@@ -150,7 +150,8 @@
             "howItWorks": "How It Works",
             "benefits": "Why Us",
             "login": "Log In",
-            "getStarted": "Get Started Free"
+            "getStarted": "Get Started Free",
+            "language": "Language"
         },
         "hero": {
             "tagline": "The Smart Way to Run Your Shop",
@@ -161,6 +162,11 @@
             "cta": "Start Free Today",
             "ctaSecondary": "See How It Works",
             "badge": "Offline-First • Mobile Ready • Built for Africa"
+        },
+        "showcase": {
+            "title1": "Your Business.",
+            "title2": "Everywhere.",
+            "subtitle": "Whether you're at the counter with your phone or at home on your laptop, your data syncs instantly."
         },
         "stats": {
             "merchants": "Merchants",
@@ -267,6 +273,16 @@
             "webAlt": "Smart-Curuza web dashboard showing sales analytics and inventory management",
             "mobileAlt": "Smart-Curuza mobile POS app for processing sales on the go",
             "crmAlt": "Smart-Curuza CRM showing customer debt tracking and loyalty points"
+        },
+        "merchantCTA": {
+            "badge": "Built for African Merchants",
+            "headline1": "Run your",
+            "headline2": "entire shop",
+            "headline3": "from your pocket.",
+            "description": "Join thousands of happy merchants taking control of their inventory, sales, and daily profits with Smart Curuza. No complex computers needed—just your smartphone.",
+            "feature1": "Track sales & profits in real-time",
+            "feature2": "Manage inventory effortlessly",
+            "feature3": "Know exactly what's making you money"
         }
     }
 }

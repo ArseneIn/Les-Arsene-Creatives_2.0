@@ -2,8 +2,11 @@
 
 import Image from 'next/image';
 import { CheckCircle2 } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 export default function MerchantCTA() {
+    const t = useTranslations('Landing.merchantCTA');
+
     return (
         <section className="relative py-20 md:py-32 bg-white overflow-hidden border-t border-platinum/40">
             {/* Background elements */}
@@ -16,24 +19,24 @@ export default function MerchantCTA() {
                     <div className="w-full md:w-1/2 reveal">
                         <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gold/10 border border-gold/20 mb-6">
                             <span className="w-2 h-2 rounded-full bg-gold animate-pulse" />
-                            <span className="text-onyx text-xs font-bold uppercase tracking-wider">Built for African Merchants</span>
+                            <span className="text-onyx text-xs font-bold uppercase tracking-wider">{t('badge')}</span>
                         </div>
                         
                         <h2 className="text-5xl sm:text-6xl md:text-7xl font-black font-heading leading-[1.1] mb-8 text-onyx">
-                            Run your <br />
-                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-gold to-saffron">entire shop</span><br />
-                            from your pocket.
+                            {t('headline1')} <br />
+                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-gold to-saffron">{t('headline2')}</span><br />
+                            {t('headline3')}
                         </h2>
                         
                         <p className="text-jet-600 text-lg md:text-xl mb-10 leading-relaxed font-body max-w-lg">
-                            Join thousands of happy merchants taking control of their inventory, sales, and daily profits with Smart Curuza. No complex computers needed—just your smartphone.
+                            {t('description')}
                         </p>
                         
                         <div className="space-y-4 mb-10">
                             {[
-                                "Track sales & profits in real-time",
-                                "Manage inventory effortlessly",
-                                "Know exactly what's making you money"
+                                t('feature1'),
+                                t('feature2'),
+                                t('feature3')
                             ].map((feature, idx) => (
                                 <div key={idx} className="flex items-center gap-3">
                                     <CheckCircle2 className="w-6 h-6 text-gold flex-shrink-0" />

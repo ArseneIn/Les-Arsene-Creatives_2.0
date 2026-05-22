@@ -8,7 +8,7 @@
         "pin": "Kode y'ibanga (PIN)",
         "login": "Injira",
         "register": "Iyandikishe",
-        "notMember": "Ntabwo wariyandikisha?",
+        "notMember": "Ntabwo uri umwe mu bagize Smart-Curuza?",
         "orContinue": "Cyangwa ukoreshe",
         "recovery": "Wibagiwe ijambo ry'ibanga?"
     },
@@ -122,9 +122,9 @@
             "bulkUnitLabel": "Urugero rwo Kurangura (Icyo ugura)",
             "bulkUnitPlaceholder": "urugero: Ikarito, Umufuka",
             "conversionQuestion": "Hari {sellingUnit} zingahe muri 1 {bulkUnit}?",
-            "initialStock": "Ububiko bwo gutangira ({unit})",
-            "buyingPrice": "Igiciro cyo kurangura (kuri {unit})",
-            "sellingPrice": "Igiciro cyo kugurisha (kuri {unit})",
+            "initialStock": "Sitoke ntangiranye ({unit})",
+            "buyingPrice": "ndangura (kuri {unit})",
+            "sellingPrice": "Ngurisha (kuri {unit})",
             "totalStockBase": "Ububiko Bwose (Ingero z'ibanze)",
             "costPerUnit": "Igiciro kuri {unit}",
             "estimatedMargin": "Inyungu iteganyijwe",
@@ -150,7 +150,8 @@
             "howItWorks": "Uko Bikora",
             "benefits": "Kubera Iki",
             "login": "Injira",
-            "getStarted": "Tangira Kubuntu"
+            "getStarted": "Tangira Kubuntu",
+            "language": "Ururimi"
         },
         "hero": {
             "tagline": "Uburyo Bwiza bwo Gucuruza",
@@ -161,6 +162,11 @@
             "cta": "Tangira Kubuntu Uyu munsi",
             "ctaSecondary": "Reba Uko Bikora",
             "badge": "Ikora nta Interineti • Telefoni igendanwa • Yubatswe ku Bafurika"
+        },
+        "showcase": {
+            "title1": "Ubucuruzi Bwawe.",
+            "title2": "Aho Uri Hose.",
+            "subtitle": "Waba uri ku kazi ukoresha telefoni cyangwa uri mu rugo kuri mudasobwa, amakuru yawe asangizwa ako kanya."
         },
         "stats": {
             "merchants": "Abacuruzi",
@@ -267,6 +273,16 @@
             "webAlt": "Smart-Curuza dashbord ku murandasi igaragaza imibare y'ubucuruzi no gucunga ububiko",
             "mobileAlt": "Smart-Curuza kuri telefoni igendanwa yo gucuruza",
             "crmAlt": "Smart-Curuza CRM igaragaza igenzura ry'ideni ry'abakiliya n'amanota y'ubudahemuka"
+        },
+        "merchantCTA": {
+            "badge": "Yubakiwe Abacuruzi ba Afurika",
+            "headline1": "Cunga",
+            "headline2": "iduka ryawe ryose",
+            "headline3": "muri telefone yawe.",
+            "description": "Ifatanye n'abacuruzi ibihumbi bishimiye gucunga ibicuruzwa byabo, ibyo bagurisha, n'inyungu za buri munsi bakoresheje Smart Curuza. Nta madosiye akomeye akenewe—telefone yawe irahagije.",
+            "feature1": "Kurikirana ibigurishwa n'inyungu ako kanya",
+            "feature2": "Cunga ububiko bw'ibicuruzwa mu buryo bworoshye",
+            "feature3": "Menya neza ibikuzanira amafaranga menshi"
         }
     }
 }
