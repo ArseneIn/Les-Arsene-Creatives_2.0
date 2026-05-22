@@ -98,10 +98,17 @@ const config: Config = {
                     '15%': { transform: 'rotate(-12deg)' },
                     '20%': { transform: 'rotate(12deg)' },
                     '25%': { transform: 'rotate(0deg)' },
+                },
+                float: {
+                    '0%, 100%': { transform: 'translateY(0)' },
+                    '50%': { transform: 'translateY(-20px)' },
                 }
             },
             animation: {
                 shake: 'shake 3s ease-in-out infinite',
+                float: 'float 6s ease-in-out infinite',
+                'float-slow': 'float 8s ease-in-out infinite',
+                'float-delayed': 'float 6s ease-in-out 3s infinite',
             },
         },
     },

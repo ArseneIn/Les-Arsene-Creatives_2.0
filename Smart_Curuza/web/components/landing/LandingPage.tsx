@@ -1,7 +1,7 @@
 'use client';
 
 import { useRouter, usePathname } from 'next/navigation';
-import { Store, Globe, ArrowRight } from 'lucide-react';
+import { Store, Globe, ArrowRight, ShoppingCart, Smartphone, Cpu, CreditCard, Tag, Box, Zap, Cloud, ShieldCheck } from 'lucide-react';
 import Image from 'next/image';
 import { useScrollReveal } from './useScrollReveal';
 import StatsBar from './StatsBar';
@@ -109,20 +109,48 @@ export default function LandingPage({ t, locale }: { t: (key: string) => string;
                             {t('hero.ctaSecondary')}
                         </a>
                     </div>
+                </div>
+            </section>
 
-                    {/* Hero Image */}
-                    <div className="mt-16 md:mt-24 relative w-full max-w-5xl mx-auto reveal" style={{ transitionDelay: '0.4s' }}>
-                        <div className="absolute inset-0 bg-gold/10 blur-[100px] rounded-full pointer-events-none"></div>
-                        <div className="relative rounded-2xl md:rounded-[2rem] overflow-hidden border border-jet-600/50 shadow-2xl shadow-black/50">
-                            <Image 
-                                src="/SMARTCURUZA.png" 
-                                alt="Smart Curuza Interface" 
-                                width={1920} 
-                                height={1080} 
-                                className="w-full h-auto object-cover transform hover:scale-[1.02] transition-transform duration-700"
-                                priority
-                            />
-                        </div>
+            {/* ===== APP SHOWCASE ===== */}
+            <section className="relative pt-10 pb-24 bg-white overflow-hidden">
+                {/* Floating techy/shopping icons background */}
+                <div className="absolute inset-0 pointer-events-none overflow-hidden flex items-center justify-center">
+                    <div className="relative w-full max-w-7xl h-full opacity-[0.08]">
+                        <ShoppingCart className="absolute top-[15%] left-[10%] w-6 h-6 animate-float text-onyx" />
+                        <Smartphone className="absolute top-[25%] right-[15%] w-8 h-8 animate-float-delayed text-onyx" />
+                        <Cpu className="absolute bottom-[20%] left-[20%] w-10 h-10 animate-float-slow text-onyx" />
+                        <CreditCard className="absolute top-[45%] left-[5%] w-5 h-5 animate-float text-onyx" />
+                        <Tag className="absolute bottom-[35%] right-[10%] w-7 h-7 animate-float-delayed text-onyx" />
+                        <Box className="absolute top-[20%] right-[35%] w-9 h-9 animate-float-slow text-onyx" />
+                        <Zap className="absolute bottom-[15%] right-[25%] w-6 h-6 animate-float text-onyx" />
+                        <Cloud className="absolute top-[65%] left-[25%] w-8 h-8 animate-float-delayed text-onyx" />
+                        <ShieldCheck className="absolute top-[10%] left-[40%] w-5 h-5 animate-float-slow text-onyx" />
+                        <ShoppingCart className="absolute bottom-[10%] left-[45%] w-7 h-7 animate-float text-onyx" />
+                        <Smartphone className="absolute top-[75%] right-[5%] w-6 h-6 animate-float-delayed text-onyx" />
+                        <Cpu className="absolute top-[50%] right-[45%] w-5 h-5 animate-float-slow text-onyx" />
+                        <CreditCard className="absolute top-[30%] left-[30%] w-8 h-8 animate-float text-onyx" />
+                        <Tag className="absolute bottom-[50%] left-[15%] w-6 h-6 animate-float-delayed text-onyx" />
+                        <Box className="absolute bottom-[25%] right-[45%] w-7 h-7 animate-float-slow text-onyx" />
+                        <Zap className="absolute top-[5%] right-[20%] w-5 h-5 animate-float text-onyx" />
+                        {/* More icons for density */}
+                        <ShoppingCart className="absolute top-[80%] left-[30%] w-4 h-4 animate-float-delayed text-onyx" />
+                        <Smartphone className="absolute top-[15%] right-[50%] w-5 h-5 animate-float text-onyx" />
+                        <Cpu className="absolute bottom-[60%] right-[15%] w-6 h-6 animate-float-slow text-onyx" />
+                        <CreditCard className="absolute bottom-[5%] right-[35%] w-4 h-4 animate-float-delayed text-onyx" />
+                    </div>
+                </div>
+
+                <div className="relative max-w-6xl mx-auto px-6 z-10 reveal">
+                    <div className="relative w-full flex justify-center">
+                        <Image 
+                            src="/SMARTCURUZA.png" 
+                            alt="Smart Curuza Interface" 
+                            width={1920} 
+                            height={1080} 
+                            className="w-full h-auto object-contain transform hover:scale-[1.01] transition-transform duration-700 drop-shadow-[0_20px_50px_rgba(0,0,0,0.15)]"
+                            priority
+                        />
                     </div>
                 </div>
             </section>
