@@ -1,10 +1,13 @@
-import React, { useState } from 'react';
-import { Plus, Calendar, ChevronDown, MoreHorizontal, Upload, X, CloudUpload, FileText, PlusCircle } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
+import { Plus, Calendar, ChevronDown, MoreHorizontal, Upload, X, CloudUpload, FileText, PlusCircle, Activity } from 'lucide-react';
 import { useInstitution } from '../context/InstitutionContext';
+import { useAuth } from '../context/AuthContext';
 import api from '../api/axios';
 import type { Intake, Student } from '../types/institution';
 
 const InstitutionIntakes: React.FC = () => {
+    const { user } = useAuth();
     const { intakes, addIntake, addSection, facilitators, assignFacilitatorToSection } = useInstitution();
     const [expandedIntake, setExpandedIntake] = useState<string | null>('1');
     const [showNewIntakeModal, setShowNewIntakeModal] = useState(false);
@@ -12,6 +15,57 @@ const InstitutionIntakes: React.FC = () => {
     const [assignFacilitatorModal, setAssignFacilitatorModal] = useState<{ sectionId: string, currentFacilitatorId?: string } | null>(null);
     const [selectedFacilitatorId, setSelectedFacilitatorId] = useState('');
     const [showRosterModal, setShowRosterModal] = useState<{ sectionId: string, sectionName: string, students: Student[] } | null>(null);
+    const [results, setResults] = useState<any[]>([]);
+
+    useEffect(() => {
+        const fetchResults = async () => {
+            try {
+                if (user?.institutionId) {
+                    const res = await api.get(`/test-result/institution/${user.institutionId}`);
+                    setResults(res.data);
+                }
+            } catch (error) {
+                console.error("Failed to fetch test results for roster:", error);
+            }
+        };
+        fetchResults();
+    }, [user?.institutionId]);
+
+    const getStudentStatus = (studentId: string) => {
+        const studentResults = results.filter(r => r.user.id === studentId);
+        if (!studentResults.length) return 'Practicing';
+
+        let currentStatus = 'Practicing';
+        studentResults.forEach(r => {
+            const title = (r.test?.title || r.assignment?.title || '').toLowerCase();
+            const passed = r.wpm >= 20 && r.accuracy >= 70;
+            const isPractice = title.includes('practice') || title.includes('drill');
+
+            if (!isPractice) {
+                if (title.includes('level 2') && passed) {
+                    currentStatus = 'Passed';
+                } else if ((title.includes('level 1') && passed) || title.includes('level 2')) {
+                    currentStatus = 'Level 2';
+                } else {
+                    currentStatus = 'Level 1';
+                }
+            }
+        });
+        return currentStatus;
+    };
+
+    const getStatusBadgeClass = (status: string) => {
+        switch (status) {
+            case 'Passed':
+                return 'bg-[#33B974]/15 text-[#33B974] border-[#33B974]/20';
+            case 'Level 2':
+                return 'bg-blue-500/15 text-blue-500 border-blue-500/20';
+            case 'Level 1':
+                return 'bg-orange-500/15 text-orange-500 border-orange-500/20';
+            default:
+                return 'bg-indigo-500/15 text-indigo-500 border-indigo-500/20';
+        }
+    };
 
     // Form States
     const [newIntakeName, setNewIntakeName] = useState('');
@@ -457,56 +511,76 @@ const InstitutionIntakes: React.FC = () => {
             {/* Roster Modal */}
             {showRosterModal && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-                    <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+                    <div className="bg-white rounded-2xl shadow-2xl w-full max-w-4xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
                         <div className="p-6 border-b border-gray-100 flex justify-between items-center">
                             <div>
                                 <h3 className="text-xl font-bold text-[#0d1b17]">{showRosterModal.sectionName} — Roster</h3>
-                                <p className="text-xs text-gray-500 mt-0.5">Manage students and reset PINs/passwords instantly.</p>
+                                <p className="text-xs text-gray-500 mt-0.5">Manage student onboarding details, track milestones, and reset credentials.</p>
                             </div>
                             <button onClick={() => setShowRosterModal(null)} className="text-gray-400 hover:text-gray-600">
                                 <X className="w-6 h-6" />
                             </button>
                         </div>
-                        <div className="p-6 max-h-[400px] overflow-y-auto">
+                        <div className="p-6 max-h-[450px] overflow-y-auto">
                             {showRosterModal.students.length > 0 ? (
                                 <table className="w-full text-left border-collapse text-sm">
                                     <thead>
                                         <tr className="border-b border-gray-100 text-gray-400 text-xs font-bold uppercase tracking-wider">
-                                            <th className="pb-3 w-1/3">Name</th>
-                                            <th className="pb-3 w-1/3">Username / Email</th>
+                                            <th className="pb-3 w-1/6">Student ID</th>
+                                            <th className="pb-3 w-1/4">Name</th>
+                                            <th className="pb-3 w-1/4">Username / Email</th>
+                                            <th className="pb-3 w-1/6 text-center">Milestone Status</th>
                                             <th className="pb-3 text-right">Actions</th>
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-gray-50">
-                                        {showRosterModal.students.map((student) => (
-                                            <tr key={student.id} className="hover:bg-gray-50/50 transition-colors">
-                                                <td className="py-3.5 font-bold text-[#0d1b17]">{student.name}</td>
-                                                <td className="py-3.5 text-gray-600 font-medium">
-                                                    {student.email || student.username || <span className="text-red-400 italic">No credentials</span>}
-                                                </td>
-                                                <td className="py-3.5 text-right">
-                                                    <button
-                                                        onClick={async () => {
-                                                            const newPin = prompt(`Enter a new password/PIN for ${student.name} (leave empty to reset to default "1234"):`);
-                                                            if (newPin === null) return; // user cancelled
-                                                            
-                                                            try {
-                                                                await api.patch(`/section/${showRosterModal.sectionId}/students/${student.id}/reset-password`, {
-                                                                    password: newPin || '1234'
-                                                                });
-                                                                alert(`Successfully reset password for ${student.name} to "${newPin || '1234'}".`);
-                                                            } catch (err) {
-                                                                console.error(err);
-                                                                alert(`Failed to reset password: ${err instanceof Error ? err.message : 'Unknown error'}`);
-                                                            }
-                                                        }}
-                                                        className="px-2.5 py-1 text-xs font-bold text-red-600 bg-red-50 hover:bg-red-100 rounded border border-red-200 transition-colors"
-                                                    >
-                                                        Reset PIN
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                        ))}
+                                        {showRosterModal.students.map((student) => {
+                                            const status = getStudentStatus(student.id);
+                                            return (
+                                                <tr key={student.id} className="hover:bg-gray-50/50 transition-colors">
+                                                    <td className="py-3.5 font-mono text-xs text-gray-400 font-bold">
+                                                        {student.id.substring(0, 8).toUpperCase()}
+                                                    </td>
+                                                    <td className="py-3.5 font-bold text-[#0d1b17]">{student.name}</td>
+                                                    <td className="py-3.5 text-gray-600 font-medium">
+                                                        {student.email || student.username || <span className="text-red-400 italic">No credentials</span>}
+                                                    </td>
+                                                    <td className="py-3.5 text-center">
+                                                        <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold border ${getStatusBadgeClass(status)}`}>
+                                                            {status}
+                                                        </span>
+                                                    </td>
+                                                    <td className="py-3.5 text-right flex items-center justify-end gap-2">
+                                                        <Link
+                                                            to={`/admin/performance?studentId=${student.id}`}
+                                                            className="px-2.5 py-1 text-xs font-bold text-blue-600 bg-blue-50 hover:bg-blue-100 rounded border border-blue-200 transition-colors flex items-center gap-1"
+                                                        >
+                                                            <Activity className="w-3 h-3" />
+                                                            Performance
+                                                        </Link>
+                                                        <button
+                                                            onClick={async () => {
+                                                                const newPin = prompt(`Enter a new password/PIN for ${student.name} (leave empty to reset to default "1234"):`);
+                                                                if (newPin === null) return; // user cancelled
+                                                                
+                                                                try {
+                                                                    await api.patch(`/section/${showRosterModal.sectionId}/students/${student.id}/reset-password`, {
+                                                                        password: newPin || '1234'
+                                                                    });
+                                                                    alert(`Successfully reset password for ${student.name} to "${newPin || '1234'}".`);
+                                                                } catch (err) {
+                                                                    console.error(err);
+                                                                    alert(`Failed to reset password: ${err instanceof Error ? err.message : 'Unknown error'}`);
+                                                                }
+                                                            }}
+                                                            className="px-2.5 py-1 text-xs font-bold text-red-600 bg-red-50 hover:bg-red-100 rounded border border-red-200 transition-colors"
+                                                        >
+                                                            Reset PIN
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            );
+                                        })}
                                     </tbody>
                                 </table>
                             ) : (

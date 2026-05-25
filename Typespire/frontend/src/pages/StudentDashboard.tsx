@@ -159,7 +159,7 @@ const StudentDashboard: React.FC = () => {
                 </header>
 
                 {/* ── Assigned Tests Section ── */}
-                {!isStagePassed('stage-12') ? (
+                {!isStagePassed('stage-capstone') ? (
                     <div className="bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 rounded-2xl p-8 flex flex-col items-center justify-center text-center">
                         <span className="material-symbols-outlined text-5xl text-red-500 mb-4">lock</span>
                         <h2 className="text-2xl font-bold text-red-600 dark:text-red-400 mb-2">Assignments Locked</h2>
@@ -314,11 +314,11 @@ const StudentDashboard: React.FC = () => {
                                 </p>
                             </div>
                             <Link 
-                                to={!isStagePassed('stage-12') ? "/practice" : latestAssignment ? `/test?assignmentId=${latestAssignment.id}` : "/practice"} 
-                                className={`w-full md:w-auto shrink-0 flex items-center justify-center gap-2 ${!isStagePassed('stage-12') ? 'bg-red-500 hover:bg-red-600' : 'bg-primary hover:bg-emerald-600'} text-white font-bold py-3.5 px-7 rounded-xl transition-all duration-200 shadow-lg shadow-primary/20 hover-scale active-scale font-heading`}
+                                to={!isStagePassed('stage-capstone') ? "/practice" : latestAssignment ? `/test?assignmentId=${latestAssignment.id}` : "/practice"} 
+                                className={`w-full md:w-auto shrink-0 flex items-center justify-center gap-2 ${!isStagePassed('stage-capstone') ? 'bg-red-500 hover:bg-red-600' : 'bg-primary hover:bg-emerald-600'} text-white font-bold py-3.5 px-7 rounded-xl transition-all duration-200 shadow-lg shadow-primary/20 hover-scale active-scale font-heading`}
                             >
-                                <span className="material-symbols-outlined text-[20px]">{!isStagePassed('stage-12') ? 'lock' : latestAssignment ? 'play_arrow' : 'keyboard'}</span>
-                                <span>{!isStagePassed('stage-12') ? 'Go to Practice' : latestAssignment ? 'Start Assignment' : 'Go to Practice'}</span>
+                                <span className="material-symbols-outlined text-[20px]">{!isStagePassed('stage-capstone') ? 'lock' : latestAssignment ? 'play_arrow' : 'keyboard'}</span>
+                                <span>{!isStagePassed('stage-capstone') ? 'Go to Practice' : latestAssignment ? 'Start Assignment' : 'Go to Practice'}</span>
                             </Link>
                         </div>
                     </div>

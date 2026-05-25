@@ -43,4 +43,9 @@ export class TestResultController {
   async findByAssignment(@Param('assignmentId') assignmentId: string) {
     return this.testResultService.findByAssignment(assignmentId);
   }
+
+  @Get('institution/:institutionId')
+  async findByInstitution(@Param('institutionId') institutionId: string) {
+    return this.testResultService.findByInstitution(institutionId);
+  }
 }

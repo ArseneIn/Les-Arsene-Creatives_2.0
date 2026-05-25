@@ -7,6 +7,7 @@ const FacilitatorLayout: React.FC = () => {
     const isActive = (path: string) => location.pathname === path;
 
     const [isSidebarOpen, setIsSidebarOpen] = React.useState(false);
+    const [isCollapsed, setIsCollapsed] = React.useState(false);
     const { user, logout } = useAuth();
     const navigate = useNavigate();
 
@@ -27,115 +28,134 @@ const FacilitatorLayout: React.FC = () => {
 
             {/* Sidebar Navigation */}
             <aside className={`
-                fixed lg:static inset-y-0 left-0 z-50 w-64 border-r border-white/10 bg-[#094A71] text-white flex flex-col h-full flex-shrink-0 transition-transform duration-300 ease-in-out
+                fixed lg:static inset-y-0 left-0 z-50 border-r border-white/10 bg-[#094A71] text-white flex flex-col h-full flex-shrink-0 transition-all duration-300 ease-in-out
+                ${isCollapsed ? 'w-20' : 'w-64'}
                 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
             `}>
-                <div className="p-6">
-                    <div className="flex items-center justify-between mb-10">
+                <div className={`p-6 ${isCollapsed ? 'px-4' : 'px-6'}`}>
+                    <div className={`flex items-center ${isCollapsed ? 'justify-center' : 'justify-between'} mb-10`}>
                         <div className="flex items-center gap-3">
-                            <div className="bg-secondary rounded-lg p-2 flex items-center justify-center text-white">
+                            <div className="bg-secondary rounded-lg p-2 flex items-center justify-center text-white shrink-0">
                                 <span className="material-symbols-outlined text-2xl flex items-center justify-center">keyboard</span>
                             </div>
-                            <div>
-                                <h1 className="text-xl font-bold tracking-tight">Typespire</h1>
-                                <p className="text-xs text-secondary uppercase tracking-widest font-bold">Facilitator</p>
-                            </div>
+                            {!isCollapsed && (
+                                <div className="transition-opacity duration-300">
+                                    <h1 className="text-xl font-bold tracking-tight">Typespire</h1>
+                                    <p className="text-xs text-secondary uppercase tracking-widest font-bold">Facilitator</p>
+                                </div>
+                            )}
                         </div>
                         <button
-                            className="lg:hidden text-white/60 hover:text-white"
+                            className="lg:hidden text-white/60 hover:text-white absolute top-6 right-4"
                             onClick={() => setIsSidebarOpen(false)}
                         >
                             <span className="material-symbols-outlined">close</span>
                         </button>
                     </div>
-                    <nav className="space-y-1">
+                    <nav className="space-y-1 relative">
+                        {/* Collapse Toggle Button (Desktop only) */}
+                        <button 
+                            onClick={() => setIsCollapsed(!isCollapsed)}
+                            className="hidden lg:flex absolute -right-[26px] top-1/2 -translate-y-1/2 bg-[#094A71] border border-white/10 rounded-full p-1 text-white hover:text-secondary z-50 shadow-md items-center justify-center"
+                        >
+                            <span className="material-symbols-outlined text-sm">{isCollapsed ? 'chevron_right' : 'chevron_left'}</span>
+                        </button>
                         <Link
                             to="/facilitator"
                             onClick={() => setIsSidebarOpen(false)}
-                            className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all border-l-4 group ${isActive('/facilitator')
+                            title={isCollapsed ? "Dashboard" : undefined}
+                            className={`flex items-center ${isCollapsed ? 'justify-center px-0' : 'gap-3 px-4'} py-3 rounded-lg transition-all border-l-4 group ${isActive('/facilitator')
                                 ? 'bg-white/10 text-[#33B974] border-[#33B974]'
                                 : 'text-white/90 hover:text-[#33B974] hover:bg-white/10 border-transparent hover:border-[#33B974]'
                                 }`}
                         >
-                            <span className={`material-symbols-outlined transition-colors ${isActive('/facilitator') ? 'text-[#33B974]' : 'text-white/70 group-hover:text-[#33B974]'}`}>dashboard</span>
-                            <span className="font-medium text-sm">Dashboard</span>
+                            <span className={`material-symbols-outlined shrink-0 transition-colors ${isActive('/facilitator') ? 'text-[#33B974]' : 'text-white/70 group-hover:text-[#33B974]'}`}>dashboard</span>
+                            {!isCollapsed && <span className="font-medium text-sm truncate">Dashboard</span>}
                         </Link>
                         <Link
                             to="/facilitator/launch"
                             onClick={() => setIsSidebarOpen(false)}
-                            className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all border-l-4 group ${isActive('/facilitator/launch')
+                            title={isCollapsed ? "New Assignment" : undefined}
+                            className={`flex items-center ${isCollapsed ? 'justify-center px-0' : 'gap-3 px-4'} py-3 rounded-lg transition-all border-l-4 group ${isActive('/facilitator/launch')
                                 ? 'bg-white/10 text-[#33B974] border-[#33B974]'
                                 : 'text-white/90 hover:text-[#33B974] hover:bg-white/10 border-transparent hover:border-[#33B974]'
                                 }`}
                         >
-                            <span className={`material-symbols-outlined transition-colors ${isActive('/facilitator/launch') ? 'text-[#33B974]' : 'text-white/70 group-hover:text-[#33B974]'}`}>add_circle</span>
-                            <span className="font-medium text-sm">New Assignment</span>
+                            <span className={`material-symbols-outlined shrink-0 transition-colors ${isActive('/facilitator/launch') ? 'text-[#33B974]' : 'text-white/70 group-hover:text-[#33B974]'}`}>add_circle</span>
+                            {!isCollapsed && <span className="font-medium text-sm truncate">New Assignment</span>}
                         </Link>
                         <Link
                             to="/facilitator/classes"
                             onClick={() => setIsSidebarOpen(false)}
-                            className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all border-l-4 group ${isActive('/facilitator/classes')
+                            title={isCollapsed ? "Classes" : undefined}
+                            className={`flex items-center ${isCollapsed ? 'justify-center px-0' : 'gap-3 px-4'} py-3 rounded-lg transition-all border-l-4 group ${isActive('/facilitator/classes')
                                 ? 'bg-white/10 text-[#33B974] border-[#33B974]'
                                 : 'text-white/90 hover:text-[#33B974] hover:bg-white/10 border-transparent hover:border-[#33B974]'
                                 }`}
                         >
-                            <span className={`material-symbols-outlined transition-colors ${isActive('/facilitator/classes') ? 'text-[#33B974]' : 'text-white/70 group-hover:text-[#33B974]'}`}>class</span>
-                            <span className="font-medium text-sm">Classes</span>
+                            <span className={`material-symbols-outlined shrink-0 transition-colors ${isActive('/facilitator/classes') ? 'text-[#33B974]' : 'text-white/70 group-hover:text-[#33B974]'}`}>class</span>
+                            {!isCollapsed && <span className="font-medium text-sm truncate">Classes</span>}
                         </Link>
                         <Link
                             to="/facilitator/analytics"
                             onClick={() => setIsSidebarOpen(false)}
-                            className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all border-l-4 group ${isActive('/facilitator/analytics')
+                            title={isCollapsed ? "Analytics" : undefined}
+                            className={`flex items-center ${isCollapsed ? 'justify-center px-0' : 'gap-3 px-4'} py-3 rounded-lg transition-all border-l-4 group ${isActive('/facilitator/analytics')
                                 ? 'bg-white/10 text-[#33B974] border-[#33B974]'
                                 : 'text-white/90 hover:text-[#33B974] hover:bg-white/10 border-transparent hover:border-[#33B974]'
                                 }`}
                         >
-                            <span className={`material-symbols-outlined transition-colors ${isActive('/facilitator/analytics') ? 'text-[#33B974]' : 'text-white/70 group-hover:text-[#33B974]'}`}>analytics</span>
-                            <span className="font-medium text-sm">Analytics</span>
+                            <span className={`material-symbols-outlined shrink-0 transition-colors ${isActive('/facilitator/analytics') ? 'text-[#33B974]' : 'text-white/70 group-hover:text-[#33B974]'}`}>analytics</span>
+                            {!isCollapsed && <span className="font-medium text-sm truncate">Analytics</span>}
                         </Link>
                         <Link
                             to="/facilitator/reports"
                             onClick={() => setIsSidebarOpen(false)}
-                            className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all border-l-4 group ${isActive('/facilitator/reports')
+                            title={isCollapsed ? "Reports" : undefined}
+                            className={`flex items-center ${isCollapsed ? 'justify-center px-0' : 'gap-3 px-4'} py-3 rounded-lg transition-all border-l-4 group ${isActive('/facilitator/reports')
                                 ? 'bg-white/10 text-[#33B974] border-[#33B974]'
                                 : 'text-white/90 hover:text-[#33B974] hover:bg-white/10 border-transparent hover:border-[#33B974]'
                                 }`}
                         >
-                            <span className={`material-symbols-outlined transition-colors ${isActive('/facilitator/reports') ? 'text-[#33B974]' : 'text-white/70 group-hover:text-[#33B974]'}`}>bar_chart</span>
-                            <span className="font-medium text-sm">Reports</span>
+                            <span className={`material-symbols-outlined shrink-0 transition-colors ${isActive('/facilitator/reports') ? 'text-[#33B974]' : 'text-white/70 group-hover:text-[#33B974]'}`}>bar_chart</span>
+                            {!isCollapsed && <span className="font-medium text-sm truncate">Reports</span>}
                         </Link>
                         <Link
                             to="/facilitator/settings"
                             onClick={() => setIsSidebarOpen(false)}
-                            className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all border-l-4 group ${isActive('/facilitator/settings')
+                            title={isCollapsed ? "Settings" : undefined}
+                            className={`flex items-center ${isCollapsed ? 'justify-center px-0' : 'gap-3 px-4'} py-3 rounded-lg transition-all border-l-4 group ${isActive('/facilitator/settings')
                                 ? 'bg-white/10 text-[#33B974] border-[#33B974]'
                                 : 'text-white/90 hover:text-[#33B974] hover:bg-white/10 border-transparent hover:border-[#33B974]'
                                 }`}
                         >
-                            <span className={`material-symbols-outlined transition-colors ${isActive('/facilitator/settings') ? 'text-[#33B974]' : 'text-white/70 group-hover:text-[#33B974]'}`}>settings</span>
-                            <span className="font-medium text-sm">Settings</span>
+                            <span className={`material-symbols-outlined shrink-0 transition-colors ${isActive('/facilitator/settings') ? 'text-[#33B974]' : 'text-white/70 group-hover:text-[#33B974]'}`}>settings</span>
+                            {!isCollapsed && <span className="font-medium text-sm truncate">Settings</span>}
                         </Link>
                     </nav>
                 </div>
-                <div className="mt-auto p-4 border-t border-white/10 space-y-4">
-                    <div className="flex items-center gap-3 mb-2">
+                <div className={`mt-auto p-4 border-t border-white/10 space-y-4 ${isCollapsed ? 'flex flex-col items-center' : ''}`}>
+                    <div className={`flex items-center ${isCollapsed ? 'justify-center' : 'gap-3'} mb-2`}>
                         <div
-                            className="h-10 w-10 rounded-full bg-center bg-cover border border-white/10"
+                            className="h-10 w-10 shrink-0 rounded-full bg-center bg-cover border border-white/10"
                             style={{ backgroundImage: "url('https://lh3.googleusercontent.com/aida-public/AB6AXuAZCPCBTEZvawC1kZVLNd1i-KNLUNPPxyvHaT4pgKQ8rnu3RJz1TYy7La2rXxBstTpvR1K10TjemKic-tFtSgkmdkv-mYTXei4lidFc78RfbAIllFDPN3BBeqy-r-dWxrR9ZRncf7_z-GwgcPfvvcndGcXup395kUgLv1nQVoCHvJOUDEvhyhmkV8I11mBsxejwKEPNhr5pkiM7z7TGVTq3DaJ7lCqmO4kUOoUvd3N2Qc1rMsm2P7IkcDu7N4mtBzJ-ZBO-ylxu5scc')" }}
                         ></div>
-                        <div className="flex-1 overflow-hidden">
-                            <p className="text-sm font-bold truncate text-white">
-                                {user ? `${user.firstName || ''} ${user.lastName || ''}` : 'Facilitator'}
-                            </p>
-                            <p className="text-xs text-white/60 truncate">{user?.email || 'Loading...'}</p>
-                        </div>
+                        {!isCollapsed && (
+                            <div className="flex-1 overflow-hidden transition-opacity duration-300">
+                                <p className="text-sm font-bold truncate text-white">
+                                    {user ? `${user.firstName || ''} ${user.lastName || ''}` : 'Facilitator'}
+                                </p>
+                                <p className="text-xs text-white/60 truncate">{user?.email || 'Loading...'}</p>
+                            </div>
+                        )}
                     </div>
                     <button
                         onClick={handleLogout}
-                        className="w-full flex items-center justify-center gap-2 rounded-lg h-10 px-4 bg-white/5 hover:bg-white/10 text-white text-sm font-medium transition-colors border border-white/10"
+                        title={isCollapsed ? "Log Out" : undefined}
+                        className={`w-full flex items-center justify-center ${isCollapsed ? 'px-0 py-2' : 'gap-2 h-10 px-4'} rounded-lg bg-white/5 hover:bg-white/10 text-white text-sm font-medium transition-colors border border-white/10`}
                     >
                         <span className="material-symbols-outlined text-[18px]">logout</span>
-                        <span>Log Out</span>
+                        {!isCollapsed && <span>Log Out</span>}
                     </button>
                 </div>
             </aside>

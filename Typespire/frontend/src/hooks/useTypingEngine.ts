@@ -4,10 +4,11 @@ interface UseTypingEngineProps {
     targetText: string;
     duration?: number; // in seconds (ignored in untimed mode)
     untimed?: boolean; // if true, no countdown — only text completion ends session
+    strict?: boolean;  // if true, blocks incorrect input but logs the mistake
     onFinish?: (results: { wpm: number; accuracy: number; errors: number; strugglingKeys: Record<string, number> }) => void;
 }
 
-export const useTypingEngine = ({ targetText, duration = 60, untimed = false, onFinish }: UseTypingEngineProps) => {
+export const useTypingEngine = ({ targetText, duration = 60, untimed = false, strict = false, onFinish }: UseTypingEngineProps) => {
     const [started, setStarted] = useState(false);
     const [timeLeft, setTimeLeft] = useState(duration);
     const [userInput, setUserInput] = useState('');
@@ -16,6 +17,11 @@ export const useTypingEngine = ({ targetText, duration = 60, untimed = false, on
     const [isFinished, setIsFinished] = useState(false);
     const [errors, setErrors] = useState(0);
     const [strugglingKeys, setStrugglingKeys] = useState<Record<string, number>>({});
+    
+    // Strict mode state tracking
+    const [strictErrorCount, setStrictErrorCount] = useState(0);
+    const [strictKeyErrors, setStrictKeyErrors] = useState<Record<string, number>>({});
+    const [lastErrorIndex, setLastErrorIndex] = useState<number | null>(null);
 
     const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
     const startTimeRef = useRef<number | null>(null);
@@ -33,7 +39,7 @@ export const useTypingEngine = ({ targetText, duration = 60, untimed = false, on
         const timeElapsedMin = (Date.now() - startTimeRef.current) / 60000;
         const currentInput = userInputRef.current;
 
-        // Calculate errors and struggling keys
+        // Calculate standard errors and struggling keys
         let errorCount = 0;
         const keyErrors: Record<string, number> = {};
 
@@ -45,19 +51,35 @@ export const useTypingEngine = ({ targetText, duration = 60, untimed = false, on
             }
         }
 
-        // Net WPM Calculation: (Total Characters - Errors) / 5 / Time
-        const netCharacters = Math.max(0, currentInput.length - errorCount);
-        const wordsTyped = netCharacters / 5;
-        const currentWpm = timeElapsedMin > 0 ? Math.round(wordsTyped / timeElapsedMin) : 0;
+        // Add strict errors (from blocked inputs)
+        setStrictErrorCount(prevStrictErrs => {
+            setStrictKeyErrors(prevStrictKeys => {
+                const totalErrors = errorCount + prevStrictErrs;
+                const totalKeyErrors = { ...keyErrors };
+                for (const k in prevStrictKeys) {
+                    totalKeyErrors[k] = (totalKeyErrors[k] || 0) + prevStrictKeys[k];
+                }
 
-        const currentAccuracy = currentInput.length > 0
-            ? Math.max(0, Math.round(((currentInput.length - errorCount) / currentInput.length) * 100))
-            : 100;
+                // Net WPM Calculation: (Total Characters - Errors) / 5 / Time
+                const netCharacters = Math.max(0, currentInput.length - totalErrors);
+                const wordsTyped = netCharacters / 5;
+                const currentWpm = timeElapsedMin > 0 ? Math.round(wordsTyped / timeElapsedMin) : 0;
 
-        setWpm(currentWpm);
-        setAccuracy(currentAccuracy);
-        setErrors(errorCount);
-        setStrugglingKeys(keyErrors);
+                const attempts = currentInput.length + prevStrictErrs;
+                const currentAccuracy = attempts > 0
+                    ? Math.max(0, Math.round(((attempts - totalErrors) / attempts) * 100))
+                    : 100;
+
+                setWpm(currentWpm);
+                setAccuracy(currentAccuracy);
+                setErrors(totalErrors);
+                setStrugglingKeys(totalKeyErrors);
+                
+                return prevStrictKeys;
+            });
+            return prevStrictErrs;
+        });
+
     }, [targetText]);
 
     const hasFinishedRef = useRef(false);
@@ -72,6 +94,8 @@ export const useTypingEngine = ({ targetText, duration = 60, untimed = false, on
         setWpm(0);
         setAccuracy(100);
         setErrors(0);
+        setStrictErrorCount(0);
+        setStrictKeyErrors({});
         setStrugglingKeys({});
         startTimeRef.current = Date.now();
 
@@ -143,9 +167,29 @@ export const useTypingEngine = ({ targetText, duration = 60, untimed = false, on
             }
         }
 
+        // Strict Mode: Block ANY incorrect keystroke
+        if (strict && value.length > userInput.length) {
+            const addedCharIndex = value.length - 1;
+            const expectedChar = targetText[addedCharIndex];
+            const typedChar = value[addedCharIndex];
+            
+            if (typedChar !== expectedChar) {
+                // Log the strict mistake
+                setStrictErrorCount(prev => prev + 1);
+                setStrictKeyErrors(prev => ({ ...prev, [expectedChar]: (prev[expectedChar] || 0) + 1 }));
+                
+                // Signal UI to show shake animation
+                setLastErrorIndex(addedCharIndex);
+                setTimeout(() => setLastErrorIndex(null), 400); // clear after animation duration
+                
+                calculateStats(); // recalculate accuracy immediately
+                return; // Block the input completely!
+            }
+        }
+
         // Practice Mode strictness: Block two consecutive errors
         // If they are adding a character, and both the new char and the previous char are errors, reject it.
-        if (untimed && value.length > userInput.length && value.length >= 2) {
+        if (!strict && untimed && value.length > userInput.length && value.length >= 2) {
             const prevCharIndex = value.length - 2;
             const newCharIndex = value.length - 1;
             
@@ -166,6 +210,7 @@ export const useTypingEngine = ({ targetText, duration = 60, untimed = false, on
             // If just started, use current time as start time for calc
             const startTime = startTimeRef.current || Date.now();
             const timeElapsedMin = (Date.now() - startTime) / 60000;
+            
             let errorCount = 0;
             const keyErrors: Record<string, number> = {};
 
@@ -177,19 +222,33 @@ export const useTypingEngine = ({ targetText, duration = 60, untimed = false, on
                 }
             }
 
-            // Net WPM Calculation
-            const netCharacters = Math.max(0, value.length - errorCount);
-            const wordsTyped = netCharacters / 5;
-            const currentWpm = timeElapsedMin > 0 ? Math.round(wordsTyped / timeElapsedMin) : 0;
+            setStrictErrorCount(prevStrictErrs => {
+                setStrictKeyErrors(prevStrictKeys => {
+                    const totalErrors = errorCount + prevStrictErrs;
+                    const totalKeyErrors = { ...keyErrors };
+                    for (const k in prevStrictKeys) {
+                        totalKeyErrors[k] = (totalKeyErrors[k] || 0) + prevStrictKeys[k];
+                    }
 
-            const currentAccuracy = value.length > 0
-                ? Math.max(0, Math.round(((value.length - errorCount) / value.length) * 100))
-                : 100;
+                    // Net WPM Calculation
+                    const netCharacters = Math.max(0, value.length - totalErrors);
+                    const wordsTyped = netCharacters / 5;
+                    const currentWpm = timeElapsedMin > 0 ? Math.round(wordsTyped / timeElapsedMin) : 0;
 
-            setWpm(currentWpm);
-            setAccuracy(currentAccuracy);
-            setErrors(errorCount);
-            setStrugglingKeys(keyErrors);
+                    const attempts = value.length + prevStrictErrs;
+                    const currentAccuracy = attempts > 0
+                        ? Math.max(0, Math.round(((attempts - totalErrors) / attempts) * 100))
+                        : 100;
+
+                    setWpm(currentWpm);
+                    setAccuracy(currentAccuracy);
+                    setErrors(totalErrors);
+                    setStrugglingKeys(totalKeyErrors);
+                    
+                    return prevStrictKeys;
+                });
+                return prevStrictErrs;
+            });
         }
 
         // Auto-finish if text is complete
@@ -214,6 +273,7 @@ export const useTypingEngine = ({ targetText, duration = 60, untimed = false, on
         isFinished,
         errors,
         strugglingKeys,
+        lastErrorIndex, // Exported for UI shake animations
         startTest,
         handleInputChange,
         resetTest: startTest // Alias for restarting

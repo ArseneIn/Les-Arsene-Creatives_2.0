@@ -82,4 +82,49 @@ export class TestResultService {
       };
     });
   }
+
+  async findByInstitution(institutionId: string) {
+    return this.prisma.testResult.findMany({
+      where: {
+        user: {
+          institutionId,
+        },
+      },
+      include: {
+        user: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            username: true,
+            section: {
+              select: {
+                name: true,
+                intake: {
+                  select: {
+                    name: true,
+                  },
+                },
+              },
+            },
+          },
+        },
+        test: {
+          select: {
+            title: true,
+            difficulty: true,
+          },
+        },
+        assignment: {
+          select: {
+            title: true,
+          },
+        },
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+      take: 200, // Limit to 200 most recent for performance
+    });
+  }
 }

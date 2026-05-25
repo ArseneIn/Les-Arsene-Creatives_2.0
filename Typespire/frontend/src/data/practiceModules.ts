@@ -13,23 +13,28 @@ const WORD_POOL = [
     "art", "part", "dart", "cart", "mart", "tart", "smart", "start", "chart", "heart",
     "half", "calf", "leaf", "deaf", "safe", "cafe", "sale", "tale", "male", "pale",
     "scale", "whale", "stale", "fake", "take", "make", "bake", "cake", "lake", "wake",
-    "flake", "snake", "shake", "brake", "drake", "crate", "slate", "plate", "skate"
+    "flake", "snake", "shake", "brake", "drake", "crate", "slate", "plate", "skate",
+    // Adding more words to utilize vowels (u, e, i) effectively
+    "juice", "free", "reduce", "need", "kid", "ice", "guide", "nice", "nine", "gene",
+    "green", "grid", "ride", "run", "ring", "urge", "rug", "fun", "figure", "end",
+    "edge", "egg", "dig", "dinner", "feed", "feel", "find", "fine", "fire", "king"
 ].map(w => w.toLowerCase());
 
 export interface SubLevel {
     id: string;
-    stageNumber: string; // e.g., '1.1'
+    stageNumber: string;
     title: string;
     description: string;
     keysTaught: string[];
     fingerHint: string;
     defaultWpm: number;
     defaultAccuracy: number;
-    practiceText: string;
+    generateText: () => string; // Dynamic text generation function
     duration: number; // in seconds
     unlockRequires: string | null; // id of previous sub-level
     isFunctionalKey: boolean;
     icon: string;
+    practiceType?: 'letters' | 'falling' | 'words';
 }
 
 export interface PracticeModule {
@@ -42,19 +47,27 @@ export interface PracticeModule {
 }
 
 /**
- * Generates practice text combining the provided keys.
+ * Generates isolated letter sequences for Letter Mode.
  */
-function generateDrillText(keys: string[], length: number = 80): string {
-    if (keys.length === 0) return 'f j f j';
-    let text = '';
-    for (let i = 0; i < length; i++) {
-        if (i > 0 && i % 5 === 0) {
-            text += ' ';
-        } else {
-            text += keys[Math.floor(Math.random() * keys.length)];
-        }
+function generateLetterDrillText(keys: string[]): string {
+    const letters = keys.filter(k => k !== ' ');
+    const textChunks: string[] = [];
+    
+    // Phase 1: 5 repetitions of each new letter (space separated)
+    for (const char of letters) {
+        textChunks.push((char + ' ').repeat(5).trim());
     }
-    return text.trim();
+    
+    // Phase 2: Mixed random jumble of the new keys
+    if (letters.length > 1) {
+        let mixed = '';
+        for(let j = 0; j < 15; j++) {
+            mixed += letters[Math.floor(Math.random() * letters.length)] + ' ';
+        }
+        textChunks.push(mixed.trim());
+    }
+    
+    return textChunks.join(' ');
 }
 
 /**
@@ -62,104 +75,78 @@ function generateDrillText(keys: string[], length: number = 80): string {
  */
 function generateCumulativeWords(allowedKeys: string[], wordCount: number = 20): string {
     const allowedSet = new Set(allowedKeys);
+    
     const validWords = WORD_POOL.filter(word => {
-        // Must be at least 2 chars to be a good drill, unless it's 'a' or 'i'
         if (word.length < 2 && word !== 'a' && word !== 'i') return false;
-        
         for (const char of word) {
-            if (!allowedSet.has(char)) {
-                return false;
-            }
+            if (!allowedSet.has(char.toLowerCase())) return false;
         }
         return true;
     });
 
+    const text = [];
     if (validWords.length === 0) {
-        // Fallback if not enough keys are unlocked to form words (e.g., Module 1 only has f, j, d, k)
-        // Generate pseudo-words of lengths 2 to 4
-        let fallbackText = [];
+        const fallbackKeys = allowedKeys.filter(k => k !== ' ');
         for (let i = 0; i < wordCount; i++) {
-            const wordLen = Math.floor(Math.random() * 3) + 2; // 2, 3, or 4
+            const wordLen = Math.floor(Math.random() * 3) + 2; 
             let word = '';
             for (let j = 0; j < wordLen; j++) {
-                word += allowedKeys[Math.floor(Math.random() * allowedKeys.length)];
+                word += fallbackKeys[Math.floor(Math.random() * fallbackKeys.length)];
             }
-            fallbackText.push(word);
+            text.push(word);
         }
-        return fallbackText.join(' ');
-    }
-
-    let text = [];
-    for (let i = 0; i < wordCount; i++) {
-        text.push(validWords[Math.floor(Math.random() * validWords.length)]);
+    } else {
+        for (let i = 0; i < wordCount; i++) {
+            text.push(validWords[Math.floor(Math.random() * validWords.length)]);
+        }
     }
     return text.join(' ');
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Curriculum Definition
+// Curriculum Definition (Vowel-First)
 // ─────────────────────────────────────────────────────────────────────────────
 
 const rawModules = [
     {
         id: 'mod-1',
-        title: 'Home Row: Anchors',
-        description: 'Master the foundation of typing with your index and middle fingers.',
+        title: 'Foundations: J, F & Space',
+        description: 'Establish your anchor points on the home row.',
         icon: 'pan_tool',
-        lessons: [
-            { id: '1.1', keys: ['f', 'j'], hint: 'Index fingers. Left on F, Right on J.' },
-            { id: '1.2', keys: ['d', 'k'], hint: 'Middle fingers. Left on D, Right on K.' }
-        ]
+        keys: ['j', 'f', ' '],
+        hint: 'Right index on J, Left index on F. Use thumb for Space.'
     },
     {
         id: 'mod-2',
-        title: 'Home Row: Extensions',
-        description: 'Complete the home row by bringing in your ring and pinky fingers.',
+        title: 'First Vowel & Extensions: U, R, K',
+        description: 'Expand your reach to the top row and introduce the first vowel.',
         icon: 'keyboard_alt',
-        lessons: [
-            { id: '2.1', keys: ['s', 'l'], hint: 'Ring fingers. Left on S, Right on L.' },
-            { id: '2.2', keys: ['a', ';'], hint: 'Pinky fingers. Left on A, Right on Semicolon.' }
-        ]
+        keys: ['u', 'r', 'k'],
+        hint: 'Right index stretches to U, Left index to R, Right middle on K.'
     },
     {
         id: 'mod-3',
-        title: 'Top Row: Center',
-        description: 'Reach up with your index and middle fingers.',
-        icon: 'arrow_upward',
-        lessons: [
-            { id: '3.1', keys: ['r', 'u'], hint: 'Index fingers stretch up to R and U.' },
-            { id: '3.2', keys: ['e', 'i'], hint: 'Middle fingers stretch up to E and I.' }
-        ]
+        title: 'Core Vowels: D, E, I',
+        description: 'Unlock more vowels to drastically increase word combinations.',
+        icon: 'spellcheck',
+        keys: ['d', 'e', 'i'],
+        hint: 'Left middle stretches to E, Right middle stretches to I, Left middle rests on D.'
     },
     {
         id: 'mod-4',
-        title: 'Top Row: Extensions',
-        description: 'Complete the top row with your outer fingers.',
-        icon: 'flight_takeoff',
-        lessons: [
-            { id: '4.1', keys: ['w', 'o'], hint: 'Ring fingers stretch up to W and O.' },
-            { id: '4.2', keys: ['q', 'p'], hint: 'Pinky fingers stretch up to Q and P.' }
-        ]
+        title: 'Consonant Expansion: C, G, N',
+        description: 'Introduce crucial consonants for word building.',
+        icon: 'text_format',
+        keys: ['c', 'g', 'n'],
+        hint: 'Left middle down to C, Left index right to G, Right index down to N.'
     },
     {
         id: 'mod-5',
-        title: 'Bottom Row: Inner',
-        description: 'Reach down to the bottom row.',
-        icon: 'arrow_downward',
-        lessons: [
-            { id: '5.1', keys: ['v', 'm'], hint: 'Index fingers stretch down to V and M.' },
-            { id: '5.2', keys: ['c', ','], hint: 'Middle fingers stretch down to C and Comma.' }
-        ]
-    },
-    {
-        id: 'mod-6',
-        title: 'Bottom Row: Extensions',
-        description: 'The final letter keys on the bottom row.',
-        icon: 'done_all',
-        lessons: [
-            { id: '6.1', keys: ['x', '.'], hint: 'Ring fingers stretch down to X and Period.' },
-            { id: '6.2', keys: ['z', '/'], hint: 'Pinky fingers stretch down to Z and Slash.' }
-        ]
+        title: 'Course Capstone Review',
+        description: 'Comprehensive review of all learned keys.',
+        icon: 'workspace_premium',
+        keys: [], 
+        hint: 'Combine all your skills for the final test.'
     }
 ];
 
@@ -172,76 +159,109 @@ let previousSubLevelId: string | null = null;
 rawModules.forEach((mod, modIndex) => {
     const moduleNumber = modIndex + 1;
     const subLevels: SubLevel[] = [];
-    let moduleKeys: string[] = [];
-
-    mod.lessons.forEach((lesson, lessonIndex) => {
-        const subLvlId = `stage-${lesson.id.replace('.', '-')}`;
-        cumulativeKeys = [...new Set([...cumulativeKeys, ...lesson.keys])];
-        moduleKeys = [...new Set([...moduleKeys, ...lesson.keys])];
-
-        // 1. Tutorial & Drill for the specific keys
-        const tutorialLevel: SubLevel = {
-            id: subLvlId,
-            stageNumber: lesson.id,
-            title: `Learn Keys: ${lesson.keys.map(k => k.toUpperCase()).join(' & ')}`,
-            description: `Focus on mastering the ${lesson.keys.map(k => k.toUpperCase()).join(', ')} keys.`,
-            keysTaught: lesson.keys,
-            fingerHint: lesson.hint,
-            defaultWpm: 15 + (moduleNumber * 2),
+    
+    // Update cumulative keys
+    if (mod.keys.length > 0) {
+        cumulativeKeys = [...new Set([...cumulativeKeys, ...mod.keys])];
+    }
+    
+    const isCapstone = mod.id === 'mod-5';
+    
+    // Capture the current state of cumulative keys for this specific module
+    const currentAllowedKeys = [...cumulativeKeys];
+    
+    if (isCapstone) {
+        const capstoneId = `stage-capstone`;
+        const capstoneLevel: SubLevel = {
+            id: capstoneId,
+            stageNumber: `5.1`,
+            title: `Ultimate Word Mastery`,
+            description: `Type real words utilizing every single key you've learned.`,
+            keysTaught: currentAllowedKeys,
+            fingerHint: 'Stay relaxed and trust your muscle memory.',
+            defaultWpm: 35,
+            defaultAccuracy: 95,
+            generateText: () => generateCumulativeWords(currentAllowedKeys, 40),
+            duration: 90,
+            unlockRequires: previousSubLevelId,
+            isFunctionalKey: false,
+            icon: 'emoji_events',
+            practiceType: 'words'
+        };
+        subLevels.push(capstoneLevel);
+        PRACTICE_STAGES.push(capstoneLevel);
+        previousSubLevelId = capstoneId;
+    } else {
+        // Stage 1: Letter Mastery
+        const letterId = `stage-${moduleNumber}-letters`;
+        const letterLevel: SubLevel = {
+            id: letterId,
+            stageNumber: `${moduleNumber}.1`,
+            title: `Learn Letters: ${mod.keys.map(k => k === ' ' ? 'Space' : k.toUpperCase()).join(', ')}`,
+            description: `Focus purely on muscle memory for individual keys.`,
+            keysTaught: mod.keys,
+            fingerHint: mod.hint,
+            defaultWpm: 5, // Keep extremely low for pure letter learning
             defaultAccuracy: 90,
-            practiceText: generateDrillText(lesson.keys, 60),
+            generateText: () => generateLetterDrillText(mod.keys),
+            duration: 30,
+            unlockRequires: previousSubLevelId,
+            isFunctionalKey: moduleNumber === 1,
+            icon: 'touch_app',
+            practiceType: 'letters'
+        };
+        subLevels.push(letterLevel);
+        PRACTICE_STAGES.push(letterLevel);
+        previousSubLevelId = letterId;
+
+        // Stage 2: Falling Letters
+        const fallingId = `stage-${moduleNumber}-falling`;
+        const fallingLevel: SubLevel = {
+            id: fallingId,
+            stageNumber: `${moduleNumber}.2`,
+            title: `Falling Letters`,
+            description: `Reinforce positioning with falling letter drills.`,
+            keysTaught: mod.keys,
+            fingerHint: mod.hint,
+            defaultWpm: 8,
+            defaultAccuracy: 90,
+            generateText: () => {
+                // Remove all spaces for falling mode to build accuracy without space clicking
+                const text = generateLetterDrillText(mod.keys);
+                return text.replace(/\s+/g, '');
+            },
             duration: 45,
             unlockRequires: previousSubLevelId,
-            isFunctionalKey: true, // Acts as a trigger for the tutorial modal
-            icon: 'touch_app'
+            isFunctionalKey: false,
+            icon: 'keyboard_capslock',
+            practiceType: 'falling'
         };
-        
-        subLevels.push(tutorialLevel);
-        PRACTICE_STAGES.push(tutorialLevel);
-        previousSubLevelId = subLvlId;
-    });
+        subLevels.push(fallingLevel);
+        PRACTICE_STAGES.push(fallingLevel);
+        previousSubLevelId = fallingId;
 
-    // 2. Combination Drill for the module
-    const comboId = `stage-${moduleNumber}-combo`;
-    const comboLevel: SubLevel = {
-        id: comboId,
-        stageNumber: `${moduleNumber}.3`,
-        title: `Module ${moduleNumber} Combination`,
-        description: `Combine all keys learned in this module to build muscle memory.`,
-        keysTaught: moduleKeys,
-        fingerHint: 'Use the correct fingers for all keys learned so far.',
-        defaultWpm: 18 + (moduleNumber * 2),
-        defaultAccuracy: 90,
-        practiceText: generateDrillText(moduleKeys, 80),
-        duration: 60,
-        unlockRequires: previousSubLevelId,
-        isFunctionalKey: false,
-        icon: 'join_inner'
-    };
-    subLevels.push(comboLevel);
-    PRACTICE_STAGES.push(comboLevel);
-    previousSubLevelId = comboId;
-
-    // 3. Cumulative Word Drill
-    const wordId = `stage-${moduleNumber}-words`;
-    const wordLevel: SubLevel = {
-        id: wordId,
-        stageNumber: `${moduleNumber}.4`,
-        title: `Word Drill: Cumulative`,
-        description: `Practice typing actual words using ONLY the keys you've unlocked so far.`,
-        keysTaught: cumulativeKeys,
-        fingerHint: 'Type the words smoothly without looking down.',
-        defaultWpm: 20 + (moduleNumber * 2),
-        defaultAccuracy: 90,
-        practiceText: generateCumulativeWords(cumulativeKeys, 25),
-        duration: 60,
-        unlockRequires: previousSubLevelId,
-        isFunctionalKey: false,
-        icon: 'text_snippet'
-    };
-    subLevels.push(wordLevel);
-    PRACTICE_STAGES.push(wordLevel);
-    previousSubLevelId = wordId;
+        // Stage 3: Word Combinations
+        const wordId = `stage-${moduleNumber}-words`;
+        const wordLevel: SubLevel = {
+            id: wordId,
+            stageNumber: `${moduleNumber}.3`,
+            title: `Word Combinations`,
+            description: `Combine ${mod.keys.map(k => k === ' ' ? 'Space' : k.toUpperCase()).join(', ')} into real words.`,
+            keysTaught: currentAllowedKeys,
+            fingerHint: `Integrate the new keys with everything you've learned so far.`,
+            defaultWpm: 10 + (moduleNumber * 2), // e.g. Mod 1 = 12 WPM, Mod 2 = 14 WPM
+            defaultAccuracy: 90,
+            generateText: () => generateCumulativeWords(currentAllowedKeys, 25),
+            duration: 60,
+            unlockRequires: previousSubLevelId,
+            isFunctionalKey: false,
+            icon: 'text_snippet',
+            practiceType: 'words'
+        };
+        subLevels.push(wordLevel);
+        PRACTICE_STAGES.push(wordLevel);
+        previousSubLevelId = wordId;
+    }
 
     PRACTICE_MODULES.push({
         id: mod.id,

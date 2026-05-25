@@ -19,6 +19,7 @@ import InstitutionIntakes from './pages/InstitutionIntakes';
 import InstitutionFacilitators from './pages/InstitutionFacilitators';
 import InstitutionAnalytics from './pages/InstitutionAnalytics';
 import InstitutionReports from './pages/InstitutionReports';
+import StudentPerformance from './pages/StudentPerformance';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Unauthorized from './pages/Unauthorized';
@@ -95,6 +96,7 @@ function App() {
                     <Route path="intakes" element={<InstitutionIntakes />} />
                     <Route path="facilitators" element={<InstitutionFacilitators />} />
                     <Route path="analytics" element={<InstitutionAnalytics />} />
+                    <Route path="performance" element={<StudentPerformance />} />
                     <Route path="reports" element={<InstitutionReports />} />
                     <Route path="settings" element={<InstitutionSettings />} />
                   </Route>

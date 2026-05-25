@@ -140,9 +140,26 @@ export const UserProgressProvider: React.FC<{ children: ReactNode }> = ({ childr
     const persisted = loadPersisted(user?.id);
 
     const ensureStage1 = (stages: string[] | undefined) => {
-        if (!stages) return ['stage-1-1'];
-        if (!stages.includes('stage-1-1')) return [...stages, 'stage-1-1'];
-        return stages;
+        const firstStageId = PRACTICE_STAGES[0]?.id || 'stage-1-1-a';
+        const currentStages = stages ? [...stages] : [];
+        if (!currentStages.includes(firstStageId)) currentStages.push(firstStageId);
+
+        // Migration: Ensure all stages prior to the furthest unlocked stage are also unlocked
+        let maxIndex = 0;
+        PRACTICE_STAGES.forEach((stage, index) => {
+            if (currentStages.includes(stage.id)) {
+                if (index > maxIndex) maxIndex = index;
+            }
+        });
+
+        const finalStages = new Set(currentStages);
+        for (let i = 0; i <= maxIndex; i++) {
+            if (PRACTICE_STAGES[i]) {
+                finalStages.add(PRACTICE_STAGES[i].id);
+            }
+        }
+
+        return Array.from(finalStages);
     };
 
     const [stats, setStats] = useState<UserStats>(persisted?.stats ?? INITIAL_STATS);
@@ -151,15 +168,39 @@ export const UserProgressProvider: React.FC<{ children: ReactNode }> = ({ childr
     const [stageResults, setStageResults] = useState<Record<string, StageResult>>(persisted?.stageResults ?? {});
     const [keyStats, setKeyStats] = useState<Record<string, KeyStat>>(persisted?.keyStats ?? {});
     
-    // Sync state when user changes
+    // Auto-heal unlocked stages if curriculum changes (e.g. new stages inserted in the middle)
     useEffect(() => {
+        setUnlockedStages(prev => {
+            const healed = ensureStage1(prev);
+            if (healed.length > prev.length) return healed;
+            return prev;
+        });
+
+        // Retroactively pass Falling mode if Word mode is already passed (for users who progressed before Falling mode was added)
+        setStageResults(prev => {
+            let changed = false;
+            const newResults = { ...prev };
+            for (let i = 1; i <= 5; i++) {
+                if (newResults[`stage-${i}-words`]?.passed && !newResults[`stage-${i}-falling`]?.passed) {
+                    newResults[`stage-${i}-falling`] = { passed: true, bestWpm: 0, bestAccuracy: 0 };
+                    changed = true;
+                }
+            }
+            return changed ? newResults : prev;
+        });
+    }, []);
+
+    // Sync state when user changes (during render to avoid cascading updates)
+    const prevUserId = React.useRef(user?.id);
+    if (prevUserId.current !== user?.id) {
+        prevUserId.current = user?.id;
         const newData = loadPersisted(user?.id);
         setStats(newData?.stats ?? INITIAL_STATS);
         setRecentResults(newData?.recentResults ?? INITIAL_RESULTS);
         setUnlockedStages(ensureStage1(newData?.unlockedStages));
         setStageResults(newData?.stageResults ?? {});
         setKeyStats(newData?.keyStats ?? {});
-    }, [user?.id]);
+    }
     const [sectionRequirements, setSectionRequirements] = useState<Record<string, { wpm: number; accuracy: number }>>({});
     const [studentOverrides, setStudentOverrides] = useState<Record<string, { wpm: number; accuracy: number }>>({});
 
@@ -169,7 +210,7 @@ export const UserProgressProvider: React.FC<{ children: ReactNode }> = ({ childr
             api.get(`/test-result/student/${user.id}`)
                 .then(res => {
                     if (res.data && Array.isArray(res.data)) {
-                        const fetchedResults: TestResult[] = res.data.map((r: Record<string, any>) => ({
+                        const fetchedResults: TestResult[] = res.data.map((r: Record<string, unknown>) => ({
                             id: r.id,
                             date: new Date(r.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
                             testName: r.assignment?.title || r.test?.title || 'Formal Assignment',
@@ -200,7 +241,7 @@ export const UserProgressProvider: React.FC<{ children: ReactNode }> = ({ childr
                 api.get(`/requirements/section/${user.sectionId}`)
                     .then(res => {
                         const reqs: Record<string, { wpm: number; accuracy: number }> = {};
-                        res.data.forEach((r: any) => { reqs[r.stageId] = { wpm: r.wpm, accuracy: r.accuracy }; });
+                        res.data.forEach((r: { stageId: string; wpm: number; accuracy: number }) => { reqs[r.stageId] = { wpm: r.wpm, accuracy: r.accuracy }; });
                         setSectionRequirements(reqs);
                     })
                     .catch(err => console.error("Failed to fetch section requirements:", err));
@@ -209,7 +250,7 @@ export const UserProgressProvider: React.FC<{ children: ReactNode }> = ({ childr
             api.get(`/requirements/student/${user.id}`)
                 .then(res => {
                     const overrides: Record<string, { wpm: number; accuracy: number }> = {};
-                    res.data.forEach((r: any) => { overrides[r.stageId] = { wpm: r.wpm, accuracy: r.accuracy }; });
+                    res.data.forEach((r: { stageId: string; wpm: number; accuracy: number }) => { overrides[r.stageId] = { wpm: r.wpm, accuracy: r.accuracy }; });
                     setStudentOverrides(overrides);
                 })
                 .catch(err => console.error("Failed to fetch student overrides:", err));
@@ -310,7 +351,7 @@ export const UserProgressProvider: React.FC<{ children: ReactNode }> = ({ childr
                 }
             }
         }
-    }, [getBenchmark, unlockedStages]);
+    }, [getBenchmark, unlockedStages, setRecentResults, setStats, setStageResults, setUnlockedStages]);
 
     // ── Key heatmap stat updates ──
     const updateKeyStats = useCallback((keysTyped: Record<string, { hits: number; misses: number }>) => {
@@ -326,7 +367,7 @@ export const UserProgressProvider: React.FC<{ children: ReactNode }> = ({ childr
             }
             return updated;
         });
-    }, []);
+    }, [setKeyStats]);
 
     const getKeyAccuracy = useCallback((key: string): number | null => {
         const stat = keyStats[key];
@@ -376,6 +417,7 @@ export const UserProgressProvider: React.FC<{ children: ReactNode }> = ({ childr
     );
 };
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const useUserProgress = () => {
     const context = useContext(UserProgressContext);
     if (context === undefined) {

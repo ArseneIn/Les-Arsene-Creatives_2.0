@@ -70,7 +70,7 @@ export const StudentTests: React.FC = () => {
                     <p className="text-slate-500 dark:text-slate-400">Complete assignments from your facilitator or take randomized 1-minute sprints to improve your metrics.</p>
                 </div>
 
-                {!isStagePassed('stage-12') ? (
+                {!isStagePassed('stage-capstone') ? (
                     <div className="bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 rounded-2xl p-8 flex flex-col items-center justify-center text-center">
                         <span className="material-symbols-outlined text-5xl text-red-500 mb-4">lock</span>
                         <h2 className="text-2xl font-bold text-red-600 dark:text-red-400 mb-2">Tests Hub Locked</h2>

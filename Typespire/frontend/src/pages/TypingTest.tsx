@@ -32,9 +32,9 @@ const TypingTest: React.FC = () => {
     // Practice and personalized drill modes are untimed
     const isPractice = mode === 'practice' || mode === 'drill';
 
-    // ── Security check: Must pass Stage 12 for formal tests ────────────────
+    // ── Security check: Must pass Stage capstone for formal tests ────────────────
     useEffect(() => {
-        if (!isPractice && !isStagePassed('stage-12')) {
+        if (!isPractice && !isStagePassed('stage-capstone')) {
             navigate('/practice', { replace: true });
         }
     }, [isPractice, isStagePassed, navigate]);
@@ -94,9 +94,16 @@ const TypingTest: React.FC = () => {
 
         // Progressive practice stage
         if (stageId && PRACTICE_STAGES_MAP[stageId]) {
-            const stage = PRACTICE_STAGES_MAP[stageId];
+            // Use 'any' cast to allow for graceful fallback if HMR caches the old interface
+            const stage = PRACTICE_STAGES_MAP[stageId] as any;
             const level = (stats?.level >= 2 ? 2 : 1) as 1 | 2;
-            return { text: stage.practiceText, duration: stage.duration, title: stage.title, level, stageId };
+            
+            // Fallback to old 'practiceText' or an error message if the browser failed to hot-reload the data module
+            const text = typeof stage.generateText === 'function' 
+                ? stage.generateText() 
+                : (stage.practiceText || "Please do a Hard Refresh (Ctrl+Shift+R) to load the new curriculum data.");
+                
+            return { text, duration: stage.duration, title: stage.title, level, stageId, practiceType: stage.practiceType || 'words' };
         }
 
         // Default Level 1 standard test
@@ -104,22 +111,12 @@ const TypingTest: React.FC = () => {
     }, [stageId, assignmentId, testLevel, customText, assignments, mode, customTitle, stats?.level, randomSprintText]);
 
     const isLevel2 = testConfig.level === 2;
-    // ── Format Text for 2x2 Grid (Practice Only) ─────────────────────────
+    // ── Format Text (Practice Only) ─────────────────────────
     const formattedTargetText = useMemo(() => {
         if (!isPractice) return testConfig.text;
+        // The curriculum generator now handles formatting. We simply ensure it's clean and space-separated.
         const words = testConfig.text.split(/\s+/).filter(w => w.length > 0);
-        let result = '';
-        for (let i = 0; i < words.length; i++) {
-            result += words[i];
-            if (i < words.length - 1) {
-                if ((i + 1) % 2 === 0) {
-                    result += '\n'; // Every 2nd word gets an Enter
-                } else {
-                    result += ' ';  // Every 1st word gets a Space
-                }
-            }
-        }
-        return result;
+        return words.join(' ');
     }, [testConfig.text, isPractice]);
 
     // ── Benchmark for pass/fail feedback ──────────────────────────────────
@@ -154,11 +151,12 @@ const TypingTest: React.FC = () => {
     // ── Typing engine ──────────────────────────────────────────────────────
     const {
         started, timeLeft, userInput, wpm, accuracy, isFinished,
-        strugglingKeys, startTest, handleInputChange
+        strugglingKeys, startTest, handleInputChange, lastErrorIndex
     } = useTypingEngine({
         targetText: formattedTargetText,
-        duration: testConfig.duration,
-        untimed: isPractice || testConfig.duration === 0, // no countdown for practice or unlimited tests
+        duration: (testConfig as any).duration ?? 120,
+        untimed: isPractice || (testConfig as any).duration === 0,
+        strict: (testConfig as any).practiceType === 'letters' || (testConfig as any).practiceType === 'falling',
         onFinish: (results) => {
             // Build per-key stats for heatmap
             const keyBreakdown: Record<string, { hits: number; misses: number }> = {};
@@ -534,6 +532,8 @@ const TypingTest: React.FC = () => {
                                 isFinished={isFinished || terminated}
                                 onInputChange={handleInput}
                                 elapsedSeconds={timeLeft} // counts up in untimed mode
+                                mode={(testConfig as any).practiceType || 'words'}
+                                lastErrorIndex={lastErrorIndex}
                             />
                         ) : (
                             <TypingArea
