@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import api from '../api/axios';
-import { FileText, Search, Activity, User } from 'lucide-react';
+import { FileText, Search, Activity, User, ChevronLeft, ChevronRight } from 'lucide-react';
 
 interface TestResultData {
     id: string;
@@ -32,6 +32,8 @@ const StudentPerformance: React.FC = () => {
     const [results, setResults] = useState<TestResultData[]>([]);
     const [loading, setLoading] = useState(true);
     const [searchQuery, setSearchQuery] = useState('');
+    const [currentPage, setCurrentPage] = useState(1);
+    const [rowsPerPage, setRowsPerPage] = useState(10);
 
     // Pre-fill search query if studentId is passed via URL
     useEffect(() => {
@@ -42,12 +44,33 @@ const StudentPerformance: React.FC = () => {
         }
     }, [location.search]);
 
+    // Reset pagination on query or size changes
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [searchQuery, rowsPerPage]);
+
     useEffect(() => {
         const fetchResults = async () => {
             try {
                 if (user?.institutionId) {
                     const res = await api.get(`/test-result/institution/${user.institutionId}`);
-                    setResults(res.data);
+                    
+                    // Deduplicate results to only keep the absolute latest attempt per student
+                    const latestMap = new Map<string, TestResultData>();
+                    
+                    // Sort by createdAt descending to ensure we encounter the latest first
+                    const sortedData = [...res.data].sort((a, b) => 
+                        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+                    );
+                    
+                    for (const r of sortedData) {
+                        const compositeKey = r.user.id;
+                        if (!latestMap.has(compositeKey)) {
+                            latestMap.set(compositeKey, r);
+                        }
+                    }
+                    
+                    setResults(Array.from(latestMap.values()));
                 }
             } catch (error) {
                 console.error("Failed to fetch test results:", error);
@@ -71,6 +94,10 @@ const StudentPerformance: React.FC = () => {
             (r.test?.title.toLowerCase().includes(q))
         );
     });
+
+    const totalPages = Math.ceil(filteredResults.length / rowsPerPage);
+    const startIndex = (currentPage - 1) * rowsPerPage;
+    const paginatedResults = filteredResults.slice(startIndex, startIndex + rowsPerPage);
 
     return (
         <div className="flex-1 p-8 lg:p-12 overflow-y-auto w-full bg-slate-50 dark:bg-[#061824] transition-colors duration-200">
@@ -118,8 +145,8 @@ const StudentPerformance: React.FC = () => {
                                 <tr>
                                     <td colSpan={5} className="py-12 text-center text-slate-500">Loading results...</td>
                                 </tr>
-                            ) : filteredResults.length > 0 ? (
-                                filteredResults.map((result) => (
+                            ) : paginatedResults.length > 0 ? (
+                                paginatedResults.map((result) => (
                                     <tr key={result.id} className="hover:bg-slate-50 dark:hover:bg-white/5 transition-colors group">
                                         <td className="py-4 px-6 text-slate-600 dark:text-slate-400">
                                             {new Date(result.createdAt).toLocaleString(undefined, { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
@@ -222,6 +249,77 @@ const StudentPerformance: React.FC = () => {
                         </tbody>
                     </table>
                 </div>
+
+                {/* Pagination Controls */}
+                {filteredResults.length > 0 && (
+                    <div className="px-6 py-4 border-t border-slate-200 dark:border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4 bg-slate-50 dark:bg-[#081e2b]">
+                        <div className="flex flex-wrap items-center gap-4 text-xs font-bold text-slate-500">
+                            <span>
+                                Showing {filteredResults.length === 0 ? 0 : startIndex + 1} to {Math.min(startIndex + rowsPerPage, filteredResults.length)} of {filteredResults.length} entries
+                            </span>
+                            <div className="flex items-center gap-2">
+                                <span>Show</span>
+                                <select
+                                    value={rowsPerPage}
+                                    onChange={(e) => setRowsPerPage(Number(e.target.value))}
+                                    className="px-2 py-1 bg-white dark:bg-[#061824] border border-slate-200 dark:border-white/10 rounded focus:ring-1 focus:ring-[#33B974] outline-none text-slate-700 dark:text-slate-200 font-bold"
+                                >
+                                    <option value={5}>5</option>
+                                    <option value={10}>10</option>
+                                    <option value={20}>20</option>
+                                    <option value={50}>50</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div className="flex items-center gap-1.5">
+                            <button
+                                onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                                disabled={currentPage === 1}
+                                className="p-2 border border-slate-200 dark:border-white/10 rounded-lg hover:bg-slate-100 dark:hover:bg-white/5 disabled:opacity-40 disabled:cursor-not-allowed text-slate-600 dark:text-slate-400 transition-colors bg-white dark:bg-[#061824]"
+                            >
+                                <ChevronLeft className="w-4 h-4" />
+                            </button>
+
+                            {(() => {
+                                const pagesToShow = [];
+                                const maxButtons = 5;
+                                let start = Math.max(1, currentPage - Math.floor(maxButtons / 2));
+                                let end = Math.min(totalPages, start + maxButtons - 1);
+
+                                if (end - start + 1 < maxButtons) {
+                                    start = Math.max(1, end - maxButtons + 1);
+                                }
+
+                                for (let i = start; i <= end; i++) {
+                                    pagesToShow.push(i);
+                                }
+
+                                return pagesToShow.map(page => (
+                                    <button
+                                        key={page}
+                                        onClick={() => setCurrentPage(page)}
+                                        className={`px-3.5 py-1.5 rounded-lg text-xs font-black transition-all ${
+                                            currentPage === page
+                                                ? 'bg-[#33B974] text-white shadow-md shadow-[#33B974]/20 border border-[#33B974]'
+                                                : 'border border-slate-200 dark:border-white/10 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-white/5 bg-white dark:bg-[#061824]'
+                                        }`}
+                                    >
+                                        {page}
+                                    </button>
+                                ));
+                            })()}
+
+                            <button
+                                onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                                disabled={currentPage === totalPages || totalPages === 0}
+                                className="p-2 border border-slate-200 dark:border-white/10 rounded-lg hover:bg-slate-100 dark:hover:bg-white/5 disabled:opacity-40 disabled:cursor-not-allowed text-slate-600 dark:text-slate-400 transition-colors bg-white dark:bg-[#061824]"
+                            >
+                                <ChevronRight className="w-4 h-4" />
+                            </button>
+                        </div>
+                    </div>
+                )}
             </div>
         </div>
     );

@@ -66,4 +66,14 @@ export class InstitutionController {
   async getIntakePerformanceReport(@Param('id') id: string) {
     return this.institutionService.getIntakePerformanceReport(id);
   }
+
+  @Get(':id/reports/student-progress')
+  async getStudentProgressReport(@Param('id') id: string) {
+    return this.institutionService.getStudentProgressReport(id);
+  }
+
+  @Get(':id/reports/facilitator-activity')
+  async getFacilitatorActivityReport(@Param('id') id: string) {
+    return this.institutionService.getFacilitatorActivityReport(id);
+  }
 }

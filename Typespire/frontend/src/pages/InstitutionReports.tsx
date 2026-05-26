@@ -16,6 +16,10 @@ const InstitutionReports: React.FC = () => {
             let endpoint = '';
             if (reportType === 'Intake Performance Summary') {
                 endpoint = `/institution/${user.institutionId}/reports/intake-performance`;
+            } else if (reportType === 'Student Progress Detail') {
+                endpoint = `/institution/${user.institutionId}/reports/student-progress`;
+            } else if (reportType === 'Facilitator Activity Log') {
+                endpoint = `/institution/${user.institutionId}/reports/facilitator-activity`;
             } else {
                 alert('This report type is not yet implemented.');
                 setLoading(false);
@@ -97,6 +101,7 @@ const InstitutionReports: React.FC = () => {
 
                         <div className="pt-4">
                             <button
+                                id="generate-report-btn"
                                 onClick={handleGenerateReport}
                                 disabled={loading}
                                 className="w-full py-2.5 rounded-lg bg-admin-primary text-slate-900 font-bold hover:bg-admin-primary/90 transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
@@ -118,31 +123,47 @@ const InstitutionReports: React.FC = () => {
                         <div className="p-2 bg-slate-100 dark:bg-slate-700 rounded-lg text-slate-600 dark:text-slate-300">
                             <History className="w-6 h-6" />
                         </div>
-                        <h2 className="text-xl font-bold text-slate-900 dark:text-white">Recent Reports</h2>
+                        <h2 className="text-xl font-bold text-slate-900 dark:text-white">Quick Templates</h2>
                     </div>
 
                     <div className="space-y-3">
-                        {[1, 2, 3].map((i) => (
-                            <div key={i} className="flex items-center justify-between p-3 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors border border-transparent hover:border-slate-200 dark:hover:border-slate-600 group">
+                        {[
+                            { title: 'Intake Performance Summary', type: 'Intake Performance Summary', desc: 'Real-time overview of active/archived cohorts' },
+                            { title: 'Student Milestone Progress Detail', type: 'Student Progress Detail', desc: 'Typing levels, speed, accuracy & milestone badges' },
+                            { title: 'Facilitator Activity Log', type: 'Facilitator Activity Log', desc: 'Assigned sections, student counts & performance' },
+                        ].map((report, idx) => (
+                            <div key={idx} className="flex items-center justify-between p-3 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors border border-transparent hover:border-slate-200 dark:hover:border-slate-600 group">
                                 <div className="flex items-center gap-3">
                                     <div className="size-10 rounded-lg bg-red-50 dark:bg-red-900/20 flex items-center justify-center text-red-600 dark:text-red-400">
                                         <File className="w-6 h-6" />
                                     </div>
                                     <div>
-                                        <p className="text-sm font-bold text-slate-900 dark:text-white">Jan 2025 Intake Summary</p>
-                                        <p className="text-xs text-slate-500">Generated on Jan 12, 2026</p>
+                                        <p className="text-sm font-bold text-slate-900 dark:text-white">{report.title}</p>
+                                        <p className="text-xs text-slate-500">{report.desc}</p>
                                     </div>
                                 </div>
-                                <button className="p-2 text-slate-400 hover:text-admin-primary transition-colors opacity-0 group-hover:opacity-100">
-                                    <Download className="w-5 h-5" />
+                                <button
+                                    onClick={() => {
+                                        setReportType(report.type);
+                                        // Trigger generation directly after React state updates
+                                        setTimeout(() => {
+                                            const btn = document.getElementById('generate-report-btn');
+                                            if (btn) btn.click();
+                                        }, 50);
+                                    }}
+                                    className="px-2.5 py-1.5 text-xs font-black text-slate-900 bg-admin-primary rounded-lg shadow hover:bg-admin-primary/90 transition-all flex items-center gap-1 opacity-90 group-hover:opacity-100"
+                                    title="Generate and Download instant CSV"
+                                >
+                                    <Download className="w-3.5 h-3.5" />
+                                    Get CSV
                                 </button>
                             </div>
                         ))}
                     </div>
 
-                    <button className="w-full mt-4 py-2 text-sm font-medium text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 transition-colors">
-                        View All History
-                    </button>
+                    <p className="text-center text-xs text-slate-400 dark:text-slate-500 mt-5 font-semibold">
+                        All generated reports download instantly as standard CSV tables.
+                    </p>
                 </div>
             </div>
         </div>

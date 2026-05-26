@@ -173,7 +173,11 @@ export class InstitutionService {
       include: {
         sections: {
           include: {
-            students: true,
+            students: {
+              include: {
+                testResults: true,
+              },
+            },
           },
         },
       },
@@ -186,16 +190,131 @@ export class InstitutionService {
         0,
       );
 
+      const allResults = intake.sections.flatMap((section) =>
+        section.students.flatMap((student) => student.testResults),
+      );
+
+      const totalResults = allResults.length;
+      const avgWpm =
+        totalResults > 0
+          ? allResults.reduce((sum, r) => sum + r.wpm, 0) / totalResults
+          : 0;
+      const avgAccuracy =
+        totalResults > 0
+          ? allResults.reduce((sum, r) => sum + r.accuracy, 0) / totalResults
+          : 0;
+
       return {
         intakeName: intake.name,
-        startDate: intake.startDate,
-        endDate: intake.endDate,
+        startDate: intake.startDate.toISOString().split('T')[0],
+        endDate: intake.endDate ? intake.endDate.toISOString().split('T')[0] : 'Ongoing',
         status: intake.status,
         totalSections: intake.sections.length,
         totalStudents,
-        // Placeholder for performance metrics (WPM/Accuracy) until TestResults are linked to Intakes/Sections
-        avgWpm: 0,
-        avgAccuracy: 0,
+        avgWpm: Math.round(avgWpm),
+        avgAccuracy: parseFloat(avgAccuracy.toFixed(1)),
+      };
+    });
+  }
+
+  async getStudentProgressReport(institutionId: string) {
+    const students = await this.prisma.user.findMany({
+      where: {
+        institutionId,
+        role: 'STUDENT',
+      },
+      include: {
+        section: {
+          include: {
+            intake: true,
+          },
+        },
+        testResults: {
+          include: {
+            test: true,
+          },
+        },
+      },
+    });
+
+    return students.map((student) => {
+      const totalTests = student.testResults.length;
+      const avgWpm =
+        totalTests > 0
+          ? student.testResults.reduce((sum, r) => sum + r.wpm, 0) / totalTests
+          : 0;
+      const avgAccuracy =
+        totalTests > 0
+          ? student.testResults.reduce((sum, r) => sum + r.accuracy, 0) /
+            totalTests
+          : 0;
+
+      // Deduce milestone status based on the latest test scores
+      let status = 'Practicing';
+      student.testResults.forEach(r => {
+          const title = (r.test?.title || '').toLowerCase();
+          const passed = r.wpm >= 20 && r.accuracy >= 70;
+          const isPractice = title.includes('practice') || title.includes('drill');
+
+          if (!isPractice) {
+              if (title.includes('level 2') && passed) {
+                  status = 'Passed';
+              } else if ((title.includes('level 1') && passed) || title.includes('level 2')) {
+                  status = 'Level 2';
+              } else {
+                  status = 'Level 1';
+              }
+          }
+      });
+
+      return {
+        studentId: student.id.substring(0, 8).toUpperCase(),
+        name: `${student.firstName || ''} ${student.lastName || ''}`.trim() || student.email || student.username || 'Student',
+        email: student.email || student.username || '',
+        intake: student.section?.intake?.name || 'N/A',
+        section: student.section?.name || 'Unassigned',
+        totalTests,
+        avgWpm: Math.round(avgWpm),
+        avgAccuracy: parseFloat(avgAccuracy.toFixed(1)),
+        milestoneStatus: status,
+      };
+    });
+  }
+
+  async getFacilitatorActivityReport(institutionId: string) {
+    const facilitators = await this.prisma.user.findMany({
+      where: {
+        institutionId,
+        role: 'FACILITATOR',
+      },
+      include: {
+        facilitatedSections: {
+          include: {
+            intake: true,
+            students: true,
+          },
+        },
+      },
+    });
+
+    return facilitators.map((f) => {
+      const totalSections = f.facilitatedSections.length;
+      const totalStudents = f.facilitatedSections.reduce(
+        (sum, s) => sum + s.students.length,
+        0,
+      );
+      const assignedIntakes = Array.from(
+        new Set(f.facilitatedSections.map((s) => s.intake.name)),
+      ).join(', ');
+
+      return {
+        facilitatorId: f.id.substring(0, 8).toUpperCase(),
+        name: `${f.firstName || ''} ${f.lastName || ''}`.trim() || f.email,
+        email: f.email,
+        totalSections,
+        totalStudents,
+        assignedIntakes: assignedIntakes || 'None',
+        status: 'Active',
       };
     });
   }

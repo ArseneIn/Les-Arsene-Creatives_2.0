@@ -85,18 +85,6 @@ const StudentLayout: React.FC = () => {
                         {!isCollapsed && <p className="text-sm font-medium leading-normal truncate">Dashboard</p>}
                     </Link>
                     <Link
-                        to="/tests"
-                        onClick={() => setIsSidebarOpen(false)}
-                        title={isCollapsed ? "Tests" : undefined}
-                        className={`flex items-center ${isCollapsed ? 'justify-center px-0' : 'gap-3 px-4'} py-3 rounded-lg border-l-4 group transition-all duration-200 ${isActive('/tests')
-                            ? 'bg-white/10 text-[#33B974] border-[#33B974]'
-                            : 'text-white/90 hover:bg-white/10 hover:text-[#33B974] border-transparent hover:border-[#33B974]'
-                            }`}
-                    >
-                        <span className={`material-symbols-outlined shrink-0 transition-colors ${isActive('/tests') ? 'text-[#33B974] icon-filled' : 'text-white/70 group-hover:text-[#33B974]'}`}>quiz</span>
-                        {!isCollapsed && <p className="text-sm font-medium leading-normal truncate">Tests</p>}
-                    </Link>
-                    <Link
                         to="/practice"
                         onClick={() => setIsSidebarOpen(false)}
                         title={isCollapsed ? "Practice" : undefined}
@@ -107,6 +95,18 @@ const StudentLayout: React.FC = () => {
                     >
                         <span className={`material-symbols-outlined shrink-0 transition-colors ${isActive('/practice') ? 'text-[#33B974] icon-filled' : 'text-white/70 group-hover:text-[#33B974]'}`}>keyboard</span>
                         {!isCollapsed && <p className="text-sm font-medium leading-normal truncate">Practice</p>}
+                    </Link>
+                    <Link
+                        to="/tests"
+                        onClick={() => setIsSidebarOpen(false)}
+                        title={isCollapsed ? "Tests" : undefined}
+                        className={`flex items-center ${isCollapsed ? 'justify-center px-0' : 'gap-3 px-4'} py-3 rounded-lg border-l-4 group transition-all duration-200 ${isActive('/tests')
+                            ? 'bg-white/10 text-[#33B974] border-[#33B974]'
+                            : 'text-white/90 hover:bg-white/10 hover:text-[#33B974] border-transparent hover:border-[#33B974]'
+                            }`}
+                    >
+                        <span className={`material-symbols-outlined shrink-0 transition-colors ${isActive('/tests') ? 'text-[#33B974] icon-filled' : 'text-white/70 group-hover:text-[#33B974]'}`}>quiz</span>
+                        {!isCollapsed && <p className="text-sm font-medium leading-normal truncate">Tests</p>}
                     </Link>
                     <Link
                         to="/history"

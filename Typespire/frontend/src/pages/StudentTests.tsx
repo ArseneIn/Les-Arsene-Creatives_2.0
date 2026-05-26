@@ -77,13 +77,42 @@ export const StudentTests: React.FC = () => {
                         <p className="text-red-500 dark:text-red-300 max-w-lg mb-6">
                             You must complete all 12 stages of the <strong>Learning Path</strong> in the Practice Arena before you can access formal tests and 1-minute sprints.
                         </p>
-                        <button
-                            onClick={() => navigate('/practice')}
-                            className="px-6 py-3 bg-red-500 hover:bg-red-600 text-white font-bold rounded-xl shadow-lg transition-colors flex items-center gap-2"
-                        >
-                            <span className="material-symbols-outlined text-xl">school</span>
-                            Go to Practice Arena
-                        </button>
+                        <div className="flex flex-col items-center gap-3">
+                            <button
+                                onClick={() => navigate('/practice')}
+                                className="px-6 py-3 bg-red-500 hover:bg-red-600 text-white font-bold rounded-xl shadow-lg transition-colors flex items-center gap-2"
+                            >
+                                <span className="material-symbols-outlined text-xl">school</span>
+                                Go to Practice Arena
+                            </button>
+                            
+                            <button
+                                onClick={() => {
+                                    const localKey = `typespire_progress_${user?.id || ''}`;
+                                    const raw = localStorage.getItem(localKey);
+                                    const parsed = raw ? JSON.parse(raw) : {};
+                                    
+                                    if (!parsed.stageResults) parsed.stageResults = {};
+                                    parsed.stageResults['stage-capstone'] = {
+                                        stageId: 'stage-capstone',
+                                        bestWpm: 45,
+                                        bestAccuracy: 98,
+                                        attempts: 1,
+                                        passed: true
+                                    };
+                                    
+                                    if (!parsed.stats) parsed.stats = { level: 1, currentWpm: 0, targetWpm: 50, streakDays: 0 };
+                                    parsed.stats.level = 2;
+                                    
+                                    localStorage.setItem(localKey, JSON.stringify(parsed));
+                                    window.location.reload();
+                                }}
+                                className="text-xs font-bold text-slate-400 dark:text-slate-500 hover:text-red-500 transition-colors flex items-center gap-1 mt-2 border border-slate-300 dark:border-slate-700 px-3 py-1.5 rounded-lg bg-white/50 dark:bg-slate-800/50 hover:bg-slate-100 dark:hover:bg-slate-700"
+                            >
+                                <span className="material-symbols-outlined text-[14px]">construction</span>
+                                [Dev Sandbox] Instant Unlock Tests Hub
+                            </button>
+                        </div>
                     </div>
                 ) : (
                     <>
