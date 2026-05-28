@@ -70,8 +70,15 @@ export const TypingArea: React.FC<TypingAreaProps> = ({
                 bgClass = "bg-admin-primary/20 animate-pulse"; // Cursor position
             }
 
+            const isSpace = char === ' ';
             return (
-                <span key={index} className={`${colorClass} ${bgClass} transition-colors duration-75`}>
+                <span 
+                    key={index} 
+                    className={`${colorClass} ${bgClass} transition-colors duration-75`}
+                    style={{
+                        letterSpacing: isSpace ? 'normal' : '0.09em',
+                    }}
+                >
                     {char}
                 </span>
             );
@@ -120,8 +127,20 @@ export const TypingArea: React.FC<TypingAreaProps> = ({
             />
 
             {/* Visual Placeholder to maintain height */}
-            <div className="invisible text-3xl font-display leading-relaxed text-center break-words whitespace-pre-wrap tracking-wide">
-                {targetText}
+            <div className="invisible text-3xl font-display leading-relaxed text-center break-words whitespace-pre-wrap tracking-wide pointer-events-none select-none">
+                {targetText.split('').map((char, index) => {
+                    const isSpace = char === ' ';
+                    return (
+                        <span 
+                            key={index}
+                            style={{
+                                letterSpacing: isSpace ? 'normal' : '0.09em'
+                            }}
+                        >
+                            {char}
+                        </span>
+                    );
+                })}
             </div>
         </div>
     );

@@ -154,16 +154,30 @@ export const useTypingEngine = ({ targetText, duration = 60, untimed = false, st
             }
         }
 
-        // Mandatory Functional Keys (Space & Enter): 
-        // If the next expected character is a Space (' ') or Enter ('\n'),
-        // block any other keystroke from advancing the cursor in practice mode.
+        // Mandatory Functional Keys (Space & Enter) and Misplaced Spaces in Practice Mode:
         if (untimed && value.length > userInput.length) {
             const addedCharIndex = value.length - 1;
             const expectedChar = targetText[addedCharIndex];
             const typedChar = value[addedCharIndex];
             
+            // Scenario 1: Expected a space/enter, but they typed a letter/symbol instead
             if ((expectedChar === '\n' || expectedChar === ' ') && typedChar !== expectedChar) {
-                return; // Ignore the input, forcing them to press the correct functional key
+                setStrictErrorCount(prev => prev + 1);
+                setStrictKeyErrors(prev => ({ ...prev, [expectedChar]: (prev[expectedChar] || 0) + 1 }));
+                setLastErrorIndex(addedCharIndex);
+                setTimeout(() => setLastErrorIndex(null), 400);
+                calculateStats();
+                return; // Block input, force correct functional key
+            }
+
+            // Scenario 2: Expected a letter/symbol, but they pressed Space instead
+            if (typedChar === ' ' && expectedChar !== ' ' && expectedChar !== '\n') {
+                setStrictErrorCount(prev => prev + 1);
+                setStrictKeyErrors(prev => ({ ...prev, [expectedChar]: (prev[expectedChar] || 0) + 1 }));
+                setLastErrorIndex(addedCharIndex);
+                setTimeout(() => setLastErrorIndex(null), 400);
+                calculateStats();
+                return; // Block input, force correct letter
             }
         }
 

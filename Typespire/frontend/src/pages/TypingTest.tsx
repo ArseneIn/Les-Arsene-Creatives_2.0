@@ -6,7 +6,6 @@ import { useAuth } from '../context/AuthContext';
 import { useFacilitator } from '../context/FacilitatorContext';
 import { TypingArea } from '../components/TypingTest/TypingArea';
 import { PracticeTypingArea } from '../components/TypingTest/PracticeTypingArea';
-import { SurvivalStrikeBar } from '../components/TypingTest/SurvivalStrikeBar';
 import { PRACTICE_STAGES_MAP, PRACTICE_STAGES } from '../data/practiceModules';
 import StageCelebration from '../components/Practice/StageCelebration';
 
@@ -127,20 +126,14 @@ const TypingTest: React.FC = () => {
         return { wpm: 50, accuracy: 90 };
     }, [testConfig, isLevel2, getBenchmark]);
 
-    // ── Level 2 strike system ──────────────────────────────────────────────
-    const [terminated, setTerminated] = useState(false);
+    // ── Confetti & Celebration states ─────────────────────────────────────────
+    type ConfettiPiece = { id: number; left: string; top: string; backgroundColor: string; animationDelay: string; animationDuration: string; };
     const [showConfetti, setShowConfetti] = useState(false);
-    const MAX_STRIKES = 3;
-
-    // ── Stage celebration state ────────────────────────────────────────────
+    const [confettiPieces, setConfettiPieces] = useState<ConfettiPiece[]>([]);
     const [showStageCelebration, setShowStageCelebration] = useState(false);
     const lastKeyBreakdown = useRef<Record<string, { hits: number; misses: number }>>({});
-    // Track previous best before this attempt
     const prevBestWpm = testConfig.stageId ? (stageResults[testConfig.stageId]?.bestWpm ?? 0) : 0;
     const wasAlreadyPassed = testConfig.stageId ? (stageResults[testConfig.stageId]?.passed ?? false) : false;
-
-    type ConfettiPiece = { id: number; left: string; top: string; backgroundColor: string; animationDelay: string; animationDuration: string; };
-    const [confettiPieces, setConfettiPieces] = useState<ConfettiPiece[]>([]);
 
     useEffect(() => {
         if (showConfetti && confettiPieces.length === 0) {
@@ -205,17 +198,6 @@ const TypingTest: React.FC = () => {
         }
     });
 
-    // ── Level 2: detect new errors → add strikes ──────────────────────────
-    const currentErrors = useMemo(() => {
-        let count = 0;
-        for (let i = 0; i < userInput.length; i++) {
-            if (userInput[i] !== testConfig.text[i]) count++;
-        }
-        return count;
-    }, [userInput, testConfig.text]);
-
-    // Derived strikes
-    const strikes = isLevel2 ? Math.min(currentErrors, MAX_STRIKES) : 0;
     // ── Input handler ───────────────────────────────────────────
     const handleInput = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
         handleInputChange(e);
@@ -226,7 +208,6 @@ const TypingTest: React.FC = () => {
     const [countdown, setCountdown] = useState(3);
 
     const handleStart = () => {
-        setTerminated(false);
         setShowConfetti(false);
         setIsCountingDown(true);
         setCountdown(3);
@@ -255,113 +236,105 @@ const TypingTest: React.FC = () => {
             <div className="fixed inset-0 -z-30 bg-background-light dark:bg-background-dark transition-colors duration-200" />
 
             {/* ── START OVERLAY ── */}
-            {!started && !isFinished && !isCountingDown && !terminated && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#061824]/80 backdrop-blur-sm">
-                    <div className="bg-white dark:bg-[#0b1e2d] p-10 rounded-3xl shadow-2xl max-w-md w-full text-center border border-white/10 relative overflow-hidden">
+            {!started && !isFinished && !isCountingDown && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#061824]/85 backdrop-blur-sm">
+                    <div className="bg-white dark:bg-[#0b1e2d] p-8 rounded-3xl shadow-2xl max-w-md w-full text-center border border-white/5 relative overflow-hidden transition-all duration-300">
                         {/* Level badge */}
-                        <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider mb-6 ${
-                            isLevel2 ? 'bg-red-500/10 text-red-500 border border-red-500/20'
-                            : isPractice ? 'bg-[#33B974]/10 text-[#33B974] border border-[#33B974]/20'
+                        <div className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider mb-6 ${
+                            isPractice ? 'bg-[#33B974]/10 text-[#33B974] border border-[#33B974]/20'
                             : 'bg-[#094A71]/10 text-[#094A71] border border-[#094A71]/20'
                         }`}>
-                            <span className="material-symbols-outlined text-sm">{isLevel2 ? 'flash_on' : isPractice ? 'school' : 'quiz'}</span>
-                            {isLevel2 ? 'Level 2 — Survival Speedrun' : isPractice ? 'Practice Mode' : 'Level 1 — Standard Test'}
+                            <span className="material-symbols-outlined text-sm">{isPractice ? 'school' : 'quiz'}</span>
+                            {isPractice ? 'Practice Arena' : 'Standard Test'}
                         </div>
 
-                        <div className={`inline-flex h-20 w-20 items-center justify-center rounded-full mb-5 ${
-                            isLevel2 ? 'bg-red-500/10 text-red-500'
-                            : isPractice ? 'bg-[#33B974]/10 text-[#33B974]'
+                        <div className={`inline-flex h-16 w-16 items-center justify-center rounded-full mb-4 ${
+                            isPractice ? 'bg-[#33B974]/10 text-[#33B974]'
                             : 'bg-[#094A71]/10 text-[#094A71]'
                         }`}>
-                            <span className="material-symbols-outlined text-5xl">{isLevel2 ? 'emergency' : isPractice ? 'keyboard' : 'quiz'}</span>
+                            <span className="material-symbols-outlined text-4xl">{isPractice ? 'keyboard_double_arrow_right' : 'schedule'}</span>
                         </div>
-                        <h2 className="text-3xl font-bold mb-2 text-[#061824] dark:text-white">{testConfig.title}</h2>
-                        <p className="text-gray-500 dark:text-gray-400 mb-4 text-sm">
+                        <h2 className="text-2xl font-bold mb-2 text-[#061824] dark:text-white">{testConfig.title}</h2>
+                        
+                        <p className="text-gray-500 dark:text-gray-400 mb-5 text-sm">
                             {isPractice ? (
-                                <span className="inline-flex items-center gap-1.5 text-[#33B974] font-semibold">
-                                    <span className="material-symbols-outlined text-base">all_inclusive</span>
-                                    No time limit — complete at your own pace
+                                <span className="inline-flex items-center gap-1 text-[#33B974] font-semibold text-xs uppercase tracking-wider">
+                                    <span className="material-symbols-outlined text-sm">all_inclusive</span>
+                                    Self-Paced Learning Path
                                 </span>
                             ) : (
-                                <>
-                                    <strong className="text-gray-700 dark:text-gray-200">{testConfig.duration}s</strong>
-                                    {' '}· Goal: <strong className="text-gray-700 dark:text-gray-200">{benchmark.wpm} WPM</strong> / <strong className="text-gray-700 dark:text-gray-200">{benchmark.accuracy}%</strong> accuracy
-                                </>
+                                <span className="inline-flex items-center gap-1 text-[#094A71] font-semibold text-xs uppercase tracking-wider">
+                                    <span className="material-symbols-outlined text-sm">alarm</span>
+                                    {testConfig.duration}s Evaluation
+                                </span>
                             )}
                         </p>
 
-                        {isPractice && (
-                            <div className="bg-[#33B974]/5 border border-[#33B974]/20 rounded-xl p-4 mb-6 text-left">
-                                <p className="text-xs font-bold text-[#33B974] uppercase tracking-wider mb-1.5">🎯 How Practice Works</p>
-                                <ul className="text-xs text-gray-500 dark:text-gray-400 space-y-1">
-                                    <li>• Each letter appears in its own box — <strong>type them one by one</strong></li>
-                                    <li>• <strong>Green</strong> = correct · <strong>Red</strong> = mistake · <strong>Glowing blue</strong> = next key</li>
-                                    <li>• No timer pressure — focus on accuracy first, speed will follow</li>
-                                    <li>• Complete all characters to finish and unlock the next stage</li>
-                                </ul>
+                        {/* Elegantly structured information cards */}
+                        {isPractice ? (
+                            <div className="bg-slate-50 dark:bg-[#06141f] border border-gray-100 dark:border-white/5 rounded-2xl p-5 mb-6 text-left space-y-3.5">
+                                <div className="flex items-start gap-3">
+                                    <span className="material-symbols-outlined text-[#33B974] bg-[#33B974]/10 p-1 rounded-lg text-base">all_inclusive</span>
+                                    <div>
+                                        <h4 className="text-[11px] font-bold text-gray-700 dark:text-gray-200 uppercase tracking-wide">No Time Pressure</h4>
+                                        <p className="text-[10px] text-gray-400 mt-0.5">Focus on pure typing accuracy first; your speed will follow naturally.</p>
+                                    </div>
+                                </div>
+                                <div className="flex items-start gap-3">
+                                    <span className="material-symbols-outlined text-[#094A71] bg-[#094A71]/10 p-1 rounded-lg text-base">warning</span>
+                                    <div>
+                                        <h4 className="text-[11px] font-bold text-gray-700 dark:text-gray-200 uppercase tracking-wide">Tactile Error-Locking</h4>
+                                        <p className="text-[10px] text-gray-400 mt-0.5">Mismatched keys and wrong space entries highlight red and block cursor advance.</p>
+                                    </div>
+                                </div>
+                                <div className="flex items-start gap-3">
+                                    <span className="material-symbols-outlined text-amber-500 bg-amber-500/10 p-1 rounded-lg text-base">military_tech</span>
+                                    <div>
+                                        <h4 className="text-[11px] font-bold text-gray-700 dark:text-gray-200 uppercase tracking-wide">Target Accuracy</h4>
+                                        <p className="text-[10px] text-gray-400 mt-0.5">Maintain {benchmark.accuracy}% accuracy to clear this stage and progress.</p>
+                                    </div>
+                                </div>
                             </div>
-                        )}
-
-                        {isLevel2 && (
-                            <div className="bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 rounded-xl p-4 mb-6 text-left">
-                                <p className="text-xs font-bold text-red-600 dark:text-red-400 uppercase tracking-wider mb-1.5">⚠ Survival Rules</p>
-                                <ul className="text-xs text-red-500 dark:text-red-400 space-y-1">
-                                    <li>• <strong>No backspace</strong> — every keystroke is final</li>
-                                    <li>• <strong>3 errors max</strong> — the test terminates on your 3rd mistake</li>
-                                    <li>• <strong>60-second timer</strong> — type as fast and clean as possible</li>
-                                </ul>
+                        ) : (
+                            <div className="bg-slate-50 dark:bg-[#06141f] border border-gray-100 dark:border-white/5 rounded-2xl p-5 mb-6 text-left space-y-3.5">
+                                <div className="flex items-start gap-3">
+                                    <span className="material-symbols-outlined text-[#094A71] bg-[#094A71]/10 p-1 rounded-lg text-base">timer</span>
+                                    <div>
+                                        <h4 className="text-[11px] font-bold text-gray-700 dark:text-gray-200 uppercase tracking-wide">Timed Evaluation</h4>
+                                        <p className="text-[10px] text-gray-400 mt-0.5">Type the text as fast and cleanly as you can until the countdown runs out.</p>
+                                    </div>
+                                </div>
+                                <div className="flex items-start gap-3">
+                                    <span className="material-symbols-outlined text-[#33B974] bg-[#33B974]/10 p-1 rounded-lg text-base">verified_user</span>
+                                    <div>
+                                        <h4 className="text-[11px] font-bold text-gray-700 dark:text-gray-200 uppercase tracking-wide">Passing Benchmark</h4>
+                                        <p className="text-[10px] text-gray-400 mt-0.5">Goal is at least <strong>{benchmark.wpm} WPM</strong> and <strong>{benchmark.accuracy}% accuracy</strong>.</p>
+                                    </div>
+                                </div>
                             </div>
                         )}
 
                         <button
                             onClick={handleStart}
-                            className={`w-full font-bold py-4 rounded-xl text-lg transition-all shadow-lg mb-3 ${isLevel2 ? 'bg-red-500 hover:bg-red-400 text-white shadow-red-500/20' : 'bg-[#33B974] hover:bg-[#33B974]/90 text-white shadow-[#33B974]/20'}`}
+                            className={`w-full font-bold py-3.5 rounded-xl text-md transition-all shadow-md mb-3 ${
+                                isPractice 
+                                ? 'bg-[#33B974] hover:bg-[#33B974]/95 text-white shadow-[#33B974]/10' 
+                                : 'bg-[#094A71] hover:bg-[#094A71]/95 text-white shadow-[#094A71]/10'
+                            }`}
                         >
-                            {mode === 'practice' ? 'Start Practice' : isLevel2 ? '⚡ Begin Survival Test' : 'Start Test'}
+                            {isPractice ? 'Start Practice Arena' : 'Begin Evaluation Test'}
                         </button>
-                        <button onClick={() => window.history.back()} className="text-gray-400 hover:text-gray-600 text-sm font-medium transition-colors">
-                            ← Go back
+                        <button onClick={() => window.history.back()} className="text-gray-400 hover:text-gray-600 text-xs font-semibold transition-colors mt-2">
+                            ← Cancel and go back
                         </button>
-                        <div className="mt-6 pt-5 border-t border-gray-100 dark:border-white/5">
-                            <p className="text-[10px] text-gray-400 uppercase tracking-widest">{testConfig.title}</p>
-                        </div>
                     </div>
                 </div>
             )}
 
             {/* ── COUNTDOWN OVERLAY ── */}
             {isCountingDown && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#061824]/90 backdrop-blur-md">
-                    <div className={`text-9xl font-bold animate-bounce ${isLevel2 ? 'text-red-400' : 'text-[#33B974]'}`}>{countdown}</div>
-                </div>
-            )}
-
-            {/* ── TERMINATED (Level 2 failure) ── */}
-            {terminated && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#061824]/90 backdrop-blur-md">
-                    <div className="bg-[#0b1e2d] p-10 rounded-2xl shadow-2xl max-w-sm w-full text-center border border-red-500/30 animate-in fade-in zoom-in duration-300">
-                        <div className="inline-flex h-20 w-20 items-center justify-center rounded-full bg-red-500/10 text-red-500 mb-4">
-                            <span className="material-symbols-outlined text-5xl">report</span>
-                        </div>
-                        <h2 className="text-3xl font-bold mb-2 text-white">Session Terminated</h2>
-                        <p className="text-red-400 mb-6 text-sm">3 strikes reached. Your attempt has ended.</p>
-                        <div className="grid grid-cols-2 gap-3 mb-6">
-                            <div className="p-3 bg-white/5 rounded-lg">
-                                <p className="text-xs text-gray-500">WPM</p>
-                                <p className="text-2xl font-bold text-white font-mono">{wpm}</p>
-                            </div>
-                            <div className="p-3 bg-white/5 rounded-lg">
-                                <p className="text-xs text-gray-500">Accuracy</p>
-                                <p className="text-2xl font-bold text-white font-mono">{accuracy}%</p>
-                            </div>
-                        </div>
-                        <button onClick={handleStart} className="w-full bg-red-500 hover:bg-red-400 text-white font-bold py-3 rounded-xl mb-3 transition-all">
-                            ⚡ Try Again
-                        </button>
-                        <button onClick={() => window.history.back()} className="text-gray-500 hover:text-gray-300 text-sm transition-colors">
-                            Back to Practice
-                        </button>
-                    </div>
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#061824]/92 backdrop-blur-md">
+                    <div className={`text-9xl font-bold animate-bounce ${isPractice ? 'text-[#33B974]' : 'text-[#094A71]'}`}>{countdown}</div>
                 </div>
             )}
 
@@ -396,7 +369,7 @@ const TypingTest: React.FC = () => {
             )}
 
             {/* ── FINISHED OVERLAY ── */}
-            {isFinished && !terminated && !showStageCelebration && (
+            {isFinished && !showStageCelebration && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#061824]/90 backdrop-blur-md">
                     {/* Confetti for Level 2 victory */}
                     {showConfetti && (
@@ -522,9 +495,6 @@ const TypingTest: React.FC = () => {
                         </span>
                     </div>
                     <div className="flex items-center gap-6">
-                        {isLevel2 && started && !isFinished && (
-                            <SurvivalStrikeBar strikes={strikes} maxStrikes={MAX_STRIKES} />
-                        )}
                         <div className="text-right">
                             <p className="text-sm font-bold text-white">{user?.firstName ? `${user.firstName} ${user.lastName || ''}`.trim() : 'Student'}</p>
                             <p className="text-[10px] text-white/50 uppercase">{user?.email ?? ''}</p>
@@ -582,8 +552,8 @@ const TypingTest: React.FC = () => {
                             <PracticeTypingArea
                                 targetText={formattedTargetText}
                                 userInput={userInput}
-                                started={started && !terminated}
-                                isFinished={isFinished || terminated}
+                                started={started}
+                                isFinished={isFinished}
                                 onInputChange={handleInput}
                                 elapsedSeconds={timeLeft} // counts up in untimed mode
                                 mode={(testConfig as any).practiceType || 'words'}
@@ -594,8 +564,8 @@ const TypingTest: React.FC = () => {
                                 <TypingArea
                                     targetText={formattedTargetText}
                                     userInput={userInput}
-                                    started={started && !terminated}
-                                    isFinished={isFinished || terminated}
+                                    started={started}
+                                    isFinished={isFinished}
                                     onInputChange={handleInput}
                                 />
                                 {isPractice && (

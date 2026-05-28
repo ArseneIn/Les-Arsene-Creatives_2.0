@@ -16,6 +16,26 @@ const StudentPractice: React.FC = () => {
     const [expandedModule, setExpandedModule] = useState<string>(PRACTICE_MODULES[0]?.id || '');
     const [isHeatmapOpen, setIsHeatmapOpen] = useState(false);
 
+    // Auto-expand the module that the student is currently working on
+    React.useEffect(() => {
+        // Find the first module containing an unlocked but not passed stage
+        const activeMod = PRACTICE_MODULES.find(mod => 
+            mod.subLevels.some(stage => isStageUnlocked(stage.id) && !isStagePassed(stage.id))
+        );
+        
+        if (activeMod) {
+            setExpandedModule(activeMod.id);
+        } else {
+            // If all unlocked stages are passed, expand the last module with an unlocked stage
+            const lastUnlockedMod = [...PRACTICE_MODULES].reverse().find(mod => 
+                mod.subLevels.some(stage => isStageUnlocked(stage.id))
+            );
+            if (lastUnlockedMod) {
+                setExpandedModule(lastUnlockedMod.id);
+            }
+        }
+    }, [isStageUnlocked, isStagePassed]);
+
     const handleStageClick = (stageId: string) => {
         const stage = PRACTICE_STAGES.find(s => s.id === stageId);
         if (!stage || !isStageUnlocked(stageId)) return;
