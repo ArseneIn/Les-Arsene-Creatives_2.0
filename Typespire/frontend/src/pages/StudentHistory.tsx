@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useUserProgress } from '../context/UserProgressContext';
 import type { TestResult } from '../context/UserProgressContext';
 import { useAuth } from '../context/AuthContext';
@@ -8,9 +9,10 @@ type DisplayStatus = 'All' | 'Completed' | 'Missed';
 type DisplayResult = Omit<TestResult, 'status'> & { status: 'Completed' | 'Missed' };
 
 const StudentHistory: React.FC = () => {
-    const { recentResults, stats } = useUserProgress();
+    const { recentResults, stats, isStagePassed } = useUserProgress();
     const { user } = useAuth();
     const { assignments } = useFacilitator();
+    const navigate = useNavigate();
     
     const [filter, setFilter] = useState<DisplayStatus>('All');
     const [currentPage, setCurrentPage] = useState(1);
@@ -38,10 +40,12 @@ const StudentHistory: React.FC = () => {
 
         highestResultsMap.forEach(r => finalResults.push(r));
 
+        const systemLevel = isStagePassed('stage-capstone') ? 2 : 1;
+
         const allAssigned = assignments.filter(a =>
             a.status === 'Active' &&
             ((a.sectionId === currentUserSectionId) || (a.studentIds && a.studentIds.includes(currentUserId))) &&
-            a.level === stats.level
+            a.level === systemLevel
         );
 
         allAssigned.forEach(a => {
@@ -64,7 +68,7 @@ const StudentHistory: React.FC = () => {
 
         // Sort by date descending
         return finalResults.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-    }, [recentResults, assignments, currentUserId, currentUserSectionId, now, stats.level]);
+    }, [recentResults, assignments, currentUserId, currentUserSectionId, now, isStagePassed]);
 
     const filteredResults = useMemo(() => {
         return filter === 'All' ? allHistory : allHistory.filter(r => r.status === filter);
@@ -123,6 +127,7 @@ const StudentHistory: React.FC = () => {
                                     <th className="py-4.5 px-6 text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-[#929bc9]">WPM</th>
                                     <th className="py-4.5 px-6 text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-[#929bc9]">Accuracy</th>
                                     <th className="py-4.5 px-6 text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-[#929bc9]">Status</th>
+                                    <th className="py-4.5 px-6 text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-[#929bc9] text-right">Actions</th>
                                 </tr>
                             </thead>
                             <tbody className="text-sm">
@@ -146,11 +151,35 @@ const StudentHistory: React.FC = () => {
                                                     {result.status}
                                                 </span>
                                             </td>
+                                            <td className="py-4.5 px-6 text-right">
+                                                {result.status === 'Completed' ? (
+                                                    <button
+                                                        onClick={() => navigate('/results', {
+                                                            state: {
+                                                                wpm: result.wpm,
+                                                                accuracy: result.accuracy,
+                                                                passed: result.wpm >= 40 && result.accuracy >= 90,
+                                                                benchmark: { wpm: 40, accuracy: 90 },
+                                                                strugglingKeys: result.strugglingKeys || {},
+                                                                stageId: result.stageId,
+                                                                testTitle: result.testName,
+                                                                assignmentId: result.assignmentId,
+                                                            }
+                                                        })}
+                                                        className="inline-flex items-center gap-1 text-xs font-bold text-primary hover:text-emerald-600 transition-colors"
+                                                    >
+                                                        <span className="material-symbols-outlined text-[16px]">visibility</span>
+                                                        View
+                                                    </button>
+                                                ) : (
+                                                    <span className="text-xs text-slate-400 dark:text-slate-600 font-bold">—</span>
+                                                )}
+                                            </td>
                                         </tr>
                                     ))
                                 ) : (
                                     <tr>
-                                        <td colSpan={5} className="py-20 text-center">
+                                        <td colSpan={6} className="py-20 text-center">
                                             <div className="flex flex-col items-center justify-center gap-3">
                                                 <div className="p-4 bg-slate-100 dark:bg-[#323b67]/40 rounded-2xl text-slate-400 dark:text-[#929bc9] shadow-sm">
                                                     <span className="material-symbols-outlined text-4xl flex items-center justify-center">history_edu</span>

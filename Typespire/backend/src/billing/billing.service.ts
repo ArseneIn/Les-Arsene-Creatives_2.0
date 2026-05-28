@@ -12,7 +12,7 @@ export class UpdateBillingDto {
 
 @Injectable()
 export class BillingService {
-    constructor(private prisma: PrismaService) {}
+    constructor(private prisma: PrismaService) { }
 
     async getAllBilling() {
         const institutions = await this.prisma.institution.findMany({

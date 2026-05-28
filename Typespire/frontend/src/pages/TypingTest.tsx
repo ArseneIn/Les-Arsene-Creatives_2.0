@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useEffect, useCallback } from 'react';
+import React, { useMemo, useState, useEffect, useCallback, useRef } from 'react';
 import { Link, useSearchParams, useNavigate } from 'react-router-dom';
 import { useTypingEngine } from '../hooks/useTypingEngine';
 import { useUserProgress } from '../context/UserProgressContext';
@@ -8,6 +8,7 @@ import { TypingArea } from '../components/TypingTest/TypingArea';
 import { PracticeTypingArea } from '../components/TypingTest/PracticeTypingArea';
 import { SurvivalStrikeBar } from '../components/TypingTest/SurvivalStrikeBar';
 import { PRACTICE_STAGES_MAP, PRACTICE_STAGES } from '../data/practiceModules';
+import StageCelebration from '../components/Practice/StageCelebration';
 
 // ─── Level 2 complex mixed-case passage ──────────────────────────────────────
 const LEVEL2_TEXT = "The Quick brown fox ran past Mary Johnson's garden, leaving 12 footprints before sunset. Alice said Hello to Dr. Kim every single Monday. In 2024, Real Madrid won the Champions League again. James wrote: Dear Friend, Thank you for everything. Sarah visited Paris, London, and Tokyo in one summer. The river runs North, past Oak Street and into the Sea.";
@@ -17,7 +18,7 @@ const LEVEL1_TEXT = "The rapid development of digital communication has transfor
 
 const TypingTest: React.FC = () => {
     const [searchParams] = useSearchParams();
-    const { saveResult, isStagePassed, getBenchmark, updateKeyStats, stats } = useUserProgress();
+    const { saveResult, isStagePassed, getBenchmark, updateKeyStats, stats, stageResults } = useUserProgress();
     const { user } = useAuth();
     const { submitTestResult, assignments } = useFacilitator();
     const navigate = useNavigate();
@@ -131,6 +132,13 @@ const TypingTest: React.FC = () => {
     const [showConfetti, setShowConfetti] = useState(false);
     const MAX_STRIKES = 3;
 
+    // ── Stage celebration state ────────────────────────────────────────────
+    const [showStageCelebration, setShowStageCelebration] = useState(false);
+    const lastKeyBreakdown = useRef<Record<string, { hits: number; misses: number }>>({});
+    // Track previous best before this attempt
+    const prevBestWpm = testConfig.stageId ? (stageResults[testConfig.stageId]?.bestWpm ?? 0) : 0;
+    const wasAlreadyPassed = testConfig.stageId ? (stageResults[testConfig.stageId]?.passed ?? false) : false;
+
     type ConfettiPiece = { id: number; left: string; top: string; backgroundColor: string; animationDelay: string; animationDuration: string; };
     const [confettiPieces, setConfettiPieces] = useState<ConfettiPiece[]>([]);
 
@@ -168,6 +176,7 @@ const TypingTest: React.FC = () => {
                 if (userInput[i] === expected) keyBreakdown[key].hits++;
                 else keyBreakdown[key].misses++;
             }
+            lastKeyBreakdown.current = keyBreakdown;
             updateKeyStats(keyBreakdown);
 
             saveResult({
@@ -185,6 +194,13 @@ const TypingTest: React.FC = () => {
             // Victory confetti for Level 2 pass
             if (isLevel2 && results.wpm >= benchmark.wpm && results.accuracy >= benchmark.accuracy) {
                 setShowConfetti(true);
+            }
+
+            // Stage celebration: newly passed a practice stage
+            const isNewPass = testConfig.stageId && !wasAlreadyPassed &&
+                results.wpm >= benchmark.wpm && results.accuracy >= benchmark.accuracy;
+            if (isNewPass) {
+                setShowStageCelebration(true);
             }
         }
     });
@@ -349,8 +365,38 @@ const TypingTest: React.FC = () => {
                 </div>
             )}
 
+            {/* ── STAGE CELEBRATION ── */}
+            {showStageCelebration && (
+                <StageCelebration
+                    stageName={testConfig.title}
+                    wpm={wpm}
+                    accuracy={accuracy}
+                    nextStageId={nextStageId}
+                    onContinue={() => {
+                        setShowStageCelebration(false);
+                        if (nextStageId) {
+                            window.location.href = `/test?mode=practice&stageId=${nextStageId}`;
+                        } else {
+                            navigate('/practice');
+                        }
+                    }}
+                    onViewResults={() => {
+                        setShowStageCelebration(false);
+                        navigate('/results', { state: {
+                            wpm, accuracy, passed: true, benchmark,
+                            strugglingKeys, stageId: testConfig.stageId,
+                            stageName: testConfig.title, nextStageId,
+                            isPractice, isLevel2, prevBestWpm,
+                            isNewStagePassed: true,
+                            keyBreakdown: lastKeyBreakdown.current,
+                            assignmentId, testTitle: testConfig.title,
+                        }});
+                    }}
+                />
+            )}
+
             {/* ── FINISHED OVERLAY ── */}
-            {isFinished && !terminated && (
+            {isFinished && !terminated && !showStageCelebration && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#061824]/90 backdrop-blur-md">
                     {/* Confetti for Level 2 victory */}
                     {showConfetti && (
@@ -433,7 +479,15 @@ const TypingTest: React.FC = () => {
                             )}
                             <Link
                                 to="/results"
-                                state={{ wpm, accuracy, strugglingKeys, passed, benchmark }}
+                                state={{
+                                    wpm, accuracy, passed, benchmark,
+                                    strugglingKeys, stageId: testConfig.stageId,
+                                    stageName: testConfig.title, nextStageId,
+                                    isPractice, isLevel2, prevBestWpm,
+                                    isNewStagePassed: !wasAlreadyPassed && passed && !!testConfig.stageId,
+                                    keyBreakdown: lastKeyBreakdown.current,
+                                    assignmentId, testTitle: testConfig.title,
+                                }}
                                 className="w-full bg-[#094A71] hover:bg-[#094A71]/90 text-white font-bold py-3 rounded-xl text-sm transition-all flex items-center justify-center gap-2"
                             >
                                 <span className="material-symbols-outlined text-base">analytics</span>
@@ -524,7 +578,7 @@ const TypingTest: React.FC = () => {
                     {/* Live stats hidden as per request. Only final results will be visible. */}
 
                     <div className="w-full mb-8">
-                        {isPractice ? (
+                        {isPractice && ((testConfig as any).practiceType === 'letters' || (testConfig as any).practiceType === 'falling') ? (
                             <PracticeTypingArea
                                 targetText={formattedTargetText}
                                 userInput={userInput}
@@ -536,13 +590,31 @@ const TypingTest: React.FC = () => {
                                 lastErrorIndex={lastErrorIndex}
                             />
                         ) : (
-                            <TypingArea
-                                targetText={formattedTargetText}
-                                userInput={userInput}
-                                started={started && !terminated}
-                                isFinished={isFinished || terminated}
-                                onInputChange={handleInput}
-                            />
+                            <div className="flex flex-col gap-4 w-full">
+                                <TypingArea
+                                    targetText={formattedTargetText}
+                                    userInput={userInput}
+                                    started={started && !terminated}
+                                    isFinished={isFinished || terminated}
+                                    onInputChange={handleInput}
+                                />
+                                {isPractice && (
+                                    <div className="px-6 py-4 bg-slate-50 dark:bg-slate-800/25 rounded-2xl border border-slate-100 dark:border-slate-800/80">
+                                        <div className="flex justify-between text-[10px] text-slate-400 mb-1.5">
+                                            <span>Overall Progress</span>
+                                            <span className="font-bold text-[#33B974]">
+                                                {formattedTargetText.length > 0 ? Math.round((userInput.length / formattedTargetText.length) * 100) : 0}% complete
+                                            </span>
+                                        </div>
+                                        <div className="h-1.5 bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden">
+                                            <div
+                                                className="h-full bg-gradient-to-r from-[#094A71] to-[#33B974] rounded-full transition-all duration-300"
+                                                style={{ width: `${formattedTargetText.length > 0 ? Math.round((userInput.length / formattedTargetText.length) * 100) : 0}%` }}
+                                            />
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
                         )}
                     </div>
 

@@ -21,35 +21,24 @@ const STEP_LABELS: Record<TutorialStep, string> = {
 
 // Which keyboard key is being highlighted for each stage
 const STAGE_KEY_HIGHLIGHTS: Record<string, string[]> = {
-    'stage-07': ['CapsLock'],
-    'stage-08': ['Shift', 'RShift'],
+    'stage-3-shift': ['Shift', 'RShift'],
 };
 
 // Finger diagrams as emoji + text descriptions
 const FINGER_DIAGRAMS: Record<string, { hand: string; finger: string; detail: string }> = {
-    'stage-07': {
-        hand: '🤚',
-        finger: 'Left Pinky',
-        detail: 'Your left pinky finger rests just above the A key. Reach it slightly left and up to hit Caps Lock. Press once to activate, once more to deactivate — the key toggles.',
-    },
-    'stage-08': {
+    'stage-3-shift': {
         hand: '🤜 🤛',
         finger: 'Both Pinky Fingers',
-        detail: 'For a right-hand letter (like "T"), use your LEFT Shift with your left pinky. For a left-hand letter (like "A"), use your RIGHT Shift with your right pinky. Hold Shift, press the letter, release Shift immediately.',
+        detail: 'For a right-hand letter (like "J"), use your LEFT Shift with your left pinky. For a left-hand letter (like "F"), use your RIGHT Shift with your right pinky. Hold Shift, press the letter, release Shift immediately.',
     },
 };
 
 // Interactive try-it prompts
 const TRY_IT_PROMPTS: Record<string, { instruction: string; targetWord: string; hint: string }> = {
-    'stage-07': {
-        instruction: 'Press Caps Lock, type the word below, then press Caps Lock again to turn it off.',
-        targetWord: 'HELLO',
-        hint: 'Press Caps Lock → type H-E-L-L-O → press Caps Lock again',
-    },
-    'stage-08': {
+    'stage-3-shift': {
         instruction: 'Use Shift to type the capitalized word below naturally.',
-        targetWord: 'World',
-        hint: 'Hold Right Shift → press W → release Shift → type o-r-l-d',
+        targetWord: 'Fred',
+        hint: 'Hold Right Shift → press F → release Shift → type r-e-d',
     },
 };
 
@@ -57,6 +46,27 @@ export const FunctionalKeyTutorial: React.FC<FunctionalKeyTutorialProps> = ({ st
     const [currentStep, setCurrentStep] = useState<TutorialStep>('intro');
     const [tryItInput, setTryItInput] = useState('');
     const [tryItDone, setTryItDone] = useState(false);
+    const [capsLockWarning, setCapsLockWarning] = useState(false);
+
+    const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+        if (stage.id === 'stage-3-shift') {
+            const isCapsLockOn = e.getModifierState('CapsLock');
+            const isAlpha = /^[a-zA-Z]$/.test(e.key);
+            
+            if (isAlpha) {
+                const isUppercase = e.key === e.key.toUpperCase();
+                const wasShiftUsed = e.shiftKey;
+                
+                // Block input if CapsLock is active OR they didn't use Shift to get an uppercase key
+                if (isCapsLockOn || (isUppercase && !wasShiftUsed)) {
+                    e.preventDefault();
+                    setCapsLockWarning(true);
+                    return;
+                }
+            }
+            setCapsLockWarning(false);
+        }
+    };
 
     const stepIndex = STEPS.indexOf(currentStep);
     const highlightedKeys = stage.keysTaught ?? [];
@@ -249,6 +259,7 @@ export const FunctionalKeyTutorial: React.FC<FunctionalKeyTutorialProps> = ({ st
                                 type="text"
                                 value={tryItInput}
                                 onChange={handleTryItChange}
+                                onKeyDown={handleKeyDown}
                                 maxLength={tryItPrompt.targetWord.length}
                                 autoFocus
                                 spellCheck={false}
@@ -259,6 +270,12 @@ export const FunctionalKeyTutorial: React.FC<FunctionalKeyTutorialProps> = ({ st
                                 placeholder="Type here..."
                                 className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-center font-mono text-lg focus:outline-none focus:ring-2 focus:ring-[#33B974]/50 transition-all"
                             />
+                            {capsLockWarning && (
+                                <div className="mt-3 flex items-center justify-center gap-2 text-rose-500 font-bold animate-pulse">
+                                    <span className="material-symbols-outlined text-sm">warning</span>
+                                    <span>Use the SHIFT key to capitalize, not Caps Lock!</span>
+                                </div>
+                            )}
                             {tryItDone && (
                                 <div className="mt-3 flex items-center justify-center gap-2 text-[#33B974] font-bold animate-in fade-in">
                                     <span className="material-symbols-outlined">check_circle</span>

@@ -14,9 +14,10 @@ import { useUserProgress } from '../context/UserProgressContext';
 import { useFacilitator } from '../context/FacilitatorContext';
 import { useAuth } from '../context/AuthContext';
 import { KeyboardHeatmap } from '../components/Practice/KeyboardHeatmap';
+import { PRACTICE_STAGES } from '../data/practiceModules';
 
 const StudentDashboard: React.FC = () => {
-    const { stats, recentResults, isStagePassed, keyStats, getKeyAccuracy } = useUserProgress();
+    const { stats, recentResults, isStagePassed, keyStats, getKeyAccuracy, unlockedStages } = useUserProgress();
     const { assignments } = useFacilitator();
     const { user } = useAuth();
 
@@ -54,8 +55,8 @@ const StudentDashboard: React.FC = () => {
             (a.sectionId === currentUserSectionId) ||
             (a.studentIds && a.studentIds.includes(currentUserId))
         ) &&
-        a.level === stats.level
-    ), [assignments, currentUserSectionId, currentUserId, stats.level]);
+        a.level === (isStagePassed('stage-capstone') ? 2 : 1)
+    ), [assignments, currentUserSectionId, currentUserId, isStagePassed]);
 
     const activePendingAssignments = useMemo(() => {
         return allStudentAssignments.filter(a => {
@@ -120,6 +121,33 @@ const StudentDashboard: React.FC = () => {
         return recentResults.slice(start, start + itemsPerPage);
     }, [recentResults, currentPage]);
 
+    const isCapstonePassed = isStagePassed('stage-capstone');
+    const hasPassedLevel2 = recentResults.some(r => 
+        r.testLevel === 2 && 
+        r.wpm >= 50 && 
+        r.accuracy >= 92
+    );
+
+    let standingLabel = 'Level 1';
+    let standingDescription = 'Practice Phase';
+    let welcomeMsg = "Your finger coordination is peaking today. Let's beat your personal targets and master the upcoming practice stages!";
+
+    if (hasPassedLevel2) {
+        standingLabel = 'Passed';
+        standingDescription = 'Course Certified';
+        welcomeMsg = "Congratulations! You have successfully mastered the keyboard and passed all levels. Keep typing to maintain your high speed!";
+    } else if (isCapstonePassed) {
+        standingLabel = 'Level 2';
+        standingDescription = 'Advanced Survival';
+        welcomeMsg = "You have completed the entire practice curriculum! Let's clear your assigned Level 2 assignments and standard tests now!";
+    }
+
+    // Get current practice stage number
+    const currentStageObj = [...PRACTICE_STAGES]
+        .reverse()
+        .find(stage => unlockedStages.includes(stage.id));
+    const currentStageNum = currentStageObj ? currentStageObj.stageNumber : '1.1';
+
     return (
         <div className="w-full py-8 px-4 sm:px-6 md:px-8 lg:px-12 flex flex-col items-center">
             <div className="max-w-[1200px] w-full flex flex-col gap-8">
@@ -145,14 +173,19 @@ const StudentDashboard: React.FC = () => {
                                 Welcome back, {user?.firstName || 'Student'}!
                             </h1>
                             <p className="text-white/90 text-sm md:text-base font-normal max-w-xl">
-                                Your finger coordination is peaking today. Let's beat your personal target and climb to Level {stats.level + 1}!
+                                {welcomeMsg}
                             </p>
                         </div>
                         <div className="flex items-center gap-4 bg-black/15 backdrop-blur-md rounded-xl p-4 border border-white/15">
-                            <span className="material-symbols-outlined text-yellow-400 text-4xl animate-pulse">workspace_premium</span>
+                            <span className="material-symbols-outlined text-yellow-400 text-4xl animate-pulse">
+                                {hasPassedLevel2 ? 'verified' : 'workspace_premium'}
+                            </span>
                             <div>
                                 <p className="text-xs text-white/80 uppercase tracking-widest font-bold">Current Standing</p>
-                                <p className="text-2xl font-black font-heading">Level {stats.level}</p>
+                                <p className="text-2xl font-black font-heading leading-tight">{standingLabel}</p>
+                                <p className="text-[10px] text-white/60 font-semibold uppercase tracking-wider">
+                                    {standingDescription} {!hasPassedLevel2 && `• Stage ${currentStageNum}`}
+                                </p>
                             </div>
                         </div>
                     </div>
@@ -327,7 +360,7 @@ const StudentDashboard: React.FC = () => {
                     <div className="rounded-2xl border border-slate-200 dark:border-[#323b67] bg-white dark:bg-card-dark p-6 shadow-md flex flex-col items-center justify-center relative overflow-hidden hover:shadow-lg transition-shadow duration-300">
                         <h3 className="w-full text-left text-sm font-bold text-slate-500 dark:text-[#929bc9] mb-4 flex justify-between">
                             <span className="uppercase tracking-wider">GOAL PROGRESS</span>
-                            <span className="text-xs bg-yellow-accent/15 text-yellow-600 dark:text-yellow-accent px-2 py-0.5 rounded-full font-bold">Level {stats.level}</span>
+                            <span className="text-xs bg-yellow-accent/15 text-yellow-600 dark:text-yellow-accent px-2 py-0.5 rounded-full font-bold">Stage {currentStageNum}</span>
                         </h3>
                         {/* CSS/SVG Gauge */}
                         <div className="relative w-40 h-40 flex items-center justify-center">

@@ -99,7 +99,7 @@ export const TypingArea: React.FC<TypingAreaProps> = ({
 
             {/* Overlay Text (The Target) */}
             <div className="absolute top-12 left-12 right-12 bottom-12 pointer-events-none select-none">
-                <h3 className="text-3xl font-display leading-relaxed text-left break-words whitespace-pre-wrap tracking-wide">
+                <h3 className="text-3xl font-display leading-relaxed text-center break-words whitespace-pre-wrap tracking-wide">
                     {renderHighlightedText()}
                 </h3>
             </div>
@@ -120,7 +120,7 @@ export const TypingArea: React.FC<TypingAreaProps> = ({
             />
 
             {/* Visual Placeholder to maintain height */}
-            <div className="invisible text-3xl font-display leading-relaxed text-left break-words whitespace-pre-wrap tracking-wide">
+            <div className="invisible text-3xl font-display leading-relaxed text-center break-words whitespace-pre-wrap tracking-wide">
                 {targetText}
             </div>
         </div>

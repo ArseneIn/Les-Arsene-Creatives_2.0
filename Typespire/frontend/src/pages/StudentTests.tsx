@@ -3,23 +3,26 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useFacilitator } from '../context/FacilitatorContext';
 import { useUserProgress } from '../context/UserProgressContext';
+import { PRACTICE_STAGES } from '../data/practiceModules';
 
 export const StudentTests: React.FC = () => {
     const { user } = useAuth();
     const { assignments } = useFacilitator();
-    const { stats, recentResults, isStagePassed } = useUserProgress();
+    const { stats, recentResults, isStagePassed, unlockedStages } = useUserProgress();
     const navigate = useNavigate();
     const [now] = React.useState(() => Date.now());
 
     const currentUserId = user?.id || '';
     const currentUserSectionId = user?.sectionId || '';
 
+    const systemLevel = isStagePassed('stage-capstone') ? 2 : 1;
+
     // 1. Assigned Tests
     const allAssignedTests = useMemo(() => assignments.filter(a =>
         a.status === 'Active' &&
         ((a.sectionId === currentUserSectionId) || (a.studentIds && a.studentIds.includes(currentUserId))) &&
-        a.level === stats.level
-    ), [assignments, currentUserSectionId, currentUserId, stats.level]);
+        a.level === systemLevel
+    ), [assignments, currentUserSectionId, currentUserId, systemLevel]);
 
     const pendingTests = allAssignedTests.filter(a => {
         const isExpired = a.dueDateISO ? new Date(a.dueDateISO).getTime() < now : false;
@@ -32,9 +35,8 @@ export const StudentTests: React.FC = () => {
 
     // 2. Randomised Tests for current level
     const randomisedTests = useMemo(() => {
-        const level = stats.level >= 2 ? 2 : 1;
-        const levelName = level === 2 ? "Level 2 — Survival" : "Level 1 — Standard";
-        const icon = level === 2 ? "flash_on" : "school";
+        const levelName = systemLevel === 2 ? "Level 2 — Survival" : "Level 1 — Standard";
+        const icon = systemLevel === 2 ? "flash_on" : "school";
         
         // Base random names
         const allPossibleNames = [
@@ -54,12 +56,12 @@ export const StudentTests: React.FC = () => {
         
         return selected.map(title => ({
             title,
-            level,
+            level: systemLevel,
             levelName,
             icon,
             duration: '1 minute'
         }));
-    }, [stats.level, allAssignedTests]);
+    }, [systemLevel, allAssignedTests]);
 
     return (
         <div className="w-full py-8 px-4 sm:px-6 md:px-8 lg:px-12 flex flex-col items-center">
@@ -186,7 +188,7 @@ export const StudentTests: React.FC = () => {
                         <span className="material-symbols-outlined text-[#33B974] text-xl">shuffle</span>
                         <h2 className="text-xl font-bold text-slate-800 dark:text-slate-200">1-Minute Sprints</h2>
                         <span className="ml-2 inline-flex items-center justify-center px-2 py-0.5 rounded-full bg-[#33B974]/10 text-[#33B974] text-xs font-bold">
-                            Level {stats.level}
+                            Level {systemLevel}
                         </span>
                     </div>
 

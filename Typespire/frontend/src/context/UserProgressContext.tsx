@@ -176,14 +176,28 @@ export const UserProgressProvider: React.FC<{ children: ReactNode }> = ({ childr
             return prev;
         });
 
-        // Retroactively pass Falling mode if Word mode is already passed (for users who progressed before Falling mode was added)
+        // Retroactively pass intermediate modes if Word mode is already passed (for users who progressed before Falling or N-Grams modes were added)
         setStageResults(prev => {
             let changed = false;
             const newResults = { ...prev };
-            for (let i = 1; i <= 5; i++) {
-                if (newResults[`stage-${i}-words`]?.passed && !newResults[`stage-${i}-falling`]?.passed) {
-                    newResults[`stage-${i}-falling`] = { passed: true, bestWpm: 0, bestAccuracy: 0 };
-                    changed = true;
+            for (let i = 1; i <= 9; i++) {
+                if (newResults[`stage-${i}-words`]?.passed) {
+                    if (!newResults[`stage-${i}-falling`]?.passed) {
+                        newResults[`stage-${i}-falling`] = { passed: true, bestWpm: 0, bestAccuracy: 0 };
+                        changed = true;
+                    }
+                    if (!newResults[`stage-${i}-ngrams`]?.passed) {
+                        newResults[`stage-${i}-ngrams`] = { passed: true, bestWpm: 0, bestAccuracy: 0 };
+                        changed = true;
+                    }
+                    if (i >= 2 && !newResults[`stage-${i}-paragraphs`]?.passed) {
+                        newResults[`stage-${i}-paragraphs`] = { passed: true, bestWpm: 0, bestAccuracy: 0 };
+                        changed = true;
+                    }
+                    if (i === 3 && !newResults[`stage-3-shift`]?.passed) {
+                        newResults[`stage-3-shift`] = { passed: true, bestWpm: 0, bestAccuracy: 0 };
+                        changed = true;
+                    }
                 }
             }
             return changed ? newResults : prev;

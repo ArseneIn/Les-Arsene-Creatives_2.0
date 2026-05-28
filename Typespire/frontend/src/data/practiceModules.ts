@@ -103,6 +103,147 @@ function generateCumulativeWords(allowedKeys: string[], wordCount: number = 20):
     return text.join(' ');
 }
 
+/**
+ * Generates rhythmic bigram and trigram patterns utilizing ONLY allowed keys.
+ */
+function generateNGramText(allowedKeys: string[], patternCount: number = 18): string {
+    const allowedSet = new Set(allowedKeys.map(k => k.toLowerCase()));
+    
+    // High-frequency English bigrams and trigrams
+    const commonNGrams = [
+        "th", "he", "in", "er", "an", "re", "on", "es", "at", "ed", "nd", "ha", 
+        "en", "ou", "to", "ng", "it", "is", "or", "as", "te", "et", "al", "ar", 
+        "st", "se", "ff", "jj", "fj", "jf", "ur", "ru", "uk", "ku", "kr", "rk",
+        "de", "ed", "di", "id", "ki", "ik", "fe", "ef", "ce", "ec", "ge", "eg",
+        "en", "ne", "cg", "gc", "the", "and", "ing", "ent", "ion", "her", "for", 
+        "tha", "ter", "was", "has", "red", "fed", "ded", "dec", "rec", "ice", "run"
+    ];
+    
+    const validNGrams = commonNGrams.filter(pattern => {
+        for (const char of pattern) {
+            if (!allowedSet.has(char)) return false;
+        }
+        return true;
+    });
+    
+    const chunks: string[] = [];
+    if (validNGrams.length === 0) {
+        const cleanKeys = allowedKeys.filter(k => k !== ' ');
+        for (let i = 0; i < patternCount; i++) {
+            const k1 = cleanKeys[Math.floor(Math.random() * cleanKeys.length)];
+            const k2 = cleanKeys[Math.floor(Math.random() * cleanKeys.length)];
+            const pattern = k1 + k2;
+            chunks.push((pattern + ' ').repeat(3).trim());
+        }
+    } else {
+        // Select random patterns and repeat them rhythmically
+        const selectedCount = Math.min(validNGrams.length, 6);
+        const shuffled = [...validNGrams].sort(() => 0.5 - Math.random());
+        
+        for (let i = 0; i < selectedCount; i++) {
+            chunks.push((shuffled[i] + ' ').repeat(3).trim());
+        }
+        
+        // Add a few mixed ones
+        let mixed = '';
+        for (let i = 0; i < 8; i++) {
+            mixed += validNGrams[Math.floor(Math.random() * validNGrams.length)] + ' ';
+        }
+        chunks.push(mixed.trim());
+    }
+    
+    return chunks.join(' ');
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Paragraph Drills Data & Generator
+// ─────────────────────────────────────────────────────────────────────────────
+
+const PARAGRAPH_POOLS: Record<string, string[]> = {
+    'mod-2': [
+        "ruff fur juror junk",
+        "junk fur jury ruff",
+        "juror ruff junk fur",
+        "jury ruff fur junk",
+        "fur junk ruff juror"
+    ],
+    'mod-3': [
+        "rude dude ride deer",
+        "free red deer ride",
+        "kid ride red deer",
+        "duke feed red deer",
+        "kid feed red duck",
+        "rude duke ride red duck",
+        "fire red deer ride"
+    ],
+    'mod-4': [
+        "nice green gene run in grid",
+        "nine green kings run in red engine",
+        "nice kid dig in green rug",
+        "dinner is nice green juice",
+        "green ring in red ice",
+        "nice gene in dinner figure",
+        "king find nice ring in rug"
+    ],
+    'mod-5': [
+        "dan slide in clean glass",
+        "glad dad sing a line",
+        "all girls are nice and glad",
+        "sad lad fall in dark lane",
+        "safari is a grand ride"
+    ],
+    'mod-6': [
+        "we will grow and prosper",
+        "poor people work on poor land",
+        "we spin and win raw gold",
+        "quick people walk slow",
+        "wild dogs prowl in dark woods"
+    ],
+    'mod-7': [
+        "many happy kids play in matching shirts",
+        "we must try to work hard today",
+        "white ducks fly high in sky",
+        "young men write many smart letters",
+        "mother makes warm milk for home"
+    ],
+    'mod-8': [
+        "the quick brown fox jumps over the lazy dog",
+        "brave citizens vocalize extreme joy",
+        "crazy zebra walks very quickly down path",
+        "six heavy boxes fell off moving wagon"
+    ]
+};
+
+/**
+ * Generates capitalized, punctuated flowing paragraphs using only unlocked keys.
+ */
+function generateParagraphDrillText(moduleId: string, allowedKeys: string[]): string {
+    const hasDot = allowedKeys.includes('.');
+    const pool = PARAGRAPH_POOLS[moduleId];
+    if (!pool) {
+        // Fallback: build randomized logical-looking sentence structures
+        const words = generateCumulativeWords(allowedKeys, 24).split(' ');
+        const sentences = [];
+        for (let i = 0; i < words.length; i += 6) {
+            const chunk = words.slice(i, i + 6);
+            if (chunk.length > 0) {
+                chunk[0] = chunk[0].charAt(0).toUpperCase() + chunk[0].slice(1);
+                sentences.push(chunk.join(' ') + (hasDot ? '.' : ''));
+            }
+        }
+        return sentences.join(' ');
+    }
+    
+    // Shuffle and pick 4 sentences
+    const shuffled = [...pool].sort(() => 0.5 - Math.random());
+    const selected = shuffled.slice(0, 4);
+    
+    return selected.map(s => {
+        const clean = s.trim().toLowerCase();
+        return clean.charAt(0).toUpperCase() + clean.slice(1) + (hasDot ? '.' : '');
+    }).join(' ');
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Curriculum Definition (Vowel-First)
 // ─────────────────────────────────────────────────────────────────────────────
@@ -127,7 +268,7 @@ const rawModules = [
     {
         id: 'mod-3',
         title: 'Core Vowels: D, E, I',
-        description: 'Unlock more vowels to drastically increase word combinations.',
+        description: 'Unlock more vowels and the Shift key to drastically increase word combinations.',
         icon: 'spellcheck',
         keys: ['d', 'e', 'i'],
         hint: 'Left middle stretches to E, Right middle stretches to I, Left middle rests on D.'
@@ -142,8 +283,40 @@ const rawModules = [
     },
     {
         id: 'mod-5',
+        title: 'Home Row Vowels & Anchors: A, S, L',
+        description: 'Establish crucial home row anchors and key vowels.',
+        icon: 'grid_view',
+        keys: ['a', 's', 'l'],
+        hint: 'Left pinky on A, Left ring on S, Right ring on L.'
+    },
+    {
+        id: 'mod-6',
+        title: 'Top Row Extensions: O, P, Q, W',
+        description: 'Master far-reaching top row letters for advanced typing.',
+        icon: 'keyboard',
+        keys: ['o', 'p', 'q', 'w'],
+        hint: 'Right ring on O, Right pinky on P, Left pinky on Q, Left ring on W.'
+    },
+    {
+        id: 'mod-7',
+        title: 'Inner Index Reaches: H, T, Y, M',
+        description: 'Introduce center row reaches and essential bottom keys.',
+        icon: 'align_horizontal_center',
+        keys: ['h', 't', 'y', 'm'],
+        hint: 'Right index left to H, Left index up-right to T, Right index up-left to Y, Right index down-left to M.'
+    },
+    {
+        id: 'mod-8',
+        title: 'Bottom Row & Pinky: B, V, X, Z',
+        description: 'Conquer the final set of letters on the bottom row, commas, and periods.',
+        icon: 'border_bottom',
+        keys: ['b', 'v', 'x', 'z', ',', '.'],
+        hint: 'Left index down-right to B, Left index down-right to V, Left ring down-right to X, Left pinky down-right to Z, Right middle down to comma, Right ring down to period.'
+    },
+    {
+        id: 'mod-9',
         title: 'Course Capstone Review',
-        description: 'Comprehensive review of all learned keys.',
+        description: 'Comprehensive review of all learned keys across the entire keyboard.',
         icon: 'workspace_premium',
         keys: [], 
         hint: 'Combine all your skills for the final test.'
@@ -165,7 +338,7 @@ rawModules.forEach((mod, modIndex) => {
         cumulativeKeys = [...new Set([...cumulativeKeys, ...mod.keys])];
     }
     
-    const isCapstone = mod.id === 'mod-5';
+    const isCapstone = mod.id === 'mod-9';
     
     // Capture the current state of cumulative keys for this specific module
     const currentAllowedKeys = [...cumulativeKeys];
@@ -192,6 +365,30 @@ rawModules.forEach((mod, modIndex) => {
         PRACTICE_STAGES.push(capstoneLevel);
         previousSubLevelId = capstoneId;
     } else {
+        // Stage 0: Shift Key Tutorial (Only for Module 3!)
+        if (moduleNumber === 3) {
+            const shiftId = `stage-3-shift`;
+            const shiftLevel: SubLevel = {
+                id: shiftId,
+                stageNumber: `3.0`,
+                title: `Shift Key Tutorial`,
+                description: `Learn how to hold Shift to type capitalized characters and letters.`,
+                keysTaught: ['Shift', 'RShift'],
+                fingerHint: `Left pinky hits Left Shift, Right pinky hits Right Shift. Keep your posture tall.`,
+                defaultWpm: 8,
+                defaultAccuracy: 90,
+                generateText: () => "Fred red deer ride free",
+                duration: 40,
+                unlockRequires: previousSubLevelId,
+                isFunctionalKey: true,
+                icon: 'keyboard_capslock',
+                practiceType: 'words'
+            };
+            subLevels.push(shiftLevel);
+            PRACTICE_STAGES.push(shiftLevel);
+            previousSubLevelId = shiftId;
+        }
+
         // Stage 1: Letter Mastery
         const letterId = `stage-${moduleNumber}-letters`;
         const letterLevel: SubLevel = {
@@ -240,11 +437,33 @@ rawModules.forEach((mod, modIndex) => {
         PRACTICE_STAGES.push(fallingLevel);
         previousSubLevelId = fallingId;
 
-        // Stage 3: Word Combinations
+        // Stage 3: N-Gram Patterns
+        const ngramId = `stage-${moduleNumber}-ngrams`;
+        const ngramLevel: SubLevel = {
+            id: ngramId,
+            stageNumber: `${moduleNumber}.3`,
+            title: `N-Gram Patterns`,
+            description: `Master common bigrams and trigrams utilizing these keys.`,
+            keysTaught: currentAllowedKeys,
+            fingerHint: `Build hand tempo by sweeps of common key pairings.`,
+            defaultWpm: 8 + (moduleNumber * 1),
+            defaultAccuracy: 90,
+            generateText: () => generateNGramText(currentAllowedKeys),
+            duration: 50,
+            unlockRequires: previousSubLevelId,
+            isFunctionalKey: false,
+            icon: 'stream',
+            practiceType: 'words'
+        };
+        subLevels.push(ngramLevel);
+        PRACTICE_STAGES.push(ngramLevel);
+        previousSubLevelId = ngramId;
+
+        // Stage 4: Word Combinations
         const wordId = `stage-${moduleNumber}-words`;
         const wordLevel: SubLevel = {
             id: wordId,
-            stageNumber: `${moduleNumber}.3`,
+            stageNumber: `${moduleNumber}.4`,
             title: `Word Combinations`,
             description: `Combine ${mod.keys.map(k => k === ' ' ? 'Space' : k.toUpperCase()).join(', ')} into real words.`,
             keysTaught: currentAllowedKeys,
@@ -261,6 +480,30 @@ rawModules.forEach((mod, modIndex) => {
         subLevels.push(wordLevel);
         PRACTICE_STAGES.push(wordLevel);
         previousSubLevelId = wordId;
+
+        // Stage 5: Paragraph Drills (Module 2+ onwards, once we have vowels and enough consonants!)
+        if (moduleNumber >= 2) {
+            const paragraphId = `stage-${moduleNumber}-paragraphs`;
+            const paragraphLevel: SubLevel = {
+                id: paragraphId,
+                stageNumber: `${moduleNumber}.5`,
+                title: `Paragraph Drills`,
+                description: `Type logically sounding paragraphs using all learned keys.`,
+                keysTaught: currentAllowedKeys,
+                fingerHint: `Focus on stamina, capitalization, and flowing punctuation.`,
+                defaultWpm: 12 + (moduleNumber * 2),
+                defaultAccuracy: 92, // slightly higher threshold for final module mastery
+                generateText: () => generateParagraphDrillText(mod.id, currentAllowedKeys),
+                duration: 75,
+                unlockRequires: previousSubLevelId,
+                isFunctionalKey: false,
+                icon: 'subject',
+                practiceType: 'words'
+            };
+            subLevels.push(paragraphLevel);
+            PRACTICE_STAGES.push(paragraphLevel);
+            previousSubLevelId = paragraphId;
+        }
     }
 
     PRACTICE_MODULES.push({
