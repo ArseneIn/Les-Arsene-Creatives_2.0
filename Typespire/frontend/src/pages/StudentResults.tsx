@@ -87,8 +87,8 @@ const StudentResults: React.FC = () => {
             .slice(0, 12);
     }, [keyBreakdown]);
 
-    const modeLabel = isLevel2 ? '⚡ Level 2 — Survival' : isPractice ? '🎯 Practice Stage' : assignmentId ? '📋 Assignment' : '🏁 Sprint Test';
-    const modeColor = isLevel2 ? 'bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400' : isPractice ? 'bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400' : 'bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400';
+    const modeLabel = isPractice ? '🎯 Practice Stage' : isLevel2 ? '⚡ Level 2 — Survival' : assignmentId ? '📋 Classroom Test' : '🏁 Sprint Test';
+    const modeColor = isPractice ? 'bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400' : isLevel2 ? 'bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400' : 'bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400';
 
     return (
         <div className="w-full min-h-screen py-10 px-4 sm:px-6 md:px-8 flex flex-col items-center">
@@ -130,7 +130,7 @@ const StudentResults: React.FC = () => {
                     </div>
                 )}
 
-                {/* ── Assignment Submitted Banner ── */}
+                {/* ── Test Submitted Banner ── */}
                 {assignmentId && (
                     <div className={`rounded-xl border p-4 flex items-center gap-3 ${passed ? 'border-emerald-200 dark:border-emerald-700 bg-emerald-50 dark:bg-emerald-900/20' : 'border-amber-200 dark:border-amber-700 bg-amber-50 dark:bg-amber-900/20'}`}>
                         <div className={`p-2 rounded-lg ${passed ? 'bg-emerald-100 dark:bg-emerald-800/50 text-emerald-600' : 'bg-amber-100 dark:bg-amber-800/50 text-amber-600'}`}>
@@ -138,7 +138,7 @@ const StudentResults: React.FC = () => {
                         </div>
                         <div>
                             <p className={`font-bold text-sm ${passed ? 'text-emerald-700 dark:text-emerald-400' : 'text-amber-700 dark:text-amber-400'}`}>
-                                {passed ? 'Assignment Submitted & Passed ✓' : 'Assignment Submitted — Below Target'}
+                                {passed ? 'Test Submitted & Passed ✓' : 'Test Submitted — Below Target'}
                             </p>
                             <p className="text-xs text-slate-500">Your result has been recorded and sent to your facilitator.</p>
                         </div>
@@ -252,24 +252,67 @@ const StudentResults: React.FC = () => {
 
                 {/* ── Actions ── */}
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                    {nextStageId && passed && isPractice && (
-                        <Link
-                            to={`/test?mode=practice&stageId=${nextStageId}`}
-                            className="flex items-center justify-center gap-2 bg-[#33B974] hover:bg-[#33B974]/90 text-white font-bold py-3.5 rounded-xl transition-all shadow-lg shadow-[#33B974]/20 text-sm"
-                        >
-                            <span className="material-symbols-outlined text-base">arrow_forward</span>
-                            Next Stage
-                        </Link>
+                    {/* Practice Mode Actions */}
+                    {isPractice && (
+                        passed ? (
+                            nextStageId ? (
+                                <Link
+                                    to={`/test?mode=practice&stageId=${nextStageId}`}
+                                    className="flex items-center justify-center gap-2 bg-[#33B974] hover:bg-[#33B974]/90 text-white font-bold py-3.5 rounded-xl transition-all shadow-lg shadow-[#33B974]/20 text-sm"
+                                >
+                                    <span className="material-symbols-outlined text-base">arrow_forward</span>
+                                    Next Stage
+                                </Link>
+                            ) : (
+                                <Link
+                                    to="/practice"
+                                    className="flex items-center justify-center gap-2 bg-[#33B974] hover:bg-[#33B974]/90 text-white font-bold py-3.5 rounded-xl transition-all shadow-lg shadow-[#33B974]/20 text-sm"
+                                >
+                                    <span className="material-symbols-outlined text-base">check_circle</span>
+                                    Complete Practice Path
+                                </Link>
+                            )
+                        ) : (
+                            stageId && (
+                                <Link
+                                    to={`/test?mode=practice&stageId=${stageId}`}
+                                    className="flex items-center justify-center gap-2 bg-[#094A71] hover:bg-[#094A71]/90 text-white font-bold py-3.5 rounded-xl transition-all shadow-lg text-sm"
+                                >
+                                    <span className="material-symbols-outlined text-base">replay</span>
+                                    Retry Practice Stage
+                                </Link>
+                            )
+                        )
                     )}
-                    {assignmentId && !passed && (
-                        <Link
-                            to={`/test?assignmentId=${assignmentId}`}
-                            className="flex items-center justify-center gap-2 bg-[#094A71] hover:bg-[#094A71]/90 text-white font-bold py-3.5 rounded-xl transition-all text-sm"
-                        >
-                            <span className="material-symbols-outlined text-base">replay</span>
-                            Retry Assignment
-                        </Link>
+
+                    {/* Test / Classroom / Sprint Actions */}
+                    {!isPractice && (
+                        !passed ? (
+                            assignmentId ? (
+                                <Link
+                                    to={`/test?assignmentId=${assignmentId}`}
+                                    className="flex items-center justify-center gap-2 bg-[#094A71] hover:bg-[#094A71]/90 text-white font-bold py-3.5 rounded-xl transition-all shadow-lg text-sm"
+                                >
+                                    <span className="material-symbols-outlined text-base">replay</span>
+                                    Retry Test
+                                </Link>
+                            ) : (
+                                <Link
+                                    to={`/test?mode=random&level=${isLevel2 ? '2' : '1'}`}
+                                    className="flex items-center justify-center gap-2 bg-[#094A71] hover:bg-[#094A71]/90 text-white font-bold py-3.5 rounded-xl transition-all shadow-lg text-sm"
+                                >
+                                    <span className="material-symbols-outlined text-base">replay</span>
+                                    Retry Sprint Test
+                                </Link>
+                            )
+                        ) : (
+                            <div className="flex items-center justify-center gap-2 bg-[#33B974]/10 border border-[#33B974]/20 text-[#33B974] font-bold py-3.5 rounded-xl text-sm select-none">
+                                <span className="material-symbols-outlined text-base">check_circle</span>
+                                Requirement Met ✓
+                            </div>
+                        )
                     )}
+
                     <Link
                         to="/practice"
                         className="flex items-center justify-center gap-2 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 font-bold py-3.5 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800 transition-all text-sm"

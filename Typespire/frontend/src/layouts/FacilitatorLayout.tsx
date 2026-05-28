@@ -75,14 +75,14 @@ const FacilitatorLayout: React.FC = () => {
                         <Link
                             to="/facilitator/launch"
                             onClick={() => setIsSidebarOpen(false)}
-                            title={isCollapsed ? "New Assignment" : undefined}
+                            title={isCollapsed ? "New Test" : undefined}
                             className={`flex items-center ${isCollapsed ? 'justify-center px-0' : 'gap-3 px-4'} py-3 rounded-lg transition-all border-l-4 group ${isActive('/facilitator/launch')
                                 ? 'bg-white/10 text-[#33B974] border-[#33B974]'
                                 : 'text-white/90 hover:text-[#33B974] hover:bg-white/10 border-transparent hover:border-[#33B974]'
                                 }`}
                         >
                             <span className={`material-symbols-outlined shrink-0 transition-colors ${isActive('/facilitator/launch') ? 'text-[#33B974]' : 'text-white/70 group-hover:text-[#33B974]'}`}>add_circle</span>
-                            {!isCollapsed && <span className="font-medium text-sm truncate">New Assignment</span>}
+                            {!isCollapsed && <span className="font-medium text-sm truncate">New Test</span>}
                         </Link>
                         <Link
                             to="/facilitator/classes"

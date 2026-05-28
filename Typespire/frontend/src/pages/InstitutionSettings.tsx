@@ -1,11 +1,79 @@
-import React, { useState } from 'react';
-import { Palette, Zap, CloudUpload, Plus, Building2, School, ArrowRight, Info, BadgeCheck, Eye, TrendingUp, Check, Star, Lightbulb } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Palette, Zap, CloudUpload, Plus, Building2, School, ArrowRight, Info, BadgeCheck, Eye, TrendingUp, Check, Star, Lightbulb, Sliders } from 'lucide-react';
 
 import { useInstitution } from '../context/InstitutionContext';
+import { useAuth } from '../context/AuthContext';
+import api from '../api/axios';
+import { PRACTICE_STAGES } from '../data/practiceModules';
 
 const InstitutionSettings: React.FC = () => {
     const [activeTab, setActiveTab] = useState<'branding' | 'benchmarks'>('branding');
     const { settings, updateSettings } = useInstitution();
+    const { user } = useAuth();
+    const [stageRequirements, setStageRequirements] = useState<Record<string, { wpm: number; accuracy: number }>>({});
+    const [savingStageId, setSavingStageId] = useState<string | null>(null);
+    const [selectedModuleNum, setSelectedModuleNum] = useState<number>(1);
+
+    useEffect(() => {
+        if (activeTab === 'benchmarks' && user?.institutionId) {
+            api.get(`/requirements/institution/${user.institutionId}`)
+                .then(res => {
+                    const reqs: Record<string, { wpm: number; accuracy: number }> = {};
+                    res.data.forEach((r: any) => {
+                        reqs[r.stageId] = { wpm: r.wpm, accuracy: r.accuracy };
+                    });
+                    
+                    // Pre-fill missing with defaults from PRACTICE_STAGES
+                    const initial: Record<string, { wpm: number; accuracy: number }> = {};
+                    PRACTICE_STAGES.forEach(stage => {
+                        initial[stage.id] = reqs[stage.id] || { 
+                            wpm: stage.defaultWpm || 20, 
+                            accuracy: stage.defaultAccuracy || 90 
+                        };
+                    });
+                    setStageRequirements(initial);
+                })
+                .catch(err => {
+                    console.error("Failed to load institution stage requirements", err);
+                    const initial: Record<string, { wpm: number; accuracy: number }> = {};
+                    PRACTICE_STAGES.forEach(stage => {
+                        initial[stage.id] = { 
+                            wpm: stage.defaultWpm || 20, 
+                            accuracy: stage.defaultAccuracy || 90 
+                        };
+                    });
+                    setStageRequirements(initial);
+                });
+        }
+    }, [activeTab, user?.institutionId]);
+
+    const handleStageChange = (stageId: string, field: 'wpm' | 'accuracy', value: number) => {
+        setStageRequirements(prev => ({
+            ...prev,
+            [stageId]: {
+                ...prev[stageId],
+                [field]: value
+            }
+        }));
+    };
+
+    const handleSaveStage = async (stageId: string) => {
+        if (!user?.institutionId) return;
+        setSavingStageId(stageId);
+        try {
+            await api.post(`/requirements/institution/${user.institutionId}`, {
+                stageId,
+                wpm: stageRequirements[stageId].wpm,
+                accuracy: stageRequirements[stageId].accuracy
+            });
+            alert(`Curriculum requirements for Stage ${stageRequirements[stageId].wpm} saved successfully!`);
+        } catch (err) {
+            console.error("Failed to save curriculum stage requirements:", err);
+            alert("Failed to save stage requirements. Please try again.");
+        } finally {
+            setSavingStageId(null);
+        }
+    };
 
     return (
         <div className="flex-1 w-full max-w-7xl mx-auto px-6 py-8 lg:px-10">
@@ -187,7 +255,8 @@ const InstitutionSettings: React.FC = () => {
                     </div>
                 </div>
             ) : (
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 mt-2">
+                <>
+                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 mt-2">
                     {/* Left Column: Configuration Form (Span 7) */}
                     <div className="lg:col-span-7 flex flex-col gap-6">
                         <div className="bg-white dark:bg-white/5 rounded-xl shadow-sm border border-border-light dark:border-white/10 p-6 md:p-8">
@@ -354,6 +423,106 @@ const InstitutionSettings: React.FC = () => {
                         </div>
                     </div>
                 </div>
+
+                {/* Section: Curriculum Stage Benchmarks */}
+                <div className="bg-white dark:bg-white/5 rounded-2xl border border-slate-200 dark:border-white/10 p-6 md:p-8 shadow-sm mt-8">
+                    <div className="flex items-center gap-3 mb-6">
+                        <div className="p-2 rounded-lg bg-admin-primary/10 text-admin-primary">
+                            <Sliders className="w-6 h-6" />
+                        </div>
+                        <div>
+                            <h2 className="text-xl font-bold text-slate-900 dark:text-white">Curriculum Stage Benchmarks</h2>
+                            <p className="text-sm text-slate-500 dark:text-slate-400">Configure passing speed and accuracy targets for each individual learning stage. Saves instantly across all sections.</p>
+                        </div>
+                    </div>
+
+                    {/* Module Tabs Selector */}
+                    <div className="flex flex-wrap gap-2 mb-8 p-1.5 bg-slate-50 dark:bg-[#1a1f36]/40 rounded-xl border border-slate-100 dark:border-[#323b67]/20 w-fit">
+                        {[1, 2, 3, 4, 5, 6, 7, 8, 9].map(num => (
+                            <button
+                                key={num}
+                                onClick={() => setSelectedModuleNum(num)}
+                                className={`px-4 py-2 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                                    selectedModuleNum === num
+                                        ? 'bg-admin-primary text-white shadow-sm'
+                                        : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                                }`}
+                            >
+                                {num === 9 ? 'Capstone Test' : `Module ${num}`}
+                            </button>
+                        ))}
+                    </div>
+
+                    {/* Curriculum Grid */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        {PRACTICE_STAGES.filter(stage => {
+                            if (selectedModuleNum === 9) {
+                                return stage.id === 'stage-capstone';
+                            }
+                            return stage.id.includes(`-${selectedModuleNum}-`) || stage.id === `stage-${selectedModuleNum}-shift`;
+                        }).map(stage => {
+                            const req = stageRequirements[stage.id] || { 
+                                wpm: stage.defaultWpm || 20, 
+                                accuracy: stage.defaultAccuracy || 90 
+                            };
+                            const isSaving = savingStageId === stage.id;
+                            
+                            return (
+                                <div key={stage.id} className="flex flex-col justify-between gap-4 p-5 rounded-2xl border border-slate-200 dark:border-[#323b67] bg-slate-50/30 dark:bg-[#232948]/20 hover:border-admin-primary/45 transition-colors">
+                                    <div>
+                                        <div className="flex items-center justify-between gap-2 mb-1.5">
+                                            <h4 className="font-extrabold text-slate-800 dark:text-white text-base">Stage {stage.stageNumber}: {stage.title}</h4>
+                                            <span className="px-2 py-0.5 rounded-full bg-admin-primary/10 text-admin-primary font-bold text-[10px] uppercase">
+                                                {stage.type || 'Practice'}
+                                            </span>
+                                        </div>
+                                        <p className="text-xs text-slate-500 dark:text-[#929bc9] leading-relaxed line-clamp-2 italic mb-2">
+                                            "{stage.practiceText}"
+                                        </p>
+                                    </div>
+                                    <div className="flex items-end justify-between pt-3 border-t border-slate-100 dark:border-[#323b67]/30">
+                                        <div className="flex items-center gap-4">
+                                            <div className="flex flex-col gap-1">
+                                                <label className="text-[10px] uppercase font-extrabold text-slate-400 tracking-wider">Target WPM</label>
+                                                <input 
+                                                    type="number" 
+                                                    value={req.wpm}
+                                                    onChange={(e) => handleStageChange(stage.id, 'wpm', Number(e.target.value))}
+                                                    className="w-20 px-2 py-1.5 rounded-lg bg-white dark:bg-[#1a1f36] border border-slate-300 dark:border-[#323b67] text-sm font-bold font-mono text-center text-slate-900 dark:text-white focus:ring-1 focus:ring-admin-primary focus:border-transparent outline-none"
+                                                />
+                                            </div>
+                                            <div className="flex flex-col gap-1">
+                                                <label className="text-[10px] uppercase font-extrabold text-slate-400 tracking-wider">Target Acc %</label>
+                                                <input 
+                                                    type="number" 
+                                                    value={req.accuracy}
+                                                    onChange={(e) => handleStageChange(stage.id, 'accuracy', Number(e.target.value))}
+                                                    className="w-20 px-2 py-1.5 rounded-lg bg-white dark:bg-[#1a1f36] border border-slate-300 dark:border-[#323b67] text-sm font-bold font-mono text-center text-slate-900 dark:text-white focus:ring-1 focus:ring-admin-primary focus:border-transparent outline-none"
+                                                />
+                                            </div>
+                                        </div>
+                                        <button 
+                                            disabled={isSaving}
+                                            onClick={() => handleSaveStage(stage.id)}
+                                            className={`px-4 py-2 rounded-xl text-white text-xs font-bold flex items-center gap-1.5 hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer ${
+                                                isSaving ? 'bg-slate-400 cursor-not-allowed' : 'bg-admin-primary hover:bg-admin-primary-hover shadow-sm'
+                                            }`}
+                                        >
+                                            {isSaving ? (
+                                                'Saving...'
+                                            ) : (
+                                                <>
+                                                    <Check className="w-3.5 h-3.5" /> Save Stage
+                                                </>
+                                            )}
+                                        </button>
+                                    </div>
+                                </div>
+                            );
+                        })}
+                    </div>
+                </div>
+                </>
             )}
         </div>
     );

@@ -127,4 +127,39 @@ export class TestResultService {
       take: 200, // Limit to 200 most recent for performance
     });
   }
+
+  async findBySection(sectionId: string) {
+    return this.prisma.testResult.findMany({
+      where: {
+        user: {
+          sectionId,
+        },
+      },
+      include: {
+        user: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            username: true,
+            email: true,
+          },
+        },
+        test: {
+          select: {
+            title: true,
+            difficulty: true,
+          },
+        },
+        assignment: {
+          select: {
+            title: true,
+          },
+        },
+      },
+      orderBy: {
+        createdAt: 'asc',
+      },
+    });
+  }
 }

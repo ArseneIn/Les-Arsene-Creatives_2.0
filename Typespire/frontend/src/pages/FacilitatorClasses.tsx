@@ -160,9 +160,6 @@ const FacilitatorClasses: React.FC = () => {
                             <span className="inline-flex px-3 py-1 rounded-full bg-slate-100 dark:bg-[#323b67] text-slate-600 dark:text-[#929bc9] text-xs font-bold border border-slate-200/50 dark:border-[#323b67]/50 uppercase">
                                 {sectionStudents.length} Students Enrolled
                             </span>
-                            <button onClick={() => setShowSectionCurriculum(true)} className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-600 font-bold text-xs uppercase hover:bg-emerald-500/20 transition-colors cursor-pointer">
-                                <span className="material-symbols-outlined text-[14px]">tune</span> Curriculum
-                            </button>
                         </div>
                     </div>
 
@@ -403,13 +400,6 @@ const FacilitatorClasses: React.FC = () => {
                     </div>
                 );
             })()}
-
-            <StageRequirementsModal 
-                isOpen={showSectionCurriculum}
-                onClose={() => setShowSectionCurriculum(false)}
-                sectionId={activeSection?.id}
-                title={`Curriculum: ${activeSection?.name}`}
-            />
 
             <StageRequirementsModal 
                 isOpen={!!editingStudentId}

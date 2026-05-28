@@ -69,7 +69,7 @@ export const StudentTests: React.FC = () => {
                 {/* Header */}
                 <div>
                     <h1 className="text-3xl font-black text-slate-900 dark:text-white font-heading mb-2">Tests Hub</h1>
-                    <p className="text-slate-500 dark:text-slate-400">Complete assignments from your facilitator or take randomized 1-minute sprints to improve your metrics.</p>
+                    <p className="text-slate-500 dark:text-slate-400">Complete tests from your facilitator or take randomized 1-minute sprints to improve your metrics.</p>
                 </div>
 
                 {!isStagePassed('stage-capstone') ? (
@@ -132,7 +132,7 @@ export const StudentTests: React.FC = () => {
                         <div className="bg-white dark:bg-card-dark border border-slate-200 dark:border-[#323b67] rounded-xl p-8 text-center">
                             <span className="material-symbols-outlined text-4xl text-slate-300 dark:text-slate-600 mb-3">check_circle</span>
                             <h3 className="text-lg font-bold text-slate-700 dark:text-slate-300 mb-1">All caught up!</h3>
-                            <p className="text-slate-500 dark:text-slate-400 text-sm">You have no pending assignments from your facilitator.</p>
+                            <p className="text-slate-500 dark:text-slate-400 text-sm">You have no pending tests from your facilitator.</p>
                         </div>
                     ) : (
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">

@@ -34,7 +34,23 @@ export class AssignmentService {
     });
   }
 
+  async runExpiryCheck() {
+    const now = new Date();
+    await this.prisma.assignment.updateMany({
+      where: {
+        status: 'ACTIVE',
+        dueDate: {
+          lt: now,
+        },
+      },
+      data: {
+        status: 'COMPLETED',
+      },
+    });
+  }
+
   async findBySection(sectionId: string) {
+    await this.runExpiryCheck();
     return this.prisma.assignment.findMany({
       where: {
         sectionId: sectionId,
@@ -48,6 +64,7 @@ export class AssignmentService {
   }
 
   async findByFacilitator(facilitatorId: string) {
+    await this.runExpiryCheck();
     // A facilitator can have multiple sections.
     // Query assignments that belong to the sections assigned to this facilitator.
     const sections = await this.prisma.section.findMany({
@@ -77,4 +94,36 @@ export class AssignmentService {
       data: { status },
     });
   }
+
+  async findByInstitution(institutionId: string) {
+    await this.runExpiryCheck();
+    return this.prisma.assignment.findMany({
+      where: {
+        section: {
+          intake: {
+            institutionId,
+          },
+        },
+      },
+      include: {
+        test: true,
+        section: {
+          include: {
+            facilitator: true,
+            intake: true,
+          },
+        },
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
+  }
+
+  async delete(id: string) {
+    return this.prisma.assignment.delete({
+      where: { id },
+    });
+  }
 }
+

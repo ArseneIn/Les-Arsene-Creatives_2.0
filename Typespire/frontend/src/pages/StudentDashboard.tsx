@@ -139,7 +139,7 @@ const StudentDashboard: React.FC = () => {
     } else if (isCapstonePassed) {
         standingLabel = 'Level 2';
         standingDescription = 'Advanced Survival';
-        welcomeMsg = "You have completed the entire practice curriculum! Let's clear your assigned Level 2 assignments and standard tests now!";
+        welcomeMsg = "You have completed the entire practice curriculum! Let's clear your assigned Level 2 and standard tests now!";
     }
 
     // Get current practice stage number
@@ -192,22 +192,7 @@ const StudentDashboard: React.FC = () => {
                 </header>
 
                 {/* ── Assigned Tests Section ── */}
-                {!isStagePassed('stage-capstone') ? (
-                    <div className="bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 rounded-2xl p-8 flex flex-col items-center justify-center text-center">
-                        <span className="material-symbols-outlined text-5xl text-red-500 mb-4">lock</span>
-                        <h2 className="text-2xl font-bold text-red-600 dark:text-red-400 mb-2">Assignments Locked</h2>
-                        <p className="text-red-500 dark:text-red-300 max-w-lg mb-6">
-                            You must complete all 12 stages of the <strong>Learning Path</strong> before you can access any assigned tasks.
-                        </p>
-                        <button
-                            onClick={() => window.location.href = '/practice'}
-                            className="px-6 py-3 bg-red-500 hover:bg-red-600 text-white font-bold rounded-xl shadow-lg transition-colors flex items-center gap-2"
-                        >
-                            <span className="material-symbols-outlined text-xl">school</span>
-                            Go to Practice Arena
-                        </button>
-                    </div>
-                ) : activePendingAssignments.length > 0 ? (
+                {isStagePassed('stage-capstone') && activePendingAssignments.length > 0 ? (
                     <section>
                         <div className="flex items-center justify-between mb-3">
                             <h2 className="text-base font-bold text-slate-700 dark:text-slate-300 flex items-center gap-2">
@@ -327,31 +312,50 @@ const StudentDashboard: React.FC = () => {
                         <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
                             <div className="flex flex-col gap-3">
                                 <div className="flex items-center gap-2.5">
-                                    <span className={`px-2.5 py-1 rounded-md text-xs font-bold uppercase tracking-wider ${latestAssignment ? 'bg-amber-100 dark:bg-amber-500/10 text-amber-600 dark:text-amber-400' : 'bg-emerald-100 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'}`}>
-                                        {latestAssignment ? 'Active Assignment' : 'No Pending Work'}
-                                    </span>
-                                    {latestAssignment && (
-                                        <span className="text-slate-400 dark:text-[#929bc9] text-xs font-medium flex items-center gap-1">
-                                            <span className="material-symbols-outlined text-[14px]">event</span>
-                                            Due: {latestAssignment.dueDate}
+                                    {!isStagePassed('stage-capstone') ? (
+                                        <span className="px-2.5 py-1 rounded-md text-xs font-bold uppercase tracking-wider bg-amber-100 dark:bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center gap-1">
+                                            <span className="material-symbols-outlined text-[12px] font-black">lock</span>
+                                            Classroom Tests Locked
                                         </span>
+                                    ) : (
+                                        <>
+                                            <span className={`px-2.5 py-1 rounded-md text-xs font-bold uppercase tracking-wider ${latestAssignment ? 'bg-amber-100 dark:bg-amber-500/10 text-amber-600 dark:text-amber-400' : 'bg-emerald-100 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'}`}>
+                                                {latestAssignment ? 'Active Classroom Test' : 'No Pending Tests'}
+                                            </span>
+                                            {latestAssignment && (
+                                                <span className="text-slate-400 dark:text-[#929bc9] text-xs font-medium flex items-center gap-1">
+                                                    <span className="material-symbols-outlined text-[14px]">event</span>
+                                                    Due: {latestAssignment.dueDate}
+                                                </span>
+                                            )}
+                                        </>
                                     )}
                                 </div>
                                 <h2 className="text-2xl font-black tracking-tight text-slate-900 dark:text-white mt-1 font-heading">
-                                    {latestAssignment ? latestAssignment.title : 'All caught up, ready for practice!'}
+                                    {!isStagePassed('stage-capstone')
+                                        ? 'Master the Learning Path first!'
+                                        : latestAssignment
+                                        ? latestAssignment.title
+                                        : 'Ready for practice!'}
                                 </h2>
                                 <p className="text-slate-500 dark:text-[#929bc9] text-sm md:text-base font-normal leading-relaxed max-w-xl">
-                                    {latestAssignment
-                                        ? "Complete this assignment to maintain your classes' typing standing and earn bonus skill points."
-                                        : "Incredible effort! There are no assignments waiting for you. Head to the practice zone to boost your speed."}
+                                    {!isStagePassed('stage-capstone')
+                                        ? "Classroom tests are assigned by your facilitator. Complete all 12 stages of the Learning Path to unlock official evaluations."
+                                        : latestAssignment
+                                        ? "Complete this assigned test to maintain your class's typing standing and log your proficiency."
+                                        : "Incredible effort! There are no pending tests for you. Head to the practice zone to boost your speed."}
                                 </p>
                             </div>
                             <Link 
-                                to={!isStagePassed('stage-capstone') ? "/practice" : latestAssignment ? `/test?assignmentId=${latestAssignment.id}` : "/practice"} 
-                                className={`w-full md:w-auto shrink-0 flex items-center justify-center gap-2 ${!isStagePassed('stage-capstone') ? 'bg-red-500 hover:bg-red-600' : 'bg-primary hover:bg-emerald-600'} text-white font-bold py-3.5 px-7 rounded-xl transition-all duration-200 shadow-lg shadow-primary/20 hover-scale active-scale font-heading`}
+                                to={isStagePassed('stage-capstone') && latestAssignment ? `/test?assignmentId=${latestAssignment.id}` : "/practice"} 
+                                className="w-full md:w-auto shrink-0 flex items-center justify-center gap-2 bg-primary hover:bg-emerald-600 text-white font-bold py-3.5 px-7 rounded-xl transition-all duration-200 shadow-lg shadow-primary/20 hover-scale active-scale font-heading"
                             >
-                                <span className="material-symbols-outlined text-[20px]">{!isStagePassed('stage-capstone') ? 'lock' : latestAssignment ? 'play_arrow' : 'keyboard'}</span>
-                                <span>{!isStagePassed('stage-capstone') ? 'Go to Practice' : latestAssignment ? 'Start Assignment' : 'Go to Practice'}</span>
+                                <span className="material-symbols-outlined text-[20px]">
+                                    {!isStagePassed('stage-capstone') ? 'school' : latestAssignment ? 'play_arrow' : 'keyboard'}
+                                </span>
+                                <span>
+                                    {!isStagePassed('stage-capstone') ? 'Go to Practice Arena' : latestAssignment ? 'Start Test' : 'Go to Practice'}
+                                </span>
                             </Link>
                         </div>
                     </div>

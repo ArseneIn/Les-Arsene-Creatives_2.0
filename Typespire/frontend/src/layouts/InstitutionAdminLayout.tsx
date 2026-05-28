@@ -1,7 +1,7 @@
 import React from 'react';
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Keyboard, X, LayoutDashboard, Calendar, Users, BarChart, FileText, Settings, Menu, Activity, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Keyboard, X, LayoutDashboard, Calendar, Users, BarChart, FileText, Settings, Menu, Activity, ChevronLeft, ChevronRight, ClipboardList } from 'lucide-react';
 
 const InstitutionAdminLayout: React.FC = () => {
     const location = useLocation();
@@ -109,6 +109,18 @@ const InstitutionAdminLayout: React.FC = () => {
                         >
                             <BarChart className={`w-5 h-5 transition-colors shrink-0 ${isActive('/admin/analytics') ? 'text-[#33B974]' : 'text-white/70 group-hover:text-[#33B974]'}`} />
                             {!isCollapsed && <span className="font-medium text-sm truncate">Analytics</span>}
+                        </Link>
+                        <Link
+                            to="/admin/tests"
+                            onClick={() => setIsSidebarOpen(false)}
+                            title={isCollapsed ? "Classroom Tests" : undefined}
+                            className={`flex items-center ${isCollapsed ? 'justify-center px-0' : 'gap-3 px-4'} py-3 rounded-lg transition-all border-l-4 group ${isActive('/admin/tests')
+                                ? 'bg-white/10 text-[#33B974] border-[#33B974]'
+                                : 'text-white/90 hover:text-[#33B974] hover:bg-white/10 border-transparent hover:border-[#33B974]'
+                                }`}
+                        >
+                            <ClipboardList className={`w-5 h-5 transition-colors shrink-0 ${isActive('/admin/tests') ? 'text-[#33B974]' : 'text-white/70 group-hover:text-[#33B974]'}`} />
+                            {!isCollapsed && <span className="font-medium text-sm truncate">Classroom Tests</span>}
                         </Link>
                         <Link
                             to="/admin/performance"

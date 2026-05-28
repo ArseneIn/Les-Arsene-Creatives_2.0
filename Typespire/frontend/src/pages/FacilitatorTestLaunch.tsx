@@ -198,7 +198,7 @@ const FacilitatorTestLaunch: React.FC = () => {
                         </div>
                         <h2 className="text-2xl font-bold mb-2 text-slate-900 dark:text-white">Published Successfully</h2>
                         <p className="text-slate-500 dark:text-slate-400 mb-6">
-                            This assignment has been successfully dispatched to <strong className="text-slate-900 dark:text-white">{successPopup.count}</strong> eligible students.
+                            This test has been successfully dispatched to <strong className="text-slate-900 dark:text-white">{successPopup.count}</strong> eligible students.
                         </p>
                         <button
                             onClick={() => navigate('/facilitator')}
@@ -214,7 +214,7 @@ const FacilitatorTestLaunch: React.FC = () => {
             <div className="flex flex-wrap gap-2 text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-[#929bc9]">
                 <Link to="/facilitator" className="hover:text-primary transition-colors">Dashboard</Link>
                 <span>/</span>
-                <span className="text-slate-900 dark:text-white">New Assignment</span>
+                <span className="text-slate-900 dark:text-white">New Test</span>
             </div>
 
             {/* Page Heading */}
@@ -331,7 +331,7 @@ const FacilitatorTestLaunch: React.FC = () => {
                                 </div>
                                 
                                 <div className="flex flex-col gap-2">
-                                    <label className="text-xs font-bold text-slate-400 dark:text-[#929bc9] uppercase tracking-wider">Assignment Title</label>
+                                    <label className="text-xs font-bold text-slate-400 dark:text-[#929bc9] uppercase tracking-wider">Test Title</label>
                                     <input 
                                         type="text"
                                         required
@@ -598,7 +598,7 @@ const FacilitatorTestLaunch: React.FC = () => {
                                     type="submit" 
                                     className="flex w-full items-center justify-center rounded-xl bg-primary py-3.5 px-4 text-sm font-bold text-white shadow-lg shadow-primary/20 hover:bg-emerald-600 transition-all hover-scale active-scale glow-primary font-heading"
                                 >
-                                    Publish Assignment
+                                    Publish Test
                                 </button>
                                 <Link 
                                     to="/facilitator" 
