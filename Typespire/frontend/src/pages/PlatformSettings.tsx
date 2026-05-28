@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import api from '../api/axios';
 
 const PlatformSettings: React.FC = () => {
+    const navigate = useNavigate();
     const [activeTab, setActiveTab] = useState<'general' | 'security' | 'notifications' | 'billing'>('general');
     const [settings, setSettings] = useState({
         siteName: 'Typespire',
@@ -234,13 +236,20 @@ const PlatformSettings: React.FC = () => {
 
                     {activeTab === 'billing' && (
                         <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-12 text-center">
-                            <div className="w-16 h-16 bg-slate-100 dark:bg-slate-700 rounded-full flex items-center justify-center mx-auto mb-4">
-                                <span className="material-symbols-outlined text-3xl text-slate-400">credit_card_off</span>
+                            <div className="w-16 h-16 bg-violet-100 dark:bg-violet-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <span className="material-symbols-outlined text-3xl text-violet-500">receipt_long</span>
                             </div>
-                            <h2 className="text-xl font-bold mb-2">Billing Module Not Active</h2>
-                            <p className="text-slate-500 dark:text-slate-400 max-w-md mx-auto">
-                                The billing and subscription management module is currently disabled or not configured for this environment.
+                            <h2 className="text-xl font-bold mb-2">Billing &amp; Plans</h2>
+                            <p className="text-slate-500 dark:text-slate-400 max-w-md mx-auto mb-6">
+                                Manage institution subscriptions, plan tiers, and billing status from the dedicated Billing page.
                             </p>
+                            <button
+                                onClick={() => navigate('/super-admin/billing')}
+                                className="bg-admin-primary hover:bg-admin-primary/90 text-navy-blue font-bold px-6 py-2.5 rounded-lg shadow-lg shadow-admin-primary/20 transition-all inline-flex items-center gap-2"
+                            >
+                                <span className="material-symbols-outlined text-[18px]">open_in_new</span>
+                                Go to Billing &amp; Plans
+                            </button>
                         </div>
                     )}
                 </div>
