@@ -378,7 +378,7 @@ const PlatformAdminDashboard: React.FC = () => {
                                                 value={newInstitution.address}
                                                 onChange={(e) => setNewInstitution({ ...newInstitution, address: e.target.value })}
                                                 className="w-full px-4 py-2.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 focus:ring-2 focus:ring-admin-primary/50 focus:border-admin-primary outline-none transition-all text-sm resize-none h-24"
-                                                placeholder="123 Education St, City, Country"
+                                                placeholder="Kigali, Rwanda"
                                             />
                                         </div>
                                     </div>
