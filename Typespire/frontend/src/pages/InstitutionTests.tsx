@@ -109,7 +109,8 @@ export const InstitutionTests: React.FC = () => {
                 duration: item.test?.duration,
                 maxAttempts: item.test?.maxAttempts || 1,
                 level: item.test?.difficulty === 'HARD' ? 2 : 1,
-                section: item.section
+                section: item.section,
+                text: item.test?.content
             }));
             setAssignments(mapped);
         } catch (err) {

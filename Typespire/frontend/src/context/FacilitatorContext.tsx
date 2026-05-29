@@ -107,7 +107,7 @@ export const FacilitatorProvider: React.FC<{ children: ReactNode }> = ({ childre
                     response = await api.get(`/assignment/facilitator/${user.id}`);
                 }
 
-                if (response && response.data) {
+                 if (response && response.data) {
                     interface DBResponse {
                         id: string;
                         title: string;
@@ -119,6 +119,7 @@ export const FacilitatorProvider: React.FC<{ children: ReactNode }> = ({ childre
                             duration: number;
                             difficulty: string;
                             maxAttempts?: number;
+                            content: string;
                         };
                     }
 
@@ -133,7 +134,8 @@ export const FacilitatorProvider: React.FC<{ children: ReactNode }> = ({ childre
                         studentIds: item.studentIds || [],
                         duration: item.test?.duration,
                         maxAttempts: item.test?.maxAttempts || 1,
-                        level: item.test?.difficulty === 'HARD' ? 2 : 1
+                        level: item.test?.difficulty === 'HARD' ? 2 : 1,
+                        text: item.test?.content
                     }));
                     setAssignments(mapped);
                 }
@@ -159,7 +161,8 @@ export const FacilitatorProvider: React.FC<{ children: ReactNode }> = ({ childre
                 studentIds: newAssignment.studentIds || [],
                 level: newAssignment.level,
                 duration: newAssignment.duration,
-                maxAttempts: newAssignment.maxAttempts || 1
+                maxAttempts: newAssignment.maxAttempts || 1,
+                content: newAssignment.text
             });
 
             interface DBResponse {
@@ -169,6 +172,12 @@ export const FacilitatorProvider: React.FC<{ children: ReactNode }> = ({ childre
                 status: string;
                 sectionId?: string | null;
                 studentIds?: string[];
+                test?: {
+                    duration: number;
+                    difficulty: string;
+                    maxAttempts?: number;
+                    content: string;
+                };
             }
 
             const created: DBResponse = response.data;
@@ -179,7 +188,11 @@ export const FacilitatorProvider: React.FC<{ children: ReactNode }> = ({ childre
                 status: created.status === 'ACTIVE' ? 'Active' : 'Completed',
                 completionRate: 0,
                 sectionId: created.sectionId || undefined,
-                studentIds: created.studentIds || []
+                studentIds: created.studentIds || [],
+                duration: created.test?.duration,
+                maxAttempts: created.test?.maxAttempts || 1,
+                level: created.test?.difficulty === 'HARD' ? 2 : 1,
+                text: created.test?.content
             };
 
             setAssignments(prev => [mapped, ...prev]);

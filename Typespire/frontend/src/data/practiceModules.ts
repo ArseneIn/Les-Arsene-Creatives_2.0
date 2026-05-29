@@ -251,11 +251,11 @@ function generateParagraphDrillText(moduleId: string, allowedKeys: string[]): st
 const rawModules = [
     {
         id: 'mod-1',
-        title: 'Foundations: J, F & Space',
-        description: 'Establish your anchor points on the home row.',
+        title: 'Foundations: Home Row Basics',
+        description: 'Establish your anchor points by learning all standard keys on the home row.',
         icon: 'pan_tool',
-        keys: ['j', 'f', ' '],
-        hint: 'Right index on J, Left index on F. Use thumb for Space.'
+        keys: ['a', 's', 'd', 'f', 'j', 'k', 'l', ';', ' '],
+        hint: 'Left hand rests on A, S, D, F. Right hand rests on J, K, L, ;. Use thumb for Space.'
     },
     {
         id: 'mod-2',

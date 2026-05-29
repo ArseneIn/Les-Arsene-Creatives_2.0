@@ -21,6 +21,7 @@ export class AssignmentController {
       studentIds?: string[];
       level?: number;
       duration?: number;
+      content?: string;
     },
     @Request() req: any,
   ) {

@@ -26,6 +26,7 @@ const StudentDashboard: React.FC = () => {
     const [now] = useState(() => Date.now());
 
     const [sectionInfo, setSectionInfo] = useState<{ sectionName: string, intakeName: string } | null>(null);
+    const [institutionName, setInstitutionName] = useState<string>('');
     const [isHeatmapOpen, setIsHeatmapOpen] = useState(false);
 
     // Live countdowns: map of assignmentId -> seconds remaining
@@ -47,6 +48,16 @@ const StudentDashboard: React.FC = () => {
             }).catch(console.error);
         }
     }, [currentUserSectionId]);
+
+    useEffect(() => {
+        if (user?.institutionId) {
+            api.get(`/institution/${user.institutionId}`).then(res => {
+                if (res.data) {
+                    setInstitutionName(res.data.name);
+                }
+            }).catch(console.error);
+        }
+    }, [user?.institutionId]);
 
     // All active assignments for this student — memoised to avoid infinite re-render
     const allStudentAssignments = useMemo(() => assignments.filter(a =>
@@ -166,6 +177,18 @@ const StudentDashboard: React.FC = () => {
                                     <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 border border-white/20 text-white text-xs font-bold uppercase tracking-wider w-fit" title="Your assigned cohort and section (Read-only)">
                                         <span className="material-symbols-outlined text-[14px]">school</span>
                                         {sectionInfo.intakeName} • {sectionInfo.sectionName}
+                                    </span>
+                                )}
+                                {institutionName && (
+                                    <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider w-fit shadow-sm border ${
+                                        institutionName.toLowerCase().includes('kepler')
+                                            ? 'bg-red-500/25 border-red-400/40 text-white animate-pulse'
+                                            : 'bg-white/10 border-white/20 text-white'
+                                    }`} title={`Affiliated Institution: ${institutionName}`}>
+                                        <span className="material-symbols-outlined text-[14px]">
+                                            {institutionName.toLowerCase().includes('kepler') ? 'workspace_premium' : 'business'}
+                                        </span>
+                                        {institutionName}
                                     </span>
                                 )}
                             </div>
