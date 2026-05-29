@@ -2,6 +2,7 @@ import { Injectable, ConflictException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from '../prisma/prisma.service';
+import { LogsService } from '../logs/logs.service';
 import * as bcrypt from 'bcrypt';
 import { UserRole, User } from '@prisma/client';
 
@@ -19,6 +20,7 @@ export class AuthService {
     private prisma: PrismaService,
     private jwtService: JwtService,
     private configService: ConfigService,
+    private logsService: LogsService,
   ) {}
 
   async validateUser(
@@ -75,6 +77,16 @@ export class AuthService {
 
   login(user: User) {
     const payload = { email: user.email, sub: user.id, role: user.role };
+    // Fire-and-forget: log the login event
+    this.logsService.log({
+      action: 'USER_LOGIN',
+      category: 'AUTH',
+      actorId: user.id,
+      actorName: `${user.firstName || ''} ${user.lastName || ''}`.trim() || user.email || 'User',
+      severity: 'INFO',
+      metadata: { role: user.role },
+    }).catch(() => {});
+
     return {
       access_token: this.jwtService.sign(payload),
       user: {
@@ -112,6 +124,16 @@ export class AuthService {
         role: data.role || UserRole.STUDENT,
       },
     });
+
+    // Log registration event
+    this.logsService.log({
+      action: 'USER_REGISTERED',
+      category: 'AUTH',
+      actorId: user.id,
+      actorName: `${user.firstName || ''} ${user.lastName || ''}`.trim() || user.email || 'User',
+      severity: 'INFO',
+      metadata: { role: user.role, email: user.email },
+    }).catch(() => {});
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { password, ...result } = user;

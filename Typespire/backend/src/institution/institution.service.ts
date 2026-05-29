@@ -53,9 +53,10 @@ export class InstitutionService {
   }
 
   update(id: string, updateInstitutionDto: UpdateInstitutionDto) {
+    const { adminEmail, adminPassword, adminFirstName, adminLastName, ...rest } = updateInstitutionDto;
     return this.prisma.institution.update({
       where: { id },
-      data: updateInstitutionDto,
+      data: rest,
     });
   }
 

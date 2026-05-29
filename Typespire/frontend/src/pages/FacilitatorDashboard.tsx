@@ -60,6 +60,11 @@ const FacilitatorDashboard: React.FC = () => {
     
     // Filter State
     const [selectedSectionId, setSelectedSectionId] = useState<string>('All');
+    const [selectedIntake, setSelectedIntake] = useState<string>('All');
+    const [showFiltersPanel, setShowFiltersPanel] = useState<boolean>(false);
+
+    // Unique intakes for filter
+    const uniqueIntakes = Array.from(new Set(sections.map(s => s.intakeName).filter(Boolean))) as string[];
 
     const toggleSection = (sectionId: string) => {
         setExpandedSections(prev => ({
@@ -365,7 +370,14 @@ const FacilitatorDashboard: React.FC = () => {
                         <p className="text-slate-500 dark:text-[#929bc9] text-xs font-normal">Manage class sections and expand to view live student performance coordinates.</p>
                     </div>
                     <div className="flex gap-3">
-                        <button className="flex items-center gap-2 px-4 py-2 rounded-xl border border-slate-200 dark:border-[#323b67] text-slate-600 dark:text-slate-200 text-xs font-bold hover:bg-slate-55 dark:hover:bg-slate-800 hover-scale active-scale transition-all">
+                        <button 
+                            onClick={() => setShowFiltersPanel(!showFiltersPanel)}
+                            className={`flex items-center gap-2 px-4 py-2 rounded-xl border text-xs font-bold transition-all hover-scale active-scale cursor-pointer ${
+                                showFiltersPanel 
+                                    ? 'bg-slate-900 dark:bg-primary border-transparent text-white dark:text-[#111422]' 
+                                    : 'border-slate-200 dark:border-[#323b67] text-slate-600 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800'
+                            }`}
+                        >
                             <span className="material-symbols-outlined text-[18px]">filter_list</span>
                             Filter
                         </button>
@@ -375,6 +387,65 @@ const FacilitatorDashboard: React.FC = () => {
                         </button>
                     </div>
                 </div>
+
+                {showFiltersPanel && uniqueIntakes.length > 0 && (
+                    <div className="p-4 bg-slate-50 dark:bg-[#232948]/35 border-b border-slate-100 dark:border-[#323b67]/45 flex flex-wrap gap-6 items-center animate-in slide-in-from-top-2 duration-200">
+                        <div className="flex items-center gap-2">
+                            <span className="text-[10px] font-black uppercase text-slate-400 dark:text-[#929bc9] tracking-wider">Cohort Intake:</span>
+                            <div className="relative">
+                                <select
+                                    value={selectedIntake}
+                                    onChange={(e) => {
+                                        setSelectedIntake(e.target.value);
+                                        setSelectedSectionId('All'); // Reset section selection when cohort changes
+                                    }}
+                                    className="bg-white dark:bg-card-dark border border-slate-200 dark:border-[#323b67] text-slate-700 dark:text-white rounded-lg pl-3 pr-8 py-1.5 text-xs font-bold outline-none cursor-pointer appearance-none min-w-[150px]"
+                                >
+                                    <option value="All">All Cohorts</option>
+                                    {uniqueIntakes.map(intake => (
+                                        <option key={intake} value={intake}>{intake}</option>
+                                    ))}
+                                </select>
+                                <span className="material-symbols-outlined absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none text-sm">expand_more</span>
+                            </div>
+                        </div>
+
+                        <div className="flex items-center gap-2">
+                            <span className="text-[10px] font-black uppercase text-slate-400 dark:text-[#929bc9] tracking-wider">Class Section:</span>
+                            <div className="relative">
+                                <select
+                                    value={selectedSectionId}
+                                    onChange={(e) => setSelectedSectionId(e.target.value)}
+                                    className="bg-white dark:bg-card-dark border border-slate-200 dark:border-[#323b67] text-slate-700 dark:text-white rounded-lg pl-3 pr-8 py-1.5 text-xs font-bold outline-none cursor-pointer appearance-none min-w-[180px]"
+                                >
+                                    <option value="All">All Sections</option>
+                                    {sections
+                                        .filter(sec => selectedIntake === 'All' || sec.intakeName === selectedIntake)
+                                        .map(sec => (
+                                            <option key={sec.id} value={sec.id}>
+                                                {sec.name}
+                                            </option>
+                                        ))
+                                    }
+                                </select>
+                                <span className="material-symbols-outlined absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none text-sm">expand_more</span>
+                            </div>
+                        </div>
+
+                        {(selectedIntake !== 'All' || selectedSectionId !== 'All') && (
+                            <button
+                                onClick={() => {
+                                    setSelectedIntake('All');
+                                    setSelectedSectionId('All');
+                                }}
+                                className="flex items-center gap-1.5 px-3 py-1 rounded-lg border border-red-200 dark:border-red-900/30 bg-red-500/10 text-red-600 dark:text-red-400 text-[10px] font-bold hover:bg-red-500/20 transition-all cursor-pointer"
+                            >
+                                <span className="material-symbols-outlined text-[14px]">close</span>
+                                Clear Filters
+                            </button>
+                        )}
+                    </div>
+                )}
 
                 <div className="overflow-x-auto w-full">
                     <table className="w-full text-left border-collapse min-w-[800px]">
@@ -388,47 +459,52 @@ const FacilitatorDashboard: React.FC = () => {
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-100 dark:divide-[#323b67]/45 text-sm">
-                            {sections.map((section) => {
-                                const isExpanded = !!expandedSections[section.id];
-                                const sectionStudents = students.filter(s => s.sectionId === section.id);
-                                const studentCount = sectionStudents.length;
+                            {sections
+                                .filter(s => selectedIntake === 'All' || s.intakeName === selectedIntake)
+                                .filter(s => selectedSectionId === 'All' || s.id === selectedSectionId)
+                                .map((section) => {
+                                    const isExpanded = !!expandedSections[section.id];
+                                    const sectionStudents = students.filter(s => s.sectionId === section.id);
+                                    const studentCount = sectionStudents.length;
 
-                                const avgWpm = studentCount > 0
-                                    ? Math.round(sectionStudents.reduce((sum, s) => sum + s.currentWpm, 0) / studentCount)
-                                    : 0;
+                                    const avgWpm = studentCount > 0
+                                        ? Math.round(sectionStudents.reduce((sum, s) => sum + s.currentWpm, 0) / studentCount)
+                                        : 0;
 
-                                const avgAccuracy = studentCount > 0
-                                    ? Math.round(sectionStudents.reduce((sum, s) => sum + s.accuracy, 0) / studentCount)
-                                    : 0;
+                                    const avgAccuracy = studentCount > 0
+                                        ? Math.round(sectionStudents.reduce((sum, s) => sum + s.accuracy, 0) / studentCount)
+                                        : 0;
 
-                                return (
-                                    <React.Fragment key={section.id}>
-                                        {/* Section Header Row */}
-                                        <tr
-                                            className="bg-slate-50/40 dark:bg-[#232948]/30 hover:bg-slate-50 dark:hover:bg-[#232948] cursor-pointer transition-colors"
-                                            onClick={() => toggleSection(section.id)}
-                                        >
-                                            <td className="px-6 py-4 font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                                                <span className={`material-symbols-outlined text-slate-400 transition-transform duration-250 ${isExpanded ? 'rotate-180' : ''}`}>
-                                                    expand_more
-                                                </span>
-                                                <div className="flex flex-col">
-                                                    <span className="text-slate-900 dark:text-white font-bold">{section.name}</span>
-                                                </div>
-                                            </td>
-                                            <td className="px-6 py-4 text-center">
-                                                <span className="inline-flex px-3 py-1 rounded-full bg-slate-100 dark:bg-[#323b67] text-slate-600 dark:text-[#929bc9] text-xs font-bold border border-slate-200/50 dark:border-[#323b67]/50 uppercase">
-                                                    {studentCount} Students
-                                                </span>
-                                            </td>
-                                            <td className="px-6 py-4 text-center font-mono font-bold text-slate-700 dark:text-slate-350">{avgWpm > 0 ? `${avgWpm} WPM` : '--'}</td>
-                                            <td className="px-6 py-4 text-center font-mono font-bold text-slate-700 dark:text-slate-350">{avgAccuracy > 0 ? `${avgAccuracy}%` : '--'}</td>
-                                            <td className="px-6 py-4 text-right">
-                                                <span className="inline-flex px-2 py-0.5 text-[10px] font-black uppercase tracking-wider rounded-md bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
-                                                    Active
-                                                </span>
-                                            </td>
-                                        </tr>
+                                    return (
+                                        <React.Fragment key={section.id}>
+                                            {/* Section Header Row */}
+                                            <tr
+                                                className="bg-slate-50/40 dark:bg-[#232948]/30 hover:bg-slate-55 dark:hover:bg-[#232948] cursor-pointer transition-colors"
+                                                onClick={() => toggleSection(section.id)}
+                                            >
+                                                <td className="px-6 py-4 font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                                                    <span className={`material-symbols-outlined text-slate-400 transition-transform duration-250 ${isExpanded ? 'rotate-180' : ''}`}>
+                                                        expand_more
+                                                    </span>
+                                                    <div className="flex flex-col">
+                                                        <span className="text-slate-900 dark:text-white font-bold">
+                                                            {section.intakeName ? `${section.intakeName} - ` : ''}{section.name}
+                                                        </span>
+                                                    </div>
+                                                </td>
+                                                <td className="px-6 py-4 text-center">
+                                                    <span className="inline-flex px-3 py-1 rounded-full bg-slate-100 dark:bg-[#323b67] text-slate-600 dark:text-[#929bc9] text-xs font-bold border border-slate-200/50 dark:border-[#323b67]/50 uppercase">
+                                                        {studentCount} Students
+                                                    </span>
+                                                </td>
+                                                <td className="px-6 py-4 text-center font-mono font-bold text-slate-700 dark:text-slate-350">{avgWpm > 0 ? `${avgWpm} WPM` : '--'}</td>
+                                                <td className="px-6 py-4 text-center font-mono font-bold text-slate-700 dark:text-slate-350">{avgAccuracy > 0 ? `${avgAccuracy}%` : '--'}</td>
+                                                <td className="px-6 py-4 text-right">
+                                                    <span className="inline-flex px-2 py-0.5 text-[10px] font-black uppercase tracking-wider rounded-md bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
+                                                        Active
+                                                    </span>
+                                                </td>
+                                            </tr>
 
                                         {/* Expanded Student Rows */}
                                         {isExpanded && (

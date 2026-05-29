@@ -7,10 +7,12 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { LocalStrategy } from './local.strategy';
 import { JwtStrategy } from './jwt.strategy';
 import { PrismaModule } from '../prisma/prisma.module';
+import { LogsModule } from '../logs/logs.module';
 
 @Module({
   imports: [
     PrismaModule,
+    LogsModule,
     PassportModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],

@@ -13,6 +13,7 @@ import { SettingsModule } from './settings/settings.module';
 import { AssignmentModule } from './assignment/assignment.module';
 import { TestResultModule } from './test-result/test-result.module';
 import { BillingModule } from './billing/billing.module';
+import { LogsModule } from './logs/logs.module';
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { BillingModule } from './billing/billing.module';
     AssignmentModule,
     TestResultModule,
     BillingModule,
+    LogsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

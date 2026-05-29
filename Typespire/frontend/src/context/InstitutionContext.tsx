@@ -28,15 +28,28 @@ export const InstitutionProvider: React.FC<{ children: ReactNode }> = ({ childre
     const [facilitators, setFacilitators] = useState<Facilitator[]>([]);
     
     // Default system benchmarks
-    const [settings, setSettings] = useState<InstitutionSettings>({
-        level1Wpm: 30,
-        level2Wpm: 50,
-        requiredAccuracy: 95
+    const [settings, setSettings] = useState<InstitutionSettings>(() => {
+        const saved = localStorage.getItem('typespire_institution_settings');
+        if (saved) {
+            try {
+                return JSON.parse(saved);
+            } catch (e) {
+                console.error("Failed to parse settings", e);
+            }
+        }
+        return {
+            level1Wpm: 30,
+            level2Wpm: 50,
+            requiredAccuracy: 95
+        };
     });
 
     const updateSettings = (newSettings: Partial<InstitutionSettings>) => {
-        setSettings(prev => ({ ...prev, ...newSettings }));
-        // TODO: In a real app, also sync this to the backend `api.put('/institution/settings', newSettings)`
+        setSettings(prev => {
+            const updated = { ...prev, ...newSettings };
+            localStorage.setItem('typespire_institution_settings', JSON.stringify(updated));
+            return updated;
+        });
     };
 
     const fetchIntakes = useCallback(async (institutionId: string) => {

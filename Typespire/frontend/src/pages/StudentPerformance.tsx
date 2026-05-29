@@ -57,6 +57,7 @@ interface TestResultData {
 
 export const StudentPerformance: React.FC = () => {
     const { user } = useAuth();
+    const { settings } = useInstitution();
     
     // Dropdowns data
     const [intakes, setIntakes] = useState<Intake[]>([]);
@@ -189,12 +190,12 @@ export const StudentPerformance: React.FC = () => {
 
     // 6. Benchmark Highlighting Verification
     const doesMeetBenchmark = (wpm: number, accuracy: number, difficulty: string) => {
-        // Level 2 Survival (HARD) Benchmark: 45 WPM, 95% Accuracy
+        // Level 2 Survival (HARD) Benchmark
         if (difficulty === 'HARD') {
-            return wpm >= 45 && accuracy >= 95;
+            return wpm >= (settings?.level2Wpm ?? 50) && accuracy >= (settings?.requiredAccuracy ?? 95);
         }
-        // Level 1 Standard (MEDIUM/EASY) Benchmark: 30 WPM, 90% Accuracy
-        return wpm >= 30 && accuracy >= 90;
+        // Level 1 Standard (MEDIUM/EASY) Benchmark
+        return wpm >= (settings?.level1Wpm ?? 30) && accuracy >= Math.max(80, (settings?.requiredAccuracy ?? 95) - 5);
     };
 
     // 7. CSV Export Matrix Routine
@@ -357,10 +358,10 @@ export const StudentPerformance: React.FC = () => {
                     </div>
                     <div className="flex flex-wrap gap-3 font-semibold text-[10px] uppercase font-mono">
                         <span className="px-2.5 py-1 rounded bg-white dark:bg-[#061824] border border-slate-200 dark:border-white/5 text-slate-500">
-                            Lvl 1: <strong className="text-[#094A71] dark:text-[#33B974]">30 WPM / 90% Acc</strong>
+                            Lvl 1: <strong className="text-[#094A71] dark:text-[#33B974]">{settings?.level1Wpm ?? 30} WPM / {Math.max(80, (settings?.requiredAccuracy ?? 95) - 5)}% Acc</strong>
                         </span>
                         <span className="px-2.5 py-1 rounded bg-white dark:bg-[#061824] border border-slate-200 dark:border-white/5 text-slate-500">
-                            Lvl 2: <strong className="text-[#094A71] dark:text-[#33B974]">45 WPM / 95% Acc</strong>
+                            Lvl 2: <strong className="text-[#094A71] dark:text-[#33B974]">{settings?.level2Wpm ?? 50} WPM / {settings?.requiredAccuracy ?? 95}% Acc</strong>
                         </span>
                     </div>
                 </div>

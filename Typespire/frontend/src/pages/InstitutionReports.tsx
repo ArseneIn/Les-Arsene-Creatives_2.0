@@ -2,11 +2,125 @@ import React, { useState } from 'react';
 import api from '../api/axios';
 import { FileText, Download, History, Loader2, File } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { jsPDF } from 'jspdf';
+import autoTable from 'jspdf-autotable';
 
 const InstitutionReports: React.FC = () => {
     const { user } = useAuth();
     const [loading, setLoading] = useState(false);
+    const [pdfLoading, setPdfLoading] = useState(false);
     const [reportType, setReportType] = useState('Intake Performance Summary');
+
+    const handleGeneratePDF = async () => {
+        if (!user?.institutionId) return;
+
+        setPdfLoading(true);
+        try {
+            let endpoint = '';
+            if (reportType === 'Intake Performance Summary') {
+                endpoint = `/institution/${user.institutionId}/reports/intake-performance`;
+            } else if (reportType === 'Student Progress Detail') {
+                endpoint = `/institution/${user.institutionId}/reports/student-progress`;
+            } else if (reportType === 'Facilitator Activity Log') {
+                endpoint = `/institution/${user.institutionId}/reports/facilitator-activity`;
+            } else {
+                alert('This report type is not yet implemented.');
+                setPdfLoading(false);
+                return;
+            }
+
+            const response = await api.get(endpoint);
+            const data = response.data;
+            if (!data || data.length === 0) {
+                alert('No data available for this report.');
+                setPdfLoading(false);
+                return;
+            }
+
+            // Dynamically collect headers and format values
+            const keys = Object.keys(data[0]);
+            const head = keys.map(k => k.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase()));
+            const body = data.map((row: any) => keys.map(k => {
+                const val = row[k];
+                if (typeof val === 'number') {
+                    if (k.toLowerCase().includes('accuracy') || k.toLowerCase().includes('rate')) {
+                        return `${val.toFixed(1)}%`;
+                    }
+                    return val.toString();
+                }
+                if (val === null || val === undefined) return '-';
+                return val.toString();
+            }));
+
+            // Generate beautifully styled PDF
+            const doc = new jsPDF();
+            const primaryColor = [9, 74, 113]; // deep teal/navy primary (#094A71)
+
+            // Header Banner
+            doc.setFillColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+            doc.rect(0, 0, 210, 40, 'F');
+
+            // Logo & Header text
+            doc.setTextColor(255, 255, 255);
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(22);
+            doc.text('TYPESPIRE', 15, 18);
+            doc.setFont('helvetica', 'normal');
+            doc.setFontSize(10);
+            doc.text('INSTITUTIONAL PERFORMANCE AUDIT REPORT', 15, 24);
+
+            // Report Details
+            doc.setFontSize(9);
+            doc.text(`Generated: ${new Date().toLocaleDateString()}`, 155, 18);
+            doc.text(`Type: ${reportType}`, 155, 24);
+            doc.text('Scope: Institution-wide', 155, 30);
+
+            // Title
+            doc.setFontSize(12);
+            doc.setFont('helvetica', 'bold');
+            doc.setTextColor(15, 23, 42);
+            doc.text(`${reportType} Dataset`, 15, 52);
+
+            // Table using autoTable
+            autoTable(doc, {
+                startY: 56,
+                head: [head],
+                body: body,
+                headStyles: {
+                    fillColor: primaryColor,
+                    textColor: [255, 255, 255],
+                    fontStyle: 'bold',
+                    fontSize: 9,
+                    halign: 'left'
+                },
+                bodyStyles: {
+                    fontSize: 8.5,
+                    textColor: [51, 65, 85]
+                },
+                alternateRowStyles: {
+                    fillColor: [248, 250, 252]
+                }
+            });
+
+            // Footer
+            const pageCount = (doc as any).internal.getNumberOfPages();
+            for (let i = 1; i <= pageCount; i++) {
+                doc.setPage(i);
+                doc.setFontSize(8);
+                doc.setTextColor(148, 163, 184);
+                doc.text(`Page ${i} of ${pageCount}`, 105, 285, { align: 'center' });
+                doc.text('CONFIDENTIAL - INSTITUTIONAL USE ONLY', 15, 285);
+                doc.text('POWERED BY TYPESPIRE 2.0', 170, 285);
+            }
+
+            doc.save(`Typespire_${reportType.replace(/\s+/g, '_')}_Report.pdf`);
+        } catch (err) {
+            console.error('Failed to generate PDF:', err);
+            alert('Failed to generate PDF report. Please try again.');
+        } finally {
+            setPdfLoading(false);
+        }
+    };
 
     const handleGenerateReport = async () => {
         if (!user?.institutionId) return;
@@ -99,19 +213,32 @@ const InstitutionReports: React.FC = () => {
                             </select>
                         </div>
 
-                        <div className="pt-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4">
                             <button
                                 id="generate-report-btn"
                                 onClick={handleGenerateReport}
                                 disabled={loading}
-                                className="w-full py-2.5 rounded-lg bg-admin-primary text-slate-900 font-bold hover:bg-admin-primary/90 transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                                className="w-full py-2.5 rounded-lg bg-slate-150 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-850 dark:text-white font-bold transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                                 {loading ? (
-                                    <Loader2 className="w-5 h-5 animate-spin" />
+                                    <Loader2 className="w-4 h-4 animate-spin" />
                                 ) : (
-                                    <Download className="w-5 h-5" />
+                                    <Download className="w-4 h-4" />
                                 )}
-                                {loading ? 'Generating...' : 'Generate Report'}
+                                {loading ? 'Generating CSV...' : 'Get CSV'}
+                            </button>
+
+                            <button
+                                onClick={handleGeneratePDF}
+                                disabled={pdfLoading}
+                                className="w-full py-2.5 rounded-lg bg-admin-primary text-white font-bold hover:bg-admin-primary/90 transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                                {pdfLoading ? (
+                                    <Loader2 className="w-4 h-4 animate-spin" />
+                                ) : (
+                                    <FileText className="w-4 h-4" />
+                                )}
+                                {pdfLoading ? 'Generating PDF...' : 'Download PDF'}
                             </button>
                         </div>
                     </div>
@@ -151,7 +278,7 @@ const InstitutionReports: React.FC = () => {
                                             if (btn) btn.click();
                                         }, 50);
                                     }}
-                                    className="px-2.5 py-1.5 text-xs font-black text-slate-900 bg-admin-primary rounded-lg shadow hover:bg-admin-primary/90 transition-all flex items-center gap-1 opacity-90 group-hover:opacity-100"
+                                    className="px-2.5 py-1.5 text-xs font-black text-white bg-admin-primary rounded-lg shadow hover:bg-admin-primary/90 transition-all flex items-center gap-1 opacity-90 group-hover:opacity-100"
                                     title="Generate and Download instant CSV"
                                 >
                                     <Download className="w-3.5 h-3.5" />

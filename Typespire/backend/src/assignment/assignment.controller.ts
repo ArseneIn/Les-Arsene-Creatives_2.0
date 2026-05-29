@@ -40,6 +40,11 @@ export class AssignmentController {
     return this.assignmentService.updateStatus(id, status);
   }
 
+  @Get(':id/live')
+  async getLiveStatus(@Param('id') id: string) {
+    return this.assignmentService.getLiveStatus(id);
+  }
+
   @Delete(':id')
   async delete(@Param('id') id: string) {
     return this.assignmentService.delete(id);

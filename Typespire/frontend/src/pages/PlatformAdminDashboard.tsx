@@ -146,7 +146,7 @@ const PlatformAdminDashboard: React.FC = () => {
                     </button>
                     <button
                         onClick={() => handleOnboardClick()}
-                        className="bg-admin-primary hover:bg-admin-primary/90 text-navy-blue font-bold text-sm px-4 py-2 rounded-lg flex items-center gap-2 shadow-lg shadow-admin-primary/20 transition-all"
+                        className="bg-admin-primary hover:bg-admin-primary/90 text-white font-bold text-sm px-4 py-2 rounded-lg flex items-center gap-2 shadow-lg shadow-admin-primary/20 transition-all"
                     >
                         <PlusCircle className="w-5 h-5" />
                         <span className="hidden sm:inline">Onboard Institution</span>
@@ -470,7 +470,7 @@ const PlatformAdminDashboard: React.FC = () => {
                                 </button>
                                 <button
                                     type="submit"
-                                    className="px-6 py-2.5 bg-admin-primary hover:bg-admin-primary/90 text-navy-blue font-bold rounded-lg shadow-lg shadow-admin-primary/20 transition-all transform active:scale-[0.98] flex items-center gap-2 text-sm"
+                                    className="px-6 py-2.5 bg-admin-primary hover:bg-admin-primary/90 text-white font-bold rounded-lg shadow-lg shadow-admin-primary/20 transition-all transform active:scale-[0.98] flex items-center gap-2 text-sm"
                                 >
                                     {editingId ? <Save className="w-5 h-5" /> : <Rocket className="w-5 h-5" />}
                                     {editingId ? 'Update Institution' : 'Create Institution'}

@@ -166,6 +166,10 @@ model Assignment {
   title          String
   dueDate        DateTime
   status         String      @default("ACTIVE") // ACTIVE, ARCHIVED
+
+  // Pass/fail thresholds (defaults match old hardcoded values)
+  wpmRequirement      Int?    @default(20)
+  accuracyRequirement Float?  @default(70)
   
   sectionId      String?
   section        Section?    @relation(fields: [sectionId], references: [id])
@@ -206,4 +210,18 @@ model StudentStageRequirementOverride {
   updatedAt     DateTime @updatedAt
 
   @@unique([studentId, stageId])
+}
+
+// ── System-level audit log ──────────────────────────────────────────
+model SystemLog {
+  id         String   @id @default(uuid())
+  action     String   // e.g. INSTITUTION_CREATED, USER_LOGIN, BILLING_UPDATED
+  category   String   @default("GENERAL") // AUTH, INSTITUTION, BILLING, TEST, USER
+  actorId    String?  // Who triggered the action (userId)
+  actorName  String?  // Cached display name for speed
+  targetId   String?  // The affected entity ID
+  targetName String?  // Cached display name of the affected entity
+  metadata   Json?    // Any extra context
+  severity   String   @default("INFO") // INFO, WARNING, ERROR
+  createdAt  DateTime @default(now())
 }

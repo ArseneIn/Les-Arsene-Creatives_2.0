@@ -125,5 +125,77 @@ export class AssignmentService {
       where: { id },
     });
   }
+
+  async getLiveStatus(assignmentId: string) {
+    const assignment = await this.prisma.assignment.findUnique({
+      where: { id: assignmentId },
+      include: {
+        section: {
+          include: {
+            students: {
+              select: {
+                id: true,
+                firstName: true,
+                lastName: true,
+                username: true,
+                email: true,
+              },
+            },
+          },
+        },
+        testResults: {
+          select: {
+            userId: true,
+            wpm: true,
+            accuracy: true,
+            createdAt: true,
+          },
+          orderBy: { createdAt: 'desc' },
+        },
+      },
+    });
+
+    if (!assignment) return null;
+
+    const passWpm = assignment.wpmRequirement ?? 20;
+    const passAccuracy = assignment.accuracyRequirement ?? 70;
+
+    // Map of userId -> best result
+    const resultByUser = new Map<string, { wpm: number; accuracy: number; submittedAt: Date }>();
+    for (const r of assignment.testResults) {
+      const existing = resultByUser.get(r.userId);
+      if (!existing || r.wpm > existing.wpm) {
+        resultByUser.set(r.userId, { wpm: r.wpm, accuracy: r.accuracy, submittedAt: r.createdAt });
+      }
+    }
+
+    const students = assignment.section?.students ?? [];
+
+    const studentStatuses = students.map(s => {
+      const result = resultByUser.get(s.id);
+      const status = result ? 'Submitted' : 'Not Started';
+      const passed = result ? result.wpm >= passWpm && result.accuracy >= passAccuracy : null;
+      return {
+        userId: s.id,
+        name: `${s.firstName || ''} ${s.lastName || ''}`.trim() || s.username || s.email,
+        status,
+        wpm: result?.wpm ?? null,
+        accuracy: result?.accuracy ?? null,
+        passed,
+        submittedAt: result?.submittedAt ?? null,
+      };
+    });
+
+    return {
+      assignmentId,
+      title: assignment.title,
+      dueDate: assignment.dueDate,
+      passWpm,
+      passAccuracy,
+      totalStudents: students.length,
+      submitted: studentStatuses.filter(s => s.status === 'Submitted').length,
+      students: studentStatuses,
+    };
+  }
 }
 

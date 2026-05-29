@@ -46,6 +46,15 @@ export class TestResultService {
   }
 
   async findByAssignment(assignmentId: string) {
+    // Fetch assignment thresholds alongside results
+    const assignment = await this.prisma.assignment.findUnique({
+      where: { id: assignmentId },
+      select: { wpmRequirement: true, accuracyRequirement: true },
+    });
+
+    const passWpm = assignment?.wpmRequirement ?? 20;
+    const passAccuracy = assignment?.accuracyRequirement ?? 70;
+
     const results = await this.prisma.testResult.findMany({
       where: { assignmentId },
       include: {
@@ -66,7 +75,7 @@ export class TestResultService {
 
     return Array.from(byStudent.entries()).map(([userId, attempts]) => {
       const best = attempts.reduce((a, b) => (a.wpm > b.wpm ? a : b));
-      const passed = best.wpm >= 20 && best.accuracy >= 70;
+      const passed = best.wpm >= passWpm && best.accuracy >= passAccuracy;
       return {
         userId,
         firstName: best.user.firstName,
@@ -78,6 +87,8 @@ export class TestResultService {
         bestAccuracy: best.accuracy,
         durationSec: best.duration,
         passed,
+        passWpm,
+        passAccuracy,
         submittedAt: best.createdAt,
       };
     });

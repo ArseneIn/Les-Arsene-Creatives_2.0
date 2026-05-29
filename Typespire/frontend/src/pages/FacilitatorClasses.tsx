@@ -121,7 +121,7 @@ const FacilitatorClasses: React.FC = () => {
                                             : 'border-slate-200 dark:border-[#323b67] bg-white dark:bg-card-dark text-slate-600 dark:text-[#929bc9]'
                                     }`}
                                 >
-                                    {section.name}
+                                    {section.intakeName ? `${section.intakeName} - ` : ''}{section.name}
                                 </button>
                             ))}
                         </div>

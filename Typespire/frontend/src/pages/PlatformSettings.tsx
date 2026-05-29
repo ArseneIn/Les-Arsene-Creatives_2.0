@@ -51,7 +51,7 @@ const PlatformSettings: React.FC = () => {
                 </div>
                 <button
                     onClick={handleSave}
-                    className="bg-admin-primary hover:bg-admin-primary/90 text-navy-blue font-bold px-6 py-2.5 rounded-lg shadow-lg shadow-admin-primary/20 transition-all flex items-center gap-2"
+                    className="bg-admin-primary hover:bg-admin-primary/90 text-white font-bold px-6 py-2.5 rounded-lg shadow-lg shadow-admin-primary/20 transition-all flex items-center gap-2"
                 >
                     <span className="material-symbols-outlined">save</span>
                     Save Changes
@@ -245,7 +245,7 @@ const PlatformSettings: React.FC = () => {
                             </p>
                             <button
                                 onClick={() => navigate('/super-admin/billing')}
-                                className="bg-admin-primary hover:bg-admin-primary/90 text-navy-blue font-bold px-6 py-2.5 rounded-lg shadow-lg shadow-admin-primary/20 transition-all inline-flex items-center gap-2"
+                                className="bg-admin-primary hover:bg-admin-primary/90 text-white font-bold px-6 py-2.5 rounded-lg shadow-lg shadow-admin-primary/20 transition-all inline-flex items-center gap-2"
                             >
                                 <span className="material-symbols-outlined text-[18px]">open_in_new</span>
                                 Go to Billing &amp; Plans

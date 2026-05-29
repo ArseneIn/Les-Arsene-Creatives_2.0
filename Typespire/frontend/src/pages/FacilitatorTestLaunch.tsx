@@ -1,7 +1,29 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useFacilitator } from '../context/FacilitatorContext';
 import { useInstitution } from '../context/InstitutionContext';
+import api from '../api/axios';
+
+interface LiveStudent {
+    userId: string;
+    name: string;
+    status: 'Submitted' | 'Not Started';
+    wpm: number | null;
+    accuracy: number | null;
+    passed: boolean | null;
+    submittedAt: string | null;
+}
+
+interface LiveData {
+    assignmentId: string;
+    title: string;
+    dueDate: string;
+    passWpm: number;
+    passAccuracy: number;
+    totalStudents: number;
+    submitted: number;
+    students: LiveStudent[];
+}
 
 const MOCK_LIBRARY_TEXTS = [
     {
@@ -56,7 +78,7 @@ const MOCK_LIBRARY_TEXTS = [
 
 const FacilitatorTestLaunch: React.FC = () => {
     const navigate = useNavigate();
-    const { publishAssignment, students, sections } = useFacilitator();
+    const { publishAssignment, students, sections, assignments } = useFacilitator();
     const { settings } = useInstitution();
 
     const [testLevel, setTestLevel] = useState<1 | 2>(1);
@@ -78,6 +100,28 @@ const FacilitatorTestLaunch: React.FC = () => {
     const [accessWindow, setAccessWindow] = useState('1440'); // default: 1 day in minutes
     
     const [successPopup, setSuccessPopup] = useState<{show: boolean, count: number}>({show: false, count: 0});
+    const [monitorAssignmentId, setMonitorAssignmentId] = useState<string | null>(null);
+    const [liveData, setLiveData] = useState<LiveData | null>(null);
+    const [liveLoading, setLiveLoading] = useState(false);
+
+    const fetchLiveData = useCallback(async (id: string) => {
+        setLiveLoading(true);
+        try {
+            const res = await api.get(`/assignment/${id}/live`);
+            setLiveData(res.data);
+        } catch (err) {
+            console.error('Failed to fetch live data', err);
+        } finally {
+            setLiveLoading(false);
+        }
+    }, []);
+
+    useEffect(() => {
+        if (!monitorAssignmentId) return;
+        fetchLiveData(monitorAssignmentId);
+        const interval = setInterval(() => fetchLiveData(monitorAssignmentId), 10000);
+        return () => clearInterval(interval);
+    }, [monitorAssignmentId, fetchLiveData]);
 
     // Derived states
     const filteredLibrary = useMemo(() => {
@@ -612,6 +656,173 @@ const FacilitatorTestLaunch: React.FC = () => {
                 </div>
             </div>
             {/* Footer Spacer */}
+            <div className="h-6"></div>
+
+            {/* ── Live Monitor ── */}
+            <div className="border-t border-slate-200 dark:border-slate-800 pt-10">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+                    <div>
+                        <h2 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight font-heading flex items-center gap-2">
+                            <span className="material-symbols-outlined text-primary text-2xl">monitor_heart</span>
+                            Live Test Monitor
+                        </h2>
+                        <p className="text-slate-500 dark:text-[#929bc9] text-sm mt-1">Select an active assignment to watch real-time submission progress. Auto-refreshes every 10s.</p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <div className="relative">
+                            <select
+                                value={monitorAssignmentId || ''}
+                                onChange={e => {
+                                    const val = e.target.value || null;
+                                    setMonitorAssignmentId(val);
+                                    setLiveData(null);
+                                }}
+                                className="appearance-none rounded-xl bg-white dark:bg-[#232948] border border-slate-200 dark:border-[#323b67] text-slate-900 dark:text-white py-2.5 pl-4 pr-10 text-sm font-semibold outline-none focus:border-primary/60 min-w-[220px]"
+                            >
+                                <option value="">Select assignment to monitor...</option>
+                                {assignments.map(a => (
+                                    <option key={a.id} value={a.id}>{a.title}</option>
+                                ))}
+                            </select>
+                            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-slate-400">
+                                <span className="material-symbols-outlined text-sm">expand_more</span>
+                            </div>
+                        </div>
+                        {monitorAssignmentId && (
+                            <button
+                                onClick={() => fetchLiveData(monitorAssignmentId)}
+                                disabled={liveLoading}
+                                className="p-2.5 rounded-xl border border-slate-200 dark:border-[#323b67] text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-[#232948] transition-all"
+                            >
+                                <span className={`material-symbols-outlined text-[18px] ${liveLoading ? 'animate-spin' : ''}`}>refresh</span>
+                            </button>
+                        )}
+                    </div>
+                </div>
+
+                {!monitorAssignmentId ? (
+                    <div className="flex flex-col items-center justify-center h-48 rounded-2xl border border-dashed border-slate-200 dark:border-slate-800 bg-slate-50/40 dark:bg-black/10 text-slate-400">
+                        <span className="material-symbols-outlined text-4xl mb-2">sensors</span>
+                        <p className="font-semibold text-sm">Select an assignment above to start monitoring</p>
+                    </div>
+                ) : liveData ? (
+                    <div className="bg-white dark:bg-card-dark rounded-2xl border border-slate-200 dark:border-[#323b67] shadow-sm overflow-hidden">
+                        {/* Monitor Header */}
+                        <div className="flex flex-wrap items-center justify-between gap-4 p-5 border-b border-slate-100 dark:border-[#323b67] bg-slate-50/60 dark:bg-[#232948]/60">
+                            <div>
+                                <p className="text-xs font-black text-slate-400 dark:text-[#929bc9] uppercase tracking-wider mb-0.5">Monitoring</p>
+                                <h3 className="text-lg font-black text-slate-900 dark:text-white font-heading">{liveData.title}</h3>
+                                <p className="text-xs text-slate-400 mt-0.5">Pass threshold: ≥{liveData.passWpm} WPM · ≥{liveData.passAccuracy}% accuracy</p>
+                            </div>
+                            <div className="flex gap-4">
+                                <div className="text-center">
+                                    <p className="text-2xl font-black text-slate-900 dark:text-white font-mono">{liveData.submitted}</p>
+                                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Submitted</p>
+                                </div>
+                                <div className="text-center">
+                                    <p className="text-2xl font-black text-slate-900 dark:text-white font-mono">{liveData.totalStudents - liveData.submitted}</p>
+                                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Pending</p>
+                                </div>
+                                <div className="text-center">
+                                    <p className="text-2xl font-black text-primary font-mono">
+                                        {liveData.students.filter(s => s.passed === true).length}
+                                    </p>
+                                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Passed</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Progress Bar */}
+                        <div className="px-5 pt-4 pb-2">
+                            <div className="flex items-center justify-between text-xs font-bold text-slate-400 mb-1.5">
+                                <span>Submission Progress</span>
+                                <span>{liveData.submitted}/{liveData.totalStudents}</span>
+                            </div>
+                            <div className="w-full h-2 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+                                <div
+                                    className="h-full bg-primary rounded-full transition-all duration-700"
+                                    style={{ width: `${liveData.totalStudents > 0 ? (liveData.submitted / liveData.totalStudents) * 100 : 0}%` }}
+                                />
+                            </div>
+                        </div>
+
+                        {/* Student Table */}
+                        <div className="overflow-x-auto">
+                            <table className="w-full text-left border-collapse min-w-[550px]">
+                                <thead>
+                                    <tr className="border-b border-slate-100 dark:border-[#323b67]">
+                                        <th className="py-3 px-5 text-xs font-bold uppercase tracking-wider text-slate-400">Student</th>
+                                        <th className="py-3 px-4 text-xs font-bold uppercase tracking-wider text-slate-400">Status</th>
+                                        <th className="py-3 px-4 text-xs font-bold uppercase tracking-wider text-slate-400">WPM</th>
+                                        <th className="py-3 px-4 text-xs font-bold uppercase tracking-wider text-slate-400">Accuracy</th>
+                                        <th className="py-3 px-4 text-xs font-bold uppercase tracking-wider text-slate-400">Result</th>
+                                        <th className="py-3 px-4 text-xs font-bold uppercase tracking-wider text-slate-400">Submitted At</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-slate-100 dark:divide-[#323b67]/50">
+                                    {liveData.students.map(student => (
+                                        <tr key={student.userId} className="hover:bg-slate-50 dark:hover:bg-[#232948] transition-colors">
+                                            <td className="py-3.5 px-5 font-bold text-sm text-slate-900 dark:text-white">{student.name}</td>
+                                            <td className="py-3.5 px-4">
+                                                <span className={`inline-flex items-center gap-1.5 text-[11px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full ${
+                                                    student.status === 'Submitted'
+                                                        ? 'bg-emerald-100 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400'
+                                                        : 'bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400'
+                                                }`}>
+                                                    <span className="material-symbols-outlined text-[11px]">
+                                                        {student.status === 'Submitted' ? 'check_circle' : 'hourglass_empty'}
+                                                    </span>
+                                                    {student.status}
+                                                </span>
+                                            </td>
+                                            <td className="py-3.5 px-4 font-mono font-bold text-sm text-slate-700 dark:text-slate-200">
+                                                {student.wpm !== null ? student.wpm : '—'}
+                                            </td>
+                                            <td className={`py-3.5 px-4 font-mono font-bold text-sm ${
+                                                student.accuracy !== null
+                                                    ? student.accuracy >= liveData.passAccuracy ? 'text-emerald-600 dark:text-emerald-400' : 'text-amber-600 dark:text-amber-400'
+                                                    : 'text-slate-400'
+                                            }`}>
+                                                {student.accuracy !== null ? `${student.accuracy.toFixed(1)}%` : '—'}
+                                            </td>
+                                            <td className="py-3.5 px-4">
+                                                {student.passed === null ? (
+                                                    <span className="text-slate-300 dark:text-slate-600 text-xs font-bold">—</span>
+                                                ) : student.passed ? (
+                                                    <span className="inline-flex items-center gap-1 text-[11px] font-black uppercase px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400">
+                                                        <span className="material-symbols-outlined text-[11px]">verified</span> Pass
+                                                    </span>
+                                                ) : (
+                                                    <span className="inline-flex items-center gap-1 text-[11px] font-black uppercase px-2 py-0.5 rounded-full bg-rose-100 dark:bg-rose-500/10 text-rose-700 dark:text-rose-400">
+                                                        <span className="material-symbols-outlined text-[11px]">close</span> Fail
+                                                    </span>
+                                                )}
+                                            </td>
+                                            <td className="py-3.5 px-4 text-xs text-slate-400 font-mono">
+                                                {student.submittedAt
+                                                    ? new Date(student.submittedAt).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' })
+                                                    : '—'}
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div className="px-5 py-3 border-t border-slate-100 dark:border-[#323b67] flex items-center gap-2 text-xs text-slate-400">
+                            <span className="inline-block w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                            Live · auto-refreshing every 10 seconds
+                            {liveLoading && <span className="material-symbols-outlined text-[13px] animate-spin ml-1">sync</span>}
+                        </div>
+                    </div>
+                ) : liveLoading ? (
+                    <div className="flex items-center justify-center h-48 gap-3 text-slate-400">
+                        <span className="material-symbols-outlined animate-spin text-3xl">progress_activity</span>
+                        <span className="font-semibold">Loading live data...</span>
+                    </div>
+                ) : null}
+            </div>
+
             <div className="h-20"></div>
         </>
     );

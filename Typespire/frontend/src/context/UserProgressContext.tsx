@@ -271,6 +271,56 @@ export const UserProgressProvider: React.FC<{ children: ReactNode }> = ({ childr
         }
     }, [isAuthenticated, user?.id, user?.sectionId]);
 
+    // ── Compute streak from result dates ──
+    useEffect(() => {
+        if (recentResults.length === 0) return;
+
+        // Collect unique calendar date strings (YYYY-MM-DD) from results
+        const uniqueDates = new Set(
+            recentResults.map(r => {
+                const d = new Date(r.date);
+                // Handle both ISO strings and locale strings (e.g. "May 29, 2026")
+                return isNaN(d.getTime()) ? null : d.toISOString().split('T')[0];
+            }).filter(Boolean)
+        ) as Set<string>;
+
+        const sortedDates = Array.from(uniqueDates).sort().reverse(); // newest first
+
+        if (sortedDates.length === 0) return;
+
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        let streak = 0;
+        let checkDate = new Date(today);
+
+        // Allow streak to start from today or yesterday (in case they haven't typed yet today)
+        const latestDate = new Date(sortedDates[0]);
+        latestDate.setHours(0, 0, 0, 0);
+        const diffFromToday = Math.round((today.getTime() - latestDate.getTime()) / 86400000);
+        if (diffFromToday > 1) {
+            // Last activity was more than 1 day ago — streak is broken
+            setStats(prev => prev.streakDays === 0 ? prev : { ...prev, streakDays: 0 });
+            return;
+        }
+
+        checkDate = new Date(latestDate);
+
+        for (const dateStr of sortedDates) {
+            const d = new Date(dateStr);
+            d.setHours(0, 0, 0, 0);
+            const diff = Math.round((checkDate.getTime() - d.getTime()) / 86400000);
+            if (diff === 0) {
+                streak++;
+                checkDate.setDate(checkDate.getDate() - 1);
+            } else {
+                break;
+            }
+        }
+
+        setStats(prev => streak !== prev.streakDays ? { ...prev, streakDays: streak } : prev);
+    }, [recentResults]);
+
     // ── Persist to localStorage on every change ──
     useEffect(() => {
         try {
