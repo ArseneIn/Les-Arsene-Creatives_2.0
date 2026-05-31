@@ -11,9 +11,29 @@ export class TestResultService {
     duration: number;
     strugglingKeys?: Record<string, number>;
     userId: string;
-    testId: string;
+    testId?: string;
     assignmentId?: string;
   }) {
+    let resolvedTestId = data.testId;
+    if (!resolvedTestId && data.assignmentId) {
+      const assignment = await this.prisma.assignment.findUnique({
+        where: { id: data.assignmentId },
+        select: { testId: true },
+      });
+      if (assignment?.testId) {
+        resolvedTestId = assignment.testId;
+      }
+    }
+
+    if (!resolvedTestId) {
+      const firstTest = await this.prisma.test.findFirst();
+      resolvedTestId = firstTest?.id;
+    }
+
+    if (!resolvedTestId) {
+      throw new Error('A valid testId must be provided or resolved.');
+    }
+
     return this.prisma.testResult.create({
       data: {
         wpm: data.wpm,
@@ -21,7 +41,7 @@ export class TestResultService {
         duration: data.duration,
         strugglingKeys: data.strugglingKeys || {},
         userId: data.userId,
-        testId: data.testId,
+        testId: resolvedTestId,
         assignmentId: data.assignmentId,
       },
     });

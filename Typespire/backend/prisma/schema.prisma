@@ -171,6 +171,8 @@ model Assignment {
   wpmRequirement      Int?    @default(20)
   accuracyRequirement Float?  @default(70)
   
+  maxAttempts         Int?    @default(1)
+  
   sectionId      String?
   section        Section?    @relation(fields: [sectionId], references: [id])
   

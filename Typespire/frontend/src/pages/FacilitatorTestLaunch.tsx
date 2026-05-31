@@ -3,6 +3,8 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useFacilitator } from '../context/FacilitatorContext';
 import { useInstitution } from '../context/InstitutionContext';
 import api from '../api/axios';
+import { ADVANCED_WORD_POOL, generate10FastFingersText } from '../data/advancedWordPool';
+
 
 interface LiveStudent {
     userId: string;
@@ -56,11 +58,11 @@ const MOCK_LIBRARY_TEXTS = [
         source: 'Typing Master Lesson 2',
         level: 1,
         complexity: 'Easy',
-        wordCount: 22,
-        estimatedTimeMin: 1,
+        wordCount: 106,
+        estimatedTimeMin: 2,
         coverImg: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBsB8B_l7JsRKngrUdfsAzNU1zSIoGhomjQppoX23ANXPj0fpcqv4v-NZCM89bj04YLo3Q9LY3zyyGXZ_1IfEo98_5tg9CNmzrAu-gvEbD6ZFrpQYjD_L_Y5YvDvw2m5ZCDc1Hugl2G8GGfIsEJJyri6JjdBno5uZWoEGJpT9b9v_-gatn-gRlKdLfDZdHxJVsOz3jQBS2iWOQw-xKMVaF9C1cQjwIXx1XdOK5rKhNXYQ16zJDgnN0lpLBRwJ0niHTidyWRr3SjoN9J',
-        excerpt: 'qwert yuiop qwert yuiop trewq poiuy qwert yuiop standard top row letters and key stretches for both hands...',
-        content: 'qwert yuiop qwert yuiop trewq poiuy qwert yuiop standard top row letters and key stretches for both hands.'
+        excerpt: 'we type standard top row letters and key stretches for both hands. your left hand reaches quickly for q and w and e and r and t...',
+        content: 'we type standard top row letters and key stretches for both hands. your left hand reaches quickly for q and w and e and r and t while your right hand reaches smoothly for y and u and i and o and p. write down the proper path to reach the quiet territory where pretty trees grow. our priority is to return standard reports to our power team. try to output sweet poetry with high precision to support your daily speed. touch typing top row reaches requires your fingers to return to home row anchors instantly after every quick stretch. stay relaxed and quiet.'
     },
     {
         id: 'lib_tm_3',
@@ -68,11 +70,11 @@ const MOCK_LIBRARY_TEXTS = [
         source: 'Typing Master Lesson 3',
         level: 1,
         complexity: 'Easy',
-        wordCount: 21,
-        estimatedTimeMin: 1,
+        wordCount: 111,
+        estimatedTimeMin: 2,
         coverImg: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBsB8B_l7JsRKngrUdfsAzNU1zSIoGhomjQppoX23ANXPj0fpcqv4v-NZCM89bj04YLo3Q9LY3zyyGXZ_1IfEo98_5tg9CNmzrAu-gvEbD6ZFrpQYjD_L_Y5YvDvw2m5ZCDc1Hugl2G8GGfIsEJJyri6JjdBno5uZWoEGJpT9b9v_-gatn-gRlKdLfDZdHxJVsOz3jQBS2iWOQw-xKMVaF9C1cQjwIXx1XdOK5rKhNXYQ16zJDgnN0lpLBRwJ0niHTidyWRr3SjoN9J',
-        excerpt: 'zxcvb nm,./ zxcvb nm,./ bvcxz /.,mn bottom row typing exercises and key reaches with correct resting posture...',
-        content: 'zxcvb nm,./ zxcvb nm,./ bvcxz /.,mn bottom row typing exercises and key reaches with correct resting posture.'
+        excerpt: 'bottom row typing exercises require correct resting posture for both hands. your left pinky reaches down for z while your ring finger...',
+        content: 'bottom row typing exercises require correct resting posture for both hands. your left pinky reaches down for z while your ring finger reaches down for x and middle reaches down for c and index reaches down for v and b. on your right hand, fingers stretch down for n and m and comma and period and slash keys. move your hands back to the home row after every bottom row entry. practice makes normal movements natural. can you type the bottom row with zero errors? six very nice brown cats ran past my quiet cabin on a sunny day. never move your wrists when typing bottom keys.'
     },
     {
         id: 'lib_tm_4',
@@ -80,11 +82,11 @@ const MOCK_LIBRARY_TEXTS = [
         source: 'Typing Master Lesson 4',
         level: 1,
         complexity: 'Easy',
-        wordCount: 21,
-        estimatedTimeMin: 1,
+        wordCount: 106,
+        estimatedTimeMin: 2,
         coverImg: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBsB8B_l7JsRKngrUdfsAzNU1zSIoGhomjQppoX23ANXPj0fpcqv4v-NZCM89bj04YLo3Q9LY3zyyGXZ_1IfEo98_5tg9CNmzrAu-gvEbD6ZFrpQYjD_L_Y5YvDvw2m5ZCDc1Hugl2G8GGfIsEJJyri6JjdBno5uZWoEGJpT9b9v_-gatn-gRlKdLfDZdHxJVsOz3jQBS2iWOQw-xKMVaF9C1cQjwIXx1XdOK5rKhNXYQ16zJDgnN0lpLBRwJ0niHTidyWRr3SjoN9J',
-        excerpt: 'the quick brown fox jumps over the lazy dog asdf jkl; space bar is pressed with thumb for natural fluid rhythm...',
-        content: 'the quick brown fox jumps over the lazy dog asdf jkl; space bar is pressed with thumb for natural fluid rhythm.'
+        excerpt: 'the space bar is pressed with your right or left thumb to maintain a natural fluid rhythm. typing is not just about moving fast...',
+        content: 'the space bar is pressed with your right or left thumb to maintain a natural fluid rhythm. typing is not just about moving fast; it is about establishing a steady beat like a heartbeat. standard home row anchors asdf and jkl; keep your hands in a secure position. the quick brown fox jumps over the lazy dog in Kigali. as you type, listen to the consistent sound of the keys hitting the board. every space separates thoughts and words, creating clear and beautiful sentences for everyone to read. relaxed shoulders and a straight posture will support your rhythmic touch typing practice.'
     },
     {
         id: 'lib_tm_5',
@@ -92,11 +94,11 @@ const MOCK_LIBRARY_TEXTS = [
         source: 'Typing Master Lesson 5',
         level: 1,
         complexity: 'Medium',
-        wordCount: 22,
-        estimatedTimeMin: 1,
+        wordCount: 106,
+        estimatedTimeMin: 2,
         coverImg: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBsB8B_l7JsRKngrUdfsAzNU1zSIoGhomjQppoX23ANXPj0fpcqv4v-NZCM89bj04YLo3Q9LY3zyyGXZ_1IfEo98_5tg9CNmzrAu-gvEbD6ZFrpQYjD_L_Y5YvDvw2m5ZCDc1Hugl2G8GGfIsEJJyri6JjdBno5uZWoEGJpT9b9v_-gatn-gRlKdLfDZdHxJVsOz3jQBS2iWOQw-xKMVaF9C1cQjwIXx1XdOK5rKhNXYQ16zJDgnN0lpLBRwJ0niHTidyWRr3SjoN9J',
-        excerpt: 'we see red cats and dogs running fast on the wet grass water falls down rapidly from the great brick wall...',
-        content: 'we see red cats and dogs running fast on the wet grass water falls down rapidly from the great brick wall.'
+        excerpt: 'we see red cats and dogs running fast on the wet grass. water falls down rapidly from the great brick wall near the safe cafe...',
+        content: 'we see red cats and dogs running fast on the wet grass. water falls down rapidly from the great brick wall near the safe cafe. sad, glad, dad, bad, deaf, safe, cafe, estate, crates, and cats are all typed mostly with your left hand. left hand independence is important to balance your typing load. the red cat ate a sweet strawberry in the green garden. we created a safe, standard test for our power team. standard left hand keys a, s, d, f, q, w, e, r, t, z, x, c, v, b should be typed without moving your hand position.'
     },
     {
         id: 'lib_tm_6',
@@ -104,11 +106,11 @@ const MOCK_LIBRARY_TEXTS = [
         source: 'Typing Master Lesson 6',
         level: 1,
         complexity: 'Medium',
-        wordCount: 20,
-        estimatedTimeMin: 1,
+        wordCount: 106,
+        estimatedTimeMin: 2,
         coverImg: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBsB8B_l7JsRKngrUdfsAzNU1zSIoGhomjQppoX23ANXPj0fpcqv4v-NZCM89bj04YLo3Q9LY3zyyGXZ_1IfEo98_5tg9CNmzrAu-gvEbD6ZFrpQYjD_L_Y5YvDvw2m5ZCDc1Hugl2G8GGfIsEJJyri6JjdBno5uZWoEGJpT9b9v_-gatn-gRlKdLfDZdHxJVsOz3jQBS2iWOQw-xKMVaF9C1cQjwIXx1XdOK5rKhNXYQ16zJDgnN0lpLBRwJ0niHTidyWRr3SjoN9J',
-        excerpt: 'you look like a million green lemons popping up in my lovely garden pool on a sunny July afternoon...',
-        content: 'you look like a million green lemons popping up in my lovely garden pool on a sunny July afternoon.'
+        excerpt: 'you look like a million green lemons popping up in my lovely garden pool on a sunny July afternoon. right hand dexterity requires...',
+        content: 'you look like a million green lemons popping up in my lovely garden pool on a sunny July afternoon. right hand dexterity requires steady practice to master pinky and ring finger keys y, u, i, o, p, h, j, k, l, semi, n, m, comma, and period. pink pumpkins grow in my family garden near Kigali. you should look at the monitor and only use your sense of touch to feel the keyboard layout. your right thumb should press the space bar for excellent rhythm. keeping your hands in a balanced home position will allow your typing speed to grow.'
     },
     {
         id: 'lib_tm_8',
@@ -116,11 +118,11 @@ const MOCK_LIBRARY_TEXTS = [
         source: 'Typing Master Lesson 8',
         level: 1,
         complexity: 'Medium',
-        wordCount: 19,
-        estimatedTimeMin: 1,
+        wordCount: 103,
+        estimatedTimeMin: 2,
         coverImg: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBsB8B_l7JsRKngrUdfsAzNU1zSIoGhomjQppoX23ANXPj0fpcqv4v-NZCM89bj04YLo3Q9LY3zyyGXZ_1IfEo98_5tg9CNmzrAu-gvEbD6ZFrpQYjD_L_Y5YvDvw2m5ZCDc1Hugl2G8GGfIsEJJyri6JjdBno5uZWoEGJpT9b9v_-gatn-gRlKdLfDZdHxJVsOz3jQBS2iWOQw-xKMVaF9C1cQjwIXx1XdOK5rKhNXYQ16zJDgnN0lpLBRwJ0niHTidyWRr3SjoN9J',
-        excerpt: 'The sun is shining bright today in Kigali and we are learning professional touch typing skills on the keyboard...',
-        content: 'The sun is shining bright today in Kigali and we are learning professional touch typing skills on the keyboard.'
+        excerpt: 'The sun is shining bright today in Kigali and we are learning professional touch typing skills on the keyboard. Alice and Bob...',
+        content: 'The sun is shining bright today in Kigali and we are learning professional touch typing skills on the keyboard. Alice and Bob visited Paris in July. Kepler College is situated in Rwanda, East Africa, where students practice typing daily. United Nations reports show rapid growth in digital skills across Africa. Saturday and Sunday are great days to practice touch typing at home. Let us use the Shift key correctly: press the opposite Shift key with your pinky while your other hand strikes the letter key. This builds speed and prevents finger fatigue. Yes, practice makes a master!'
     },
     {
         id: 'lib_tm_9',
@@ -128,11 +130,11 @@ const MOCK_LIBRARY_TEXTS = [
         source: 'Typing Master Lesson 9',
         level: 1,
         complexity: 'Medium',
-        wordCount: 19,
-        estimatedTimeMin: 1,
+        wordCount: 101,
+        estimatedTimeMin: 2,
         coverImg: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBsB8B_l7JsRKngrUdfsAzNU1zSIoGhomjQppoX23ANXPj0fpcqv4v-NZCM89bj04YLo3Q9LY3zyyGXZ_1IfEo98_5tg9CNmzrAu-gvEbD6ZFrpQYjD_L_Y5YvDvw2m5ZCDc1Hugl2G8GGfIsEJJyri6JjdBno5uZWoEGJpT9b9v_-gatn-gRlKdLfDZdHxJVsOz3jQBS2iWOQw-xKMVaF9C1cQjwIXx1XdOK5rKhNXYQ16zJDgnN0lpLBRwJ0niHTidyWRr3SjoN9J',
         excerpt: 'The system reported 102 active connections, 45 pending updates, and 378 resolved items within 24 hours of operation...',
-        content: 'The system reported 102 active connections, 45 pending updates, and 378 resolved items within 24 hours of operation.'
+        content: 'The system reported 102 active connections, 45 pending updates, and 378 resolved items within 24 hours of operation. Our office address is 9876 Boulevard Road, Suite 40, where 15 employees typed 350 words in 10 minutes. In the year 2024, our team completed 12 major sprints. The temperature dropped from 78 degrees to 53 degrees by 9:00 PM. Please remember that typing numbers requires keeping your home row anchor secure while stretching your fingers up to the number row. Practice dialing 123, 456, 789, and 0 to master the number row reaches!'
     },
     {
         id: 'lib_tm_10',
@@ -140,11 +142,11 @@ const MOCK_LIBRARY_TEXTS = [
         source: 'Typing Master Lesson 10',
         level: 1,
         complexity: 'Medium',
-        wordCount: 30,
-        estimatedTimeMin: 1,
+        wordCount: 104,
+        estimatedTimeMin: 2,
         coverImg: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBsB8B_l7JsRKngrUdfsAzNU1zSIoGhomjQppoX23ANXPj0fpcqv4v-NZCM89bj04YLo3Q9LY3zyyGXZ_1IfEo98_5tg9CNmzrAu-gvEbD6ZFrpQYjD_L_Y5YvDvw2m5ZCDc1Hugl2G8GGfIsEJJyri6JjdBno5uZWoEGJpT9b9v_-gatn-gRlKdLfDZdHxJVsOz3jQBS2iWOQw-xKMVaF9C1cQjwIXx1XdOK5rKhNXYQ16zJDgnN0lpLBRwJ0niHTidyWRr3SjoN9J',
         excerpt: 'Success in professional touch typing is the sum of small, regular drills repeated day in and day out with accurate rhythm...',
-        content: 'Success in professional touch typing is the sum of small, regular drills repeated day in and day out with accurate rhythm. Speed naturally follows precision, so stay relaxed and keep practicing.'
+        content: 'Success in professional touch typing is the sum of small, regular drills repeated day in and day out with accurate rhythm. Speed naturally follows precision, so stay relaxed and keep practicing. As you type longer paragraphs, maintain a continuous flow of thoughts without pausing between words. Let your fingers glide over the home row anchors as you focus on the center of the screen. Touch typing is a wonderful digital skill that will save you thousands of hours over your lifetime. Stay patient, keep your back straight, and celebrate every small improvement you make daily on your learning journey.'
     },
     {
         id: 'lib_tm_11',
@@ -152,11 +154,11 @@ const MOCK_LIBRARY_TEXTS = [
         source: 'Typing Master Lesson 11',
         level: 1,
         complexity: 'Easy',
-        wordCount: 20,
-        estimatedTimeMin: 1,
+        wordCount: 105,
+        estimatedTimeMin: 2,
         coverImg: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBsB8B_l7JsRKngrUdfsAzNU1zSIoGhomjQppoX23ANXPj0fpcqv4v-NZCM89bj04YLo3Q9LY3zyyGXZ_1IfEo98_5tg9CNmzrAu-gvEbD6ZFrpQYjD_L_Y5YvDvw2m5ZCDc1Hugl2G8GGfIsEJJyri6JjdBno5uZWoEGJpT9b9v_-gatn-gRlKdLfDZdHxJVsOz3jQBS2iWOQw-xKMVaF9C1cQjwIXx1XdOK5rKhNXYQ16zJDgnN0lpLBRwJ0niHTidyWRr3SjoN9J',
         excerpt: 'the quick index finger reaches for g and h with t and y and also v and b typing standard patterns very fast...',
-        content: 'the quick index finger reaches for g and h with t and y and also v and b typing standard patterns very fast.'
+        content: 'the quick index finger reaches for g and h with t and y and also v and b typing standard patterns very fast. index fingers are the most active fingers on the keyboard, handling multiple central keys. practice striking g and h firmly while keeping your pinky fingers anchored on a and semi. the brave traveler hiked through the green valleys and high mountains to find the golden river. index fingers also reach for 4, 5, 6, and 7 on the number row. keep your wrists steady and let your index fingers move smoothly between rows. practice daily to achieve high speed.'
     },
     {
         id: 'lib_tm_12',
@@ -164,11 +166,11 @@ const MOCK_LIBRARY_TEXTS = [
         source: 'Typing Master Lesson 12',
         level: 1,
         complexity: 'Medium',
-        wordCount: 20,
-        estimatedTimeMin: 1,
+        wordCount: 101,
+        estimatedTimeMin: 2,
         coverImg: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBsB8B_l7JsRKngrUdfsAzNU1zSIoGhomjQppoX23ANXPj0fpcqv4v-NZCM89bj04YLo3Q9LY3zyyGXZ_1IfEo98_5tg9CNmzrAu-gvEbD6ZFrpQYjD_L_Y5YvDvw2m5ZCDc1Hugl2G8GGfIsEJJyri6JjdBno5uZWoEGJpT9b9v_-gatn-gRlKdLfDZdHxJVsOz3jQBS2iWOQw-xKMVaF9C1cQjwIXx1XdOK5rKhNXYQ16zJDgnN0lpLBRwJ0niHTidyWRr3SjoN9J',
         excerpt: 'pinky fingers reach out wide for q and p and z and slash keys while keeping home row anchor placement secure...',
-        content: 'pinky fingers reach out wide for q and p and z and slash keys while keeping home row anchor placement secure.'
+        content: 'pinky fingers reach out wide for q and p and z and slash keys while keeping home row anchor placement secure. because the pinky is the weakest finger, it requires dedicated practice to build strike strength and reach accuracy. always return your pinky fingers to the home keys a and semi after stretching for outer keys. the quiet queen typed a long post about her favorite purple plants. touch typing punctuation marks like slash, colon, semi, and period is essential for writing clean code and beautiful documents. keep practicing the pinky stretches to achieve perfect keyboard balance.'
     },
     {
         id: 'lib_tm_13',
@@ -176,11 +178,11 @@ const MOCK_LIBRARY_TEXTS = [
         source: 'Typing Master Lesson 13',
         level: 1,
         complexity: 'Easy',
-        wordCount: 22,
-        estimatedTimeMin: 1,
+        wordCount: 101,
+        estimatedTimeMin: 2,
         coverImg: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBsB8B_l7JsRKngrUdfsAzNU1zSIoGhomjQppoX23ANXPj0fpcqv4v-NZCM89bj04YLo3Q9LY3zyyGXZ_1IfEo98_5tg9CNmzrAu-gvEbD6ZFrpQYjD_L_Y5YvDvw2m5ZCDc1Hugl2G8GGfIsEJJyri6JjdBno5uZWoEGJpT9b9v_-gatn-gRlKdLfDZdHxJVsOz3jQBS2iWOQw-xKMVaF9C1cQjwIXx1XdOK5rKhNXYQ16zJDgnN0lpLBRwJ0niHTidyWRr3SjoN9J',
         excerpt: 'keep a good book at the pool side and feel the cool wind fall upon the green grass of the sweet garden...',
-        content: 'keep a good book at the pool side and feel the cool wind fall upon the green grass of the sweet garden.'
+        content: 'keep a good book at the pool side and feel the cool wind fall upon the green grass of the sweet garden. double letters require a quick, rhythmic double strike of the same key without losing your typing balance. look at the yellow balloon floating high in the deep blue sky. our team will meet soon to coordinate the next steps for our school project. typing double letters like ee, oo, ll, ss, and tt is an excellent warm-up exercise for your fingers. stay relaxed, look at the screen, and feel the natural bounce of the keys.'
     },
     {
         id: 'lib_tm_14',
@@ -188,11 +190,11 @@ const MOCK_LIBRARY_TEXTS = [
         source: 'Typing Master Lesson 14',
         level: 1,
         complexity: 'Easy',
-        wordCount: 23,
-        estimatedTimeMin: 1,
+        wordCount: 100,
+        estimatedTimeMin: 2,
         coverImg: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBsB8B_l7JsRKngrUdfsAzNU1zSIoGhomjQppoX23ANXPj0fpcqv4v-NZCM89bj04YLo3Q9LY3zyyGXZ_1IfEo98_5tg9CNmzrAu-gvEbD6ZFrpQYjD_L_Y5YvDvw2m5ZCDc1Hugl2G8GGfIsEJJyri6JjdBno5uZWoEGJpT9b9v_-gatn-gRlKdLfDZdHxJVsOz3jQBS2iWOQw-xKMVaF9C1cQjwIXx1XdOK5rKhNXYQ16zJDgnN0lpLBRwJ0niHTidyWRr3SjoN9J',
         excerpt: 'she saw a red car run down the hot street as fast as the blue bird flew up into the deep dark sky...',
-        content: 'she saw a red car run down the hot street as fast as the blue bird flew up into the deep dark sky.'
+        content: 'she saw a red car run down the hot street as fast as the blue bird flew up into the deep dark sky. the little cat sat on the warm rug near the small window waiting for her kind friend. we had a wonderful time walking through the green forest on a sunny summer day. simple words and easy lowercase sentences are perfect to build your basic speed and accuracy. focus on maintaining a fluid movement without stopping or looking down at your keyboard layout. typing is easy when you stay relaxed and practice regularly.'
     },
     {
         id: 'lib_tm_15',
@@ -200,11 +202,11 @@ const MOCK_LIBRARY_TEXTS = [
         source: 'Typing Master Lesson 15',
         level: 1,
         complexity: 'Medium',
-        wordCount: 33,
-        estimatedTimeMin: 1,
+        wordCount: 101,
+        estimatedTimeMin: 2,
         coverImg: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBsB8B_l7JsRKngrUdfsAzNU1zSIoGhomjQppoX23ANXPj0fpcqv4v-NZCM89bj04YLo3Q9LY3zyyGXZ_1IfEo98_5tg9CNmzrAu-gvEbD6ZFrpQYjD_L_Y5YvDvw2m5ZCDc1Hugl2G8GGfIsEJJyri6JjdBno5uZWoEGJpT9b9v_-gatn-gRlKdLfDZdHxJVsOz3jQBS2iWOQw-xKMVaF9C1cQjwIXx1XdOK5rKhNXYQ16zJDgnN0lpLBRwJ0niHTidyWRr3SjoN9J',
         excerpt: 'Practice makes a master typist. Keep your head straight, shoulders relaxed, elbows close, and stay focused on natural accuracy first...',
-        content: 'Practice makes a master typist. Keep your head straight, shoulders relaxed, elbows close, and stay focused on natural accuracy first. Speed will follow your patience and daily rhythm.'
+        content: 'Practice makes a master typist. Keep your head straight, shoulders relaxed, elbows close, and stay focused on natural accuracy first. Speed will follow your patience and daily rhythm. This milestone test marks your graduation from basic drills to advanced text typing. You have learned home row anchors, top row reaches, bottom row coordinates, shift key alternating capitals, numbers, and basic punctuation marks. Celebrate this wonderful milestone as you prepare to transition to Level 2 advanced sprints. Keep practicing with dedication, stay relaxed, look at the screen, and let your fingers glide effortlessly over the keyboard!'
     },
     {
         id: 'lib_3',
@@ -229,6 +231,18 @@ const MOCK_LIBRARY_TEXTS = [
         coverImg: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCskkYe5oA8piZHk9uIAyymNvBfIx0JZOIBZrosWzW7lClN_mXpawD3BQW435OmrAy70YSt0mYeLrysWHZxs6EF5emh-CuDF9Wt3BAIoByo9Uidkh0OvknKQLIqdvl-78G-7kuJKaBIx55Af8Z_9ZtN12g4u6ZNMjL_2TcbI4QAGY-zo8v2o5Me8lex33TXxyP7ZqKqDQ0LhOrctikV_ma_N8eEcZi8-fuXEEnmyLJBdQ0UeUL2Ok7v1gfpqWgFB-Xjq_bST9nX1FAk',
         excerpt: 'Authentication, Authorization, and Accounting (AAA) form the core of any secure system architecture...',
         content: 'Authentication, Authorization, and Accounting (AAA) form the core of any secure system architecture...'
+    },
+    {
+        id: 'lib_tm_10fastfingers',
+        title: '10 Fast Fingers Advanced Sprint',
+        source: 'Typespire Engine',
+        level: 2,
+        complexity: 'Hard',
+        wordCount: 150,
+        estimatedTimeMin: 1,
+        coverImg: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBsB8B_l7JsRKngrUdfsAzNU1zSIoGhomjQppoX23ANXPj0fpcqv4v-NZCM89bj04YLo3Q9LY3zyyGXZ_1IfEo98_5tg9CNmzrAu-gvEbD6ZFrpQYjD_L_Y5YvDvw2m5ZCDc1Hugl2G8GGfIsEJJyri6JjdBno5uZWoEGJpT9b9v_-gatn-gRlKdLfDZdHxJVsOz3jQBS2iWOQw-xKMVaF9C1cQjwIXx1XdOK5rKhNXYQ16zJDgnN0lpLBRwJ0niHTidyWRr3SjoN9J',
+        excerpt: 'Dynamic 10 Fast Fingers words generator. Click to generate a unique combination of advanced unrelated words for a fair classroom competition!',
+        content: '10_fast_fingers_dynamic'
     }
 ];
 
@@ -242,6 +256,18 @@ const FacilitatorTestLaunch: React.FC = () => {
     // Library vs Custom Mode
     const [sourceMode, setSourceMode] = useState<'library' | 'custom'>('library');
     const [selectedLibraryId, setSelectedLibraryId] = useState<string>('lib_1');
+    const [generatedDynamicText, setGeneratedDynamicText] = useState('');
+
+    useEffect(() => {
+        if (selectedLibraryId === 'lib_tm_10fastfingers') {
+            if (!generatedDynamicText) {
+                setGeneratedDynamicText(generate10FastFingersText(ADVANCED_WORD_POOL, 150));
+            }
+        } else {
+            setGeneratedDynamicText('');
+        }
+    }, [selectedLibraryId, generatedDynamicText]);
+
     const [searchQuery, setSearchQuery] = useState('');
     
     // Custom Text State
@@ -254,6 +280,8 @@ const FacilitatorTestLaunch: React.FC = () => {
     const [timeLimit, setTimeLimit] = useState('1');
     const [allowedTrials, setAllowedTrials] = useState('');
     const [accessWindow, setAccessWindow] = useState('1440'); // default: 1 day in minutes
+    const [bypassCriteria, setBypassCriteria] = useState(false);
+    const [previewingText, setPreviewingText] = useState<any | null>(null);
     
     const [successPopup, setSuccessPopup] = useState<{show: boolean, count: number}>({show: false, count: 0});
     const [monitorAssignmentId, setMonitorAssignmentId] = useState<string | null>(null);
@@ -325,7 +353,7 @@ const FacilitatorTestLaunch: React.FC = () => {
         if (sourceMode === 'library') {
             if (!activeLibraryText) return alert("Please select a library text.");
             finalTitle = activeLibraryText.title;
-            finalContent = activeLibraryText.content;
+            finalContent = activeLibraryText.id === 'lib_tm_10fastfingers' ? generatedDynamicText : activeLibraryText.content;
         } else {
             if (!customTitle.trim() || !customContent.trim()) {
                 return alert("Please provide a Title and Text for your Custom Assignment.");
@@ -348,6 +376,8 @@ const FacilitatorTestLaunch: React.FC = () => {
             // - High Performers = Level 2
             const eligibleStudents = students.filter(s => {
                 if (s.sectionId !== targetSection) return false;
+                
+                if (bypassCriteria) return true; // Developer testing bypass toggle!
                 
                 let studentLevel = 0; // Beginner
 
@@ -464,6 +494,7 @@ const FacilitatorTestLaunch: React.FC = () => {
                                 </div>
                             </div>
 
+
                             {/* Library Content List */}
                             <div className="flex flex-col gap-4">
                                 <div className="flex justify-between items-center mb-1">
@@ -495,18 +526,31 @@ const FacilitatorTestLaunch: React.FC = () => {
                                         <div className="flex flex-col gap-1.5 flex-1 pr-8">
                                             <h3 className="text-slate-900 dark:text-white font-bold text-lg group-hover:text-primary transition-colors duration-200 tracking-tight font-heading">{test.title}</h3>
                                             <p className="text-slate-400 dark:text-[#929bc9] text-xs font-semibold">by {test.source}</p>
-                                            <div className="flex flex-wrap items-center gap-3.5 mt-2">
-                                                <span className={`text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full shadow-sm ${
-                                                    test.complexity === 'Easy' ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-500/10 dark:text-emerald-400' :
-                                                    test.complexity === 'Medium' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-500/10 dark:text-yellow-400' :
-                                                    'bg-red-100 text-red-800 dark:bg-red-500/10 dark:text-red-400'
-                                                }`}>
-                                                    {test.complexity}
-                                                </span>
-                                                <span className="text-xs text-slate-400 dark:text-[#929bc9] flex items-center gap-1 font-bold">
-                                                    <span className="material-symbols-outlined text-[14px]">schedule</span> {test.estimatedTimeMin} min
-                                                </span>
-                                                <span className="text-xs text-slate-400 dark:text-[#929bc9] font-bold">{test.wordCount} words</span>
+                                            <div className="flex flex-wrap items-center justify-between gap-3.5 mt-2">
+                                                <div className="flex flex-wrap items-center gap-3.5">
+                                                    <span className={`text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full shadow-sm ${
+                                                        test.complexity === 'Easy' ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-500/10 dark:text-emerald-400' :
+                                                        test.complexity === 'Medium' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-500/10 dark:text-yellow-400' :
+                                                        'bg-red-100 text-red-800 dark:bg-red-500/10 dark:text-red-400'
+                                                    }`}>
+                                                        {test.complexity}
+                                                    </span>
+                                                    <span className="text-xs text-slate-400 dark:text-[#929bc9] flex items-center gap-1 font-bold">
+                                                        <span className="material-symbols-outlined text-[14px]">schedule</span> {test.estimatedTimeMin} min
+                                                    </span>
+                                                    <span className="text-xs text-slate-400 dark:text-[#929bc9] font-bold">{test.wordCount} words</span>
+                                                </div>
+                                                <button
+                                                    type="button"
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        setPreviewingText(test);
+                                                    }}
+                                                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-[#323b67]/80 hover:border-[#094A71]/50 text-slate-500 dark:text-[#929bc9] hover:text-[#094A71] bg-slate-50 dark:bg-[#232948] transition-all text-xs font-bold font-heading hover-scale active-scale shadow-sm shrink-0"
+                                                >
+                                                    <span className="material-symbols-outlined text-sm font-black">visibility</span>
+                                                    Quick Preview
+                                                </button>
                                             </div>
                                             <p className={`text-slate-500 dark:text-[#929bc9]/80 text-sm mt-3 line-clamp-2 leading-relaxed ${test.level === 2 ? 'font-mono text-[13px] bg-slate-50 dark:bg-black/20 p-2.5 rounded-lg border border-slate-100 dark:border-slate-800' : ''}`}>
                                                 {test.excerpt}
@@ -665,6 +709,24 @@ const FacilitatorTestLaunch: React.FC = () => {
                                         </select>
                                         <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-slate-400 dark:text-[#929bc9]">
                                             <span className="material-symbols-outlined">expand_more</span>
+                                        </div>
+                                    </div>
+
+                                    <div className="mt-2 flex items-start gap-2.5 bg-[#094A71]/5 dark:bg-[#094A71]/10 border border-[#094A71]/15 p-3 rounded-xl">
+                                        <input
+                                            id="bypass-criteria-toggle"
+                                            type="checkbox"
+                                            className="mt-0.5 rounded text-[#094A71] focus:ring-[#094A71]/30 bg-white dark:bg-card-dark border-slate-300 dark:border-slate-800 h-4 w-4 cursor-pointer"
+                                            checked={bypassCriteria}
+                                            onChange={(e) => setBypassCriteria(e.target.checked)}
+                                        />
+                                        <div className="flex flex-col gap-0.5 cursor-pointer select-none" onClick={() => setBypassCriteria(!bypassCriteria)}>
+                                            <label htmlFor="bypass-criteria-toggle" className="text-[10px] font-black text-[#094A71] dark:text-blue-400 uppercase tracking-widest cursor-pointer">
+                                                Bypass Criteria (Testing Mode)
+                                            </label>
+                                            <p className="text-[9px] text-slate-500 dark:text-[#929bc9] leading-relaxed font-semibold">
+                                                Instantly publishes to all students in the section even if they do not match the Level {testLevel} requirements.
+                                            </p>
                                         </div>
                                     </div>
                                 </div>
@@ -979,6 +1041,105 @@ const FacilitatorTestLaunch: React.FC = () => {
                 ) : null}
             </div>
 
+            <div className="h-20"></div>
+
+            {previewingText && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#061824]/80 backdrop-blur-sm animate-in fade-in duration-300 p-4">
+                    <div 
+                        className="bg-white dark:bg-card-dark rounded-2xl border-2 border-[#094A71]/25 dark:border-[#094A71]/20 shadow-2xl w-full max-w-2xl overflow-hidden flex flex-col max-h-[90vh] animate-in zoom-in-95 duration-200"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        {/* Modal Header */}
+                        <div className="flex items-center justify-between p-6 border-b border-slate-100 dark:border-[#323b67]/45">
+                            <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 rounded-xl bg-slate-100 dark:bg-[#323b67] bg-cover bg-center border border-slate-200/50 dark:border-[#323b67]/50 shadow-sm" style={{ backgroundImage: `url('${previewingText.coverImg}')` }}></div>
+                                <div>
+                                    <h3 className="text-slate-900 dark:text-white font-black text-lg leading-tight font-heading">{previewingText.title}</h3>
+                                    <p className="text-xs text-slate-500 dark:text-[#929bc9] font-medium mt-0.5">by {previewingText.source} · Level {previewingText.level}</p>
+                                </div>
+                            </div>
+                            <button
+                                type="button"
+                                onClick={() => setPreviewingText(null)}
+                                className="w-8 h-8 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-[#232948] dark:hover:bg-[#323b67] flex items-center justify-center text-slate-500 dark:text-[#929bc9] hover:text-slate-800 dark:hover:text-white transition-all hover-scale active-scale"
+                            >
+                                <span className="material-symbols-outlined text-lg font-black">close</span>
+                            </button>
+                        </div>
+
+                        {/* Modal Body */}
+                        <div className="p-6 flex flex-col gap-5 overflow-y-auto custom-scrollbar">
+                            {/* Stats */}
+                            <div className="flex flex-wrap gap-3">
+                                <span className={`text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full shadow-sm ${
+                                    previewingText.complexity === 'Easy' ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-500/10 dark:text-emerald-400' :
+                                    previewingText.complexity === 'Medium' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-500/10 dark:text-yellow-400' :
+                                    'bg-red-100 text-red-800 dark:bg-red-500/10 dark:text-red-400'
+                                }`}>
+                                    {previewingText.complexity} Complexity
+                                </span>
+                                <span className="text-xs text-slate-500 dark:text-[#929bc9] font-bold bg-slate-50 dark:bg-[#232948] border border-slate-100 dark:border-[#323b67] px-3 py-1 rounded-full flex items-center gap-1.5">
+                                    <span className="material-symbols-outlined text-sm">schedule</span> {previewingText.estimatedTimeMin} min estimated
+                                </span>
+                                <span className="text-xs text-slate-500 dark:text-[#929bc9] font-bold bg-slate-50 dark:bg-[#232948] border border-slate-100 dark:border-[#323b67] px-3 py-1 rounded-full flex items-center gap-1.5">
+                                    <span className="material-symbols-outlined text-sm">segment</span> {previewingText.wordCount} words
+                                </span>
+                            </div>
+
+                            {/* Title & Actions */}
+                            <div className="flex justify-between items-center">
+                                <p className="text-xs font-black text-slate-400 dark:text-[#929bc9] uppercase tracking-widest">Full Test Passage</p>
+                                {previewingText.id === 'lib_tm_10fastfingers' && (
+                                    <button
+                                        type="button"
+                                        onClick={() => setGeneratedDynamicText(generate10FastFingersText(ADVANCED_WORD_POOL, 150))}
+                                        className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold bg-[#094A71]/10 text-[#094A71] hover:bg-[#094A71]/20 rounded-xl transition-all hover-scale active-scale font-heading"
+                                    >
+                                        <span className="material-symbols-outlined text-sm font-black animate-spin-hover">refresh</span>
+                                        Regenerate Word Combo
+                                    </button>
+                                )}
+                            </div>
+
+                            {/* Main Content Area */}
+                            <div className="bg-slate-50 dark:bg-black/25 p-5 rounded-xl border border-slate-100 dark:border-slate-800 overflow-y-auto max-h-60 custom-scrollbar">
+                                <p className="text-sm font-mono text-slate-700 dark:text-[#929bc9] leading-relaxed select-all">
+                                    {previewingText.id === 'lib_tm_10fastfingers' ? generatedDynamicText : previewingText.content}
+                                </p>
+                            </div>
+
+                            {previewingText.id === 'lib_tm_10fastfingers' && (
+                                <div className="flex items-center gap-2 text-[11px] text-slate-400 dark:text-[#929bc9] font-semibold">
+                                    <span className="material-symbols-outlined text-sm text-[#33B974]">info</span>
+                                    <span>Includes capitalized words (~12%) and ALL CAPS words (~6%) to test Shift key mastery!</span>
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Modal Footer */}
+                        <div className="p-6 border-t border-slate-100 dark:border-[#323b67]/45 flex justify-end gap-3 bg-slate-50 dark:bg-black/10">
+                            <button
+                                type="button"
+                                onClick={() => setPreviewingText(null)}
+                                className="px-4 py-2.5 rounded-xl border border-slate-200 dark:border-[#323b67] text-slate-600 dark:text-[#929bc9] hover:bg-slate-100 dark:hover:bg-[#232948] transition-all text-sm font-bold font-heading hover-scale active-scale animate-in fade-in duration-100"
+                            >
+                                Close Preview
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    setSelectedLibraryId(previewingText.id);
+                                    setPreviewingText(null);
+                                }}
+                                className="px-5 py-2.5 rounded-xl bg-[#094A71] hover:bg-[#083e5f] text-white transition-all text-sm font-bold font-heading hover-scale active-scale shadow-md flex items-center gap-1.5"
+                            >
+                                <span className="material-symbols-outlined text-sm">check_circle</span>
+                                Select and Use Test
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
             <div className="h-20"></div>
         </>
     );

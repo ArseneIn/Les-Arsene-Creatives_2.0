@@ -1,5 +1,5 @@
 // Common English words for cumulative word drills
-const WORD_POOL = [
+export const WORD_POOL = [
     "a", "all", "am", "an", "and", "any", "are", "as", "at", "be", "boy", "but", "by",
     "can", "car", "cat", "day", "did", "do", "dog", "eat", "for", "get", "go", "good",
     "had", "has", "have", "he", "her", "him", "his", "how", "I", "if", "in", "is", "it",

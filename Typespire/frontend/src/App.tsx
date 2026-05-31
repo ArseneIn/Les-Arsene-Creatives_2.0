@@ -31,6 +31,7 @@ import { UserProgressProvider } from './context/UserProgressContext';
 import { FacilitatorProvider } from './context/FacilitatorContext';
 import { InstitutionProvider } from './context/InstitutionContext';
 import { AuthProvider } from './context/AuthProvider';
+import { AlertProvider } from './context/AlertContext';
 import StudentHistory from './pages/StudentHistory';
 import StudentPractice from './pages/StudentPractice';
 import StudentTests from './pages/StudentTests';
@@ -54,10 +55,11 @@ function App() {
   return (
     <AuthProvider>
       <AuthLoader>
-        <UserProgressProvider>
-        <InstitutionProvider>
-          <FacilitatorProvider>
-            <BrowserRouter>
+        <AlertProvider>
+          <UserProgressProvider>
+          <InstitutionProvider>
+            <FacilitatorProvider>
+              <BrowserRouter>
               <Routes>
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
@@ -118,6 +120,7 @@ function App() {
           </FacilitatorProvider>
         </InstitutionProvider>
       </UserProgressProvider>
+        </AlertProvider>
       </AuthLoader>
     </AuthProvider>
   );

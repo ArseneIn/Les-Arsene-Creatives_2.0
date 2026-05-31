@@ -24,6 +24,7 @@ export interface Assignment {
     text?: string;           // Custom test text (optional, falls back to system default)
     duration?: number;       // Duration in seconds (optional)
     maxAttempts?: number;    // Number of attempts allowed (optional, defaults to 1)
+    testId?: string;         // Associated test database ID
     facilitatorName?: string; // Display name of assigning facilitator
 }
 

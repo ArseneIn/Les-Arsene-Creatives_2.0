@@ -24,13 +24,13 @@ export class TestResultController {
       accuracy: number;
       duration: number;
       strugglingKeys?: Record<string, number>;
-      testId: string;
+      testId?: string;
       assignmentId?: string;
     },
   ) {
     return this.testResultService.create({
       ...body,
-      userId: req.user.userId,
+      userId: req.user.id,
     });
   }
 

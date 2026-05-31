@@ -22,6 +22,7 @@ export class AssignmentController {
       level?: number;
       duration?: number;
       content?: string;
+      maxAttempts?: number;
     },
     @Request() req: any,
   ) {

@@ -13,6 +13,7 @@ export class AssignmentService {
     level?: number;
     duration?: number;
     content?: string;
+    maxAttempts?: number;
   }) {
     // Create the associated Test
     const test = await this.prisma.test.create({
@@ -31,6 +32,7 @@ export class AssignmentService {
         sectionId: data.sectionId || null,
         studentIds: data.studentIds || [],
         testId: test.id,
+        maxAttempts: data.maxAttempts || 1,
       },
     });
   }

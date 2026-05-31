@@ -107,7 +107,7 @@ export const FacilitatorProvider: React.FC<{ children: ReactNode }> = ({ childre
                     response = await api.get(`/assignment/facilitator/${user.id}`);
                 }
 
-                 if (response && response.data) {
+                  if (response && response.data) {
                     interface DBResponse {
                         id: string;
                         title: string;
@@ -115,10 +115,12 @@ export const FacilitatorProvider: React.FC<{ children: ReactNode }> = ({ childre
                         status: string;
                         sectionId?: string | null;
                         studentIds?: string[];
+                        maxAttempts?: number;
+                        testId?: string | null;
                         test?: {
+                            id: string;
                             duration: number;
                             difficulty: string;
-                            maxAttempts?: number;
                             content: string;
                         };
                     }
@@ -133,7 +135,8 @@ export const FacilitatorProvider: React.FC<{ children: ReactNode }> = ({ childre
                         sectionId: item.sectionId || undefined,
                         studentIds: item.studentIds || [],
                         duration: item.test?.duration,
-                        maxAttempts: item.test?.maxAttempts || 1,
+                        maxAttempts: item.maxAttempts || 1,
+                        testId: item.testId || item.test?.id || undefined,
                         level: item.test?.difficulty === 'HARD' ? 2 : 1,
                         text: item.test?.content
                     }));
@@ -172,10 +175,12 @@ export const FacilitatorProvider: React.FC<{ children: ReactNode }> = ({ childre
                 status: string;
                 sectionId?: string | null;
                 studentIds?: string[];
+                maxAttempts?: number;
+                testId?: string | null;
                 test?: {
+                    id: string;
                     duration: number;
                     difficulty: string;
-                    maxAttempts?: number;
                     content: string;
                 };
             }
@@ -190,7 +195,8 @@ export const FacilitatorProvider: React.FC<{ children: ReactNode }> = ({ childre
                 sectionId: created.sectionId || undefined,
                 studentIds: created.studentIds || [],
                 duration: created.test?.duration,
-                maxAttempts: created.test?.maxAttempts || 1,
+                maxAttempts: created.maxAttempts || 1,
+                testId: created.testId || created.test?.id || undefined,
                 level: created.test?.difficulty === 'HARD' ? 2 : 1,
                 text: created.test?.content
             };

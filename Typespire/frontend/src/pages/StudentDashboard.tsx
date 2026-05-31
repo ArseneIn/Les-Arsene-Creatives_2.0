@@ -81,7 +81,7 @@ const StudentDashboard: React.FC = () => {
     // Initialise countdowns from dueDateISO
     useEffect(() => {
         const initial: Record<string, number> = {};
-        for (const a of activePendingAssignments) {
+        for (const a of allStudentAssignments) {
             if (a.dueDateISO) {
                 const diff = Math.floor((new Date(a.dueDateISO).getTime() - now) / 1000);
                 initial[a.id] = diff;
@@ -89,7 +89,7 @@ const StudentDashboard: React.FC = () => {
         }
         // eslint-disable-next-line react-hooks/set-state-in-effect
         setCountdowns(initial);
-    }, [activePendingAssignments, now]);
+    }, [allStudentAssignments, now]);
 
     // Tick every second
     useEffect(() => {
@@ -215,26 +215,38 @@ const StudentDashboard: React.FC = () => {
                 </header>
 
                 {/* ── Assigned Tests Section ── */}
-                {isStagePassed('stage-capstone') && activePendingAssignments.length > 0 ? (
+                {isStagePassed('stage-capstone') && allStudentAssignments.length > 0 ? (
                     <section>
                         <div className="flex items-center justify-between mb-3">
                             <h2 className="text-base font-bold text-slate-700 dark:text-slate-300 flex items-center gap-2">
                                 <span className="material-symbols-outlined text-[#094A71] text-lg">assignment</span>
                                 Assigned Tests
                                 <span className="ml-1 inline-flex items-center justify-center w-5 h-5 rounded-full bg-[#094A71] text-white text-[10px] font-black">
-                                    {activePendingAssignments.length}
+                                    {allStudentAssignments.filter(a => {
+                                        const attemptsMade = recentResults.filter(r => r.assignmentId === a.id).length;
+                                        return attemptsMade < (a.maxAttempts || 1) && !(a.dueDateISO && new Date(a.dueDateISO).getTime() < now);
+                                    }).length}
                                 </span>
                             </h2>
                             <Link to="/practice" className="text-xs text-[#33B974] font-bold hover:underline">Go to Practice →</Link>
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            {activePendingAssignments.map(assignment => {
+                            {allStudentAssignments.map(assignment => {
                                 const isLevel2 = assignment.level === 2;
                                 const secsLeft = countdowns[assignment.id] ?? null;
-                                // Only lock if dueDateISO exists and time has passed
                                 const isExpired = assignment.dueDateISO
                                     ? new Date(assignment.dueDateISO).getTime() < now
                                     : false;
+                                
+                                const attemptsMade = recentResults.filter(r => r.assignmentId === assignment.id).length;
+                                const maxAttempts = assignment.maxAttempts || 1;
+                                const isCompleted = attemptsMade >= maxAttempts;
+
+                                // Highest performance metric
+                                const assignmentResults = recentResults.filter(r => r.assignmentId === assignment.id);
+                                const bestResult = assignmentResults.length > 0
+                                    ? assignmentResults.reduce((best, curr) => curr.wpm > best.wpm ? curr : best, assignmentResults[0])
+                                    : null;
 
                                 const formatCountdown = (secs: number) => {
                                     if (secs <= 0) return 'Expired';
@@ -254,31 +266,35 @@ const StudentDashboard: React.FC = () => {
                                     <div
                                         key={assignment.id}
                                         className={`relative rounded-2xl border p-5 overflow-hidden flex items-start justify-between gap-4 ${
-                                            isExpired
-                                                ? 'bg-rose-50 dark:bg-rose-500/5 border-rose-200 dark:border-rose-500/30 opacity-80'
-                                                : isLevel2
-                                                    ? 'bg-red-50 dark:bg-red-500/5 border-red-200 dark:border-red-500/20'
-                                                    : 'bg-[#094A71]/5 dark:bg-[#094A71]/10 border-[#094A71]/20'
+                                            isCompleted
+                                                ? 'bg-emerald-50/40 dark:bg-emerald-500/5 border-emerald-200/50 dark:border-emerald-500/10 opacity-90'
+                                                : isExpired
+                                                    ? 'bg-rose-50 dark:bg-rose-500/5 border-rose-200 dark:border-rose-500/30 opacity-80'
+                                                    : isLevel2
+                                                        ? 'bg-red-50 dark:bg-red-500/5 border-red-200 dark:border-red-500/20'
+                                                        : 'bg-[#094A71]/5 dark:bg-[#094A71]/10 border-[#094A71]/20'
                                         }`}
                                     >
-                                        <div className="absolute top-0 right-0 w-24 h-24 rounded-full blur-2xl pointer-events-none opacity-30" style={{ background: isExpired ? '#f43f5e' : isLevel2 ? '#ef4444' : '#094A71' }} />
+                                        <div className="absolute top-0 right-0 w-24 h-24 rounded-full blur-2xl pointer-events-none opacity-30" style={{ background: isCompleted ? '#10b981' : isExpired ? '#f43f5e' : isLevel2 ? '#ef4444' : '#094A71' }} />
                                         <div className="flex items-start gap-3 flex-1 min-w-0">
                                             <div className={`p-2.5 rounded-xl flex-shrink-0 ${
+                                                isCompleted ? 'bg-emerald-100 dark:bg-emerald-500/15 text-emerald-500' :
                                                 isExpired ? 'bg-rose-100 dark:bg-rose-500/15 text-rose-500' :
                                                 isLevel2 ? 'bg-red-100 dark:bg-red-500/15 text-red-500' : 'bg-[#094A71]/10 text-[#094A71]'
                                             }`}>
-                                                <span className="material-symbols-outlined text-xl">{isExpired ? 'lock' : isLevel2 ? 'flash_on' : 'school'}</span>
+                                                <span className="material-symbols-outlined text-xl">{isCompleted ? 'check_circle' : isExpired ? 'lock' : isLevel2 ? 'flash_on' : 'school'}</span>
                                             </div>
                                             <div className="min-w-0">
                                                 <div className="flex items-center gap-2 flex-wrap mb-1">
                                                     <span className={`text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full ${
+                                                        isCompleted ? 'bg-emerald-100 dark:bg-emerald-500/15 text-emerald-600 dark:text-emerald-400' :
                                                         isExpired ? 'bg-rose-100 dark:bg-rose-500/15 text-rose-600 dark:text-rose-400' :
                                                         isLevel2 ? 'bg-red-100 dark:bg-red-500/15 text-red-600 dark:text-red-400' : 'bg-[#094A71]/10 text-[#094A71]'
                                                     }`}>
-                                                        {isExpired ? '🔒 Missing' : isLevel2 ? '⚡ Level 2 — Survival' : '📚 Level 1 — Standard'}
+                                                        {isCompleted ? '✓ Completed' : isExpired ? '🔒 Missing' : isLevel2 ? '⚡ Level 2 — Survival' : '📚 Level 1 — Standard'}
                                                     </span>
                                                     {/* Countdown timer */}
-                                                    {secsLeft !== null && !isExpired && (
+                                                    {secsLeft !== null && !isExpired && !isCompleted && (
                                                         <span className={`text-[9px] font-bold flex items-center gap-0.5 ${
                                                             urgency ? 'text-rose-500 animate-pulse' : 'text-gray-400'
                                                         }`}>
@@ -288,21 +304,34 @@ const StudentDashboard: React.FC = () => {
                                                     )}
                                                     {/* Attempts indicator */}
                                                     {!isExpired && (
-                                                        <span className="text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full inline-block bg-primary/10 text-primary border border-primary/20">
-                                                            {assignment.maxAttempts ? `${assignment.maxAttempts} Attempts` : 'Unlimited Attempts'}
+                                                        <span className={`text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full inline-block ${
+                                                            isCompleted 
+                                                                ? 'bg-emerald-100/60 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20' 
+                                                                : 'bg-primary/10 text-primary border border-primary/20'
+                                                        }`}>
+                                                            {maxAttempts > 1 
+                                                                ? `Attempt ${attemptsMade}/${maxAttempts}` 
+                                                                : `1 Attempt Allowed`}
                                                         </span>
                                                     )}
                                                 </div>
                                                 <h3 className="font-bold text-sm text-[#061824] dark:text-white truncate mb-0.5">{assignment.title}</h3>
                                                 <p className="text-xs text-gray-400">
-                                                    {isExpired
-                                                        ? <span className="text-rose-500 font-semibold">This test has closed. Marked as missing.</span>
-                                                        : <>Assigned by: <span className="font-medium text-gray-500">{assignment.facilitatorName ?? 'Facilitator'}</span></>
+                                                    {isCompleted && bestResult
+                                                        ? <span className="text-emerald-500 font-semibold flex items-center gap-1"><span className="material-symbols-outlined text-[12px]">workspace_premium</span>Best Score: {bestResult.wpm} WPM ({bestResult.accuracy}% Acc)</span>
+                                                        : isExpired
+                                                            ? <span className="text-rose-500 font-semibold">This test has closed. Marked as missing.</span>
+                                                            : <>Assigned by: <span className="font-medium text-gray-500">{assignment.facilitatorName ?? 'Facilitator'}</span></>
                                                     }
                                                 </p>
                                             </div>
                                         </div>
-                                        {isExpired ? (
+                                        {isCompleted ? (
+                                            <span className="flex-shrink-0 flex items-center gap-1.5 px-4 py-2 rounded-xl font-bold text-xs bg-emerald-100 dark:bg-emerald-500/15 text-emerald-500 border border-emerald-500/20 cursor-default">
+                                                <span className="material-symbols-outlined text-sm">done_all</span>
+                                                Finished
+                                            </span>
+                                        ) : isExpired ? (
                                             <span className="flex-shrink-0 flex items-center gap-1.5 px-4 py-2 rounded-xl font-bold text-xs bg-rose-100 dark:bg-rose-500/15 text-rose-500 cursor-not-allowed">
                                                 <span className="material-symbols-outlined text-sm">block</span>
                                                 Missing
@@ -317,7 +346,7 @@ const StudentDashboard: React.FC = () => {
                                                 }`}
                                             >
                                                 <span className="material-symbols-outlined text-sm">play_arrow</span>
-                                                Take Test
+                                                {attemptsMade > 0 ? 'Retake Test' : 'Take Test'}
                                             </Link>
                                         )}
                                     </div>

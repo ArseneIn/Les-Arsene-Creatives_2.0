@@ -6,7 +6,8 @@ import { useAuth } from '../context/AuthContext';
 import { useFacilitator } from '../context/FacilitatorContext';
 import { TypingArea } from '../components/TypingTest/TypingArea';
 import { PracticeTypingArea } from '../components/TypingTest/PracticeTypingArea';
-import { PRACTICE_STAGES_MAP, PRACTICE_STAGES } from '../data/practiceModules';
+import { PRACTICE_STAGES_MAP, PRACTICE_STAGES, WORD_POOL } from '../data/practiceModules';
+import { ADVANCED_WORD_POOL, generate10FastFingersText } from '../data/advancedWordPool';
 import StageCelebration from '../components/Practice/StageCelebration';
 
 // ─── Level 2 complex mixed-case passage ──────────────────────────────────────
@@ -15,9 +16,29 @@ const LEVEL2_TEXT = "The Quick brown fox ran past Mary Johnson's garden, leaving
 // ─── Level 1 default passage ─────────────────────────────────────────────────
 const LEVEL1_TEXT = "The rapid development of digital communication has transformed how we share information. Mastering the keyboard is a fundamental skill for academic and professional success. Students who practice consistently achieve both speed and precision, giving them a critical advantage in every field they pursue. Accuracy builds the foundation; speed follows with dedication and daily effort.";
 
+interface TestConfig {
+    text: string;
+    duration: number;
+    title: string;
+    level: 1 | 2;
+    stageId?: string;
+    assignmentId?: string;
+    testId?: string;
+    practiceType?: string;
+}
+
+interface PracticeStageType {
+    id: string;
+    title: string;
+    generateText?: () => string;
+    practiceText?: string;
+    duration: number;
+    practiceType?: string;
+}
+
 const TypingTest: React.FC = () => {
     const [searchParams] = useSearchParams();
-    const { saveResult, isStagePassed, getBenchmark, updateKeyStats, stats, stageResults } = useUserProgress();
+    const { saveResult, isStagePassed, getBenchmark, updateKeyStats, stats, stageResults, recentResults } = useUserProgress();
     const { user } = useAuth();
     const { submitTestResult, assignments } = useFacilitator();
     const navigate = useNavigate();
@@ -32,6 +53,17 @@ const TypingTest: React.FC = () => {
     // Practice and personalized drill modes are untimed
     const isPractice = mode === 'practice' || mode === 'drill';
 
+    // Calculate if attempts are exhausted
+    const isAttemptsExhausted = useMemo(() => {
+        if (!assignmentId) return false;
+        const assignment = assignments.find(a => a.id === assignmentId);
+        if (!assignment) return false;
+        
+        const attemptsMade = recentResults.filter(r => r.assignmentId === assignmentId).length;
+        const maxAttempts = assignment.maxAttempts || 1;
+        return attemptsMade >= maxAttempts;
+    }, [assignmentId, assignments, recentResults]);
+
     // ── Security check: Must pass Stage capstone for formal tests ────────────────
     useEffect(() => {
         if (!isPractice && !isStagePassed('stage-capstone')) {
@@ -43,19 +75,18 @@ const TypingTest: React.FC = () => {
 
     useEffect(() => {
         if (mode === 'random' && !randomSprintText) {
-            const baseText = testLevel === '2' ? LEVEL2_TEXT : LEVEL1_TEXT;
-            const words = baseText.split(/\s+/).filter(w => w.length > 0);
-            for (let i = words.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [words[i], words[j]] = [words[j], words[i]];
+            let generated = '';
+            if (testLevel === '2') {
+                generated = generate10FastFingersText(ADVANCED_WORD_POOL, 150);
+            } else {
+                generated = generate10FastFingersText(WORD_POOL, 150).toLowerCase();
             }
-            // eslint-disable-next-line react-hooks/set-state-in-effect
-            setRandomSprintText(words.join(' '));
+            setRandomSprintText(generated);
         }
     }, [mode, testLevel, randomSprintText]);
 
     // ── Resolve test configuration ─────────────────────────────────────────
-    const testConfig = useMemo(() => {
+    const testConfig = useMemo((): TestConfig => {
         // Facilitator-assigned test
         if (assignmentId) {
             const assignment = assignments.find(a => a.id === assignmentId);
@@ -66,6 +97,8 @@ const TypingTest: React.FC = () => {
                     title: assignment.title ?? 'Assigned Test',
                     level: (assignment.level ?? 1) as 1 | 2,
                     stageId: undefined,
+                    assignmentId: assignment.id,
+                    testId: assignment.testId || undefined,
                 };
             }
         }
@@ -77,37 +110,37 @@ const TypingTest: React.FC = () => {
                 duration: 60,
                 title: customTitle || `Level ${testLevel} Random Sprint`,
                 level: (testLevel === '2' ? 2 : 1) as 1 | 2,
-                stageId: undefined
+                stageId: undefined,
+                assignmentId: undefined,
+                testId: undefined
             };
         }
 
         // Level 2 survival test (fallback for older links)
         if (testLevel === '2') {
-            return { text: LEVEL2_TEXT, duration: 60, title: 'Level 2 — Survival Speedrun', level: 2 as const, stageId: undefined };
+            return { text: LEVEL2_TEXT, duration: 60, title: 'Level 2 — Survival Speedrun', level: 2 as const, stageId: undefined, assignmentId: undefined, testId: undefined };
         }
 
         // Personalized drill from custom text
         if (customText) {
             const level = (stats?.level >= 2 ? 2 : 1) as 1 | 2;
-            return { text: decodeURIComponent(customText), duration: 60, title: 'Personalized Key Drill', level, stageId: undefined };
+            return { text: decodeURIComponent(customText), duration: 60, title: 'Personalized Key Drill', level, stageId: undefined, assignmentId: undefined, testId: undefined };
         }
 
         // Progressive practice stage
         if (stageId && PRACTICE_STAGES_MAP[stageId]) {
-            // Use 'any' cast to allow for graceful fallback if HMR caches the old interface
-            const stage = PRACTICE_STAGES_MAP[stageId] as any;
+            const stage = PRACTICE_STAGES_MAP[stageId] as unknown as PracticeStageType;
             const level = (stats?.level >= 2 ? 2 : 1) as 1 | 2;
             
-            // Fallback to old 'practiceText' or an error message if the browser failed to hot-reload the data module
             const text = typeof stage.generateText === 'function' 
                 ? stage.generateText() 
                 : (stage.practiceText || "Please do a Hard Refresh (Ctrl+Shift+R) to load the new curriculum data.");
                 
-            return { text, duration: stage.duration, title: stage.title, level, stageId, practiceType: stage.practiceType || 'words' };
+            return { text, duration: stage.duration, title: stage.title, level, stageId, practiceType: stage.practiceType || 'words', assignmentId: undefined, testId: undefined };
         }
 
         // Default Level 1 standard test
-        return { text: LEVEL1_TEXT, duration: 120, title: 'Level 1 — Standard Proficiency Test', level: 1 as const, stageId: undefined };
+        return { text: LEVEL1_TEXT, duration: 120, title: 'Level 1 — Standard Proficiency Test', level: 1 as const, stageId: undefined, assignmentId: undefined, testId: undefined };
     }, [stageId, assignmentId, testLevel, customText, assignments, mode, customTitle, stats?.level, randomSprintText]);
 
     const isLevel2 = testConfig.level === 2;
@@ -115,7 +148,7 @@ const TypingTest: React.FC = () => {
     const formattedTargetText = useMemo(() => {
         if (!isPractice) return testConfig.text;
         // The curriculum generator now handles formatting. We simply ensure it's clean and space-separated.
-        const words = testConfig.text.split(/\s+/).filter(w => w.length > 0);
+        const words = testConfig.text.split(/\s+/).filter((w: string) => w.length > 0);
         return words.join(' ');
     }, [testConfig.text, isPractice]);
 
@@ -132,12 +165,12 @@ const TypingTest: React.FC = () => {
     const [confettiPieces, setConfettiPieces] = useState<ConfettiPiece[]>([]);
     const [showStageCelebration, setShowStageCelebration] = useState(false);
     const lastKeyBreakdown = useRef<Record<string, { hits: number; misses: number }>>({});
+    const [keyBreakdownState, setKeyBreakdownState] = useState<Record<string, { hits: number; misses: number }>>({});
     const prevBestWpm = testConfig.stageId ? (stageResults[testConfig.stageId]?.bestWpm ?? 0) : 0;
     const wasAlreadyPassed = testConfig.stageId ? (stageResults[testConfig.stageId]?.passed ?? false) : false;
 
     useEffect(() => {
         if (showConfetti && confettiPieces.length === 0) {
-            // eslint-disable-next-line react-hooks/set-state-in-effect
             setConfettiPieces(Array.from({ length: 50 }).map((_, i) => ({
                 id: i,
                 left: `${Math.random() * 100}%`,
@@ -155,9 +188,9 @@ const TypingTest: React.FC = () => {
         strugglingKeys, startTest, handleInputChange, lastErrorIndex
     } = useTypingEngine({
         targetText: formattedTargetText,
-        duration: (testConfig as any).duration ?? 120,
-        untimed: isPractice || (testConfig as any).duration === 0,
-        strict: (testConfig as any).practiceType === 'letters' || (testConfig as any).practiceType === 'falling',
+        duration: testConfig.duration ?? 120,
+        untimed: isPractice || testConfig.duration === 0,
+        strict: testConfig.practiceType === 'letters' || testConfig.practiceType === 'falling',
         onFinish: (results) => {
             // Build per-key stats for heatmap
             const keyBreakdown: Record<string, { hits: number; misses: number }> = {};
@@ -170,6 +203,7 @@ const TypingTest: React.FC = () => {
                 else keyBreakdown[key].misses++;
             }
             lastKeyBreakdown.current = keyBreakdown;
+            setKeyBreakdownState(keyBreakdown);
             updateKeyStats(keyBreakdown);
 
             saveResult({
@@ -180,6 +214,8 @@ const TypingTest: React.FC = () => {
                 strugglingKeys: results.strugglingKeys,
                 stageId: testConfig.stageId,
                 testLevel: testConfig.level,
+                assignmentId: testConfig.assignmentId,
+                testId: testConfig.testId,
             });
 
             if (user?.id) submitTestResult(user.id, results.wpm, results.accuracy);
@@ -209,6 +245,9 @@ const TypingTest: React.FC = () => {
 
     const handleStart = () => {
         setShowConfetti(false);
+        if (mode === 'random') {
+            setRandomSprintText('');
+        }
         setIsCountingDown(true);
         setCountdown(3);
         const interval = setInterval(() => {
@@ -235,8 +274,57 @@ const TypingTest: React.FC = () => {
             {/* Background */}
             <div className="fixed inset-0 -z-30 bg-background-light dark:bg-background-dark transition-colors duration-200" />
 
+            {/* ── ATTEMPTS EXHAUSTED OVERLAY ── */}
+            {isAttemptsExhausted && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#061824]/90 backdrop-blur-md">
+                    <div className="bg-white dark:bg-[#0b1e2d] p-10 rounded-3xl shadow-2xl max-w-md w-full text-center border border-red-500/20 animate-in fade-in zoom-in duration-300">
+                        <div className="inline-flex h-20 w-20 items-center justify-center rounded-full mb-6 bg-red-500/10 text-red-500">
+                            <span className="material-symbols-outlined text-5xl">lock</span>
+                        </div>
+                        <h2 className="text-2xl font-black mb-2 text-[#061824] dark:text-white">Attempts Exhausted</h2>
+                        <p className="text-gray-500 dark:text-gray-400 mb-6 text-sm">
+                            You have completed all allowed attempts for this test assignment.
+                        </p>
+                        
+                        {(() => {
+                            const assignmentResults = recentResults.filter(r => r.assignmentId === assignmentId);
+                            const bestResult = assignmentResults.length > 0
+                                ? assignmentResults.reduce((best, curr) => curr.wpm > best.wpm ? curr : best, assignmentResults[0])
+                                : null;
+                            if (!bestResult) return null;
+                            return (
+                                <div className="bg-slate-50 dark:bg-[#06141f] border border-gray-100 dark:border-white/5 rounded-2xl p-5 mb-6 text-left">
+                                    <h4 className="text-xs font-bold text-gray-500 dark:text-gray-300 uppercase tracking-wider mb-3 flex items-center gap-1">
+                                        <span className="material-symbols-outlined text-sm text-[#33B974]">workspace_premium</span>
+                                        Your Best Performance
+                                    </h4>
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div className="p-3 bg-white dark:bg-white/5 border border-gray-100 dark:border-slate-800 rounded-xl">
+                                            <p className="text-[10px] text-gray-400 mb-0.5 uppercase">Speed</p>
+                                            <p className="text-2xl font-bold text-[#33B974] font-mono">{bestResult.wpm} <span className="text-xs font-semibold">WPM</span></p>
+                                        </div>
+                                        <div className="p-3 bg-white dark:bg-white/5 border border-gray-100 dark:border-slate-800 rounded-xl">
+                                            <p className="text-[10px] text-gray-400 mb-0.5 uppercase">Accuracy</p>
+                                            <p className="text-2xl font-bold text-[#33B974] font-mono">{bestResult.accuracy}%</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            );
+                        })()}
+
+                        <button
+                            onClick={() => navigate('/')}
+                            className="w-full py-3.5 rounded-xl bg-[#094A71] hover:bg-[#094A71]/95 text-white font-bold text-sm transition-all shadow-md flex items-center justify-center gap-2"
+                        >
+                            <span className="material-symbols-outlined text-sm">dashboard</span>
+                            Return to Dashboard
+                        </button>
+                    </div>
+                </div>
+            )}
+
             {/* ── START OVERLAY ── */}
-            {!started && !isFinished && !isCountingDown && (
+            {!isAttemptsExhausted && !started && !isFinished && !isCountingDown && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#061824]/85 backdrop-blur-sm">
                     <div className="bg-white dark:bg-[#0b1e2d] p-8 rounded-3xl shadow-2xl max-w-md w-full text-center border border-white/5 relative overflow-hidden transition-all duration-300">
                         {/* Level badge */}
@@ -361,7 +449,7 @@ const TypingTest: React.FC = () => {
                             stageName: testConfig.title, nextStageId,
                             isPractice, isLevel2, prevBestWpm,
                             isNewStagePassed: true,
-                            keyBreakdown: lastKeyBreakdown.current,
+                            keyBreakdown: keyBreakdownState,
                             assignmentId, testTitle: testConfig.title,
                         }});
                     }}
@@ -425,6 +513,41 @@ const TypingTest: React.FC = () => {
                                 <p className="text-[10px] text-gray-400">Goal: {benchmark.accuracy}%</p>
                             </div>
                         </div>
+
+                        {/* Assignment attempt info */}
+                        {(() => {
+                            if (!assignmentId) return null;
+                            const assignment = assignments.find(a => a.id === assignmentId);
+                            if (!assignment) return null;
+                            const maxAttempts = assignment.maxAttempts || 1;
+                            const prevAttempts = recentResults.filter(r => r.assignmentId === assignmentId).length;
+                            // This current run is the (prevAttempts + 1)th attempt
+                            const currentAttemptNumber = Math.min(maxAttempts, prevAttempts + 1);
+                            const remaining = Math.max(0, maxAttempts - currentAttemptNumber);
+
+                            return (
+                                <div className="mb-5 p-3.5 rounded-xl border border-[#094A71]/20 bg-[#094A71]/5 dark:bg-[#094A71]/10 text-left">
+                                    <div className="flex items-center gap-2 mb-1">
+                                        <span className="material-symbols-outlined text-[#094A71] text-lg">info</span>
+                                        <h4 className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wide">Assignment Evaluation</h4>
+                                    </div>
+                                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                                        You completed attempt <span className="font-bold text-[#094A71]">{currentAttemptNumber}</span> out of <span className="font-bold text-slate-600 dark:text-slate-200">{maxAttempts}</span>.
+                                    </p>
+                                    {remaining > 0 ? (
+                                        <p className="text-[10px] text-[#33B974] font-semibold mt-1 flex items-center gap-0.5">
+                                            <span className="material-symbols-outlined text-xs">check_circle</span>
+                                            {remaining} {remaining === 1 ? 'attempt' : 'attempts'} remaining if you want to try for a higher score!
+                                        </p>
+                                    ) : (
+                                        <p className="text-[10px] text-rose-500 font-semibold mt-1 flex items-center gap-0.5 animate-pulse">
+                                            <span className="material-symbols-outlined text-xs text-rose-500">lock</span>
+                                            Maximum attempts reached. No more retakes allowed.
+                                        </p>
+                                    )}
+                                </div>
+                            );
+                        })()}
 
                         {Object.keys(strugglingKeys).length > 0 && (
                             <div className="mb-5 text-left">
