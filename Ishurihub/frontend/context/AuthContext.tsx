@@ -28,7 +28,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 setToken(storedToken);
                 try {
                     // Verify token and get user details
-                    const response = await api.get('/auth/profile'); 
+                    const response = await api.get('/auth/profile');
                     const fetchedUser = response.data;
 
                     // Hydrate role
@@ -48,8 +48,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                     // Keep storage synced
                     localStorage.setItem("ishurihub_user", JSON.stringify(fetchedUser));
 
-                } catch (error) {
-                    console.error("Auth initialization failed", error);
+                } catch {
+                    console.warn("Auth initialization failed: Invalid or expired token");
                     localStorage.removeItem("ishurihub_token");
                     localStorage.removeItem("ishurihub_user");
                     setToken(null);
@@ -63,7 +63,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const login = async (email: string, password?: string): Promise<string | null> => {
         try {
-            const response = await api.post('/auth/login', { email, password }); 
+            const response = await api.post('/auth/login', { email, password });
             const { access_token, user: loggedInUser } = response.data;
 
             // Hydrate role

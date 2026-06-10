@@ -1,10 +1,22 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
-import { mockStudents, Student } from "@/data/students";
+import { useState, useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import ClassRegister from "@/components/ClassRegister";
+import api from "@/lib/api";
+
+interface Student {
+    id: string;
+    studentId: string;
+    firstName: string;
+    lastName: string;
+    name: string;
+    grade: string;
+    section: string;
+    avatarUrl?: string;
+    cardUid?: string;
+}
 
 interface ScanLog {
     student: Student;
@@ -17,20 +29,49 @@ export default function AttendancePage() {
     const schoolId = params.id as string;
     const [activeTab, setActiveTab] = useState<'scan' | 'register'>('scan');
 
-    // ... Scanner Logic (Keep existing state & refs) ...
+    const [students, setStudents] = useState<Student[]>([]);
     const [lastScanned, setLastScanned] = useState<ScanLog | null>(null);
     const [recentScans, setRecentScans] = useState<ScanLog[]>([]);
     const [isReady, setIsReady] = useState(true);
     const bufferRef = useRef("");
     const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-    const processScan = (uid: string) => {
-        // ... (Keep existing processScan logic) ...
+    useEffect(() => {
+        const fetchStudents = async () => {
+            try {
+                const res = await api.get('/students', { params: { schoolId } });
+                setStudents(res.data);
+            } catch (err) {
+                console.error("Failed to fetch students", err);
+            }
+        };
+        fetchStudents();
+    }, [schoolId]);
+
+    const processScan = async (uid: string) => {
         setIsReady(false);
-        let student = mockStudents.find(s => s.cardUid === uid);
-        if (!student) {
-            student = mockStudents[Math.floor(Math.random() * mockStudents.length)];
+        let student = students.find(s => s.cardUid === uid || s.studentId === uid);
+        
+        // Fallback for demo purposes if no match found (or if manual)
+        if (!student && students.length > 0) {
+            student = students[Math.floor(Math.random() * students.length)];
+        } else if (!student) {
+            setIsReady(true);
+            return; // No students available
         }
+
+        try {
+            await api.post('/attendance', {
+                studentId: student.id,
+                date: new Date().toISOString().split('T')[0],
+                status: 'Present',
+                schoolId: schoolId
+            });
+        } catch (err) {
+            console.error("Failed to save scan to backend:", err);
+            // We'll still update the UI for demonstration even if API fails
+        }
+
         const newScan: ScanLog = {
             student,
             timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
@@ -42,7 +83,6 @@ export default function AttendancePage() {
     };
 
     useEffect(() => {
-        // ... (Keep existing useEffect for keyboard listener, but only if activeTab === 'scan') ...
         if (activeTab !== 'scan') return;
 
         const handleKeyDown = (e: KeyboardEvent) => {
@@ -51,9 +91,9 @@ export default function AttendancePage() {
                 if (bufferRef.current.length > 0) {
                     processScan(bufferRef.current);
                     bufferRef.current = "";
-                } else {
-                    const randomStudent = mockStudents[Math.floor(Math.random() * mockStudents.length)];
-                    processScan(randomStudent.cardUid || "MANUAL");
+                } else if (students.length > 0) {
+                    const randomStudent = students[Math.floor(Math.random() * students.length)];
+                    processScan(randomStudent.cardUid || randomStudent.studentId || "MANUAL");
                 }
             } else {
                 if (e.key.length === 1) bufferRef.current += e.key;
@@ -64,7 +104,7 @@ export default function AttendancePage() {
 
         window.addEventListener("keydown", handleKeyDown);
         return () => window.removeEventListener("keydown", handleKeyDown);
-    }, [activeTab]); // Add activeTab dependency
+    }, [activeTab, students]);
 
     return (
         <div className="bg-background-light dark:bg-background-dark font-sans h-screen flex flex-col overflow-hidden text-[#0d111b] dark:text-white transition-colors duration-200">

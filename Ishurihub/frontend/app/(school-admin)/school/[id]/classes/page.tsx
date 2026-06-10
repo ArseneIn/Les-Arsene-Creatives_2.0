@@ -28,12 +28,6 @@ interface CreateClassFormData {
     level: string;
 }
 
-interface RandomizeFormData {
-    year: string;
-    numberOfStreams: number;
-    streamNames: string; // Comma separated
-}
-
 interface SchoolProfile {
     combinations?: { name: string; isActive: boolean }[];
 }
@@ -41,62 +35,64 @@ interface SchoolProfile {
 const O_LEVEL_YEARS = ['S1', 'S2', 'S3'];
 const A_LEVEL_YEARS = ['S4', 'S5', 'S6'];
 
-const ClassCard = ({ cls, onDelete, onEdit, onSync, onClick }: { cls: Classroom, onDelete: (id: string) => void, onEdit: (cls: Classroom) => void, onSync: (id: string) => void, onClick: () => void }) => (
-    <div onClick={onClick} className="bg-white dark:bg-white/5 p-4 rounded-xl border border-gray-200 dark:border-white/10 shadow-sm hover:shadow-md hover:border-primary/50 cursor-pointer transition-all group relative">
-        <div className="flex gap-2 absolute top-4 right-4 z-10 opacity-0 group-hover:opacity-100 transition-all">
-            <button
-                onClick={(e) => {
-                    e.stopPropagation();
-                    onSync(cls.id);
-                }}
-                className="p-1.5 text-gray-400 hover:text-green-500 hover:bg-green-50 dark:hover:bg-green-900/20 rounded-md transition-all"
-                title="Sync Students (Fix mismatch)"
-            >
-                <span className="material-symbols-outlined text-[20px]">sync</span>
-            </button>
-            <button
-                onClick={(e) => {
-                    e.stopPropagation();
-                    onEdit(cls);
-                }}
-                className="p-1.5 text-gray-400 hover:text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-md transition-all"
-                title="Edit Class"
-            >
-                <span className="material-symbols-outlined text-[20px]">edit</span>
-            </button>
-            <button
-                onClick={(e) => {
-                    e.stopPropagation();
-                    if (confirm('Are you sure you want to delete this class?')) {
-                        onDelete(cls.id);
-                    }
-                }}
-                className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-md transition-all"
-                title="Delete Class"
-            >
-                <span className="material-symbols-outlined text-[20px]">delete</span>
-            </button>
-        </div>
-
-        <div className="flex items-start justify-between mb-3">
-            <div className={`size-10 rounded-full flex items-center justify-center ${cls.level === 'A-Level' ? 'bg-purple-100 text-purple-600 dark:bg-purple-900/20 dark:text-purple-400' : 'bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400'}`}>
-                <span className="material-symbols-outlined">meeting_room</span>
+const ClassCard = ({ cls, onDelete, onEdit, onSync, onClick }: { cls: Classroom, onDelete: (id: string) => void, onEdit: (cls: Classroom) => void, onSync: (id: string) => void, onClick: () => void }) => {
+    const isOLevel = cls.level === 'O-Level';
+    const hoverBg = isOLevel ? 'hover:bg-blue-600 dark:hover:bg-blue-600' : 'hover:bg-purple-600 dark:hover:bg-purple-600';
+    const hoverBorder = isOLevel ? 'hover:border-blue-600' : 'hover:border-purple-600';
+    
+    return (
+        <div onClick={onClick} className={`bg-white dark:bg-[#1e2538] p-5 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm ${hoverBg} ${hoverBorder} cursor-pointer transition-all duration-300 group relative overflow-hidden`}>
+            
+            {/* Hover Actions - Absolute positioned, now with light colors since bg is dark */}
+            <div className="flex gap-2 absolute top-4 right-4 z-10 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-2 group-hover:translate-y-0">
+                <button
+                    onClick={(e) => { e.stopPropagation(); onSync(cls.id); }}
+                    className="p-1.5 text-white/70 hover:text-white hover:bg-white/20 rounded-md transition-all"
+                    title="Sync Students"
+                >
+                    <span className="material-symbols-outlined text-[20px]">sync</span>
+                </button>
+                <button
+                    onClick={(e) => { e.stopPropagation(); onEdit(cls); }}
+                    className="p-1.5 text-white/70 hover:text-white hover:bg-white/20 rounded-md transition-all"
+                    title="Edit Class"
+                >
+                    <span className="material-symbols-outlined text-[20px]">edit</span>
+                </button>
+                <button
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        if (confirm('Are you sure you want to delete this class?')) onDelete(cls.id);
+                    }}
+                    className="p-1.5 text-white/70 hover:text-white hover:bg-white/20 rounded-md transition-all"
+                    title="Delete Class"
+                >
+                    <span className="material-symbols-outlined text-[20px]">delete</span>
+                </button>
             </div>
-            <span className="px-2 py-1 rounded bg-gray-100 dark:bg-white/10 text-xs font-bold text-gray-600 dark:text-gray-300">
-                {cls.year}
-            </span>
-        </div>
-        <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-1">{cls.name}</h3>
-        <p className="text-sm text-gray-500 dark:text-gray-400 mb-3">
-            {cls.level} • {cls.level === 'A-Level' ? 'Combination' : 'Stream'} {cls.stream} • {(cls._count?.students || cls.studentCount || 0)} Students
-        </p>
 
-        <div className="flex items-center gap-2 text-xs text-primary font-medium group-hover:underline">
-            <span>View Students</span>
-            <span className="material-symbols-outlined text-[14px]">arrow_forward</span>
+            <div className="flex items-start justify-between mb-4">
+                <div className={`size-12 rounded-full flex items-center justify-center transition-colors ${isOLevel ? 'bg-blue-50 text-blue-600 group-hover:bg-white/20 group-hover:text-white' : 'bg-purple-50 text-purple-600 group-hover:bg-white/20 group-hover:text-white'}`}>
+                    <span className="material-symbols-outlined text-2xl">meeting_room</span>
+                </div>
+                {/* Class Tag - Fades out on hover to prevent interference with buttons */}
+                <span className="px-3 py-1 rounded-full bg-gray-100 dark:bg-white/5 text-xs font-bold text-gray-600 dark:text-gray-300 group-hover:opacity-0 transition-opacity duration-300">
+                    {cls.year}
+                </span>
+            </div>
+
+            <h3 className="text-xl font-black text-gray-900 dark:text-white group-hover:text-white transition-colors mb-1">{cls.name}</h3>
+            <p className="text-sm font-medium text-gray-500 dark:text-gray-400 group-hover:text-white/80 transition-colors mb-4">
+                {cls.level} • {isOLevel ? 'Stream' : 'Combination'} {cls.stream} • {(cls._count?.students || cls.studentCount || 0)} Students
+            </p>
+
+            <div className="flex items-center gap-2 text-sm font-bold transition-colors mt-auto pt-4 border-t border-gray-100 dark:border-gray-800 group-hover:border-white/20 text-gray-400 group-hover:text-white">
+                <span>View Students</span>
+                <span className="material-symbols-outlined text-[16px] group-hover:translate-x-1 transition-transform">arrow_forward</span>
+            </div>
         </div>
-    </div>
-);
+    );
+};
 
 export default function ClassesPage() {
     const [classes, setClasses] = useState<Classroom[]>([]);
@@ -129,8 +125,8 @@ export default function ClassesPage() {
                 const res = await api.get('/academic-years', { params: { schoolId } });
                 const active = res.data.find((y: { isActive: boolean }) => y.isActive);
                 setAcademicYear(active);
-            } catch (err) {
-                console.error("Failed to fetch academic year");
+            } catch (error) {
+                console.error("Failed to fetch academic year", error);
             }
         };
         if (schoolId) fetchActiveYear();
@@ -232,9 +228,9 @@ export default function ClassesPage() {
             setIsAddModalOpen(false);
             resetAdd();
             setEditingClass(null);
-        } catch (error: any) {
+        } catch (error) {
             console.error("Failed to save class:", error);
-            alert(error?.response?.data?.message || "Failed to save class");
+            alert((error as any)?.response?.data?.message || "Failed to save class");
         }
     };
 
@@ -294,54 +290,56 @@ export default function ClassesPage() {
                 ) : (
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                         {/* O-Level Column */}
-                        <div className="space-y-4">
-                            <div className="flex items-center justify-between border-b border-gray-200 dark:border-gray-700 pb-2">
-                                <h2 className="text-xl font-bold flex items-center gap-2 text-gray-800 dark:text-white">
-                                    <span className="material-symbols-outlined text-primary">school</span>
+                        <div className="bg-blue-50/50 dark:bg-blue-900/10 p-6 rounded-3xl border border-blue-100 dark:border-blue-900/30 space-y-4">
+                            <div className="flex items-center justify-between border-b border-blue-200 dark:border-blue-800/50 pb-3 mb-2">
+                                <h2 className="text-xl font-black flex items-center gap-2 text-blue-900 dark:text-blue-100 tracking-tight">
+                                    <span className="material-symbols-outlined text-blue-600 dark:text-blue-400">school</span>
                                     O-Level (S1-S3)
                                 </h2>
-                                <button
-                                    onClick={() => openAddModal('O-Level')}
-                                    className="px-3 py-1.5 text-xs font-bold text-primary bg-primary/10 hover:bg-primary/20 rounded-lg transition-colors flex items-center gap-1"
-                                >
-                                    <span className="material-symbols-outlined text-[14px]">add</span>
-                                    Add Class
-                                </button>
                             </div>
 
                             <div className="grid grid-cols-1 gap-4">
                                 {classes.filter(c => c.level === 'O-Level').map(cls => (
                                     <ClassCard key={cls.id} cls={cls} onDelete={handleDeleteClass} onEdit={openEditModal} onSync={handleSyncClass} onClick={() => setSelectedClass(cls)} />
                                 ))}
-                                {classes.filter(c => c.level === 'O-Level').length === 0 && (
-                                    <p className="text-gray-400 italic text-sm">No O-Level classes.</p>
-                                )}
+                                
+                                {/* Add New Class Card */}
+                                <button
+                                    onClick={() => openAddModal('O-Level')}
+                                    className="flex flex-col items-center justify-center p-6 rounded-xl border-2 border-dashed border-blue-300 dark:border-blue-700/50 bg-transparent hover:bg-blue-100 dark:hover:bg-blue-900/40 text-blue-600 dark:text-blue-400 transition-all hover:scale-[1.02] group"
+                                >
+                                    <div className="p-3 bg-blue-100 dark:bg-blue-900/30 rounded-full mb-2 group-hover:scale-110 transition-transform">
+                                        <span className="material-symbols-outlined text-2xl">add</span>
+                                    </div>
+                                    <span className="font-bold text-sm">Add New O-Level Class</span>
+                                </button>
                             </div>
                         </div>
 
                         {/* A-Level Column */}
-                        <div className="space-y-4">
-                            <div className="flex items-center justify-between border-b border-gray-200 dark:border-gray-700 pb-2">
-                                <h2 className="text-xl font-bold flex items-center gap-2 text-gray-800 dark:text-white">
-                                    <span className="material-symbols-outlined text-purple-500">science</span>
+                        <div className="bg-purple-50/50 dark:bg-purple-900/10 p-6 rounded-3xl border border-purple-100 dark:border-purple-900/30 space-y-4">
+                            <div className="flex items-center justify-between border-b border-purple-200 dark:border-purple-800/50 pb-3 mb-2">
+                                <h2 className="text-xl font-black flex items-center gap-2 text-purple-900 dark:text-purple-100 tracking-tight">
+                                    <span className="material-symbols-outlined text-purple-600 dark:text-purple-400">science</span>
                                     A-Level (S4-S6)
                                 </h2>
-                                <button
-                                    onClick={() => openAddModal('A-Level')}
-                                    className="px-3 py-1.5 text-xs font-bold text-purple-600 bg-purple-100 hover:bg-purple-200 dark:bg-purple-900/20 dark:text-purple-400 dark:hover:bg-purple-900/30 rounded-lg transition-colors flex items-center gap-1"
-                                >
-                                    <span className="material-symbols-outlined text-[14px]">add</span>
-                                    Add Class
-                                </button>
                             </div>
 
                             <div className="grid grid-cols-1 gap-4">
                                 {classes.filter(c => c.level === 'A-Level').map(cls => (
                                     <ClassCard key={cls.id} cls={cls} onDelete={handleDeleteClass} onEdit={openEditModal} onSync={handleSyncClass} onClick={() => setSelectedClass(cls)} />
                                 ))}
-                                {classes.filter(c => c.level === 'A-Level').length === 0 && (
-                                    <p className="text-gray-400 italic text-sm">No A-Level classes.</p>
-                                )}
+                                
+                                {/* Add New Class Card */}
+                                <button
+                                    onClick={() => openAddModal('A-Level')}
+                                    className="flex flex-col items-center justify-center p-6 rounded-xl border-2 border-dashed border-purple-300 dark:border-purple-700/50 bg-transparent hover:bg-purple-100 dark:hover:bg-purple-900/40 text-purple-600 dark:text-purple-400 transition-all hover:scale-[1.02] group"
+                                >
+                                    <div className="p-3 bg-purple-100 dark:bg-purple-900/30 rounded-full mb-2 group-hover:scale-110 transition-transform">
+                                        <span className="material-symbols-outlined text-2xl">add</span>
+                                    </div>
+                                    <span className="font-bold text-sm">Add New A-Level Class</span>
+                                </button>
                             </div>
                         </div>
                     </div>

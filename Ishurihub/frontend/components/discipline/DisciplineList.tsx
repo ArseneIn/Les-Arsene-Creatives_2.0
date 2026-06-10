@@ -42,7 +42,7 @@ export default function DisciplineList({ records }: DisciplineListProps) {
                             <th className="px-6 py-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Date</th>
                             <th className="px-6 py-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Student</th>
                             <th className="px-6 py-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Type</th>
-                            <th className="px-6 py-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Category</th>
+                            <th className="px-6 py-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Rule / Mistake</th>
                             <th className="px-6 py-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Description</th>
                             <th className="px-6 py-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Action / Points</th>
                         </tr>

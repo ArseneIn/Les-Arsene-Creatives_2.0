@@ -82,6 +82,13 @@
 
   --color-background-light: var(--color-space-indigo-50);
   --color-background-dark: var(--color-space-indigo-950);
+
+  /* Global Boldness Reduction */
+  --font-weight-medium: 400;
+  --font-weight-semibold: 500;
+  --font-weight-bold: 600;
+  --font-weight-extrabold: 700;
+  --font-weight-black: 800;
 }
 
 

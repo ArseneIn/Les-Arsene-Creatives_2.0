@@ -12,7 +12,10 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
-  async validateUser(email: string, pass: string): Promise<Record<string, unknown> | null> {
+  async validateUser(
+    email: string,
+    pass: string,
+  ): Promise<Record<string, unknown> | null> {
     const user = await this.usersService.findOne(email);
     if (!user || !user.password) {
       return null;
@@ -32,13 +35,17 @@ export class AuthService {
     // For students, look up their Student record to get the student table ID
     let studentRecordId: string | null = null;
     if (user.roleId === 'student' && user.email) {
-      const studentRecord = await this.studentsService.findByEmail(user.email as string);
+      const studentRecord = await this.studentsService.findByEmail(
+        user.email as string,
+      );
       if (studentRecord) {
         studentRecordId = studentRecord.id;
       }
     }
 
-    const school = user.school as { features?: string[]; plan?: string } | undefined;
+    const school = user.school as
+      | { features?: string[]; plan?: string }
+      | undefined;
 
     const payload = {
       email: user.email,

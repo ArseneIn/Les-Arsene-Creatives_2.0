@@ -5,15 +5,46 @@ import { CreateDisciplineDto } from './dto/create-discipline.dto';
 import { UpdateDisciplineDto } from './dto/update-discipline.dto';
 import { Student } from '../students/entities/student.entity';
 import { DisciplineRecord } from './entities/discipline.entity';
+import { DisciplinePolicy } from './entities/discipline-policy.entity';
+import {
+  CreateDisciplinePolicyDto,
+  UpdateDisciplinePolicyDto,
+} from './dto/discipline-policy.dto';
 
 @Injectable()
 export class DisciplineService {
   constructor(
     @InjectRepository(DisciplineRecord)
     private disciplineRepository: Repository<DisciplineRecord>,
+    @InjectRepository(DisciplinePolicy)
+    private policyRepository: Repository<DisciplinePolicy>,
     @InjectRepository(Student)
     private studentRepository: Repository<Student>,
   ) {}
+
+  // --- POLICIES ---
+
+  async createPolicy(createDto: CreateDisciplinePolicyDto) {
+    const policy = this.policyRepository.create(createDto);
+    return this.policyRepository.save(policy);
+  }
+
+  async getPolicies(schoolId: string) {
+    return this.policyRepository.find({
+      where: { schoolId },
+      order: { type: 'ASC', name: 'ASC' },
+    });
+  }
+
+  async updatePolicy(id: string, updateDto: UpdateDisciplinePolicyDto) {
+    return this.policyRepository.update(id, updateDto);
+  }
+
+  async deletePolicy(id: string) {
+    return this.policyRepository.delete(id);
+  }
+
+  // --- RECORDS ---
 
   async create(createDisciplineDto: CreateDisciplineDto) {
     const record = this.disciplineRepository.create(createDisciplineDto);
@@ -144,6 +175,38 @@ export class DisciplineService {
       });
     }
 
+    // Class-level performance
+    const classMap: Record<
+      string,
+      { totalPoints: number; studentCount: number; infractions: number }
+    > = {};
+
+    allStudents.forEach((s) => {
+      const grade = s.grade || 'Unassigned';
+      if (!classMap[grade]) {
+        classMap[grade] = { totalPoints: 0, studentCount: 0, infractions: 0 };
+      }
+      classMap[grade].totalPoints += s.disciplinePoints ?? 100;
+      classMap[grade].studentCount += 1;
+    });
+
+    allRecords.forEach((r) => {
+      if (r.type === 'Sanction' && r.student && r.student.grade) {
+        const grade = r.student.grade;
+        if (classMap[grade]) {
+          classMap[grade].infractions += 1;
+        }
+      }
+    });
+
+    const classPerformance = Object.entries(classMap)
+      .map(([grade, stats]) => ({
+        grade,
+        averagePoints: Math.round(stats.totalPoints / stats.studentCount),
+        infractions: stats.infractions,
+      }))
+      .sort((a, b) => a.averagePoints - b.averagePoints); // Sort worst performing first
+
     return {
       total,
       sanctions,
@@ -153,6 +216,7 @@ export class DisciplineService {
       topCategories,
       atRiskStudents,
       monthlyData,
+      classPerformance,
     };
   }
 }

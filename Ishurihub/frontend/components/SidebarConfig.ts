@@ -26,15 +26,17 @@ const ADMIN_SIDEBAR: SidebarItem[] = [
             { label: 'Courses', icon: 'auto_stories', href: '/academic/courses', permission: 'academic.manage_timetable' },
             { label: 'Timetable', icon: 'calendar_month', href: '/timetable', permission: 'academic.manage_timetable', feature: 'timetable' },
             { label: 'Teachers', icon: 'person_apron', href: '/teachers', permission: 'academic.manage_timetable' },
-            { label: 'Students', icon: 'groups', href: '/students', permission: 'student.view' },
+            { label: 'Attendance Reports', icon: 'co_present', href: '/academic/attendance', permission: 'student.edit', feature: 'attendance' }
         ]
     },
     {
-        label: 'Attendance Scan',
-        icon: 'co_present',
-        href: '/attendance',
-        permission: 'student.edit',
-        feature: 'attendance'
+        label: 'Student Management',
+        icon: 'groups',
+        href: '#',
+        permission: 'student.view',
+        subItems: [
+            { label: 'Directory', icon: 'badge', href: '/students', permission: 'student.view' }
+        ]
     },
     {
         label: 'Events',
@@ -46,9 +48,13 @@ const ADMIN_SIDEBAR: SidebarItem[] = [
     {
         label: 'Discipline',
         icon: 'gavel',
-        href: '/discipline',
+        href: '#',
         permission: 'discipline.view',
-        feature: 'discipline'
+        feature: 'discipline',
+        subItems: [
+            { label: 'Dashboard', icon: 'dashboard', href: '/discipline', permission: 'discipline.view', feature: 'discipline' },
+            { label: 'Constitution', icon: 'menu_book', href: '/discipline/constitution', permission: 'discipline.view', feature: 'discipline' }
+        ]
     },
     {
         label: 'Finance',
@@ -64,9 +70,15 @@ const ADMIN_SIDEBAR: SidebarItem[] = [
     {
         label: 'Library',
         icon: 'local_library',
-        href: '/library',
+        href: '#',
         permission: 'library.view',
-        feature: 'library'
+        feature: 'library',
+        subItems: [
+            { label: 'Dashboard', icon: 'dashboard', href: '/library', permission: 'library.view', feature: 'library' },
+            { label: 'Manage Books', icon: 'menu_book', href: '/library/books', permission: 'library.view', feature: 'library' },
+            { label: 'Lend & Return', icon: 'swap_horiz', href: '/library/circulation', permission: 'library.view', feature: 'library' },
+            { label: 'Overdue Records', icon: 'warning', href: '/library/overdue', permission: 'library.view', feature: 'library' }
+        ]
     },
     {
         label: 'System & Compliance',

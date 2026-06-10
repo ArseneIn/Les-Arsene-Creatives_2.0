@@ -18,6 +18,7 @@ interface Analytics {
     topCategories: { category: string; count: number }[];
     atRiskStudents: { id: string; name: string; grade: string; points: number }[];
     monthlyData: { month: string; sanctions: number; merits: number }[];
+    classPerformance?: { grade: string; averagePoints: number; infractions: number }[];
 }
 
 export default function DisciplinePage() {
@@ -46,7 +47,28 @@ export default function DisciplinePage() {
         }
     }, [schoolId]);
 
-    useEffect(() => { void fetchData(); }, [fetchData]);
+    useEffect(() => {
+        let mounted = true;
+        const load = async () => {
+            if (!schoolId) return;
+            try {
+                const [recordsRes, studentsRes, analyticsRes] = await Promise.all([
+                    api.get('/discipline', { params: { schoolId } }),
+                    api.get('/students', { params: { schoolId } }),
+                    api.get('/discipline/analytics', { params: { schoolId } }),
+                ]);
+                if (mounted) {
+                    setRecords(recordsRes.data);
+                    setStudents(studentsRes.data);
+                    setAnalytics(analyticsRes.data);
+                }
+            } catch (error) {
+                console.error("Failed to fetch data:", error);
+            }
+        };
+        load();
+        return () => { mounted = false; };
+    }, [schoolId]);
 
     const handleAddRecord = async (data: Omit<DisciplineRecord, 'id'>) => {
         try {
@@ -110,74 +132,128 @@ export default function DisciplinePage() {
                     <button
                         key={tab}
                         onClick={() => setActiveTab(tab)}
-                        className={`px-4 py-2 rounded-lg text-sm font-medium capitalize transition-all ${
-                            activeTab === tab
-                                ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm'
-                                : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
-                        }`}
+                        className={`px-4 py-3 font-medium text-sm transition-all border-b-2 whitespace-nowrap ${activeTab === tab
+                            ? 'border-indigo-600 text-indigo-600 dark:border-indigo-400 dark:text-indigo-400'
+                            : 'border-transparent text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'
+                            }`}
                     >
-                        {tab === 'at-risk' ? '⚠️ At Risk' : tab.charAt(0).toUpperCase() + tab.slice(1)}
+                        {tab.charAt(0).toUpperCase() + tab.slice(1).replace('-', ' ')}
                     </button>
                 ))}
             </div>
 
-            {/* Tab Content */}
             {activeTab === 'overview' && analytics && (
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    {/* Top Infraction Categories */}
-                    <div className="bg-white dark:bg-gray-800/60 rounded-2xl p-6 border border-gray-100 dark:border-gray-700/50 shadow-sm">
-                        <h3 className="font-semibold text-gray-900 dark:text-white mb-4">Top Infraction Categories</h3>
-                        {analytics.topCategories.length === 0 ? (
-                            <p className="text-gray-400 text-sm text-center py-6">No data yet</p>
-                        ) : (
-                            <div className="space-y-3">
-                                {analytics.topCategories.map(({ category, count }, i) => {
-                                    const pct = Math.round((count / analytics.total) * 100);
-                                    const colors = ['bg-red-500', 'bg-orange-500', 'bg-amber-500', 'bg-blue-500', 'bg-purple-500'];
-                                    return (
-                                        <div key={category}>
-                                            <div className="flex justify-between text-sm mb-1">
-                                                <span className="text-gray-700 dark:text-gray-300 font-medium">{category}</span>
-                                                <span className="text-gray-500">{count} records</span>
+                <div className="space-y-6">
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        {/* Top Infraction Categories */}
+                        <div className="bg-white dark:bg-gray-800/60 rounded-2xl p-6 border border-gray-100 dark:border-gray-700/50 shadow-sm">
+                            <h3 className="font-semibold text-gray-900 dark:text-white mb-4">Top Infraction Categories</h3>
+                            {analytics.topCategories.length === 0 ? (
+                                <p className="text-gray-400 text-sm text-center py-6">No data yet</p>
+                            ) : (
+                                <div className="space-y-3">
+                                    {analytics.topCategories.map(({ category, count }, i) => {
+                                        const pct = Math.round((count / analytics.total) * 100);
+                                        const colors = ['bg-red-500', 'bg-orange-500', 'bg-amber-500', 'bg-blue-500', 'bg-purple-500'];
+                                        return (
+                                            <div key={category}>
+                                                <div className="flex justify-between text-sm mb-1">
+                                                    <span className="text-gray-700 dark:text-gray-300 font-medium">{category}</span>
+                                                    <span className="text-gray-500">{count} records</span>
+                                                </div>
+                                                <div className="w-full bg-gray-100 dark:bg-gray-700 rounded-full h-2">
+                                                    <div
+                                                        className={`h-2 rounded-full ${colors[i]}`}
+                                                        style={{ width: `${pct}%` }}
+                                                    />
+                                                </div>
                                             </div>
-                                            <div className="w-full bg-gray-100 dark:bg-gray-700 rounded-full h-2">
-                                                <div
-                                                    className={`h-2 rounded-full ${colors[i]}`}
-                                                    style={{ width: `${pct}%` }}
-                                                />
+                                        );
+                                    })}
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Monthly Trend */}
+                        <div className="bg-white dark:bg-gray-800/60 rounded-2xl p-6 border border-gray-100 dark:border-gray-700/50 shadow-sm">
+                            <h3 className="font-semibold text-gray-900 dark:text-white mb-4">Monthly Trend (6 months)</h3>
+                            <div className="space-y-3">
+                                {analytics.monthlyData.map(({ month, sanctions, merits }) => (
+                                    <div key={month} className="flex items-center gap-3">
+                                        <span className="text-xs text-gray-500 w-20 shrink-0">{month}</span>
+                                        <div className="flex-1 flex gap-1 h-6 items-end">
+                                            <div className="relative flex-1 bg-gray-100 dark:bg-gray-700 rounded h-5 overflow-hidden flex">
+                                                <div className="bg-red-400 h-full transition-all" style={{ width: `${Math.min(100, sanctions * 10)}%` }} title={`${sanctions} sanctions`} />
+                                                <div className="bg-emerald-400 h-full transition-all" style={{ width: `${Math.min(100 - sanctions * 10, merits * 10)}%` }} title={`${merits} merits`} />
                                             </div>
                                         </div>
-                                    );
-                                })}
+                                        <div className="flex gap-2 text-xs text-gray-500 shrink-0">
+                                            <span className="text-red-500">{sanctions}S</span>
+                                            <span className="text-emerald-500">{merits}M</span>
+                                        </div>
+                                    </div>
+                                ))}
                             </div>
-                        )}
+                            <div className="flex gap-4 mt-3 text-xs">
+                                <div className="flex items-center gap-1"><div className="w-3 h-3 rounded bg-red-400"/><span className="text-gray-500">Sanctions</span></div>
+                                <div className="flex items-center gap-1"><div className="w-3 h-3 rounded bg-emerald-400"/><span className="text-gray-500">Merits</span></div>
+                            </div>
+                        </div>
                     </div>
 
-                    {/* Monthly Trend */}
-                    <div className="bg-white dark:bg-gray-800/60 rounded-2xl p-6 border border-gray-100 dark:border-gray-700/50 shadow-sm">
-                        <h3 className="font-semibold text-gray-900 dark:text-white mb-4">Monthly Trend (6 months)</h3>
-                        <div className="space-y-3">
-                            {analytics.monthlyData.map(({ month, sanctions, merits }) => (
-                                <div key={month} className="flex items-center gap-3">
-                                    <span className="text-xs text-gray-500 w-20 shrink-0">{month}</span>
-                                    <div className="flex-1 flex gap-1 h-6 items-end">
-                                        <div className="relative flex-1 bg-gray-100 dark:bg-gray-700 rounded h-5 overflow-hidden flex">
-                                            <div className="bg-red-400 h-full transition-all" style={{ width: `${Math.min(100, sanctions * 10)}%` }} title={`${sanctions} sanctions`} />
-                                            <div className="bg-emerald-400 h-full transition-all" style={{ width: `${Math.min(100 - sanctions * 10, merits * 10)}%` }} title={`${merits} merits`} />
-                                        </div>
-                                    </div>
-                                    <div className="flex gap-2 text-xs text-gray-500 shrink-0">
-                                        <span className="text-red-500">{sanctions}S</span>
-                                        <span className="text-emerald-500">{merits}M</span>
-                                    </div>
-                                </div>
-                            ))}
+                    {/* Class Conduct Leaderboard */}
+                    {analytics.classPerformance && analytics.classPerformance.length > 0 && (
+                        <div className="bg-white dark:bg-gray-800/60 rounded-2xl border border-gray-100 dark:border-gray-700/50 shadow-sm overflow-hidden">
+                            <div className="p-5 border-b border-gray-100 dark:border-gray-700 flex items-center gap-2">
+                                <span className="material-symbols-outlined text-indigo-500">groups</span>
+                                <h3 className="font-semibold text-gray-900 dark:text-white">Class Conduct Leaderboard</h3>
+                                <span className="ml-auto text-xs text-gray-500 hidden sm:inline">Sorted by lowest average score</span>
+                            </div>
+                            <div className="overflow-x-auto">
+                                <table className="w-full text-left">
+                                    <thead>
+                                        <tr className="bg-gray-50 dark:bg-gray-800/50 text-xs text-gray-500 uppercase tracking-wider">
+                                            <th className="px-5 py-3 font-medium">Class / Grade</th>
+                                            <th className="px-5 py-3 font-medium text-center">Avg Conduct Score</th>
+                                            <th className="px-5 py-3 font-medium text-center">Total Infractions</th>
+                                            <th className="px-5 py-3 font-medium">Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="divide-y divide-gray-100 dark:divide-gray-700/50">
+                                        {analytics.classPerformance.map((cls, idx) => {
+                                            const pct = cls.averagePoints;
+                                            const statusColor = pct >= 80 ? 'text-emerald-600 bg-emerald-50 dark:bg-emerald-900/30' : pct >= 50 ? 'text-amber-600 bg-amber-50 dark:bg-amber-900/30' : 'text-red-600 bg-red-50 dark:bg-red-900/30';
+                                            const statusText = pct >= 80 ? 'Excellent' : pct >= 50 ? 'Needs Attention' : 'Critical Risk';
+                                            return (
+                                                <tr key={cls.grade} className="hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors">
+                                                    <td className="px-5 py-4 font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                                                        <span className="w-6 text-center text-gray-400 font-normal">#{idx + 1}</span>
+                                                        {cls.grade}
+                                                    </td>
+                                                    <td className="px-5 py-4 text-center">
+                                                        <div className="flex items-center justify-center gap-2">
+                                                            <div className="w-24 bg-gray-100 dark:bg-gray-700 rounded-full h-1.5 hidden sm:block">
+                                                                <div className={`h-1.5 rounded-full ${pct < 50 ? 'bg-red-500' : pct < 80 ? 'bg-amber-500' : 'bg-emerald-500'}`} style={{ width: `${Math.max(0, Math.min(100, pct))}%` }} />
+                                                            </div>
+                                                            <span className={`font-bold ${pct < 50 ? 'text-red-600' : pct < 80 ? 'text-amber-600' : 'text-emerald-600'}`}>{pct}/100</span>
+                                                        </div>
+                                                    </td>
+                                                    <td className="px-5 py-4 text-center text-gray-600 dark:text-gray-400 font-medium">
+                                                        {cls.infractions}
+                                                    </td>
+                                                    <td className="px-5 py-4">
+                                                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${statusColor}`}>
+                                                            {statusText}
+                                                        </span>
+                                                    </td>
+                                                </tr>
+                                            );
+                                        })}
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
-                        <div className="flex gap-4 mt-3 text-xs">
-                            <div className="flex items-center gap-1"><div className="w-3 h-3 rounded bg-red-400"/><span className="text-gray-500">Sanctions</span></div>
-                            <div className="flex items-center gap-1"><div className="w-3 h-3 rounded bg-emerald-400"/><span className="text-gray-500">Merits</span></div>
-                        </div>
-                    </div>
+                    )}
                 </div>
             )}
 
@@ -237,7 +313,7 @@ export default function DisciplinePage() {
 
             {/* Modals */}
             {isAddModalOpen && (
-                <AddDisciplineForm onClose={() => setIsAddModalOpen(false)} onSubmit={handleAddRecord} students={students} />
+                <AddDisciplineForm onClose={() => setIsAddModalOpen(false)} onSubmit={handleAddRecord} students={students} schoolId={schoolId} />
             )}
             {isKioskOpen && (
                 <DisciplineKiosk onClose={() => setIsKioskOpen(false)} onSuccess={fetchData} />

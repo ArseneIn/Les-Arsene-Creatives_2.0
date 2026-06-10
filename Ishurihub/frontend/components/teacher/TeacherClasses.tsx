@@ -68,7 +68,7 @@ export default function TeacherClasses() {
 
                     <div className="flex gap-2">
                         <Link
-                            href={`/school/${user?.schoolId}/dashboard/attendance?classId=${cls.id}`}
+                            href={`/school/${user?.schoolId}/teacher/classes/${cls.id}/attendance`}
                             className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2 bg-primary text-white text-sm font-medium rounded-lg hover:bg-primary/90 transition-colors"
                         >
                             <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>co_present</span>

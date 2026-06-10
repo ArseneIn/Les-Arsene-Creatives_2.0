@@ -1,19 +1,24 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { DisciplineType, SeverityLevel, DisciplineRecord } from '@/data/discipline';
 import { Student } from '@/data/students';
+import api from '@/lib/api';
+import { DisciplinePolicy } from './ConstitutionTab';
 
 interface AddDisciplineFormProps {
     onClose: () => void;
     onSubmit: (data: Omit<DisciplineRecord, 'id'>) => void;
     students: Student[];
+    schoolId?: string; // Made optional for backward compatibility if needed
 }
 
-export default function AddDisciplineForm({ onClose, onSubmit, students }: AddDisciplineFormProps) {
+export default function AddDisciplineForm({ onClose, onSubmit, students, schoolId }: AddDisciplineFormProps) {
+    const [policies, setPolicies] = useState<DisciplinePolicy[]>([]);
+    
     const [formData, setFormData] = useState({
         studentId: '',
-        type: 'Merit' as DisciplineType,
+        type: 'Sanction' as DisciplineType, // Default to sanction
         category: '',
         description: '',
         date: new Date().toISOString().split('T')[0],
@@ -24,11 +29,38 @@ export default function AddDisciplineForm({ onClose, onSubmit, students }: AddDi
         reportedBy: 'School Admin' // Mocked default
     });
 
+    useEffect(() => {
+        if (!schoolId) return;
+        const fetchPolicies = async () => {
+            try {
+                const res = await api.get('/discipline/policies', { params: { schoolId } });
+                setPolicies(res.data);
+            } catch (err) {
+                console.error("Failed to fetch policies", err);
+            }
+        };
+        fetchPolicies();
+    }, [schoolId]);
+
+    const handlePolicySelect = (policyId: string) => {
+        const policy = policies.find(p => p.id === policyId);
+        if (policy) {
+            setFormData({
+                ...formData,
+                type: policy.type as DisciplineType,
+                category: policy.name,
+                points: policy.points,
+                severity: (policy.severity as SeverityLevel) || 'Low',
+                description: policy.description || ''
+            });
+        }
+    };
+
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         // Validate required fields
-        if (!formData.studentId || !formData.category || !formData.description) {
-            alert('Please fill in all required fields');
+        if (!formData.studentId || !formData.category) {
+            alert('Please select a student and an infraction/merit rule.');
             return;
         }
 
@@ -36,6 +68,8 @@ export default function AddDisciplineForm({ onClose, onSubmit, students }: AddDi
         onSubmit(formData);
         onClose();
     };
+
+    const filteredPolicies = policies.filter(p => p.type === formData.type);
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
@@ -91,14 +125,16 @@ export default function AddDisciplineForm({ onClose, onSubmit, students }: AddDi
                     <div>
                         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Record Type</label>
                         <div className="flex gap-4">
-                            {(['Merit', 'Sanction', 'Report'] as const).map(type => (
+                            {(['Merit', 'Sanction'] as const).map(type => (
                                 <label key={type} className="flex items-center gap-2 cursor-pointer">
                                     <input
                                         type="radio"
                                         name="type"
                                         value={type}
                                         checked={formData.type === type}
-                                        onChange={(e) => setFormData({ ...formData, type: e.target.value as DisciplineType })}
+                                        onChange={(e) => {
+                                            setFormData({ ...formData, type: e.target.value as DisciplineType, category: '', points: 0 });
+                                        }}
                                         className="text-blue-600 focus:ring-blue-500"
                                     />
                                     <span className="text-sm text-gray-700 dark:text-gray-300">{type}</span>
@@ -107,18 +143,31 @@ export default function AddDisciplineForm({ onClose, onSubmit, students }: AddDi
                         </div>
                     </div>
 
-                    {/* Category & Date */}
+                    {/* Rule Selection & Date */}
                     <div className="grid grid-cols-2 gap-4">
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Category</label>
-                            <input
-                                type="text"
-                                placeholder={formData.type === 'Merit' ? 'e.g. Volunteering' : 'e.g. Late Arrival'}
-                                value={formData.category}
-                                onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                                className="w-full p-2.5 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-[#0f172a] text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none"
-                                required
-                            />
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Select Rule</label>
+                            {policies.length > 0 ? (
+                                <select
+                                    onChange={(e) => handlePolicySelect(e.target.value)}
+                                    className="w-full p-2.5 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-[#0f172a] text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none"
+                                    required
+                                >
+                                    <option value="">-- Choose a Rule --</option>
+                                    {filteredPolicies.map(p => (
+                                        <option key={p.id} value={p.id}>{p.name}</option>
+                                    ))}
+                                </select>
+                            ) : (
+                                <input
+                                    type="text"
+                                    placeholder="e.g. Late Arrival"
+                                    value={formData.category}
+                                    onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                                    className="w-full p-2.5 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-[#0f172a] text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none"
+                                    required
+                                />
+                            )}
                         </div>
                         <div>
                             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Date</label>
@@ -134,70 +183,60 @@ export default function AddDisciplineForm({ onClose, onSubmit, students }: AddDi
 
                     {/* Description */}
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Description</label>
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Description / Notes</label>
                         <textarea
                             rows={3}
                             value={formData.description}
                             onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                             className="w-full p-2.5 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-[#0f172a] text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none"
                             placeholder="Details of the incident or achievement..."
-                            required
                         ></textarea>
                     </div>
 
-                    {/* Conditional Fields: Sanction (Severity, Action) / Merit (Points) */}
-                    {formData.type === 'Sanction' && (
+                    {/* Locked Automated Fields */}
+                    {formData.type === 'Sanction' && formData.category && (
                         <div className="space-y-4 p-4 bg-red-50 dark:bg-red-900/10 rounded-xl border border-red-100 dark:border-red-900/20">
+                            <div className="flex items-center gap-2 mb-2 text-red-600 dark:text-red-400">
+                                <span className="material-symbols-outlined text-sm">lock</span>
+                                <span className="text-xs font-bold uppercase tracking-wider">Automated Penalty Locked</span>
+                            </div>
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Severity</label>
-                                    <select
-                                        value={formData.severity}
-                                        onChange={(e) => setFormData({ ...formData, severity: e.target.value as SeverityLevel })}
-                                        className="w-full p-2.5 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-[#0f172a] text-gray-900 dark:text-white focus:ring-2 focus:ring-red-500 outline-none"
-                                    >
-                                        {['Low', 'Medium', 'High', 'Critical'].map(lvl => (
-                                            <option key={lvl} value={lvl}>{lvl}</option>
-                                        ))}
-                                    </select>
+                                    <label className="block text-sm font-medium text-red-700/50 dark:text-red-300/50 mb-1">Severity</label>
+                                    <div className="w-full p-2.5 rounded-lg border border-red-200/50 dark:border-red-800/50 bg-red-50 dark:bg-red-900/20 text-red-900 dark:text-red-200 font-medium">
+                                        {formData.severity}
+                                    </div>
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Points to Deduct</label>
-                                    <input
-                                        type="number"
-                                        min="0"
-                                        max="100"
-                                        value={formData.points}
-                                        onChange={(e) => setFormData({ ...formData, points: parseInt(e.target.value) || 0 })}
-                                        className="w-full p-2.5 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-[#0f172a] text-gray-900 dark:text-white focus:ring-2 focus:ring-red-500 outline-none"
-                                        placeholder="0"
-                                    />
+                                    <label className="block text-sm font-medium text-red-700/50 dark:text-red-300/50 mb-1">Points Deducted</label>
+                                    <div className="w-full p-2.5 rounded-lg border border-red-200/50 dark:border-red-800/50 bg-red-50 dark:bg-red-900/20 text-red-900 dark:text-red-200 font-bold">
+                                        -{formData.points}
+                                    </div>
                                 </div>
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Action Taken</label>
+                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Action Taken (Optional)</label>
                                 <input
                                     type="text"
                                     value={formData.actionTaken}
                                     onChange={(e) => setFormData({ ...formData, actionTaken: e.target.value })}
-                                    className="w-full p-2.5 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-[#0f172a] text-gray-900 dark:text-white focus:ring-2 focus:ring-red-500 outline-none"
+                                    className="w-full p-2.5 rounded-lg border border-red-200 dark:border-red-800/50 bg-white dark:bg-[#0f172a] text-gray-900 dark:text-white focus:ring-2 focus:ring-red-500 outline-none"
                                     placeholder="e.g. Detention assigned, Verbal warning"
                                 />
                             </div>
                         </div>
                     )}
 
-                    {formData.type === 'Merit' && (
+                    {formData.type === 'Merit' && formData.category && (
                         <div className="p-4 bg-green-50 dark:bg-green-900/10 rounded-xl border border-green-100 dark:border-green-900/20">
-                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Points Awarded</label>
-                            <input
-                                type="number"
-                                min="1"
-                                max="100"
-                                value={formData.points}
-                                onChange={(e) => setFormData({ ...formData, points: parseInt(e.target.value) || 0 })}
-                                className="w-full p-2.5 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-[#0f172a] text-gray-900 dark:text-white focus:ring-2 focus:ring-green-500 outline-none"
-                            />
+                             <div className="flex items-center gap-2 mb-4 text-green-600 dark:text-green-400">
+                                <span className="material-symbols-outlined text-sm">lock</span>
+                                <span className="text-xs font-bold uppercase tracking-wider">Automated Reward Locked</span>
+                            </div>
+                            <label className="block text-sm font-medium text-green-700/50 dark:text-green-300/50 mb-1">Points Awarded</label>
+                            <div className="w-full p-2.5 rounded-lg border border-green-200/50 dark:border-green-800/50 bg-green-50 dark:bg-green-900/20 text-green-900 dark:text-green-200 font-bold">
+                                +{formData.points}
+                            </div>
                         </div>
                     )}
 

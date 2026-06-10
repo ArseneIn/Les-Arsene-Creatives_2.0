@@ -37,7 +37,9 @@ async function enableFeatures() {
     const before = school.features;
     school.features = ALL_FEATURES;
     await schoolRepo.save(school);
-    console.log(`✅ ${school.name}: ${JSON.stringify(before)} → ${JSON.stringify(school.features)}`);
+    console.log(
+      `✅ ${school.name}: ${JSON.stringify(before)} → ${JSON.stringify(school.features)}`,
+    );
   }
 
   await dataSource.destroy();
