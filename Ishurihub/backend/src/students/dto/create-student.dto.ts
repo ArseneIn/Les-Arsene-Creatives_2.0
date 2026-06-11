@@ -1,6 +1,7 @@
 export class CreateStudentDto {
   name: string;
-  studentId: string;
+  studentId?: string;
+  admissionYear?: string;
   grade: string;
   cardUid?: string;
   section?: string;

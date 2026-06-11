@@ -7,7 +7,8 @@ import api from "@/lib/api";
 
 export interface AddStudentFormData {
     fullName: string;
-    studentId: string;
+    studentId?: string;
+    admissionYear: string;
 
     // Personal Info
     dob: string;
@@ -52,7 +53,8 @@ export default function AddStudentForm({ onSubmit, onCancel, initialData }: AddS
         formState: { errors, isSubmitting },
     } = useForm<AddStudentFormData>({
         defaultValues: initialData || {
-            guardians: [{ name: '', relation: '', phone: '' }] // Default one empty guardian
+            guardians: [{ name: '', relation: '', phone: '' }],
+            admissionYear: new Date().getFullYear().toString()
         }
     });
 
@@ -94,9 +96,8 @@ export default function AddStudentForm({ onSubmit, onCancel, initialData }: AddS
         }
     }, [grade, level, setValue]);
 
-    // Fetch classes
-    const [availableClasses, setAvailableClasses] = useState<any[]>([]);
     const params = useParams();
+    const [availableClasses, setAvailableClasses] = useState<Record<string, string | number>[]>([]);
     const schoolId = params.id as string;
 
     useEffect(() => {
@@ -188,17 +189,18 @@ export default function AddStudentForm({ onSubmit, onCancel, initialData }: AddS
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div className="md:col-span-2">
-                                <InputLabel required>Student ID Number</InputLabel>
+                                <InputLabel required>Admission Year</InputLabel>
                                 <div className="relative">
-                                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 material-symbols-outlined text-[20px]">id_card</span>
+                                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 material-symbols-outlined text-[20px]">calendar_today</span>
                                     <input
-                                        {...register("studentId", { required: "Student ID is required" })}
+                                        {...register("admissionYear", { required: "Admission Year is required" })}
                                         type="text"
                                         className={`${inputClasses} pl-11`}
-                                        placeholder="e.g. 2024-001"
+                                        placeholder="e.g. 2026"
                                     />
                                 </div>
-                                {errors.studentId && <p className="text-red-500 text-xs mt-1 ml-1">{errors.studentId.message}</p>}
+                                <p className="text-xs text-gray-500 mt-1">Student ID will be auto-generated based on this year.</p>
+                                {errors.admissionYear && <p className="text-red-500 text-xs mt-1 ml-1">{errors.admissionYear.message}</p>}
                             </div>
 
                             <div>

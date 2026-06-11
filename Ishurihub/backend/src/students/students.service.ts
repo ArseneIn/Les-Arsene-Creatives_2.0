@@ -4,16 +4,59 @@ import { Repository, Like } from 'typeorm';
 import { CreateStudentDto } from './dto/create-student.dto';
 import { UpdateStudentDto } from './dto/update-student.dto';
 import { Student } from './entities/student.entity';
+import { School } from '../schools/entities/school.entity';
 
 @Injectable()
 export class StudentsService {
   constructor(
     @InjectRepository(Student)
     private studentsRepository: Repository<Student>,
+    @InjectRepository(School)
+    private schoolRepository: Repository<School>,
   ) {}
 
-  create(createStudentDto: CreateStudentDto) {
-    const student = this.studentsRepository.create(createStudentDto);
+  async create(createStudentDto: CreateStudentDto) {
+    let studentId = createStudentDto.studentId;
+
+    if (!studentId) {
+      const year =
+        createStudentDto.admissionYear || new Date().getFullYear().toString();
+
+      const school = await this.schoolRepository.findOne({
+        where: { id: createStudentDto.schoolId },
+      });
+      const abbrev =
+        school?.abbreviation ||
+        school?.name?.substring(0, 3).toUpperCase() ||
+        'STU';
+
+      // Find the last student in this year
+      const prefix = `${abbrev}-${year}-`;
+      const lastStudent = await this.studentsRepository.findOne({
+        where: {
+          schoolId: createStudentDto.schoolId,
+          studentId: Like(`${prefix}%`),
+        },
+        order: { studentId: 'DESC' },
+      });
+
+      let sequenceNumber = 1;
+      if (lastStudent && lastStudent.studentId) {
+        const parts = lastStudent.studentId.split('-');
+        const lastNumStr = parts[parts.length - 1];
+        if (lastNumStr && !isNaN(parseInt(lastNumStr))) {
+          sequenceNumber = parseInt(lastNumStr) + 1;
+        }
+      }
+
+      studentId = `${prefix}${sequenceNumber.toString().padStart(3, '0')}`;
+    }
+
+    const student = this.studentsRepository.create({
+      ...createStudentDto,
+      studentId,
+    });
+
     return this.studentsRepository.save(student);
   }
 

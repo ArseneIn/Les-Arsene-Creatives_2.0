@@ -15,6 +15,9 @@ export class School {
   name: string;
 
   @Column({ nullable: true })
+  abbreviation: string;
+
+  @Column({ nullable: true })
   motto: string;
 
   @Column({ nullable: true })

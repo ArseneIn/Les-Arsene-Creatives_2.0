@@ -17,6 +17,9 @@ export class Student {
   @Column({ unique: true })
   studentId: string; // e.g., 2023-0041
 
+  @Column({ nullable: true })
+  admissionYear: string; // e.g. "2026"
+
   @Column()
   grade: string; // e.g., Grade 10
 

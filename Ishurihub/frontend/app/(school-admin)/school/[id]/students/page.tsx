@@ -13,7 +13,6 @@ import BulkImportModal from "@/components/students/BulkImportModal";
 export default function StudentsPage() {
     const [students, setStudents] = useState<Student[]>([]);
     const [filteredStudents, setFilteredStudents] = useState<Student[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isImportModalOpen, setIsImportModalOpen] = useState(false);
 
@@ -27,7 +26,6 @@ export default function StudentsPage() {
 
     useEffect(() => {
         const fetchStudents = async () => {
-            setIsLoading(true);
             try {
                 const response = await api.get('/students', {
                     params: { schoolId }
@@ -36,8 +34,6 @@ export default function StudentsPage() {
                 setFilteredStudents(response.data);
             } catch (error) {
                 console.error("Failed to fetch students:", error);
-            } finally {
-                setIsLoading(false);
             }
         };
 
@@ -71,7 +67,7 @@ export default function StudentsPage() {
         try {
             const newStudentData = {
                 name: data.fullName,
-                studentId: data.studentId,
+                admissionYear: data.admissionYear,
                 level: data.level,
                 year: data.grade,
                 combination: data.combination,
