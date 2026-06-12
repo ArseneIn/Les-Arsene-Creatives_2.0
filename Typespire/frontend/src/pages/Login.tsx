@@ -54,9 +54,15 @@ const Login: React.FC = () => {
                 default:
                     navigate('/');
             }
-        } catch (err) {
+        } catch (err: any) {
             console.error(err);
-            setError('Invalid credentials. Please try again.');
+            if (err.response && err.response.data && err.response.data.message) {
+                // If it's an array of messages (like class-validator), just join them
+                const msg = err.response.data.message;
+                setError(Array.isArray(msg) ? msg.join(', ') : msg);
+            } else {
+                setError('Invalid credentials. Please try again.');
+            }
         } finally {
             setLoading(false);
         }

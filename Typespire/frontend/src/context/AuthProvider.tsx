@@ -32,6 +32,15 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         };
 
         initAuth();
+
+        const handleUnauthorized = () => {
+            logout();
+        };
+        window.addEventListener('auth:unauthorized', handleUnauthorized);
+
+        return () => {
+            window.removeEventListener('auth:unauthorized', handleUnauthorized);
+        };
     }, []);
 
     const login = async (email: string, password: string, institution?: string): Promise<User> => {

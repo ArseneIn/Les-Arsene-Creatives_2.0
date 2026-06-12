@@ -1,7 +1,7 @@
 import React from 'react';
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Keyboard, X, LayoutDashboard, Calendar, Users, BarChart, FileText, Settings, Menu, Activity, ChevronLeft, ChevronRight, ClipboardList } from 'lucide-react';
+import { Keyboard, X, LayoutDashboard, Calendar, Users, BarChart, FileText, Settings, Menu, Activity, ChevronLeft, ChevronRight, ClipboardList, AlertTriangle, AlertOctagon } from 'lucide-react';
 
 const InstitutionAdminLayout: React.FC = () => {
     const location = useLocation();
@@ -16,6 +16,48 @@ const InstitutionAdminLayout: React.FC = () => {
         logout();
         navigate('/login');
     };
+
+    const getSubscriptionStatusInfo = () => {
+        if (!user || !user.institution) return null;
+        const { subscriptionStatus, subscriptionEndDate } = user.institution;
+
+        if (subscriptionStatus === 'SUSPENDED' || subscriptionStatus === 'EXPIRED') {
+            return {
+                isCritical: true,
+                message: "Your subscription has ended. Please renew to avoid blocking user access."
+            };
+        }
+
+        if (subscriptionEndDate) {
+            const now = new Date();
+            const endDate = new Date(subscriptionEndDate);
+            const diffTime = endDate.getTime() - now.getTime();
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+            const gracePeriodDays = 10;
+            const warningPeriodDays = 5;
+
+            // Grace period: subscription expired, but within 10 days
+            if (diffDays <= 0 && diffDays >= -gracePeriodDays) {
+                const graceDaysLeft = gracePeriodDays + diffDays;
+                return {
+                    isCritical: true,
+                    message: `Your subscription has expired! You are in a ${gracePeriodDays}-day grace period. Access for all users (including students) will be completely blocked in ${graceDaysLeft} day${graceDaysLeft !== 1 ? 's' : ''} (on ${new Date(endDate.getTime() + gracePeriodDays * 24 * 60 * 60 * 1000).toLocaleDateString()}). Please renew immediately.`
+                };
+            }
+
+            // Warning period: 5 days before expiration
+            if (diffDays > 0 && diffDays <= warningPeriodDays) {
+                return {
+                    isCritical: false,
+                    message: `Your subscription will expire in ${diffDays} day${diffDays !== 1 ? 's' : ''} (on ${endDate.toLocaleDateString()}). Please renew your plan to prevent service interruption.`
+                };
+            }
+        }
+        return null;
+    };
+
+    const subInfo = getSubscriptionStatusInfo();
 
     return (
         <div className="flex h-screen w-full flex-row overflow-hidden bg-background-light dark:bg-background-dark font-sans text-slate-900 dark:text-slate-100">
@@ -199,6 +241,37 @@ const InstitutionAdminLayout: React.FC = () => {
                 </div>
                 <div className="w-full flex-1 py-8 px-6 sm:px-8 md:px-10 lg:px-12 flex flex-col items-center">
                     <div className="max-w-[1280px] w-full flex flex-col gap-6">
+                        {subInfo && (
+                            <div className={`flex items-start md:items-center gap-4 p-4 rounded-xl border backdrop-blur-md transition-all shadow-sm ${
+                                subInfo.isCritical 
+                                    ? 'bg-red-500/10 border-red-500/30 text-red-700 dark:text-red-400' 
+                                    : 'bg-amber-500/10 border-amber-500/30 text-amber-700 dark:text-amber-400'
+                            }`}>
+                                <div className={`p-2 rounded-lg shrink-0 ${
+                                    subInfo.isCritical 
+                                        ? 'bg-red-500/20 text-red-500' 
+                                        : 'bg-amber-500/20 text-amber-500'
+                                }`}>
+                                    {subInfo.isCritical ? <AlertOctagon className="w-5 h-5" /> : <AlertTriangle className="w-5 h-5" />}
+                                </div>
+                                <div className="flex-1">
+                                    <h4 className="font-bold text-sm mb-1">
+                                        {subInfo.isCritical ? 'Subscription Action Required' : 'Subscription Expiring'}
+                                    </h4>
+                                    <p className="text-xs leading-relaxed opacity-90">{subInfo.message}</p>
+                                </div>
+                                <Link 
+                                    to="/admin/settings" 
+                                    className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all shrink-0 hover:scale-[1.02] active:scale-[0.98] ${
+                                        subInfo.isCritical 
+                                            ? 'bg-red-500 text-white hover:bg-red-600 shadow-md shadow-red-500/20' 
+                                            : 'bg-amber-500 text-white hover:bg-amber-600 shadow-md shadow-amber-500/20'
+                                    }`}
+                                >
+                                    Renew Plan
+                                </Link>
+                            </div>
+                        )}
                         <Outlet />
                     </div>
                 </div>

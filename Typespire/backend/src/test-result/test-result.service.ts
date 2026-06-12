@@ -79,7 +79,13 @@ export class TestResultService {
       where: { assignmentId },
       include: {
         user: {
-          select: { id: true, firstName: true, lastName: true, email: true, username: true },
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            email: true,
+            username: true,
+          },
         },
       },
       orderBy: { createdAt: 'asc' },

@@ -21,4 +21,15 @@ api.interceptors.request.use(
     }
 );
 
+api.interceptors.response.use(
+    (response) => response,
+    (error) => {
+        if (error.response && (error.response.status === 401 || error.response.status === 403)) {
+            // Dispatch a custom event that AuthProvider will listen to
+            window.dispatchEvent(new CustomEvent('auth:unauthorized'));
+        }
+        return Promise.reject(error);
+    }
+);
+
 export default api;

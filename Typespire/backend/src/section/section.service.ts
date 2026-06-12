@@ -23,11 +23,11 @@ export class SectionService {
   findOne(id: string) {
     return this.prisma.section.findUnique({
       where: { id },
-      include: { 
+      include: {
         intake: {
-          include: { institution: true }
-        }, 
-        students: true 
+          include: { institution: true },
+        },
+        students: true,
       },
     });
   }

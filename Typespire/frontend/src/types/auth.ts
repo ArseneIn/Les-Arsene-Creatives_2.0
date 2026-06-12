@@ -7,6 +7,8 @@ export const UserRole = {
     STUDENT: 'STUDENT' as UserRole,
 };
 
+import type { Institution } from './institution';
+
 export interface User {
     id: string;
     email: string;
@@ -15,6 +17,7 @@ export interface User {
     role: UserRole;
     institutionId?: string;
     sectionId?: string;
+    institution?: Institution;
 }
 
 export interface AuthResponse {

@@ -27,3 +27,11 @@ export interface Intake {
     facilitators: string[];
     sections: Section[];
 }
+
+export interface Institution {
+    id: string;
+    name: string;
+    slug: string;
+    subscriptionStatus: string;
+    subscriptionEndDate?: string;
+}

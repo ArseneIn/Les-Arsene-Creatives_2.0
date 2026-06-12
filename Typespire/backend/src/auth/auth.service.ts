@@ -1,4 +1,4 @@
-import { Injectable, ConflictException } from '@nestjs/common';
+import { Injectable, ConflictException, ForbiddenException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from '../prisma/prisma.service';
@@ -68,24 +68,56 @@ export class AuthService {
         }
       }
 
+      // Check for expired/suspended plan
+      if (user.role !== UserRole.PLATFORM_ADMIN && user.institution) {
+        const { subscriptionStatus, subscriptionEndDate } = user.institution;
+
+        if (subscriptionStatus === 'SUSPENDED') {
+          throw new ForbiddenException(
+            "Your institution's account has been suspended. Please contact support."
+          );
+        }
+
+        if (subscriptionStatus === 'EXPIRED') {
+          throw new ForbiddenException(
+            "Your institution's subscription has expired and the grace period has ended. Please contact support."
+          );
+        }
+
+        if (subscriptionEndDate) {
+          const endDateMs = new Date(subscriptionEndDate).getTime();
+          const gracePeriodMs = 10 * 24 * 60 * 60 * 1000; // 10 days grace period
+          if (Date.now() > endDateMs + gracePeriodMs) {
+            throw new ForbiddenException(
+              "Your institution's subscription has expired and the grace period has ended. Please contact support."
+            );
+          }
+        }
+      }
+
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { password, institution, ...result } = user;
+      const { password, ...result } = user;
       return result;
     }
     return null;
   }
 
-  login(user: User) {
+  login(user: any) {
     const payload = { email: user.email, sub: user.id, role: user.role };
     // Fire-and-forget: log the login event
-    this.logsService.log({
-      action: 'USER_LOGIN',
-      category: 'AUTH',
-      actorId: user.id,
-      actorName: `${user.firstName || ''} ${user.lastName || ''}`.trim() || user.email || 'User',
-      severity: 'INFO',
-      metadata: { role: user.role },
-    }).catch(() => {});
+    this.logsService
+      .log({
+        action: 'USER_LOGIN',
+        category: 'AUTH',
+        actorId: user.id,
+        actorName:
+          `${user.firstName || ''} ${user.lastName || ''}`.trim() ||
+          user.email ||
+          'User',
+        severity: 'INFO',
+        metadata: { role: user.role },
+      })
+      .catch(() => {});
 
     return {
       access_token: this.jwtService.sign(payload),
@@ -97,6 +129,7 @@ export class AuthService {
         role: user.role,
         institutionId: user.institutionId,
         sectionId: user.sectionId,
+        institution: user.institution,
       },
     };
   }
@@ -126,14 +159,19 @@ export class AuthService {
     });
 
     // Log registration event
-    this.logsService.log({
-      action: 'USER_REGISTERED',
-      category: 'AUTH',
-      actorId: user.id,
-      actorName: `${user.firstName || ''} ${user.lastName || ''}`.trim() || user.email || 'User',
-      severity: 'INFO',
-      metadata: { role: user.role, email: user.email },
-    }).catch(() => {});
+    this.logsService
+      .log({
+        action: 'USER_REGISTERED',
+        category: 'AUTH',
+        actorId: user.id,
+        actorName:
+          `${user.firstName || ''} ${user.lastName || ''}`.trim() ||
+          user.email ||
+          'User',
+        severity: 'INFO',
+        metadata: { role: user.role, email: user.email },
+      })
+      .catch(() => {});
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { password, ...result } = user;

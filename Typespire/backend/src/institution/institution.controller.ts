@@ -25,14 +25,21 @@ export class InstitutionController {
 
   @Post()
   @UseGuards(JwtAuthGuard)
-  async create(@Body() createInstitutionDto: CreateInstitutionDto, @Request() req: any) {
+  async create(
+    @Body() createInstitutionDto: CreateInstitutionDto,
+    @Request() req: any,
+  ) {
     const res = await this.institutionService.create(createInstitutionDto);
     const actor = req.user;
     void this.logsService.log({
       action: 'INSTITUTION_CREATED',
       category: 'INSTITUTION',
       actorId: actor?.id,
-      actorName: actor ? `${actor.firstName || ''} ${actor.lastName || ''}`.trim() || actor.email || 'System' : 'System',
+      actorName: actor
+        ? `${actor.firstName || ''} ${actor.lastName || ''}`.trim() ||
+          actor.email ||
+          'System'
+        : 'System',
       targetId: res.id,
       targetName: res.name,
       severity: 'INFO',
@@ -64,7 +71,11 @@ export class InstitutionController {
       action: 'INSTITUTION_UPDATED',
       category: 'INSTITUTION',
       actorId: actor?.id,
-      actorName: actor ? `${actor.firstName || ''} ${actor.lastName || ''}`.trim() || actor.email || 'System' : 'System',
+      actorName: actor
+        ? `${actor.firstName || ''} ${actor.lastName || ''}`.trim() ||
+          actor.email ||
+          'System'
+        : 'System',
       targetId: res.id,
       targetName: res.name,
       severity: 'INFO',
@@ -82,7 +93,11 @@ export class InstitutionController {
       action: 'INSTITUTION_DELETED',
       category: 'INSTITUTION',
       actorId: actor?.id,
-      actorName: actor ? `${actor.firstName || ''} ${actor.lastName || ''}`.trim() || actor.email || 'System' : 'System',
+      actorName: actor
+        ? `${actor.firstName || ''} ${actor.lastName || ''}`.trim() ||
+          actor.email ||
+          'System'
+        : 'System',
       targetId: res.id,
       targetName: res.name,
       severity: 'WARNING',
@@ -109,15 +124,25 @@ export class InstitutionController {
     @Body() createFacilitatorDto: CreateFacilitatorDto,
     @Request() req: any,
   ) {
-    const res = await this.institutionService.inviteFacilitator(id, createFacilitatorDto);
+    const res = await this.institutionService.inviteFacilitator(
+      id,
+      createFacilitatorDto,
+    );
     const actor = req.user;
     void this.logsService.log({
       action: 'FACILITATOR_INVITED',
       category: 'INSTITUTION',
       actorId: actor?.id,
-      actorName: actor ? `${actor.firstName || ''} ${actor.lastName || ''}`.trim() || actor.email || 'System' : 'System',
+      actorName: actor
+        ? `${actor.firstName || ''} ${actor.lastName || ''}`.trim() ||
+          actor.email ||
+          'System'
+        : 'System',
       targetId: res.id,
-      targetName: `${res.firstName || ''} ${res.lastName || ''}`.trim() || res.email || 'Facilitator',
+      targetName:
+        `${res.firstName || ''} ${res.lastName || ''}`.trim() ||
+        res.email ||
+        'Facilitator',
       severity: 'INFO',
       metadata: { email: res.email || undefined },
     });

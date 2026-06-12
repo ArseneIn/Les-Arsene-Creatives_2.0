@@ -53,7 +53,13 @@ export class InstitutionService {
   }
 
   update(id: string, updateInstitutionDto: UpdateInstitutionDto) {
-    const { adminEmail, adminPassword, adminFirstName, adminLastName, ...rest } = updateInstitutionDto;
+    const {
+      adminEmail,
+      adminPassword,
+      adminFirstName,
+      adminLastName,
+      ...rest
+    } = updateInstitutionDto;
     return this.prisma.institution.update({
       where: { id },
       data: rest,
@@ -208,7 +214,9 @@ export class InstitutionService {
       return {
         intakeName: intake.name,
         startDate: intake.startDate.toISOString().split('T')[0],
-        endDate: intake.endDate ? intake.endDate.toISOString().split('T')[0] : 'Ongoing',
+        endDate: intake.endDate
+          ? intake.endDate.toISOString().split('T')[0]
+          : 'Ongoing',
         status: intake.status,
         totalSections: intake.sections.length,
         totalStudents,
@@ -252,25 +260,33 @@ export class InstitutionService {
 
       // Deduce milestone status based on the latest test scores
       let status = 'Practicing';
-      student.testResults.forEach(r => {
-          const title = (r.test?.title || '').toLowerCase();
-          const passed = r.wpm >= 20 && r.accuracy >= 70;
-          const isPractice = title.includes('practice') || title.includes('drill');
+      student.testResults.forEach((r) => {
+        const title = (r.test?.title || '').toLowerCase();
+        const passed = r.wpm >= 20 && r.accuracy >= 70;
+        const isPractice =
+          title.includes('practice') || title.includes('drill');
 
-          if (!isPractice) {
-              if (title.includes('level 2') && passed) {
-                  status = 'Passed';
-              } else if ((title.includes('level 1') && passed) || title.includes('level 2')) {
-                  status = 'Level 2';
-              } else {
-                  status = 'Level 1';
-              }
+        if (!isPractice) {
+          if (title.includes('level 2') && passed) {
+            status = 'Passed';
+          } else if (
+            (title.includes('level 1') && passed) ||
+            title.includes('level 2')
+          ) {
+            status = 'Level 2';
+          } else {
+            status = 'Level 1';
           }
+        }
       });
 
       return {
         studentId: student.id.substring(0, 8).toUpperCase(),
-        name: `${student.firstName || ''} ${student.lastName || ''}`.trim() || student.email || student.username || 'Student',
+        name:
+          `${student.firstName || ''} ${student.lastName || ''}`.trim() ||
+          student.email ||
+          student.username ||
+          'Student',
         email: student.email || student.username || '',
         intake: student.section?.intake?.name || 'N/A',
         section: student.section?.name || 'Unassigned',

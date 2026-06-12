@@ -1,4 +1,14 @@
-import { Controller, Post, Body, Get, Param, Patch, Delete, UseGuards, Request } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  Get,
+  Param,
+  Patch,
+  Delete,
+  UseGuards,
+  Request,
+} from '@nestjs/common';
 import { AssignmentService } from './assignment.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { LogsService } from '../logs/logs.service';
@@ -32,7 +42,10 @@ export class AssignmentController {
       action: 'ASSIGNMENT_PUBLISHED',
       category: 'ASSIGNMENT',
       actorId: actor?.id,
-      actorName: actor ? `${actor.firstName || ''} ${actor.lastName || ''}`.trim() || actor.email : 'System',
+      actorName: actor
+        ? `${actor.firstName || ''} ${actor.lastName || ''}`.trim() ||
+          actor.email
+        : 'System',
       targetId: res.id,
       targetName: res.title,
       severity: 'INFO',
@@ -75,7 +88,10 @@ export class AssignmentController {
       action: 'ASSIGNMENT_DELETED',
       category: 'ASSIGNMENT',
       actorId: actor?.id,
-      actorName: actor ? `${actor.firstName || ''} ${actor.lastName || ''}`.trim() || actor.email : 'System',
+      actorName: actor
+        ? `${actor.firstName || ''} ${actor.lastName || ''}`.trim() ||
+          actor.email
+        : 'System',
       targetId: res.id,
       targetName: res.title,
       severity: 'WARNING',
@@ -83,4 +99,3 @@ export class AssignmentController {
     return res;
   }
 }
-
