@@ -199,6 +199,21 @@ const StudentPractice: React.FC = () => {
                                                                                     </h3>
                                                                                     <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed line-clamp-1">{stage.description}</p>
                                                                                     
+                                                                                    {/* N-gram Phase Indicator */}
+                                                                                    {stage.id.endsWith('-ngrams') && (
+                                                                                        <div className="flex flex-wrap gap-1 mt-2">
+                                                                                            <span className="text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-violet-100 dark:bg-violet-500/15 text-violet-600 dark:text-violet-400 border border-violet-200 dark:border-violet-500/20">
+                                                                                                1 · Anchor
+                                                                                            </span>
+                                                                                            <span className="text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-blue-100 dark:bg-blue-500/15 text-blue-600 dark:text-blue-400 border border-blue-200 dark:border-blue-500/20">
+                                                                                                2 · Roll
+                                                                                            </span>
+                                                                                            <span className="text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/20">
+                                                                                                3 · Words
+                                                                                            </span>
+                                                                                        </div>
+                                                                                    )}
+                                                                                    
                                                                                     {/* Key tags */}
                                                                                     {stage.keysTaught.length > 0 && (
                                                                                         <div className="flex flex-wrap gap-1 mt-2">

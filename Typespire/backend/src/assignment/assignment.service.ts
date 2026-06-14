@@ -14,6 +14,8 @@ export class AssignmentService {
     duration?: number;
     content?: string;
     maxAttempts?: number;
+    wpmRequirement?: number;
+    accuracyRequirement?: number;
   }) {
     // Create the associated Test
     const test = await this.prisma.test.create({
@@ -37,6 +39,8 @@ export class AssignmentService {
         studentIds: data.studentIds || [],
         testId: test.id,
         maxAttempts: data.maxAttempts || 1,
+        wpmRequirement: data.wpmRequirement,
+        accuracyRequirement: data.accuracyRequirement,
       },
     });
   }
@@ -52,6 +56,25 @@ export class AssignmentService {
       },
       data: {
         status: 'COMPLETED',
+      },
+    });
+  }
+
+  async findForStudent(studentId: string, sectionId?: string) {
+    await this.runExpiryCheck();
+    const orConditions: any[] = [{ studentIds: { has: studentId } }];
+    if (sectionId) {
+      orConditions.push({ sectionId: sectionId });
+    }
+
+    return this.prisma.assignment.findMany({
+      where: {
+        status: 'ACTIVE',
+        OR: orConditions,
+      },
+      include: { test: true },
+      orderBy: {
+        createdAt: 'desc',
       },
     });
   }

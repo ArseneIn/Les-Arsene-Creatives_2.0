@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useInstitution } from '../context/InstitutionContext';
 import api from '../api/axios';
@@ -7,13 +7,15 @@ import {
     User, 
     Download, 
     Filter, 
-    HelpCircle, 
-    BookOpen, 
-    Layers, 
     Award, 
     Calendar,
     ChevronDown,
-    ListFilter
+    ListFilter,
+    Loader2,
+    CheckCircle,
+    AlertTriangle,
+    SlidersHorizontal,
+    Search
 } from 'lucide-react';
 
 interface Intake {
@@ -34,6 +36,18 @@ interface Student {
     lastName: string | null;
     username: string;
     email: string | null;
+}
+
+interface StudentProgressRow {
+    studentId: string;
+    name: string;
+    email: string;
+    intake: string;
+    section: string;
+    totalTests: number;
+    avgWpm: number;
+    avgAccuracy: number;
+    milestoneStatus: string; // 'Practicing' | 'Level 1' | 'Level 2' | 'Passed'
 }
 
 interface TestResultData {
@@ -58,6 +72,89 @@ interface TestResultData {
 export const StudentPerformance: React.FC = () => {
     const { user } = useAuth();
     const { settings } = useInstitution();
+
+    // Live Student Progress States
+    const [auditedStudents, setAuditedStudents] = useState<StudentProgressRow[]>([]);
+    const [loadingData, setLoadingData] = useState(true);
+    const [searchQuery, setSearchQuery] = useState('');
+    const [statusFilter, setStatusFilter] = useState('All');
+    const [cohortFilter, setCohortFilter] = useState('All');
+
+    useEffect(() => {
+        if (user?.institutionId) {
+            fetchStudentProgress(user.institutionId);
+        }
+    }, [user?.institutionId]);
+
+    const fetchStudentProgress = async (institutionId: string) => {
+        setLoadingData(true);
+        try {
+            const res = await api.get<StudentProgressRow[]>(`/institution/${institutionId}/reports/student-progress`);
+            setAuditedStudents(res.data || []);
+        } catch (err) {
+            console.error("Failed to fetch student progress data", err);
+        } finally {
+            setLoadingData(false);
+        }
+    };
+
+    // Calculate dynamic milestone statistics
+    const milestoneCounts = useMemo(() => {
+        let practice = 0;
+        let lvl1 = 0;
+        let lvl2 = 0;
+        let passed = 0;
+        let notPassed = 0;
+
+        auditedStudents.forEach(s => {
+            const status = s.milestoneStatus;
+            if (status === 'Passed') {
+                passed++;
+            } else {
+                notPassed++;
+                if (status === 'Practicing') practice++;
+                else if (status === 'Level 1') lvl1++;
+                else if (status === 'Level 2') lvl2++;
+            }
+        });
+
+        return { practice, lvl1, lvl2, passed, notPassed, total: auditedStudents.length };
+    }, [auditedStudents]);
+
+    // Unique intakes for the Cohort Filter select box
+    const uniqueCohorts = useMemo(() => {
+        const cohorts = new Set<string>();
+        auditedStudents.forEach(s => {
+            if (s.intake) cohorts.add(s.intake);
+        });
+        return Array.from(cohorts).sort();
+    }, [auditedStudents]);
+
+    // Filtered students list matching current search and filters
+    const filteredStudents = useMemo(() => {
+        return auditedStudents.filter(s => {
+            const matchesSearch = s.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                                  s.email.toLowerCase().includes(searchQuery.toLowerCase());
+            
+            const matchesCohort = cohortFilter === 'All' || s.intake === cohortFilter;
+
+            let matchesStatus = true;
+            if (statusFilter === 'Passed') {
+                matchesStatus = s.milestoneStatus === 'Passed';
+            } else if (statusFilter === 'Not Passed') {
+                matchesStatus = s.milestoneStatus !== 'Passed';
+            } else if (statusFilter === 'Practice') {
+                matchesStatus = s.milestoneStatus === 'Practicing';
+            } else if (statusFilter === 'Level 1') {
+                matchesStatus = s.milestoneStatus === 'Level 1';
+            } else if (statusFilter === 'Level 2') {
+                matchesStatus = s.milestoneStatus === 'Level 2';
+            }
+
+            return matchesSearch && matchesCohort && matchesStatus;
+        });
+    }, [auditedStudents, searchQuery, cohortFilter, statusFilter]);
+
     
     // Dropdowns data
     const [intakes, setIntakes] = useState<Intake[]>([]);
@@ -76,6 +173,7 @@ export const StudentPerformance: React.FC = () => {
     
     // Tooltip / Details overlay
     const [hoveredCell, setHoveredCell] = useState<{ studentId: string; date: string } | null>(null);
+    const [activeTab, setActiveTab] = useState<'audit' | 'ledger'>('audit');
 
     // 1. Load Intakes and Sections on Mount
     useEffect(() => {
@@ -248,6 +346,37 @@ export const StudentPerformance: React.FC = () => {
         document.body.removeChild(link);
     };
 
+    const handleDownloadFilteredCSV = () => {
+        if (filteredStudents.length === 0) return;
+        const headers = ['Student ID', 'Name', 'Email', 'Cohort', 'Section', 'Avg WPM', 'Avg Accuracy', 'Milestone Stage', 'Requirements Status'];
+        const rows = filteredStudents.map(s => {
+            const requirements = s.milestoneStatus === 'Passed' ? 'Requirements Met' : 'Requirements Not Met';
+            let stage = s.milestoneStatus;
+            if (stage === 'Practicing') stage = 'Practice Mode';
+            return [
+                s.studentId,
+                s.name.replace(/,/g, ''),
+                s.email,
+                s.intake,
+                s.section,
+                s.avgWpm,
+                s.avgAccuracy,
+                stage,
+                requirements
+            ].join(',');
+        }).join('\n');
+        
+        const csvContent = `${headers.join(',')}\n${rows}`;
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.setAttribute('href', url);
+        link.setAttribute('download', `Filtered_Audited_Report_${new Date().toISOString().split('T')[0]}.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    };
+
     const currentIntakeName = intakes.find(i => i.id === selectedIntakeId)?.name || 'Select Intake';
     const currentSectionName = allSections.find(s => s.id === selectedSectionId)?.name || 'Select Section';
 
@@ -256,14 +385,17 @@ export const StudentPerformance: React.FC = () => {
             {/* Header section */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10 border-b border-slate-200 dark:border-white/10 pb-6">
                 <div>
-                    <h1 className="text-3xl md:text-4xl font-black tracking-tight text-[#094A71] dark:text-[#33B974] mb-2">Student Performance Ledger</h1>
+                    <h1 className="text-3xl md:text-4xl font-black tracking-tight text-[#094A71] dark:text-[#33B974] mb-2">Student Performance</h1>
                     <p className="text-slate-500 dark:text-slate-400 max-w-2xl text-base font-medium">
-                        Analyze class cohorts through an interactive date-matrix. Filter attempts, compare speeds, and audit passing benchmarks easily.
+                        Audit student progress tiers or analyze class cohorts through an interactive date-matrix ledger.
                     </p>
                 </div>
+
+
                 
-                <button
-                    onClick={handleExportCSV}
+                {activeTab === 'ledger' && (
+                    <button
+                        onClick={handleExportCSV}
                     disabled={students.length === 0 || uniqueDates.length === 0}
                     className={`px-5 py-3 rounded-xl font-bold flex items-center gap-2 shadow-sm transition-all border shrink-0 ${
                         students.length === 0 || uniqueDates.length === 0
@@ -272,10 +404,251 @@ export const StudentPerformance: React.FC = () => {
                     }`}
                 >
                     <Download className="w-4 h-4" />
-                    Export CSV Ledger
+                        Export CSV Ledger
+                    </button>
+                )}
+            </div>
+
+            {/* Tabs */}
+            <div className="flex items-center gap-2 mb-8 bg-slate-100/50 dark:bg-[#061824]/50 p-1 rounded-xl w-fit border border-slate-200/50 dark:border-white/5">
+                <button
+                    onClick={() => setActiveTab('audit')}
+                    className={`px-6 py-2.5 rounded-lg text-sm font-black transition-all ${activeTab === 'audit' ? 'bg-white dark:bg-[#0A2536] text-[#094A71] dark:text-[#33B974] shadow-sm border border-slate-200/50 dark:border-white/5' : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'}`}
+                >
+                    Live Auditing Center
+                </button>
+                <button
+                    onClick={() => setActiveTab('ledger')}
+                    className={`px-6 py-2.5 rounded-lg text-sm font-black transition-all ${activeTab === 'ledger' ? 'bg-white dark:bg-[#0A2536] text-[#094A71] dark:text-[#33B974] shadow-sm border border-slate-200/50 dark:border-white/5' : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'}`}
+                >
+                    Calendar View
                 </button>
             </div>
 
+            {activeTab === 'audit' && (
+            <div className="mb-8">
+                {/* Live Audit Metrics Grid */}
+                <h3 className="text-[#061824] text-xl font-black tracking-tight mb-2">Live School Auditing Center</h3>
+                <p className="text-slate-500 text-xs font-medium mb-6">Audited progress tiers across all enrolled student cohorts.</p>
+
+                {loadingData ? (
+                    <div className="p-8 text-center bg-white rounded-xl border border-slate-200">
+                        <Loader2 className="w-6 h-6 text-[#094A71] animate-spin mx-auto mb-2" />
+                        <span className="text-sm font-semibold text-slate-500">Loading student compliance profiles...</span>
+                    </div>
+                ) : (
+                    <>
+                        <div className="grid grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
+                            {/* Card 1: Practice Mode */}
+                            <div className="bg-white rounded-xl p-4 border border-slate-250 shadow-sm relative overflow-hidden">
+                                <div className="absolute top-0 right-0 p-2.5 bg-blue-500/10 rounded-bl-xl text-blue-500">
+                                    <Activity className="w-4 h-4" />
+                                </div>
+                                <p className="text-slate-400 text-[10px] font-black uppercase tracking-wider mb-1">Practice Mode</p>
+                                <h4 className="text-[#061824] text-2xl font-black">{milestoneCounts.practice}</h4>
+                                <span className="text-[9px] text-slate-400 font-bold block mt-1">Not Passed (Drills stage)</span>
+                            </div>
+
+                            {/* Card 2: Level 1 */}
+                            <div className="bg-white rounded-xl p-4 border border-slate-250 shadow-sm relative overflow-hidden">
+                                <div className="absolute top-0 right-0 p-2.5 bg-slate-500/10 rounded-bl-xl text-slate-500">
+                                    <Award className="w-4 h-4" />
+                                </div>
+                                <p className="text-slate-400 text-[10px] font-black uppercase tracking-wider mb-1">Level 1 Working</p>
+                                <h4 className="text-[#061824] text-2xl font-black">{milestoneCounts.lvl1}</h4>
+                                <span className="text-[9px] text-slate-400 font-bold block mt-1">Not Passed (L1 stage)</span>
+                            </div>
+
+                            {/* Card 3: Level 2 */}
+                            <div className="bg-white rounded-xl p-4 border border-slate-250 shadow-sm relative overflow-hidden">
+                                <div className="absolute top-0 right-0 p-2.5 bg-indigo-500/10 rounded-bl-xl text-indigo-500">
+                                    <Award className="w-4 h-4" />
+                                </div>
+                                <p className="text-slate-400 text-[10px] font-black uppercase tracking-wider mb-1">Level 2 Working</p>
+                                <h4 className="text-[#061824] text-2xl font-black">{milestoneCounts.lvl2}</h4>
+                                <span className="text-[9px] text-slate-400 font-bold block mt-1">Not Passed (L2 stage)</span>
+                            </div>
+
+                            {/* Card 4: Passed */}
+                            <div className="bg-emerald-50/50 rounded-xl p-4 border border-emerald-250 shadow-sm relative overflow-hidden">
+                                <div className="absolute top-0 right-0 p-2.5 bg-emerald-500/15 rounded-bl-xl text-emerald-600">
+                                    <CheckCircle className="w-4 h-4 shrink-0" />
+                                </div>
+                                <p className="text-emerald-700 text-[10px] font-black uppercase tracking-wider mb-1">Passed (Certified)</p>
+                                <h4 className="text-emerald-950 text-2xl font-black">{milestoneCounts.passed}</h4>
+                                <span className="text-[9px] text-emerald-600 font-black block mt-1">Requirements Met</span>
+                            </div>
+
+                            {/* Card 5: Not Yet Passed */}
+                            <div className="bg-amber-50/50 rounded-xl p-4 border border-amber-250 shadow-sm relative overflow-hidden col-span-2 lg:col-span-1">
+                                <div className="absolute top-0 right-0 p-2.5 bg-amber-500/15 rounded-bl-xl text-amber-600">
+                                    <AlertTriangle className="w-4 h-4 shrink-0 animate-bounce" />
+                                </div>
+                                <p className="text-amber-700 text-[10px] font-black uppercase tracking-wider mb-1">Not Yet Passed</p>
+                                <h4 className="text-amber-950 text-2xl font-black">{milestoneCounts.notPassed}</h4>
+                                <span className="text-[9px] text-amber-600 font-black block mt-1">Requirements Not Met</span>
+                            </div>
+                        </div>
+
+                        {/* Interactive Data Filter Panel */}
+                        <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden mb-10">
+                            <div className="p-5 border-b border-slate-100 bg-slate-50/50 flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between">
+                                <div className="flex items-center gap-2 shrink-0">
+                                    <SlidersHorizontal className="w-4 h-4 text-slate-500" />
+                                    <span className="text-xs font-black text-slate-700 uppercase tracking-widest">Active Filters</span>
+                                </div>
+
+                                <div className="flex flex-wrap gap-3 w-full lg:w-auto items-center lg:justify-end">
+                                    {/* Cohort filter select */}
+                                    <div className="flex-1 sm:flex-initial">
+                                        <select
+                                            value={cohortFilter}
+                                            onChange={(e) => setCohortFilter(e.target.value)}
+                                            className="w-full sm:w-44 rounded-lg border-slate-250 bg-white text-xs font-bold text-slate-700 focus:ring-[#094A71] focus:border-[#094A71]"
+                                        >
+                                            <option value="All">All Cohorts</option>
+                                            {uniqueCohorts.map(cohort => (
+                                                <option key={cohort} value={cohort}>{cohort}</option>
+                                            ))}
+                                        </select>
+                                    </div>
+
+                                    {/* Status filter select */}
+                                    <div className="flex-1 sm:flex-initial">
+                                        <select
+                                            value={statusFilter}
+                                            onChange={(e) => setStatusFilter(e.target.value)}
+                                            className="w-full sm:w-56 rounded-lg border-slate-250 bg-white text-xs font-bold text-slate-700 focus:ring-[#094A71] focus:border-[#094A71]"
+                                        >
+                                            <option value="All">All Statuses</option>
+                                            <option value="Practice">Practice Mode (Not Passed)</option>
+                                            <option value="Level 1">Level 1 (Not Passed)</option>
+                                            <option value="Level 2">Level 2 (Not Passed)</option>
+                                            <option value="Passed">Passed (Requirements Met)</option>
+                                            <option value="Not Passed">Not Yet Passed (Requirements Not Met)</option>
+                                        </select>
+                                    </div>
+
+                                    {/* Text Search query */}
+                                    <div className="relative flex-1 sm:flex-initial">
+                                        <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400">
+                                            <Search className="w-3.5 h-3.5" />
+                                        </span>
+                                        <input
+                                            type="text"
+                                            value={searchQuery}
+                                            onChange={(e) => setSearchQuery(e.target.value)}
+                                            placeholder="Search student or email..."
+                                            className="w-full sm:w-52 pl-9 pr-4 py-1.5 rounded-lg border-slate-250 bg-white text-xs font-bold text-slate-700 focus:ring-[#094A71] focus:border-[#094A71]"
+                                        />
+                                    </div>
+
+                                    {filteredStudents.length > 0 && (
+                                        <button
+                                            onClick={handleDownloadFilteredCSV}
+                                            className="px-3 py-1.5 bg-[#33B974] text-white hover:bg-[#33B974]/90 rounded-lg text-xs font-black transition-all flex items-center gap-1.5 shadow"
+                                            title="Download exact matching students as CSV"
+                                        >
+                                            <Download className="w-3.5 h-3.5" />
+                                            Download Audited CSV
+                                        </button>
+                                    )}
+                                </div>
+                            </div>
+
+                            {/* Audit table */}
+                            <div className="overflow-x-auto">
+                                <table className="w-full text-left border-collapse text-sm whitespace-nowrap">
+                                    <thead>
+                                        <tr className="bg-[#094A71] text-white text-xs font-bold uppercase tracking-wider">
+                                            <th className="px-6 py-3.5">Student Info</th>
+                                            <th className="px-6 py-3.5">Cohort & Section</th>
+                                            <th className="px-6 py-3.5 text-center">Milestone Stage</th>
+                                            <th className="px-6 py-3.5 text-center">Auditing Status</th>
+                                            <th className="px-6 py-3.5 text-right">Avg Speed</th>
+                                            <th className="px-6 py-3.5 text-right">Avg Accuracy</th>
+                                            <th className="px-6 py-3.5 text-center">Total Attempts</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="divide-y divide-slate-100 text-xs">
+                                        {filteredStudents.length === 0 ? (
+                                            <tr>
+                                                <td colSpan={7} className="px-6 py-10 text-center text-slate-400 font-bold">No audited student matching the current filter parameters was discovered.</td>
+                                            </tr>
+                                        ) : (
+                                            filteredStudents.map(student => {
+                                                const passed = student.milestoneStatus === 'Passed';
+                                                
+                                                return (
+                                                    <tr key={student.studentId} className="hover:bg-slate-50/50 transition-colors">
+                                                        <td className="px-6 py-4">
+                                                            <div className="flex items-center gap-3">
+                                                                <div className="w-9 h-9 rounded-full bg-[#094A71]/5 flex items-center justify-center font-black text-[#094A71] border border-[#094A71]/15 shrink-0">
+                                                                    {student.name.charAt(0)}
+                                                                </div>
+                                                                <div>
+                                                                    <p className="font-bold text-[#061824]">{student.name}</p>
+                                                                    <p className="text-[10px] text-slate-400 font-semibold">{student.email}</p>
+                                                                </div>
+                                                            </div>
+                                                        </td>
+                                                        <td className="px-6 py-4 text-slate-500 font-bold">
+                                                            {student.intake} • {student.section}
+                                                        </td>
+                                                        <td className="px-6 py-4 text-center">
+                                                            <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider border ${
+                                                                student.milestoneStatus === 'Passed'
+                                                                    ? 'bg-emerald-100 text-emerald-700 border-emerald-200'
+                                                                    : student.milestoneStatus === 'Level 2'
+                                                                    ? 'bg-indigo-100 text-indigo-700 border-indigo-200'
+                                                                    : student.milestoneStatus === 'Level 1'
+                                                                    ? 'bg-slate-100 text-slate-700 border-slate-200'
+                                                                    : 'bg-blue-100 text-blue-700 border-blue-200'
+                                                            }`}>
+                                                                {student.milestoneStatus === 'Practicing' ? 'Practice Mode' : student.milestoneStatus}
+                                                            </span>
+                                                        </td>
+                                                        <td className="px-6 py-4 text-center">
+                                                            <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider ${
+                                                                passed
+                                                                    ? 'bg-emerald-100 text-emerald-700 border border-emerald-250 shadow-sm shadow-emerald-50'
+                                                                    : 'bg-amber-100 text-amber-700 border border-amber-250 shadow-sm shadow-amber-50 animate-pulse'
+                                                            }`}>
+                                                                {passed ? 'Requirements Met' : 'Not Met'}
+                                                            </span>
+                                                        </td>
+                                                        <td className="px-6 py-4 text-right">
+                                                            <span className="font-black text-slate-800 text-sm">{student.avgWpm}</span>
+                                                            <span className="text-[9px] text-slate-400 uppercase font-black ml-0.5">wpm</span>
+                                                        </td>
+                                                        <td className="px-6 py-4 text-right font-bold text-slate-700">
+                                                            {student.avgAccuracy}%
+                                                        </td>
+                                                        <td className="px-6 py-4 text-center font-bold text-slate-600">
+                                                            {student.totalTests} tests
+                                                        </td>
+                                                    </tr>
+                                                );
+                                            })
+                                        )}
+                                    </tbody>
+                                </table>
+                            </div>
+                            
+                            {filteredStudents.length > 0 && (
+                                <div className="p-4 bg-slate-50 border-t border-slate-100 flex items-center justify-between text-[11px] font-bold text-slate-500">
+                                    <span>Auditing Summary: showing {filteredStudents.length} of {auditedStudents.length} student compliance profiles</span>
+                                    <span className="text-slate-400 font-semibold">Requirements Met: {filteredStudents.filter(s => s.milestoneStatus === 'Passed').length} students</span>
+                                </div>
+                            )}
+                        </div>
+                    </>
+                )}
+            </div>
+            )}
+
+            {activeTab === 'ledger' && (
+                <>
             {/* Filter Control Dashboard Card */}
             <div className="bg-white dark:bg-[#0A2536] border border-slate-200 dark:border-white/10 rounded-2xl p-6 md:p-8 shadow-sm mb-8 transition-all">
                 <div className="flex items-center gap-2.5 mb-6 pb-4 border-b border-slate-100 dark:border-white/5">
@@ -374,7 +747,7 @@ export const StudentPerformance: React.FC = () => {
                     <div className="flex items-center gap-2">
                         <Calendar className="w-5 h-5 text-admin-primary" />
                         <div>
-                            <h3 className="font-extrabold text-slate-800 dark:text-white text-base">Ledger Matrix Grid</h3>
+                            <h3 className="font-extrabold text-slate-800 dark:text-white text-base">Calendar View</h3>
                             <p className="text-xs text-slate-400 mt-0.5 font-medium">{currentIntakeName} • {currentSectionName}</p>
                         </div>
                     </div>
@@ -388,7 +761,7 @@ export const StudentPerformance: React.FC = () => {
                 {loading ? (
                     <div className="flex flex-col items-center justify-center py-24">
                         <div className="w-10 h-10 rounded-full border-4 border-admin-primary/20 border-t-admin-primary animate-spin mb-4"></div>
-                        <p className="text-slate-500 text-sm font-bold">Synchronizing Performance Ledger Matrix...</p>
+                        <p className="text-slate-500 text-sm font-bold">Synchronizing Calendar View...</p>
                     </div>
                 ) : students.length === 0 ? (
                     <div className="p-16 text-center">
@@ -505,6 +878,8 @@ export const StudentPerformance: React.FC = () => {
                     </div>
                 )}
             </div>
+                </>
+            )}
         </div>
     );
 };

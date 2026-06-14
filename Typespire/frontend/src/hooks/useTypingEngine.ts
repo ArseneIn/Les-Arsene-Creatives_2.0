@@ -19,13 +19,15 @@ export const useTypingEngine = ({ targetText, duration = 60, untimed = false, st
     const [strugglingKeys, setStrugglingKeys] = useState<Record<string, number>>({});
     
     // Strict mode state tracking
-    const [strictErrorCount, setStrictErrorCount] = useState(0);
-    const [strictKeyErrors, setStrictKeyErrors] = useState<Record<string, number>>({});
+    const strictErrorCountRef = useRef(0);
+    const strictKeyErrorsRef = useRef<Record<string, number>>({});
     const [lastErrorIndex, setLastErrorIndex] = useState<number | null>(null);
 
     const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
     const startTimeRef = useRef<number | null>(null);
     const userInputRef = useRef(''); // Fix for stale closure in setInterval
+    const finalResultsRef = useRef<{ wpm: number; accuracy: number; errors: number; strugglingKeys: Record<string, number> }>({ wpm: 0, accuracy: 100, errors: 0, strugglingKeys: {} });
+    const finalUserInputRef = useRef(''); // Always tracks latest userInput for onFinish closure
 
     const finishTest = useCallback(() => {
         if (intervalRef.current) clearInterval(intervalRef.current);
@@ -51,36 +53,38 @@ export const useTypingEngine = ({ targetText, duration = 60, untimed = false, st
             }
         }
 
-        // Add strict errors (from blocked inputs)
-        setStrictErrorCount(prevStrictErrs => {
-            setStrictKeyErrors(prevStrictKeys => {
-                const totalErrors = errorCount + prevStrictErrs;
-                const totalKeyErrors = { ...keyErrors };
-                for (const k in prevStrictKeys) {
-                    totalKeyErrors[k] = (totalKeyErrors[k] || 0) + prevStrictKeys[k];
-                }
+        const totalErrors = errorCount + strictErrorCountRef.current;
+        const totalKeyErrors = { ...keyErrors };
+        for (const k in strictKeyErrorsRef.current) {
+            totalKeyErrors[k] = (totalKeyErrors[k] || 0) + strictKeyErrorsRef.current[k];
+        }
 
-                // Net WPM Calculation: (Total Characters - Errors) / 5 / Time
-                const netCharacters = Math.max(0, currentInput.length - totalErrors);
-                const wordsTyped = netCharacters / 5;
-                const currentWpm = timeElapsedMin > 0 ? Math.round(wordsTyped / timeElapsedMin) : 0;
+        // Net WPM Calculation: (Total Characters - Errors) / 5 / Time
+        const netCharacters = Math.max(0, currentInput.length - totalErrors);
+        const wordsTyped = netCharacters / 5;
+        let currentWpm = timeElapsedMin > 0 ? Math.round(wordsTyped / timeElapsedMin) : 0;
+        if (Number.isNaN(currentWpm) || !isFinite(currentWpm)) currentWpm = 0;
 
-                const attempts = currentInput.length + prevStrictErrs;
-                const currentAccuracy = attempts > 0
-                    ? Math.max(0, Math.round(((attempts - totalErrors) / attempts) * 100))
-                    : 100;
+        const attempts = currentInput.length + strictErrorCountRef.current;
+        let currentAccuracy = attempts > 0
+            ? Math.max(0, Math.round(((attempts - totalErrors) / attempts) * 100))
+            : 100;
+        if (Number.isNaN(currentAccuracy) || !isFinite(currentAccuracy)) currentAccuracy = 100;
 
-                setWpm(currentWpm);
-                setAccuracy(currentAccuracy);
-                setErrors(totalErrors);
-                setStrugglingKeys(totalKeyErrors);
-                
-                return prevStrictKeys;
-            });
-            return prevStrictErrs;
-        });
+        // Always keep finalResultsRef up-to-date so onFinish always gets fresh values
+        finalResultsRef.current = { wpm: currentWpm, accuracy: currentAccuracy, errors: totalErrors, strugglingKeys: totalKeyErrors };
+
+        setWpm(currentWpm);
+        setAccuracy(currentAccuracy);
+        setErrors(totalErrors);
+        setStrugglingKeys(totalKeyErrors);
 
     }, [targetText]);
+
+    const calculateStatsRef = useRef(calculateStats);
+    useEffect(() => {
+        calculateStatsRef.current = calculateStats;
+    }, [calculateStats]);
 
     const hasFinishedRef = useRef(false);
 
@@ -94,8 +98,8 @@ export const useTypingEngine = ({ targetText, duration = 60, untimed = false, st
         setWpm(0);
         setAccuracy(100);
         setErrors(0);
-        setStrictErrorCount(0);
-        setStrictKeyErrors({});
+        strictErrorCountRef.current = 0;
+        strictKeyErrorsRef.current = {};
         setStrugglingKeys({});
         startTimeRef.current = Date.now();
 
@@ -115,19 +119,20 @@ export const useTypingEngine = ({ targetText, duration = 60, untimed = false, st
                 });
             }
             // Recalculate stats every second
-            calculateStats();
+            calculateStatsRef.current();
         }, 1000);
-    }, [duration, untimed, calculateStats, finishTest]);
+    }, [duration, untimed, finishTest]);
 
 
 
     // Trigger onFinish when isFinished becomes true (exactly once per session)
+    // Use finalResultsRef instead of state to avoid stale closure values
     useEffect(() => {
         if (isFinished && onFinish && !hasFinishedRef.current) {
             hasFinishedRef.current = true;
-            onFinish({ wpm, accuracy, errors, strugglingKeys });
+            onFinish(finalResultsRef.current);
         }
-    }, [isFinished, onFinish, wpm, accuracy, errors, strugglingKeys]);
+    }, [isFinished, onFinish]);
 
     const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
         if (isFinished) return;
@@ -162,21 +167,21 @@ export const useTypingEngine = ({ targetText, duration = 60, untimed = false, st
             
             // Scenario 1: Expected a space/enter, but they typed a letter/symbol instead
             if ((expectedChar === '\n' || expectedChar === ' ') && typedChar !== expectedChar) {
-                setStrictErrorCount(prev => prev + 1);
-                setStrictKeyErrors(prev => ({ ...prev, [expectedChar]: (prev[expectedChar] || 0) + 1 }));
+                strictErrorCountRef.current += 1;
+                strictKeyErrorsRef.current[expectedChar] = (strictKeyErrorsRef.current[expectedChar] || 0) + 1;
                 setLastErrorIndex(addedCharIndex);
                 setTimeout(() => setLastErrorIndex(null), 400);
-                calculateStats();
+                calculateStatsRef.current();
                 return; // Block input, force correct functional key
             }
 
             // Scenario 2: Expected a letter/symbol, but they pressed Space instead
             if (typedChar === ' ' && expectedChar !== ' ' && expectedChar !== '\n') {
-                setStrictErrorCount(prev => prev + 1);
-                setStrictKeyErrors(prev => ({ ...prev, [expectedChar]: (prev[expectedChar] || 0) + 1 }));
+                strictErrorCountRef.current += 1;
+                strictKeyErrorsRef.current[expectedChar] = (strictKeyErrorsRef.current[expectedChar] || 0) + 1;
                 setLastErrorIndex(addedCharIndex);
                 setTimeout(() => setLastErrorIndex(null), 400);
-                calculateStats();
+                calculateStatsRef.current();
                 return; // Block input, force correct letter
             }
         }
@@ -189,14 +194,14 @@ export const useTypingEngine = ({ targetText, duration = 60, untimed = false, st
             
             if (typedChar !== expectedChar) {
                 // Log the strict mistake
-                setStrictErrorCount(prev => prev + 1);
-                setStrictKeyErrors(prev => ({ ...prev, [expectedChar]: (prev[expectedChar] || 0) + 1 }));
+                strictErrorCountRef.current += 1;
+                strictKeyErrorsRef.current[expectedChar] = (strictKeyErrorsRef.current[expectedChar] || 0) + 1;
                 
                 // Signal UI to show shake animation
                 setLastErrorIndex(addedCharIndex);
                 setTimeout(() => setLastErrorIndex(null), 400); // clear after animation duration
                 
-                calculateStats(); // recalculate accuracy immediately
+                calculateStatsRef.current(); // recalculate accuracy immediately
                 return; // Block the input completely!
             }
         }
@@ -218,6 +223,7 @@ export const useTypingEngine = ({ targetText, duration = 60, untimed = false, st
 
         setUserInput(value);
         userInputRef.current = value;
+        finalUserInputRef.current = value; // Keep ref in sync for onFinish
 
         // Calculate stats immediately on input
         if (startTimeRef.current || !started) {
@@ -236,33 +242,31 @@ export const useTypingEngine = ({ targetText, duration = 60, untimed = false, st
                 }
             }
 
-            setStrictErrorCount(prevStrictErrs => {
-                setStrictKeyErrors(prevStrictKeys => {
-                    const totalErrors = errorCount + prevStrictErrs;
-                    const totalKeyErrors = { ...keyErrors };
-                    for (const k in prevStrictKeys) {
-                        totalKeyErrors[k] = (totalKeyErrors[k] || 0) + prevStrictKeys[k];
-                    }
+            const totalErrors = errorCount + strictErrorCountRef.current;
+            const totalKeyErrors = { ...keyErrors };
+            for (const k in strictKeyErrorsRef.current) {
+                totalKeyErrors[k] = (totalKeyErrors[k] || 0) + strictKeyErrorsRef.current[k];
+            }
 
-                    // Net WPM Calculation
-                    const netCharacters = Math.max(0, value.length - totalErrors);
-                    const wordsTyped = netCharacters / 5;
-                    const currentWpm = timeElapsedMin > 0 ? Math.round(wordsTyped / timeElapsedMin) : 0;
+            // Net WPM Calculation
+            const netCharacters = Math.max(0, value.length - totalErrors);
+            const wordsTyped = netCharacters / 5;
+            let currentWpm = timeElapsedMin > 0 ? Math.round(wordsTyped / timeElapsedMin) : 0;
+            if (Number.isNaN(currentWpm) || !isFinite(currentWpm)) currentWpm = 0;
 
-                    const attempts = value.length + prevStrictErrs;
-                    const currentAccuracy = attempts > 0
-                        ? Math.max(0, Math.round(((attempts - totalErrors) / attempts) * 100))
-                        : 100;
+            const attempts = value.length + strictErrorCountRef.current;
+            let currentAccuracy = attempts > 0
+                ? Math.max(0, Math.round(((attempts - totalErrors) / attempts) * 100))
+                : 100;
+            if (Number.isNaN(currentAccuracy) || !isFinite(currentAccuracy)) currentAccuracy = 100;
 
-                    setWpm(currentWpm);
-                    setAccuracy(currentAccuracy);
-                    setErrors(totalErrors);
-                    setStrugglingKeys(totalKeyErrors);
-                    
-                    return prevStrictKeys;
-                });
-                return prevStrictErrs;
-            });
+            // Always keep finalResultsRef up-to-date so onFinish always gets fresh values
+            finalResultsRef.current = { wpm: currentWpm, accuracy: currentAccuracy, errors: totalErrors, strugglingKeys: totalKeyErrors };
+
+            setWpm(currentWpm);
+            setAccuracy(currentAccuracy);
+            setErrors(totalErrors);
+            setStrugglingKeys(totalKeyErrors);
         }
 
         // Auto-finish if text is complete
@@ -282,6 +286,7 @@ export const useTypingEngine = ({ targetText, duration = 60, untimed = false, st
         started,
         timeLeft,
         userInput,
+        finalUserInput: finalUserInputRef, // Ref to avoid stale closure in onFinish
         wpm,
         accuracy,
         isFinished,

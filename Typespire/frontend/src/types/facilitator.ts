@@ -25,6 +25,8 @@ export interface Assignment {
     duration?: number;       // Duration in seconds (optional)
     maxAttempts?: number;    // Number of attempts allowed (optional, defaults to 1)
     testId?: string;         // Associated test database ID
+    wpmRequirement?: number; // Pass WPM
+    accuracyRequirement?: number; // Pass Accuracy
     facilitatorName?: string; // Display name of assigning facilitator
 }
 

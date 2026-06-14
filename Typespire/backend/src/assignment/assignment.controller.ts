@@ -33,6 +33,8 @@ export class AssignmentController {
       duration?: number;
       content?: string;
       maxAttempts?: number;
+      wpmRequirement?: number;
+      accuracyRequirement?: number;
     },
     @Request() req: any,
   ) {
@@ -52,6 +54,13 @@ export class AssignmentController {
       metadata: { dueDate: res.dueDate, testId: res.testId },
     });
     return res;
+  }
+
+  @Get('student')
+  async findForStudent(@Request() req: any) {
+    const studentId = req.query.studentId as string || req.user?.id;
+    const sectionId = req.query.sectionId as string;
+    return this.assignmentService.findForStudent(studentId, sectionId);
   }
 
   @Get('section/:sectionId')

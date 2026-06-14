@@ -260,8 +260,8 @@ const InstitutionAdminLayout: React.FC = () => {
                                     </h4>
                                     <p className="text-xs leading-relaxed opacity-90">{subInfo.message}</p>
                                 </div>
-                                <Link 
-                                    to="/admin/settings" 
+                                <a 
+                                    href={`mailto:support@typespire.com?subject=Typespire%20Subscription%20Renewal%20-%20${encodeURIComponent(user?.institution?.name || '')}`}
                                     className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all shrink-0 hover:scale-[1.02] active:scale-[0.98] ${
                                         subInfo.isCritical 
                                             ? 'bg-red-500 text-white hover:bg-red-600 shadow-md shadow-red-500/20' 
@@ -269,7 +269,7 @@ const InstitutionAdminLayout: React.FC = () => {
                                     }`}
                                 >
                                     Renew Plan
-                                </Link>
+                                </a>
                             </div>
                         )}
                         <Outlet />

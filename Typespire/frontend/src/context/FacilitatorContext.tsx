@@ -101,8 +101,10 @@ export const FacilitatorProvider: React.FC<{ children: ReactNode }> = ({ childre
             if (!user) return;
             try {
                 let response;
-                if (user.role === 'STUDENT' && user.sectionId) {
-                    response = await api.get(`/assignment/section/${user.sectionId}`);
+                if (user.role === 'STUDENT') {
+                    const params = new URLSearchParams({ studentId: user.id });
+                    if (user.sectionId) params.append('sectionId', user.sectionId);
+                    response = await api.get(`/assignment/student?${params.toString()}`);
                 } else if (user.role === 'FACILITATOR') {
                     response = await api.get(`/assignment/facilitator/${user.id}`);
                 }
@@ -165,6 +167,8 @@ export const FacilitatorProvider: React.FC<{ children: ReactNode }> = ({ childre
                 level: newAssignment.level,
                 duration: newAssignment.duration,
                 maxAttempts: newAssignment.maxAttempts || 1,
+                wpmRequirement: newAssignment.wpmRequirement,
+                accuracyRequirement: newAssignment.accuracyRequirement,
                 content: newAssignment.text
             });
 

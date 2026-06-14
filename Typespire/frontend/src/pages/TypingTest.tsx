@@ -166,6 +166,7 @@ const TypingTest: React.FC = () => {
     const [showStageCelebration, setShowStageCelebration] = useState(false);
     const lastKeyBreakdown = useRef<Record<string, { hits: number; misses: number }>>({});
     const [keyBreakdownState, setKeyBreakdownState] = useState<Record<string, { hits: number; misses: number }>>({});
+    const [finalResults, setFinalResults] = useState<{ wpm: number; accuracy: number; strugglingKeys: Record<string, number> } | null>(null);
     const prevBestWpm = testConfig.stageId ? (stageResults[testConfig.stageId]?.bestWpm ?? 0) : 0;
     const wasAlreadyPassed = testConfig.stageId ? (stageResults[testConfig.stageId]?.passed ?? false) : false;
 
@@ -184,7 +185,7 @@ const TypingTest: React.FC = () => {
 
     // ── Typing engine ──────────────────────────────────────────────────────
     const {
-        started, timeLeft, userInput, wpm, accuracy, isFinished,
+        started, timeLeft, userInput, finalUserInput, wpm, accuracy, isFinished,
         strugglingKeys, startTest, handleInputChange, lastErrorIndex
     } = useTypingEngine({
         targetText: formattedTargetText,
@@ -192,14 +193,15 @@ const TypingTest: React.FC = () => {
         untimed: isPractice || testConfig.duration === 0,
         strict: testConfig.practiceType === 'letters' || testConfig.practiceType === 'falling',
         onFinish: (results) => {
-            // Build per-key stats for heatmap
+            // Build per-key stats for heatmap using finalUserInput ref (avoids stale closure)
+            const finalInput = finalUserInput.current;
             const keyBreakdown: Record<string, { hits: number; misses: number }> = {};
-            for (let i = 0; i < userInput.length; i++) {
+            for (let i = 0; i < finalInput.length; i++) {
                 const expected = formattedTargetText[i];
                 if (!expected) continue;
                 const key = expected.toLowerCase();
                 if (!keyBreakdown[key]) keyBreakdown[key] = { hits: 0, misses: 0 };
-                if (userInput[i] === expected) keyBreakdown[key].hits++;
+                if (finalInput[i] === expected) keyBreakdown[key].hits++;
                 else keyBreakdown[key].misses++;
             }
             lastKeyBreakdown.current = keyBreakdown;
@@ -218,6 +220,9 @@ const TypingTest: React.FC = () => {
                 testId: testConfig.testId,
             });
 
+            // Capture final results into state for display (avoids stale closure issue)
+            setFinalResults({ wpm: results.wpm, accuracy: results.accuracy, strugglingKeys: results.strugglingKeys });
+
             if (user?.id) submitTestResult(user.id, results.wpm, results.accuracy);
 
             // Victory confetti for Level 2 pass
@@ -228,6 +233,7 @@ const TypingTest: React.FC = () => {
             // Stage celebration: newly passed a practice stage
             const isNewPass = testConfig.stageId && !wasAlreadyPassed &&
                 results.wpm >= benchmark.wpm && results.accuracy >= benchmark.accuracy;
+
             if (isNewPass) {
                 setShowStageCelebration(true);
             }
@@ -243,8 +249,14 @@ const TypingTest: React.FC = () => {
     const [isCountingDown, setIsCountingDown] = useState(false);
     const [countdown, setCountdown] = useState(3);
 
+    const startTestRef = useRef(startTest);
+    useEffect(() => {
+        startTestRef.current = startTest;
+    }, [startTest]);
+
     const handleStart = () => {
         setShowConfetti(false);
+        setFinalResults(null);
         if (mode === 'random') {
             setRandomSprintText('');
         }
@@ -252,7 +264,7 @@ const TypingTest: React.FC = () => {
         setCountdown(3);
         const interval = setInterval(() => {
             setCountdown(prev => {
-                if (prev <= 1) { clearInterval(interval); setIsCountingDown(false); startTest(); return 0; }
+                if (prev <= 1) { clearInterval(interval); setIsCountingDown(false); startTestRef.current(); return 0; }
                 return prev - 1;
             });
         }, 1000);
@@ -264,7 +276,11 @@ const TypingTest: React.FC = () => {
     });
     const { mins, secs } = formatTime(timeLeft);
 
-    const passed = wpm >= benchmark.wpm && accuracy >= benchmark.accuracy;
+    // Use finalResults for display (guaranteed correct); fall back to live state during test
+    const displayWpm = finalResults?.wpm ?? wpm;
+    const displayAccuracy = finalResults?.accuracy ?? accuracy;
+    const displayStrugglingKeys = finalResults?.strugglingKeys ?? strugglingKeys;
+    const passed = displayWpm >= benchmark.wpm && displayAccuracy >= benchmark.accuracy;
 
     const currentStageIndex = testConfig.stageId ? PRACTICE_STAGES.findIndex(s => s.id === testConfig.stageId) : -1;
     const nextStageId = (currentStageIndex >= 0 && currentStageIndex < PRACTICE_STAGES.length - 1) ? PRACTICE_STAGES[currentStageIndex + 1].id : null;
@@ -361,6 +377,35 @@ const TypingTest: React.FC = () => {
                         {/* Elegantly structured information cards */}
                         {isPractice ? (
                             <div className="bg-slate-50 dark:bg-[#06141f] border border-gray-100 dark:border-white/5 rounded-2xl p-5 mb-6 text-left space-y-3.5">
+                                {/* N-gram 3-Phase Explainer */}
+                                {testConfig.stageId?.endsWith('-ngrams') && (
+                                    <div className="mb-1 pb-3.5 border-b border-slate-100 dark:border-white/5">
+                                        <p className="text-[11px] font-black uppercase tracking-wider text-slate-700 dark:text-slate-200 mb-2.5">3-Phase Rhythm Drill</p>
+                                        <div className="flex flex-col gap-1.5">
+                                            <div className="flex items-center gap-2.5">
+                                                <span className="flex-shrink-0 w-5 h-5 rounded-full bg-violet-100 dark:bg-violet-500/20 text-violet-600 dark:text-violet-400 font-black text-[9px] flex items-center justify-center">1</span>
+                                                <div>
+                                                    <span className="text-[10px] font-bold text-violet-600 dark:text-violet-400">Anchor</span>
+                                                    <span className="text-[10px] text-slate-400 ml-1">— rhythmic pairs of just the new keys (e.g. ur ur ur ur)</span>
+                                                </div>
+                                            </div>
+                                            <div className="flex items-center gap-2.5">
+                                                <span className="flex-shrink-0 w-5 h-5 rounded-full bg-blue-100 dark:bg-blue-500/20 text-blue-600 dark:text-blue-400 font-black text-[9px] flex items-center justify-center">2</span>
+                                                <div>
+                                                    <span className="text-[10px] font-bold text-blue-600 dark:text-blue-400">Roll</span>
+                                                    <span className="text-[10px] text-slate-400 ml-1">— cross-finger combos blending new + known keys</span>
+                                                </div>
+                                            </div>
+                                            <div className="flex items-center gap-2.5">
+                                                <span className="flex-shrink-0 w-5 h-5 rounded-full bg-emerald-100 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 font-black text-[9px] flex items-center justify-center">3</span>
+                                                <div>
+                                                    <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400">Words</span>
+                                                    <span className="text-[10px] text-slate-400 ml-1">— real micro-words built around the new keys</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
                                 <div className="flex items-start gap-3">
                                     <span className="material-symbols-outlined text-[#33B974] bg-[#33B974]/10 p-1 rounded-lg text-base">all_inclusive</span>
                                     <div>
@@ -430,8 +475,8 @@ const TypingTest: React.FC = () => {
             {showStageCelebration && (
                 <StageCelebration
                     stageName={testConfig.title}
-                    wpm={wpm}
-                    accuracy={accuracy}
+                    wpm={displayWpm}
+                    accuracy={displayAccuracy}
                     nextStageId={nextStageId}
                     onContinue={() => {
                         setShowStageCelebration(false);
@@ -444,8 +489,8 @@ const TypingTest: React.FC = () => {
                     onViewResults={() => {
                         setShowStageCelebration(false);
                         navigate('/results', { state: {
-                            wpm, accuracy, passed: true, benchmark,
-                            strugglingKeys, stageId: testConfig.stageId,
+                            wpm: displayWpm, accuracy: displayAccuracy, passed: true, benchmark,
+                            strugglingKeys: displayStrugglingKeys, stageId: testConfig.stageId,
                             stageName: testConfig.title, nextStageId,
                             isPractice, isLevel2, prevBestWpm,
                             isNewStagePassed: true,
@@ -491,7 +536,7 @@ const TypingTest: React.FC = () => {
                         <h2 className="text-3xl font-bold mb-1 text-[#061824] dark:text-white">
                             {(assignmentId || stageId) 
                                 ? (passed ? 'Test Passed!' : 'Not Quite There') 
-                                : `${wpm} WPM!`}
+                                : `${displayWpm} WPM!`}
                         </h2>
                         <p className="text-gray-400 text-sm mb-5">
                             {(assignmentId || stageId)
@@ -504,12 +549,12 @@ const TypingTest: React.FC = () => {
                         <div className="grid grid-cols-2 gap-4 mb-6">
                             <div className="p-4 bg-gray-50 dark:bg-white/5 rounded-xl">
                                 <p className="text-xs text-gray-400 mb-1">WPM</p>
-                                <p className={`text-3xl font-bold font-mono ${wpm >= benchmark.wpm ? 'text-[#33B974]' : 'text-red-400'}`}>{wpm}</p>
+                                <p className={`text-3xl font-bold font-mono ${displayWpm >= benchmark.wpm ? 'text-[#33B974]' : 'text-red-400'}`}>{displayWpm}</p>
                                 <p className="text-[10px] text-gray-400">Goal: {benchmark.wpm}</p>
                             </div>
                             <div className="p-4 bg-gray-50 dark:bg-white/5 rounded-xl">
                                 <p className="text-xs text-gray-400 mb-1">Accuracy</p>
-                                <p className={`text-3xl font-bold font-mono ${accuracy >= benchmark.accuracy ? 'text-[#33B974]' : 'text-red-400'}`}>{accuracy}%</p>
+                                <p className={`text-3xl font-bold font-mono ${displayAccuracy >= benchmark.accuracy ? 'text-[#33B974]' : 'text-red-400'}`}>{displayAccuracy}%</p>
                                 <p className="text-[10px] text-gray-400">Goal: {benchmark.accuracy}%</p>
                             </div>
                         </div>
@@ -549,11 +594,11 @@ const TypingTest: React.FC = () => {
                             );
                         })()}
 
-                        {Object.keys(strugglingKeys).length > 0 && (
+                        {Object.keys(displayStrugglingKeys).length > 0 && (
                             <div className="mb-5 text-left">
                                 <p className="text-xs text-gray-400 uppercase tracking-wider mb-2">Keys to practice</p>
                                 <div className="flex flex-wrap gap-2">
-                                    {Object.entries(strugglingKeys).sort(([, a], [, b]) => b - a).slice(0, 5).map(([key, count]) => (
+                                    {Object.entries(displayStrugglingKeys).sort(([, a], [, b]) => b - a).slice(0, 5).map(([key, count]) => (
                                         <div key={key} className="flex items-center gap-1.5 bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-900/30 px-2.5 py-1.5 rounded-lg">
                                             <span className="text-sm font-bold text-red-600 dark:text-red-400 font-mono">{key === ' ' ? 'Space' : key}</span>
                                             <span className="text-[10px] text-red-400">{count}×</span>
@@ -576,12 +621,12 @@ const TypingTest: React.FC = () => {
                             <Link
                                 to="/results"
                                 state={{
-                                    wpm, accuracy, passed, benchmark,
-                                    strugglingKeys, stageId: testConfig.stageId,
+                                    wpm: displayWpm, accuracy: displayAccuracy, passed, benchmark,
+                                    strugglingKeys: displayStrugglingKeys, stageId: testConfig.stageId,
                                     stageName: testConfig.title, nextStageId,
                                     isPractice, isLevel2, prevBestWpm,
                                     isNewStagePassed: !wasAlreadyPassed && passed && !!testConfig.stageId,
-                                    keyBreakdown: lastKeyBreakdown.current,
+                                    keyBreakdown: keyBreakdownState,
                                     assignmentId, testTitle: testConfig.title,
                                 }}
                                 className="w-full bg-[#094A71] hover:bg-[#094A71]/90 text-white font-bold py-3 rounded-xl text-sm transition-all flex items-center justify-center gap-2"

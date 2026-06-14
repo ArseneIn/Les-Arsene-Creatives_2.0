@@ -34,4 +34,19 @@ export interface Institution {
     slug: string;
     subscriptionStatus: string;
     subscriptionEndDate?: string;
+    address?: string;
+    contactEmail?: string;
+    maxStudents?: number;
+    plan?: string;
+}
+
+export interface CreateInstitutionDto {
+    name: string;
+    slug: string;
+    contactEmail: string;
+    address: string;
+    adminEmail?: string;
+    adminPassword?: string;
+    adminFirstName?: string;
+    adminLastName?: string;
 }

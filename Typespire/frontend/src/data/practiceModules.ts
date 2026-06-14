@@ -103,56 +103,257 @@ function generateCumulativeWords(allowedKeys: string[], wordCount: number = 20):
     return text.join(' ');
 }
 
-/**
- * Generates rhythmic bigram and trigram patterns utilizing ONLY allowed keys.
- */
-function generateNGramText(allowedKeys: string[], patternCount: number = 18): string {
-    const allowedSet = new Set(allowedKeys.map(k => k.toLowerCase()));
-    
-    // High-frequency English bigrams and trigrams
-    const commonNGrams = [
-        "th", "he", "in", "er", "an", "re", "on", "es", "at", "ed", "nd", "ha", 
-        "en", "ou", "to", "ng", "it", "is", "or", "as", "te", "et", "al", "ar", 
-        "st", "se", "ff", "jj", "fj", "jf", "ur", "ru", "uk", "ku", "kr", "rk",
-        "de", "ed", "di", "id", "ki", "ik", "fe", "ef", "ce", "ec", "ge", "eg",
-        "en", "ne", "cg", "gc", "the", "and", "ing", "ent", "ion", "her", "for", 
-        "tha", "ter", "was", "has", "red", "fed", "ded", "dec", "rec", "ice", "run"
-    ];
-    
-    const validNGrams = commonNGrams.filter(pattern => {
-        for (const char of pattern) {
-            if (!allowedSet.has(char)) return false;
-        }
-        return true;
-    });
-    
-    const chunks: string[] = [];
-    if (validNGrams.length === 0) {
-        const cleanKeys = allowedKeys.filter(k => k !== ' ');
-        for (let i = 0; i < patternCount; i++) {
-            const k1 = cleanKeys[Math.floor(Math.random() * cleanKeys.length)];
-            const k2 = cleanKeys[Math.floor(Math.random() * cleanKeys.length)];
-            const pattern = k1 + k2;
-            chunks.push((pattern + ' ').repeat(3).trim());
-        }
-    } else {
-        // Select random patterns and repeat them rhythmically
-        const selectedCount = Math.min(validNGrams.length, 6);
-        const shuffled = [...validNGrams].sort(() => 0.5 - Math.random());
-        
-        for (let i = 0; i < selectedCount; i++) {
-            chunks.push((shuffled[i] + ' ').repeat(3).trim());
-        }
-        
-        // Add a few mixed ones
-        let mixed = '';
-        for (let i = 0; i < 8; i++) {
-            mixed += validNGrams[Math.floor(Math.random() * validNGrams.length)] + ' ';
-        }
-        chunks.push(mixed.trim());
+// ─────────────────────────────────────────────────────────────────────────────
+// Per-module curated N-gram banks
+// Each module has:
+//   phase1: rhythmic patterns using ONLY the new keys (anchor → reinforcement)
+//   phase2: transition patterns mixing new keys with previously-learned keys
+//   phase3: micro-word fragments / substrings that contain at least one new key
+// ─────────────────────────────────────────────────────────────────────────────
+
+const MODULE_NGRAM_BANKS: Record<string, {
+    phase1: string[];
+    phase2: string[];
+    phase3: string[];
+}> = {
+    'mod-1': {
+        // Home row: a s d f j k l ;
+        phase1: [
+            'ff jj', 'dd kk', 'ss ll', 'aa ;;',
+            'fj fj', 'dk dk', 'sl sl',
+            'fff jjj', 'ddd kkk', 'sss lll',
+            'fjf jfj', 'dkd kdk', 'sls lsl'
+        ],
+        phase2: [
+            'fj dk sl', 'jf kd ls',
+            'fds jkl', 'asd ;lk',
+            'fjdk slaj', 'dksl fjas'
+        ],
+        phase3: [
+            'ask', 'fall', 'flask', 'glass', 'lass', 'lads', 'dads', 'fads',
+            'adds', 'alsk', 'fads', 'dads', 'lads', 'lass', 'asks'
+        ]
+    },
+    'mod-2': {
+        // New keys: u r k  (cumulative: a s d f j k l ; u r)
+        phase1: [
+            'uu rr kk', 'ur ru uk ku',
+            'urk kru rku', 'uru kuk rkr',
+            'rur kuk uku', 'ru ur kr rk uk ku'
+        ],
+        phase2: [
+            'fur ruf ruk', 'jur kur', 'fur fur ruf',
+            'ark lark dark', 'urk sark stark',
+            'ruk kru ukr', 'fur jur kur ruf'
+        ],
+        phase3: [
+            'fur', 'ruf', 'ark', 'dark', 'lark', 'rusk', 'lurk', 'dusk',
+            'dura', 'rural', 'jury', 'rude', 'ruds', 'junk', 'skulk'
+        ]
+    },
+    'mod-3': {
+        // New keys: e i  (cumulative: + e i)
+        phase1: [
+            'ee ii', 'ei ie', 'eei iie',
+            'eie iei', 'iei eie', 'ee ii ee ii',
+            'iii eee', 'ie ei ie ei'
+        ],
+        phase2: [
+            'ride fire side', 'kite like fine',
+            'rife rile rise', 'dire dike died',
+            'ski ski ike', 'ride side died'
+        ],
+        phase3: [
+            'ride', 'fire', 'side', 'kite', 'like', 'rife', 'dire',
+            'died', 'rise', 'fine', 'desk', 'risk', 'disk', 'kids',
+            'iris', 'serf', 'ired', 'rile', 'dike'
+        ]
+    },
+    'mod-4': {
+        // New keys: c g n  (cumulative: + c g n)
+        phase1: [
+            'cc gg nn', 'cn nc cg gc ng gn',
+            'ncg gcn cng gnc', 'ccc ggg nnn',
+            'cgn ngc gcn ncg'
+        ],
+        phase2: [
+            'ring king sing', 'cine nice rice',
+            'grin rind rung', 'skin ding dung',
+            'nick nick nick', 'rung ring king sing'
+        ],
+        phase3: [
+            'ring', 'king', 'sing', 'nice', 'rice', 'grin',
+            'rind', 'rung', 'skin', 'ding', 'nick', 'neck',
+            'gene', 'cine', 'dune', 'dung', 'sunk', 'nuke'
+        ]
+    },
+    'mod-5': {
+        // New keys: a s l  (cumulative: + a s l)
+        phase1: [
+            'aa ss ll', 'as sa al la sl ls',
+            'asl sla las', 'sala lass alsa',
+            'als sal sla las asl'
+        ],
+        phase2: [
+            'sail lain rain', 'signal align', 'island slain',
+            'lands asks glass', 'snail nails trail',
+            'slid slide slain', 'glad glass clan slide'
+        ],
+        phase3: [
+            'sail', 'snail', 'glass', 'clash', 'slash', 'slide',
+            'lands', 'slain', 'align', 'ails', 'lads', 'slid',
+            'signal', 'island', 'clads', 'nails', 'rails', 'trails'
+        ]
+    },
+    'mod-6': {
+        // New keys: o p q w  (cumulative: + o p q w)
+        phase1: [
+            'oo pp ww', 'op po ow wo pw wp',
+            'wow pop ops', 'wool pool cool',
+            'pow pow now own won'
+        ],
+        phase2: [
+            'snow grow flow', 'word work worn',
+            'swing swing sting', 'spark spark spark',
+            'words works woken', 'crown grown power'
+        ],
+        phase3: [
+            'snow', 'grow', 'flow', 'word', 'work', 'worn',
+            'own', 'won', 'now', 'how', 'wow', 'crown',
+            'grown', 'power', 'prowl', 'sword', 'swore', 'woken'
+        ]
+    },
+    'mod-7': {
+        // New keys: h t y m  (cumulative: + h t y m)
+        phase1: [
+            'hh tt yy mm', 'th ht ty yt my ym',
+            'the the thy', 'them that this',
+            'myth myth thym', 'tth hht mmy yym'
+        ],
+        phase2: [
+            'that this them', 'myth math moth',
+            'halt malt salt', 'with with them',
+            'then then month', 'month youth mouth'
+        ],
+        phase3: [
+            'that', 'this', 'them', 'then', 'myth', 'math',
+            'moth', 'halt', 'malt', 'with', 'month', 'youth',
+            'mouth', 'think', 'throw', 'thyme', 'worthy'
+        ]
+    },
+    'mod-8': {
+        // New keys: b v x z , .  (cumulative: + b v x z)
+        phase1: [
+            'bb vv xx zz', 'bv vb bx xb',
+            'buzz buzz fuzz', 'bing bang bong',
+            'vibe vibes verb', 'xbox box vox'
+        ],
+        phase2: [
+            'brave bravo verb', 'vibrant vivid vex',
+            'box fox vox', 'blaze glaze graze',
+            'brave above behave', 'vibrant striving bold'
+        ],
+        phase3: [
+            'brave', 'vibrant', 'blaze', 'graze', 'above', 'bravo',
+            'boxes', 'vivid', 'vex', 'fox', 'bolt', 'verb',
+            'behave', 'seven', 'driven', 'blazing', 'grabs'
+        ]
     }
-    
-    return chunks.join(' ');
+};
+
+/**
+ * Picks N items from an array at random (without repeating until exhausted).
+ */
+function pickRandom<T>(arr: T[], n: number): T[] {
+    const shuffled = [...arr].sort(() => 0.5 - Math.random());
+    const result: T[] = [];
+    while (result.length < n) {
+        result.push(...shuffled);
+    }
+    return result.slice(0, n);
+}
+
+/**
+ * 3-Phase Pedagogical N-Gram Generator
+ *
+ * Phase 1 (~35%): Rhythmic drills using ONLY the new keys → pure muscle memory anchoring.
+ *   Format: repeat each core pair/triple 4x  (e.g. "ur ur ur ur")
+ *
+ * Phase 2 (~35%): Transition patterns mixing new + prior keys → cross-finger rolling.
+ *   Format: repeat each combo 3x (e.g. "fur fur fur")
+ *
+ * Phase 3 (~30%): Real micro-words / word-fragments that CONTAIN ≥1 new key.
+ *   Format: appear once, creating a flowing readable line.
+ *
+ * The result deliberately emphasises the NEW keys so the student's fingers
+ * build targeted muscle memory before facing free-flow words.
+ */
+export function generateNGramText(moduleId: string, newKeys: string[], allowedKeys: string[]): string {
+    const bank = MODULE_NGRAM_BANKS[moduleId];
+    const allowedSet = new Set(allowedKeys.map(k => k.toLowerCase()));
+
+    const segments: string[] = [];
+
+    if (bank) {
+        // ── Phase 1: anchor drills (new-key-only bigrams) ──────────────────────
+        const p1 = pickRandom(bank.phase1, 5);
+        for (const pat of p1) {
+            // Repeat each pattern 4 times for rhythmic lock-in
+            segments.push(([pat, pat, pat, pat]).join(' '));
+        }
+
+        // ── Phase 2: transition/rolling combos ─────────────────────────────────
+        const p2 = pickRandom(bank.phase2, 5);
+        for (const pat of p2) {
+            segments.push(([pat, pat, pat]).join(' '));
+        }
+
+        // ── Phase 3: micro-word fragments ──────────────────────────────────────
+        const p3 = pickRandom(bank.phase3, 8);
+        segments.push(p3.join(' '));
+
+    } else {
+        // ── Generic fallback: auto-generate from the key set ───────────────────
+        const cleanNew  = newKeys.filter(k => k !== ' ');
+        const cleanAll  = allowedKeys.filter(k => k !== ' ');
+
+        // Phase 1: rhythmic pairs of just new keys
+        for (let i = 0; i < 5 && cleanNew.length >= 1; i++) {
+            const k1 = cleanNew[Math.floor(Math.random() * cleanNew.length)];
+            const k2 = cleanNew[Math.floor(Math.random() * cleanNew.length)];
+            const pat = k1 + k2;
+            segments.push([pat, pat, pat, pat].join(' '));
+        }
+
+        // Phase 2: new + old key combos
+        for (let i = 0; i < 5 && cleanAll.length >= 1; i++) {
+            const kN = cleanNew[Math.floor(Math.random() * cleanNew.length)];
+            const kO = cleanAll[Math.floor(Math.random() * cleanAll.length)];
+            const pat = kN + kO + kN;
+            segments.push([pat, pat, pat].join(' '));
+        }
+
+        // Phase 3: micro-words from WORD_POOL containing ≥1 new key
+        const newKeySet = new Set(cleanNew);
+        const microWords = WORD_POOL
+            .filter(w => {
+                // must be typeable with allowed keys
+                for (const c of w) {
+                    if (!allowedSet.has(c)) return false;
+                }
+                // must include at least one new key
+                for (const c of w) {
+                    if (newKeySet.has(c)) return true;
+                }
+                return false;
+            })
+            .slice(0, 12);
+        if (microWords.length > 0) {
+            segments.push(pickRandom(microWords, Math.min(8, microWords.length)).join(' '));
+        }
+    }
+
+    return segments.join(' ');
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -437,19 +638,20 @@ rawModules.forEach((mod, modIndex) => {
         PRACTICE_STAGES.push(fallingLevel);
         previousSubLevelId = fallingId;
 
-        // Stage 3: N-Gram Patterns
+        // Stage 3: N-Gram Patterns (3-phase pedagogical system)
         const ngramId = `stage-${moduleNumber}-ngrams`;
+        const capturedNewKeys = [...mod.keys]; // new keys for this specific module
         const ngramLevel: SubLevel = {
             id: ngramId,
             stageNumber: `${moduleNumber}.3`,
-            title: `N-Gram Patterns`,
-            description: `Master common bigrams and trigrams utilizing these keys.`,
+            title: `Rhythm Drills: ${mod.keys.filter(k => k !== ' ').map(k => k.toUpperCase()).join(' · ')} Patterns`,
+            description: `Phase 1: anchor the new keys as pairs. Phase 2: roll them with prior keys. Phase 3: micro-words built around the new keys.`,
             keysTaught: currentAllowedKeys,
-            fingerHint: `Build hand tempo by sweeps of common key pairings.`,
+            fingerHint: `Keep a steady tempo. Each phase targets different muscle memory pathways — new-key anchoring, cross-finger rolling, and real-word fragments.`,
             defaultWpm: 8 + (moduleNumber * 1),
             defaultAccuracy: 90,
-            generateText: () => generateNGramText(currentAllowedKeys),
-            duration: 50,
+            generateText: () => generateNGramText(mod.id, capturedNewKeys, currentAllowedKeys),
+            duration: 60,
             unlockRequires: previousSubLevelId,
             isFunctionalKey: false,
             icon: 'stream',

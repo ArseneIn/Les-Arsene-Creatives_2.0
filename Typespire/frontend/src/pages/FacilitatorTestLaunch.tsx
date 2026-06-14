@@ -34,8 +34,8 @@ const MOCK_LIBRARY_TEXTS = [
         source: 'Margery Williams',
         level: 1,
         complexity: 'Easy',
-        wordCount: 182,
-        estimatedTimeMin: 2,
+        wordCount: 364,
+        estimatedTimeMin: 4,
         coverImg: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBsB8B_l7JsRKngrUdfsAzNU1zSIoGhomjQppoX23ANXPj0fpcqv4v-NZCM89bj04YLo3Q9LY3zyyGXZ_1IfEo98_5tg9CNmzrAu-gvEbD6ZFrpQYjD_L_Y5YvDvw2m5ZCDc1Hugl2G8GGfIsEJJyri6JjdBno5uZWoEGJpT9b9v_-gatn-gRlKdLfDZdHxJVsOz3jQBS2iWOQw-xKMVaF9C1cQjwIXx1XdOK5rKhNXYQ16zJDgnN0lpLBRwJ0niHTidyWRr3SjoN9J',
         excerpt: '"What is REAL?" asked the Rabbit one day, when they were lying side by side near the nursery fender...',
         content: '"What is REAL?" asked the Rabbit one day, when they were lying side by side near the nursery fender...'
@@ -46,11 +46,11 @@ const MOCK_LIBRARY_TEXTS = [
         source: 'NASA Science',
         level: 1,
         complexity: 'Medium',
-        wordCount: 345,
-        estimatedTimeMin: 3,
+        wordCount: 690,
+        estimatedTimeMin: 6,
         coverImg: 'https://lh3.googleusercontent.com/aida-public/AB6AXuC8-rmXu2ZtPul-xNuKjMxc7Q0pTR2COZUn8EQ6Pn22RALtntDwVBzHOkuS3FEDpjuEUqqZFi6r3scVmZJnx6II9ti_Nx6IRPO-FM7QmuiDkn_jWbiAbeXXiwyRApBiGIpG3xS7niw8MGsrKLbk5CkIGdBdG8FGzuY8Ls6OqAgk_G4iCmLU2T1JT50_LpmyvlhEmTkeCor3mGYalKar9ACq_2Q2jzZTXJx0VB4rUSWAEMb9aq6iDhGBudg0AbN8c7eVi4RhxmX4hiFv',
         excerpt: 'The universe is vast beyond comprehension. To understand its scale, we must first look at our own solar system as a mere speck...',
-        content: 'The universe is vast beyond comprehension. To understand its scale, we must first look at our own solar system as a mere speck...'
+        content: 'The universe is vast beyond comprehension. To understand its scale, we must first look at our own solar system as a mere speck... The universe is vast beyond comprehension. To understand its scale, we must first look at our own solar system as a mere speck...'
     },
     {
         id: 'lib_tm_2',
@@ -58,11 +58,11 @@ const MOCK_LIBRARY_TEXTS = [
         source: 'Typing Master Lesson 2',
         level: 1,
         complexity: 'Easy',
-        wordCount: 106,
-        estimatedTimeMin: 2,
+        wordCount: 212,
+        estimatedTimeMin: 4,
         coverImg: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBsB8B_l7JsRKngrUdfsAzNU1zSIoGhomjQppoX23ANXPj0fpcqv4v-NZCM89bj04YLo3Q9LY3zyyGXZ_1IfEo98_5tg9CNmzrAu-gvEbD6ZFrpQYjD_L_Y5YvDvw2m5ZCDc1Hugl2G8GGfIsEJJyri6JjdBno5uZWoEGJpT9b9v_-gatn-gRlKdLfDZdHxJVsOz3jQBS2iWOQw-xKMVaF9C1cQjwIXx1XdOK5rKhNXYQ16zJDgnN0lpLBRwJ0niHTidyWRr3SjoN9J',
         excerpt: 'we type standard top row letters and key stretches for both hands. your left hand reaches quickly for q and w and e and r and t...',
-        content: 'we type standard top row letters and key stretches for both hands. your left hand reaches quickly for q and w and e and r and t while your right hand reaches smoothly for y and u and i and o and p. write down the proper path to reach the quiet territory where pretty trees grow. our priority is to return standard reports to our power team. try to output sweet poetry with high precision to support your daily speed. touch typing top row reaches requires your fingers to return to home row anchors instantly after every quick stretch. stay relaxed and quiet.'
+        content: 'we type standard top row letters and key stretches for both hands. your left hand reaches quickly for q and w and e and r and t while your right hand reaches smoothly for y and u and i and o and p. write down the proper path to reach the quiet territory where pretty trees grow. our priority is to return standard reports to our power team. try to output sweet poetry with high precision to support your daily speed. touch typing top row reaches requires your fingers to return to home row anchors instantly after every quick stretch. stay relaxed and quiet. we type standard top row letters and key stretches for both hands. your left hand reaches quickly for q and w and e and r and t while your right hand reaches smoothly for y and u and i and o and p. write down the proper path to reach the quiet territory where pretty trees grow. our priority is to return standard reports to our power team. try to output sweet poetry with high precision to support your daily speed. touch typing top row reaches requires your fingers to return to home row anchors instantly after every quick stretch. stay relaxed and quiet.'
     },
     {
         id: 'lib_tm_3',
@@ -70,11 +70,11 @@ const MOCK_LIBRARY_TEXTS = [
         source: 'Typing Master Lesson 3',
         level: 1,
         complexity: 'Easy',
-        wordCount: 111,
-        estimatedTimeMin: 2,
+        wordCount: 222,
+        estimatedTimeMin: 4,
         coverImg: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBsB8B_l7JsRKngrUdfsAzNU1zSIoGhomjQppoX23ANXPj0fpcqv4v-NZCM89bj04YLo3Q9LY3zyyGXZ_1IfEo98_5tg9CNmzrAu-gvEbD6ZFrpQYjD_L_Y5YvDvw2m5ZCDc1Hugl2G8GGfIsEJJyri6JjdBno5uZWoEGJpT9b9v_-gatn-gRlKdLfDZdHxJVsOz3jQBS2iWOQw-xKMVaF9C1cQjwIXx1XdOK5rKhNXYQ16zJDgnN0lpLBRwJ0niHTidyWRr3SjoN9J',
         excerpt: 'bottom row typing exercises require correct resting posture for both hands. your left pinky reaches down for z while your ring finger...',
-        content: 'bottom row typing exercises require correct resting posture for both hands. your left pinky reaches down for z while your ring finger reaches down for x and middle reaches down for c and index reaches down for v and b. on your right hand, fingers stretch down for n and m and comma and period and slash keys. move your hands back to the home row after every bottom row entry. practice makes normal movements natural. can you type the bottom row with zero errors? six very nice brown cats ran past my quiet cabin on a sunny day. never move your wrists when typing bottom keys.'
+        content: 'bottom row typing exercises require correct resting posture for both hands. your left pinky reaches down for z while your ring finger reaches down for x and middle reaches down for c and index reaches down for v and b. on your right hand, fingers stretch down for n and m and comma and period and slash keys. move your hands back to the home row after every bottom row entry. practice makes normal movements natural. can you type the bottom row with zero errors? six very nice brown cats ran past my quiet cabin on a sunny day. never move your wrists when typing bottom keys. bottom row typing exercises require correct resting posture for both hands. your left pinky reaches down for z while your ring finger reaches down for x and middle reaches down for c and index reaches down for v and b. on your right hand, fingers stretch down for n and m and comma and period and slash keys. move your hands back to the home row after every bottom row entry. practice makes normal movements natural. can you type the bottom row with zero errors? six very nice brown cats ran past my quiet cabin on a sunny day. never move your wrists when typing bottom keys.'
     },
     {
         id: 'lib_tm_4',
@@ -82,11 +82,11 @@ const MOCK_LIBRARY_TEXTS = [
         source: 'Typing Master Lesson 4',
         level: 1,
         complexity: 'Easy',
-        wordCount: 106,
-        estimatedTimeMin: 2,
+        wordCount: 212,
+        estimatedTimeMin: 4,
         coverImg: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBsB8B_l7JsRKngrUdfsAzNU1zSIoGhomjQppoX23ANXPj0fpcqv4v-NZCM89bj04YLo3Q9LY3zyyGXZ_1IfEo98_5tg9CNmzrAu-gvEbD6ZFrpQYjD_L_Y5YvDvw2m5ZCDc1Hugl2G8GGfIsEJJyri6JjdBno5uZWoEGJpT9b9v_-gatn-gRlKdLfDZdHxJVsOz3jQBS2iWOQw-xKMVaF9C1cQjwIXx1XdOK5rKhNXYQ16zJDgnN0lpLBRwJ0niHTidyWRr3SjoN9J',
         excerpt: 'the space bar is pressed with your right or left thumb to maintain a natural fluid rhythm. typing is not just about moving fast...',
-        content: 'the space bar is pressed with your right or left thumb to maintain a natural fluid rhythm. typing is not just about moving fast; it is about establishing a steady beat like a heartbeat. standard home row anchors asdf and jkl; keep your hands in a secure position. the quick brown fox jumps over the lazy dog in Kigali. as you type, listen to the consistent sound of the keys hitting the board. every space separates thoughts and words, creating clear and beautiful sentences for everyone to read. relaxed shoulders and a straight posture will support your rhythmic touch typing practice.'
+        content: 'the space bar is pressed with your right or left thumb to maintain a natural fluid rhythm. typing is not just about moving fast; it is about establishing a steady beat like a heartbeat. standard home row anchors asdf and jkl; keep your hands in a secure position. the quick brown fox jumps over the lazy dog in Kigali. as you type, listen to the consistent sound of the keys hitting the board. every space separates thoughts and words, creating clear and beautiful sentences for everyone to read. relaxed shoulders and a straight posture will support your rhythmic touch typing practice. the space bar is pressed with your right or left thumb to maintain a natural fluid rhythm. typing is not just about moving fast; it is about establishing a steady beat like a heartbeat. standard home row anchors asdf and jkl; keep your hands in a secure position. the quick brown fox jumps over the lazy dog in Kigali. as you type, listen to the consistent sound of the keys hitting the board. every space separates thoughts and words, creating clear and beautiful sentences for everyone to read. relaxed shoulders and a straight posture will support your rhythmic touch typing practice.'
     },
     {
         id: 'lib_tm_5',
@@ -94,11 +94,11 @@ const MOCK_LIBRARY_TEXTS = [
         source: 'Typing Master Lesson 5',
         level: 1,
         complexity: 'Medium',
-        wordCount: 106,
-        estimatedTimeMin: 2,
+        wordCount: 212,
+        estimatedTimeMin: 4,
         coverImg: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBsB8B_l7JsRKngrUdfsAzNU1zSIoGhomjQppoX23ANXPj0fpcqv4v-NZCM89bj04YLo3Q9LY3zyyGXZ_1IfEo98_5tg9CNmzrAu-gvEbD6ZFrpQYjD_L_Y5YvDvw2m5ZCDc1Hugl2G8GGfIsEJJyri6JjdBno5uZWoEGJpT9b9v_-gatn-gRlKdLfDZdHxJVsOz3jQBS2iWOQw-xKMVaF9C1cQjwIXx1XdOK5rKhNXYQ16zJDgnN0lpLBRwJ0niHTidyWRr3SjoN9J',
         excerpt: 'we see red cats and dogs running fast on the wet grass. water falls down rapidly from the great brick wall near the safe cafe...',
-        content: 'we see red cats and dogs running fast on the wet grass. water falls down rapidly from the great brick wall near the safe cafe. sad, glad, dad, bad, deaf, safe, cafe, estate, crates, and cats are all typed mostly with your left hand. left hand independence is important to balance your typing load. the red cat ate a sweet strawberry in the green garden. we created a safe, standard test for our power team. standard left hand keys a, s, d, f, q, w, e, r, t, z, x, c, v, b should be typed without moving your hand position.'
+        content: 'we see red cats and dogs running fast on the wet grass. water falls down rapidly from the great brick wall near the safe cafe. sad, glad, dad, bad, deaf, safe, cafe, estate, crates, and cats are all typed mostly with your left hand. left hand independence is important to balance your typing load. the red cat ate a sweet strawberry in the green garden. we created a safe, standard test for our power team. standard left hand keys a, s, d, f, q, w, e, r, t, z, x, c, v, b should be typed without moving your hand position. we see red cats and dogs running fast on the wet grass. water falls down rapidly from the great brick wall near the safe cafe. sad, glad, dad, bad, deaf, safe, cafe, estate, crates, and cats are all typed mostly with your left hand. left hand independence is important to balance your typing load. the red cat ate a sweet strawberry in the green garden. we created a safe, standard test for our power team. standard left hand keys a, s, d, f, q, w, e, r, t, z, x, c, v, b should be typed without moving your hand position.'
     },
     {
         id: 'lib_tm_6',
@@ -106,11 +106,11 @@ const MOCK_LIBRARY_TEXTS = [
         source: 'Typing Master Lesson 6',
         level: 1,
         complexity: 'Medium',
-        wordCount: 106,
-        estimatedTimeMin: 2,
+        wordCount: 212,
+        estimatedTimeMin: 4,
         coverImg: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBsB8B_l7JsRKngrUdfsAzNU1zSIoGhomjQppoX23ANXPj0fpcqv4v-NZCM89bj04YLo3Q9LY3zyyGXZ_1IfEo98_5tg9CNmzrAu-gvEbD6ZFrpQYjD_L_Y5YvDvw2m5ZCDc1Hugl2G8GGfIsEJJyri6JjdBno5uZWoEGJpT9b9v_-gatn-gRlKdLfDZdHxJVsOz3jQBS2iWOQw-xKMVaF9C1cQjwIXx1XdOK5rKhNXYQ16zJDgnN0lpLBRwJ0niHTidyWRr3SjoN9J',
         excerpt: 'you look like a million green lemons popping up in my lovely garden pool on a sunny July afternoon. right hand dexterity requires...',
-        content: 'you look like a million green lemons popping up in my lovely garden pool on a sunny July afternoon. right hand dexterity requires steady practice to master pinky and ring finger keys y, u, i, o, p, h, j, k, l, semi, n, m, comma, and period. pink pumpkins grow in my family garden near Kigali. you should look at the monitor and only use your sense of touch to feel the keyboard layout. your right thumb should press the space bar for excellent rhythm. keeping your hands in a balanced home position will allow your typing speed to grow.'
+        content: 'you look like a million green lemons popping up in my lovely garden pool on a sunny July afternoon. right hand dexterity requires steady practice to master pinky and ring finger keys y, u, i, o, p, h, j, k, l, semi, n, m, comma, and period. pink pumpkins grow in my family garden near Kigali. you should look at the monitor and only use your sense of touch to feel the keyboard layout. your right thumb should press the space bar for excellent rhythm. keeping your hands in a balanced home position will allow your typing speed to grow. you look like a million green lemons popping up in my lovely garden pool on a sunny July afternoon. right hand dexterity requires steady practice to master pinky and ring finger keys y, u, i, o, p, h, j, k, l, semi, n, m, comma, and period. pink pumpkins grow in my family garden near Kigali. you should look at the monitor and only use your sense of touch to feel the keyboard layout. your right thumb should press the space bar for excellent rhythm. keeping your hands in a balanced home position will allow your typing speed to grow.'
     },
     {
         id: 'lib_tm_8',
@@ -118,11 +118,11 @@ const MOCK_LIBRARY_TEXTS = [
         source: 'Typing Master Lesson 8',
         level: 1,
         complexity: 'Medium',
-        wordCount: 103,
-        estimatedTimeMin: 2,
+        wordCount: 206,
+        estimatedTimeMin: 4,
         coverImg: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBsB8B_l7JsRKngrUdfsAzNU1zSIoGhomjQppoX23ANXPj0fpcqv4v-NZCM89bj04YLo3Q9LY3zyyGXZ_1IfEo98_5tg9CNmzrAu-gvEbD6ZFrpQYjD_L_Y5YvDvw2m5ZCDc1Hugl2G8GGfIsEJJyri6JjdBno5uZWoEGJpT9b9v_-gatn-gRlKdLfDZdHxJVsOz3jQBS2iWOQw-xKMVaF9C1cQjwIXx1XdOK5rKhNXYQ16zJDgnN0lpLBRwJ0niHTidyWRr3SjoN9J',
         excerpt: 'The sun is shining bright today in Kigali and we are learning professional touch typing skills on the keyboard. Alice and Bob...',
-        content: 'The sun is shining bright today in Kigali and we are learning professional touch typing skills on the keyboard. Alice and Bob visited Paris in July. Kepler College is situated in Rwanda, East Africa, where students practice typing daily. United Nations reports show rapid growth in digital skills across Africa. Saturday and Sunday are great days to practice touch typing at home. Let us use the Shift key correctly: press the opposite Shift key with your pinky while your other hand strikes the letter key. This builds speed and prevents finger fatigue. Yes, practice makes a master!'
+        content: 'The sun is shining bright today in Kigali and we are learning professional touch typing skills on the keyboard. Alice and Bob visited Paris in July. Kepler College is situated in Rwanda, East Africa, where students practice typing daily. United Nations reports show rapid growth in digital skills across Africa. Saturday and Sunday are great days to practice touch typing at home. Let us use the Shift key correctly: press the opposite Shift key with your pinky while your other hand strikes the letter key. This builds speed and prevents finger fatigue. Yes, practice makes a master! The sun is shining bright today in Kigali and we are learning professional touch typing skills on the keyboard. Alice and Bob visited Paris in July. Kepler College is situated in Rwanda, East Africa, where students practice typing daily. United Nations reports show rapid growth in digital skills across Africa. Saturday and Sunday are great days to practice touch typing at home. Let us use the Shift key correctly: press the opposite Shift key with your pinky while your other hand strikes the letter key. This builds speed and prevents finger fatigue. Yes, practice makes a master!'
     },
     {
         id: 'lib_tm_9',
@@ -130,11 +130,11 @@ const MOCK_LIBRARY_TEXTS = [
         source: 'Typing Master Lesson 9',
         level: 1,
         complexity: 'Medium',
-        wordCount: 101,
-        estimatedTimeMin: 2,
+        wordCount: 202,
+        estimatedTimeMin: 4,
         coverImg: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBsB8B_l7JsRKngrUdfsAzNU1zSIoGhomjQppoX23ANXPj0fpcqv4v-NZCM89bj04YLo3Q9LY3zyyGXZ_1IfEo98_5tg9CNmzrAu-gvEbD6ZFrpQYjD_L_Y5YvDvw2m5ZCDc1Hugl2G8GGfIsEJJyri6JjdBno5uZWoEGJpT9b9v_-gatn-gRlKdLfDZdHxJVsOz3jQBS2iWOQw-xKMVaF9C1cQjwIXx1XdOK5rKhNXYQ16zJDgnN0lpLBRwJ0niHTidyWRr3SjoN9J',
         excerpt: 'The system reported 102 active connections, 45 pending updates, and 378 resolved items within 24 hours of operation...',
-        content: 'The system reported 102 active connections, 45 pending updates, and 378 resolved items within 24 hours of operation. Our office address is 9876 Boulevard Road, Suite 40, where 15 employees typed 350 words in 10 minutes. In the year 2024, our team completed 12 major sprints. The temperature dropped from 78 degrees to 53 degrees by 9:00 PM. Please remember that typing numbers requires keeping your home row anchor secure while stretching your fingers up to the number row. Practice dialing 123, 456, 789, and 0 to master the number row reaches!'
+        content: 'The system reported 102 active connections, 45 pending updates, and 378 resolved items within 24 hours of operation. Our office address is 9876 Boulevard Road, Suite 40, where 15 employees typed 350 words in 10 minutes. In the year 2024, our team completed 12 major sprints. The temperature dropped from 78 degrees to 53 degrees by 9:00 PM. Please remember that typing numbers requires keeping your home row anchor secure while stretching your fingers up to the number row. Practice dialing 123, 456, 789, and 0 to master the number row reaches! The system reported 102 active connections, 45 pending updates, and 378 resolved items within 24 hours of operation. Our office address is 9876 Boulevard Road, Suite 40, where 15 employees typed 350 words in 10 minutes. In the year 2024, our team completed 12 major sprints. The temperature dropped from 78 degrees to 53 degrees by 9:00 PM. Please remember that typing numbers requires keeping your home row anchor secure while stretching your fingers up to the number row. Practice dialing 123, 456, 789, and 0 to master the number row reaches!'
     },
     {
         id: 'lib_tm_10',
@@ -142,11 +142,11 @@ const MOCK_LIBRARY_TEXTS = [
         source: 'Typing Master Lesson 10',
         level: 1,
         complexity: 'Medium',
-        wordCount: 104,
-        estimatedTimeMin: 2,
+        wordCount: 208,
+        estimatedTimeMin: 4,
         coverImg: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBsB8B_l7JsRKngrUdfsAzNU1zSIoGhomjQppoX23ANXPj0fpcqv4v-NZCM89bj04YLo3Q9LY3zyyGXZ_1IfEo98_5tg9CNmzrAu-gvEbD6ZFrpQYjD_L_Y5YvDvw2m5ZCDc1Hugl2G8GGfIsEJJyri6JjdBno5uZWoEGJpT9b9v_-gatn-gRlKdLfDZdHxJVsOz3jQBS2iWOQw-xKMVaF9C1cQjwIXx1XdOK5rKhNXYQ16zJDgnN0lpLBRwJ0niHTidyWRr3SjoN9J',
         excerpt: 'Success in professional touch typing is the sum of small, regular drills repeated day in and day out with accurate rhythm...',
-        content: 'Success in professional touch typing is the sum of small, regular drills repeated day in and day out with accurate rhythm. Speed naturally follows precision, so stay relaxed and keep practicing. As you type longer paragraphs, maintain a continuous flow of thoughts without pausing between words. Let your fingers glide over the home row anchors as you focus on the center of the screen. Touch typing is a wonderful digital skill that will save you thousands of hours over your lifetime. Stay patient, keep your back straight, and celebrate every small improvement you make daily on your learning journey.'
+        content: 'Success in professional touch typing is the sum of small, regular drills repeated day in and day out with accurate rhythm. Speed naturally follows precision, so stay relaxed and keep practicing. As you type longer paragraphs, maintain a continuous flow of thoughts without pausing between words. Let your fingers glide over the home row anchors as you focus on the center of the screen. Touch typing is a wonderful digital skill that will save you thousands of hours over your lifetime. Stay patient, keep your back straight, and celebrate every small improvement you make daily on your learning journey. Success in professional touch typing is the sum of small, regular drills repeated day in and day out with accurate rhythm. Speed naturally follows precision, so stay relaxed and keep practicing. As you type longer paragraphs, maintain a continuous flow of thoughts without pausing between words. Let your fingers glide over the home row anchors as you focus on the center of the screen. Touch typing is a wonderful digital skill that will save you thousands of hours over your lifetime. Stay patient, keep your back straight, and celebrate every small improvement you make daily on your learning journey.'
     },
     {
         id: 'lib_tm_11',
@@ -154,11 +154,11 @@ const MOCK_LIBRARY_TEXTS = [
         source: 'Typing Master Lesson 11',
         level: 1,
         complexity: 'Easy',
-        wordCount: 105,
-        estimatedTimeMin: 2,
+        wordCount: 210,
+        estimatedTimeMin: 4,
         coverImg: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBsB8B_l7JsRKngrUdfsAzNU1zSIoGhomjQppoX23ANXPj0fpcqv4v-NZCM89bj04YLo3Q9LY3zyyGXZ_1IfEo98_5tg9CNmzrAu-gvEbD6ZFrpQYjD_L_Y5YvDvw2m5ZCDc1Hugl2G8GGfIsEJJyri6JjdBno5uZWoEGJpT9b9v_-gatn-gRlKdLfDZdHxJVsOz3jQBS2iWOQw-xKMVaF9C1cQjwIXx1XdOK5rKhNXYQ16zJDgnN0lpLBRwJ0niHTidyWRr3SjoN9J',
         excerpt: 'the quick index finger reaches for g and h with t and y and also v and b typing standard patterns very fast...',
-        content: 'the quick index finger reaches for g and h with t and y and also v and b typing standard patterns very fast. index fingers are the most active fingers on the keyboard, handling multiple central keys. practice striking g and h firmly while keeping your pinky fingers anchored on a and semi. the brave traveler hiked through the green valleys and high mountains to find the golden river. index fingers also reach for 4, 5, 6, and 7 on the number row. keep your wrists steady and let your index fingers move smoothly between rows. practice daily to achieve high speed.'
+        content: 'the quick index finger reaches for g and h with t and y and also v and b typing standard patterns very fast. index fingers are the most active fingers on the keyboard, handling multiple central keys. practice striking g and h firmly while keeping your pinky fingers anchored on a and semi. the brave traveler hiked through the green valleys and high mountains to find the golden river. index fingers also reach for 4, 5, 6, and 7 on the number row. keep your wrists steady and let your index fingers move smoothly between rows. practice daily to achieve high speed. the quick index finger reaches for g and h with t and y and also v and b typing standard patterns very fast. index fingers are the most active fingers on the keyboard, handling multiple central keys. practice striking g and h firmly while keeping your pinky fingers anchored on a and semi. the brave traveler hiked through the green valleys and high mountains to find the golden river. index fingers also reach for 4, 5, 6, and 7 on the number row. keep your wrists steady and let your index fingers move smoothly between rows. practice daily to achieve high speed.'
     },
     {
         id: 'lib_tm_12',
@@ -166,11 +166,11 @@ const MOCK_LIBRARY_TEXTS = [
         source: 'Typing Master Lesson 12',
         level: 1,
         complexity: 'Medium',
-        wordCount: 101,
-        estimatedTimeMin: 2,
+        wordCount: 202,
+        estimatedTimeMin: 4,
         coverImg: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBsB8B_l7JsRKngrUdfsAzNU1zSIoGhomjQppoX23ANXPj0fpcqv4v-NZCM89bj04YLo3Q9LY3zyyGXZ_1IfEo98_5tg9CNmzrAu-gvEbD6ZFrpQYjD_L_Y5YvDvw2m5ZCDc1Hugl2G8GGfIsEJJyri6JjdBno5uZWoEGJpT9b9v_-gatn-gRlKdLfDZdHxJVsOz3jQBS2iWOQw-xKMVaF9C1cQjwIXx1XdOK5rKhNXYQ16zJDgnN0lpLBRwJ0niHTidyWRr3SjoN9J',
         excerpt: 'pinky fingers reach out wide for q and p and z and slash keys while keeping home row anchor placement secure...',
-        content: 'pinky fingers reach out wide for q and p and z and slash keys while keeping home row anchor placement secure. because the pinky is the weakest finger, it requires dedicated practice to build strike strength and reach accuracy. always return your pinky fingers to the home keys a and semi after stretching for outer keys. the quiet queen typed a long post about her favorite purple plants. touch typing punctuation marks like slash, colon, semi, and period is essential for writing clean code and beautiful documents. keep practicing the pinky stretches to achieve perfect keyboard balance.'
+        content: 'pinky fingers reach out wide for q and p and z and slash keys while keeping home row anchor placement secure. because the pinky is the weakest finger, it requires dedicated practice to build strike strength and reach accuracy. always return your pinky fingers to the home keys a and semi after stretching for outer keys. the quiet queen typed a long post about her favorite purple plants. touch typing punctuation marks like slash, colon, semi, and period is essential for writing clean code and beautiful documents. keep practicing the pinky stretches to achieve perfect keyboard balance. pinky fingers reach out wide for q and p and z and slash keys while keeping home row anchor placement secure. because the pinky is the weakest finger, it requires dedicated practice to build strike strength and reach accuracy. always return your pinky fingers to the home keys a and semi after stretching for outer keys. the quiet queen typed a long post about her favorite purple plants. touch typing punctuation marks like slash, colon, semi, and period is essential for writing clean code and beautiful documents. keep practicing the pinky stretches to achieve perfect keyboard balance.'
     },
     {
         id: 'lib_tm_13',
@@ -178,11 +178,11 @@ const MOCK_LIBRARY_TEXTS = [
         source: 'Typing Master Lesson 13',
         level: 1,
         complexity: 'Easy',
-        wordCount: 101,
-        estimatedTimeMin: 2,
+        wordCount: 202,
+        estimatedTimeMin: 4,
         coverImg: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBsB8B_l7JsRKngrUdfsAzNU1zSIoGhomjQppoX23ANXPj0fpcqv4v-NZCM89bj04YLo3Q9LY3zyyGXZ_1IfEo98_5tg9CNmzrAu-gvEbD6ZFrpQYjD_L_Y5YvDvw2m5ZCDc1Hugl2G8GGfIsEJJyri6JjdBno5uZWoEGJpT9b9v_-gatn-gRlKdLfDZdHxJVsOz3jQBS2iWOQw-xKMVaF9C1cQjwIXx1XdOK5rKhNXYQ16zJDgnN0lpLBRwJ0niHTidyWRr3SjoN9J',
         excerpt: 'keep a good book at the pool side and feel the cool wind fall upon the green grass of the sweet garden...',
-        content: 'keep a good book at the pool side and feel the cool wind fall upon the green grass of the sweet garden. double letters require a quick, rhythmic double strike of the same key without losing your typing balance. look at the yellow balloon floating high in the deep blue sky. our team will meet soon to coordinate the next steps for our school project. typing double letters like ee, oo, ll, ss, and tt is an excellent warm-up exercise for your fingers. stay relaxed, look at the screen, and feel the natural bounce of the keys.'
+        content: 'keep a good book at the pool side and feel the cool wind fall upon the green grass of the sweet garden. double letters require a quick, rhythmic double strike of the same key without losing your typing balance. look at the yellow balloon floating high in the deep blue sky. our team will meet soon to coordinate the next steps for our school project. typing double letters like ee, oo, ll, ss, and tt is an excellent warm-up exercise for your fingers. stay relaxed, look at the screen, and feel the natural bounce of the keys. keep a good book at the pool side and feel the cool wind fall upon the green grass of the sweet garden. double letters require a quick, rhythmic double strike of the same key without losing your typing balance. look at the yellow balloon floating high in the deep blue sky. our team will meet soon to coordinate the next steps for our school project. typing double letters like ee, oo, ll, ss, and tt is an excellent warm-up exercise for your fingers. stay relaxed, look at the screen, and feel the natural bounce of the keys.'
     },
     {
         id: 'lib_tm_14',
@@ -190,11 +190,11 @@ const MOCK_LIBRARY_TEXTS = [
         source: 'Typing Master Lesson 14',
         level: 1,
         complexity: 'Easy',
-        wordCount: 100,
-        estimatedTimeMin: 2,
+        wordCount: 200,
+        estimatedTimeMin: 4,
         coverImg: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBsB8B_l7JsRKngrUdfsAzNU1zSIoGhomjQppoX23ANXPj0fpcqv4v-NZCM89bj04YLo3Q9LY3zyyGXZ_1IfEo98_5tg9CNmzrAu-gvEbD6ZFrpQYjD_L_Y5YvDvw2m5ZCDc1Hugl2G8GGfIsEJJyri6JjdBno5uZWoEGJpT9b9v_-gatn-gRlKdLfDZdHxJVsOz3jQBS2iWOQw-xKMVaF9C1cQjwIXx1XdOK5rKhNXYQ16zJDgnN0lpLBRwJ0niHTidyWRr3SjoN9J',
         excerpt: 'she saw a red car run down the hot street as fast as the blue bird flew up into the deep dark sky...',
-        content: 'she saw a red car run down the hot street as fast as the blue bird flew up into the deep dark sky. the little cat sat on the warm rug near the small window waiting for her kind friend. we had a wonderful time walking through the green forest on a sunny summer day. simple words and easy lowercase sentences are perfect to build your basic speed and accuracy. focus on maintaining a fluid movement without stopping or looking down at your keyboard layout. typing is easy when you stay relaxed and practice regularly.'
+        content: 'she saw a red car run down the hot street as fast as the blue bird flew up into the deep dark sky. the little cat sat on the warm rug near the small window waiting for her kind friend. we had a wonderful time walking through the green forest on a sunny summer day. simple words and easy lowercase sentences are perfect to build your basic speed and accuracy. focus on maintaining a fluid movement without stopping or looking down at your keyboard layout. typing is easy when you stay relaxed and practice regularly. she saw a red car run down the hot street as fast as the blue bird flew up into the deep dark sky. the little cat sat on the warm rug near the small window waiting for her kind friend. we had a wonderful time walking through the green forest on a sunny summer day. simple words and easy lowercase sentences are perfect to build your basic speed and accuracy. focus on maintaining a fluid movement without stopping or looking down at your keyboard layout. typing is easy when you stay relaxed and practice regularly.'
     },
     {
         id: 'lib_tm_15',
@@ -202,11 +202,11 @@ const MOCK_LIBRARY_TEXTS = [
         source: 'Typing Master Lesson 15',
         level: 1,
         complexity: 'Medium',
-        wordCount: 101,
-        estimatedTimeMin: 2,
+        wordCount: 202,
+        estimatedTimeMin: 4,
         coverImg: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBsB8B_l7JsRKngrUdfsAzNU1zSIoGhomjQppoX23ANXPj0fpcqv4v-NZCM89bj04YLo3Q9LY3zyyGXZ_1IfEo98_5tg9CNmzrAu-gvEbD6ZFrpQYjD_L_Y5YvDvw2m5ZCDc1Hugl2G8GGfIsEJJyri6JjdBno5uZWoEGJpT9b9v_-gatn-gRlKdLfDZdHxJVsOz3jQBS2iWOQw-xKMVaF9C1cQjwIXx1XdOK5rKhNXYQ16zJDgnN0lpLBRwJ0niHTidyWRr3SjoN9J',
         excerpt: 'Practice makes a master typist. Keep your head straight, shoulders relaxed, elbows close, and stay focused on natural accuracy first...',
-        content: 'Practice makes a master typist. Keep your head straight, shoulders relaxed, elbows close, and stay focused on natural accuracy first. Speed will follow your patience and daily rhythm. This milestone test marks your graduation from basic drills to advanced text typing. You have learned home row anchors, top row reaches, bottom row coordinates, shift key alternating capitals, numbers, and basic punctuation marks. Celebrate this wonderful milestone as you prepare to transition to Level 2 advanced sprints. Keep practicing with dedication, stay relaxed, look at the screen, and let your fingers glide effortlessly over the keyboard!'
+        content: 'Practice makes a master typist. Keep your head straight, shoulders relaxed, elbows close, and stay focused on natural accuracy first. Speed will follow your patience and daily rhythm. This milestone test marks your graduation from basic drills to advanced text typing. You have learned home row anchors, top row reaches, bottom row coordinates, shift key alternating capitals, numbers, and basic punctuation marks. Celebrate this wonderful milestone as you prepare to transition to Level 2 advanced sprints. Keep practicing with dedication, stay relaxed, look at the screen, and let your fingers glide effortlessly over the keyboard! Practice makes a master typist. Keep your head straight, shoulders relaxed, elbows close, and stay focused on natural accuracy first. Speed will follow your patience and daily rhythm. This milestone test marks your graduation from basic drills to advanced text typing. You have learned home row anchors, top row reaches, bottom row coordinates, shift key alternating capitals, numbers, and basic punctuation marks. Celebrate this wonderful milestone as you prepare to transition to Level 2 advanced sprints. Keep practicing with dedication, stay relaxed, look at the screen, and let your fingers glide effortlessly over the keyboard!'
     },
     {
         id: 'lib_3',
@@ -214,11 +214,11 @@ const MOCK_LIBRARY_TEXTS = [
         source: 'Technical Typing',
         level: 2,
         complexity: 'Hard',
-        wordCount: 410,
-        estimatedTimeMin: 5,
+        wordCount: 820,
+        estimatedTimeMin: 10,
         coverImg: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCskkYe5oA8piZHk9uIAyymNvBfIx0JZOIBZrosWzW7lClN_mXpawD3BQW435OmrAy70YSt0mYeLrysWHZxs6EF5emh-CuDF9Wt3BAIoByo9Uidkh0OvknKQLIqdvl-78G-7kuJKaBIx55Af8Z_9ZtN12g4u6ZNMjL_2TcbI4QAGY-zo8v2o5Me8lex33TXxyP7ZqKqDQ0LhOrctikV_ma_N8eEcZi8-fuXEEnmyLJBdQ0UeUL2Ok7v1gfpqWgFB-Xjq_bST9nX1FAk',
         excerpt: 'def calculate_area(radius): return 3.14159 * radius ** 2. This function demonstrates basic syntax in Python...',
-        content: 'def calculate_area(radius): return 3.14159 * radius ** 2. This function demonstrates basic syntax in Python...'
+        content: 'def calculate_area(radius): return 3.14159 * radius ** 2. This function demonstrates basic syntax in Python... def calculate_area(radius): return 3.14159 * radius ** 2. This function demonstrates basic syntax in Python...'
     },
     {
         id: 'lib_4',
@@ -226,11 +226,11 @@ const MOCK_LIBRARY_TEXTS = [
         source: 'InfoSec Basics',
         level: 2,
         complexity: 'Hard',
-        wordCount: 380,
-        estimatedTimeMin: 4,
+        wordCount: 760,
+        estimatedTimeMin: 8,
         coverImg: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCskkYe5oA8piZHk9uIAyymNvBfIx0JZOIBZrosWzW7lClN_mXpawD3BQW435OmrAy70YSt0mYeLrysWHZxs6EF5emh-CuDF9Wt3BAIoByo9Uidkh0OvknKQLIqdvl-78G-7kuJKaBIx55Af8Z_9ZtN12g4u6ZNMjL_2TcbI4QAGY-zo8v2o5Me8lex33TXxyP7ZqKqDQ0LhOrctikV_ma_N8eEcZi8-fuXEEnmyLJBdQ0UeUL2Ok7v1gfpqWgFB-Xjq_bST9nX1FAk',
         excerpt: 'Authentication, Authorization, and Accounting (AAA) form the core of any secure system architecture...',
-        content: 'Authentication, Authorization, and Accounting (AAA) form the core of any secure system architecture...'
+        content: 'Authentication, Authorization, and Accounting (AAA) form the core of any secure system architecture... Authentication, Authorization, and Accounting (AAA) form the core of any secure system architecture...'
     },
     {
         id: 'lib_tm_10fastfingers',
@@ -238,8 +238,8 @@ const MOCK_LIBRARY_TEXTS = [
         source: 'Typespire Engine',
         level: 2,
         complexity: 'Hard',
-        wordCount: 150,
-        estimatedTimeMin: 1,
+        wordCount: 300,
+        estimatedTimeMin: 2,
         coverImg: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBsB8B_l7JsRKngrUdfsAzNU1zSIoGhomjQppoX23ANXPj0fpcqv4v-NZCM89bj04YLo3Q9LY3zyyGXZ_1IfEo98_5tg9CNmzrAu-gvEbD6ZFrpQYjD_L_Y5YvDvw2m5ZCDc1Hugl2G8GGfIsEJJyri6JjdBno5uZWoEGJpT9b9v_-gatn-gRlKdLfDZdHxJVsOz3jQBS2iWOQw-xKMVaF9C1cQjwIXx1XdOK5rKhNXYQ16zJDgnN0lpLBRwJ0niHTidyWRr3SjoN9J',
         excerpt: 'Dynamic 10 Fast Fingers words generator. Click to generate a unique combination of advanced unrelated words for a fair classroom competition!',
         content: '10_fast_fingers_dynamic'
@@ -412,7 +412,9 @@ const FacilitatorTestLaunch: React.FC = () => {
             dueDate: new Date(Date.now() + parseInt(accessWindow) * 60 * 1000).toISOString(),
             level: testLevel,
             duration: timeLimit === '0' ? 0 : parseInt(timeLimit) * 60,
-            maxAttempts: allowedTrials ? parseInt(allowedTrials) : undefined
+            maxAttempts: allowedTrials ? parseInt(allowedTrials) : undefined,
+            wpmRequirement: testLevel === 1 ? settings?.level1Wpm : settings?.level2Wpm,
+            accuracyRequirement: testLevel === 1 ? settings?.level1Accuracy : settings?.level2Accuracy
         });
 
         setSuccessPopup({ show: true, count: finalStudentIds.length });
