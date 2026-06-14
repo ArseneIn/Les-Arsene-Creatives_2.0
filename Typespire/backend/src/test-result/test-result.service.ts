@@ -13,6 +13,7 @@ export class TestResultService {
     userId: string;
     testId?: string;
     assignmentId?: string;
+    testTitle?: string;
   }) {
     let resolvedTestId = data.testId;
     if (!resolvedTestId && data.assignmentId) {
@@ -23,6 +24,22 @@ export class TestResultService {
       if (assignment?.testId) {
         resolvedTestId = assignment.testId;
       }
+    }
+
+    if (!resolvedTestId && data.testTitle) {
+      let test = await this.prisma.test.findFirst({
+        where: { title: data.testTitle },
+      });
+      if (!test) {
+        test = await this.prisma.test.create({
+          data: {
+            title: data.testTitle,
+            content: 'Practice stage completion record',
+            difficulty: 'MEDIUM',
+          },
+        });
+      }
+      resolvedTestId = test.id;
     }
 
     if (!resolvedTestId) {
@@ -52,10 +69,17 @@ export class TestResultService {
       where: { userId },
       include: {
         test: {
-          select: { title: true },
+          select: {
+            title: true,
+            difficulty: true,
+          },
         },
         assignment: {
-          select: { title: true },
+          select: {
+            title: true,
+            wpmRequirement: true,
+            accuracyRequirement: true,
+          },
         },
       },
       orderBy: {

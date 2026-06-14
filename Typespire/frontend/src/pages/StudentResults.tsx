@@ -60,7 +60,7 @@ const StudentResults: React.FC = () => {
         assignmentId, testTitle, strugglingKeys,
     } = state;
 
-    const benchmark = state.benchmark || { wpm: 40, accuracy: 90 };
+    const benchmark = state.benchmark || { wpm: 50, accuracy: 90 };
     const passed = typeof state.passed === 'boolean' ? state.passed : (wpm >= benchmark.wpm && accuracy >= benchmark.accuracy);
 
     const wpmDelta = wpm - prevBestWpm;

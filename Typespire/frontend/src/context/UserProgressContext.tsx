@@ -20,6 +20,8 @@ export interface TestResult {
     testLevel?: 1 | 2;
     assignmentId?: string;
     testId?: string;
+    wpmRequirement?: number;
+    accuracyRequirement?: number;
 }
 
 export interface StageResult {
@@ -37,8 +39,12 @@ export interface KeyStat {
     misses: number;
 }
 
+// The 4 official student ranks
+export type StudentRank = 'beginner' | 'level1' | 'level2' | 'graduate';
+
 interface UserStats {
     level: number;
+    rank: StudentRank;
     currentWpm: number;
     targetWpm: number;
     streakDays: number;
@@ -77,6 +83,7 @@ interface UserProgressContextType {
 
 const INITIAL_STATS: UserStats = {
     level: 1,
+    rank: 'beginner',
     currentWpm: 0,
     targetWpm: 50,
     streakDays: 0,
@@ -183,19 +190,19 @@ export const UserProgressProvider: React.FC<{ children: ReactNode }> = ({ childr
             for (let i = 1; i <= 9; i++) {
                 if (newResults[`stage-${i}-words`]?.passed) {
                     if (!newResults[`stage-${i}-falling`]?.passed) {
-                        newResults[`stage-${i}-falling`] = { passed: true, bestWpm: 0, bestAccuracy: 0 };
+                        newResults[`stage-${i}-falling`] = { stageId: `stage-${i}-falling`, attempts: 1, passed: true, bestWpm: 0, bestAccuracy: 0 };
                         changed = true;
                     }
                     if (!newResults[`stage-${i}-ngrams`]?.passed) {
-                        newResults[`stage-${i}-ngrams`] = { passed: true, bestWpm: 0, bestAccuracy: 0 };
+                        newResults[`stage-${i}-ngrams`] = { stageId: `stage-${i}-ngrams`, attempts: 1, passed: true, bestWpm: 0, bestAccuracy: 0 };
                         changed = true;
                     }
                     if (i >= 2 && !newResults[`stage-${i}-paragraphs`]?.passed) {
-                        newResults[`stage-${i}-paragraphs`] = { passed: true, bestWpm: 0, bestAccuracy: 0 };
+                        newResults[`stage-${i}-paragraphs`] = { stageId: `stage-${i}-paragraphs`, attempts: 1, passed: true, bestWpm: 0, bestAccuracy: 0 };
                         changed = true;
                     }
                     if (i === 3 && !newResults[`stage-3-shift`]?.passed) {
-                        newResults[`stage-3-shift`] = { passed: true, bestWpm: 0, bestAccuracy: 0 };
+                        newResults[`stage-3-shift`] = { stageId: `stage-3-shift`, attempts: 1, passed: true, bestWpm: 0, bestAccuracy: 0 };
                         changed = true;
                     }
                 }
@@ -224,7 +231,23 @@ export const UserProgressProvider: React.FC<{ children: ReactNode }> = ({ childr
             api.get(`/test-result/student/${user.id}`)
                 .then(res => {
                     if (res.data && Array.isArray(res.data)) {
-                        const fetchedResults: TestResult[] = res.data.map((r: Record<string, unknown>) => ({
+                        interface BackendResult {
+                            id: string;
+                            createdAt: string;
+                            wpm: number;
+                            accuracy: number;
+                            duration: number;
+                            assignmentId?: string;
+                            testId?: string;
+                            assignment?: { 
+                                title: string; 
+                                level: number; 
+                                wpmRequirement?: number | null; 
+                                accuracyRequirement?: number | null; 
+                            };
+                            test?: { title: string; difficulty: string };
+                        }
+                        const fetchedResults: TestResult[] = res.data.map((r: BackendResult) => ({
                             id: r.id,
                             date: new Date(r.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
                             testName: r.assignment?.title || r.test?.title || 'Formal Assignment',
@@ -234,6 +257,9 @@ export const UserProgressProvider: React.FC<{ children: ReactNode }> = ({ childr
                             status: 'Completed' as const,
                             assignmentId: r.assignmentId,
                             testId: r.testId,
+                            testLevel: (r.assignment?.level === 2 || r.test?.title?.toLowerCase().includes('level 2') || r.test?.difficulty === 'HARD' ? 2 : 1) as 1 | 2,
+                            wpmRequirement: r.assignment?.wpmRequirement || undefined,
+                            accuracyRequirement: r.assignment?.accuracyRequirement || undefined,
                         }));
                         
                         // We replace the recentResults completely if the user is authenticated 
@@ -321,6 +347,39 @@ export const UserProgressProvider: React.FC<{ children: ReactNode }> = ({ childr
         setStats(prev => streak !== prev.streakDays ? { ...prev, streakDays: streak } : prev);
     }, [recentResults]);
 
+    // ── Auto-update student rank based on milestones ──
+    useEffect(() => {
+        const hasPassedLevel2 = recentResults.some(r => {
+            if (r.testLevel !== 2) return false;
+            const targetWpm = r.wpmRequirement ?? 50;
+            const targetAcc = r.accuracyRequirement ?? 92;
+            return r.wpm >= targetWpm && r.accuracy >= targetAcc;
+        });
+        const hasPassedLevel1 = recentResults.some(r => {
+            if (r.testLevel !== 1) return false;
+            const targetWpm = r.wpmRequirement ?? 50;
+            const targetAcc = r.accuracyRequirement ?? 90;
+            return r.wpm >= targetWpm && r.accuracy >= targetAcc;
+        });
+        const isCapstonePassed = stageResults['stage-capstone']?.passed ?? false;
+
+        let computedRank: StudentRank = 'beginner';
+        if (hasPassedLevel2) {
+            computedRank = 'graduate';
+        } else if (hasPassedLevel1) {
+            computedRank = 'level2';
+        } else if (isCapstonePassed) {
+            computedRank = 'level1';
+        }
+
+        setStats(prev => {
+            if (prev.rank !== computedRank) {
+                return { ...prev, rank: computedRank };
+            }
+            return prev;
+        });
+    }, [recentResults, stageResults]);
+
     // ── Persist to localStorage on every change ──
     useEffect(() => {
         try {
@@ -359,8 +418,8 @@ export const UserProgressProvider: React.FC<{ children: ReactNode }> = ({ childr
 
         setRecentResults(prev => [result, ...prev].slice(0, 50)); // cap at 50
 
-        // If this is a formal test, send it to the backend!
-        if (result.testId || result.assignmentId) {
+        // If this is a formal test or the course capstone review, send it to the backend!
+        if (result.testId || result.assignmentId || result.stageId === 'stage-capstone') {
             api.post('/test-result', {
                 wpm: result.wpm,
                 accuracy: result.accuracy,
@@ -368,6 +427,7 @@ export const UserProgressProvider: React.FC<{ children: ReactNode }> = ({ childr
                 strugglingKeys: result.strugglingKeys,
                 testId: result.testId,
                 assignmentId: result.assignmentId,
+                testTitle: result.stageId === 'stage-capstone' ? 'Course Capstone — Full Keyboard Challenge' : undefined,
             }).catch(err => console.error("Failed to sync result to server:", err));
         }
 
@@ -400,10 +460,11 @@ export const UserProgressProvider: React.FC<{ children: ReactNode }> = ({ childr
             if (passed) {
                 const currentStage = PRACTICE_STAGES.find(s => s.id === stageId);
                 const nextStage = PRACTICE_STAGES.find(s => s.unlockRequires === stageId);
-                if (nextStage && !unlockedStages.includes(nextStage.id)) {
-                    setUnlockedStages(prev => [...prev, nextStage.id]);
+                if (nextStage) {
+                    setUnlockedStages(prev => prev.includes(nextStage.id) ? prev : [...prev, nextStage.id]);
                 }
-                // Advance the player's overall level
+
+                // Advance the player's numeric level (for display purposes)
                 if (currentStage) {
                     const levelNum = parseFloat(currentStage.stageNumber);
                     if (!isNaN(levelNum)) {
@@ -415,7 +476,7 @@ export const UserProgressProvider: React.FC<{ children: ReactNode }> = ({ childr
                 }
             }
         }
-    }, [getBenchmark, unlockedStages, setRecentResults, setStats, setStageResults, setUnlockedStages]);
+    }, [getBenchmark]);
 
     // ── Key heatmap stat updates ──
     const updateKeyStats = useCallback((keysTyped: Record<string, { hits: number; misses: number }>) => {

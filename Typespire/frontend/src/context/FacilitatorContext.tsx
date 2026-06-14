@@ -52,7 +52,17 @@ export const FacilitatorProvider: React.FC<{ children: ReactNode }> = ({ childre
                 try {
                     const res = await api.get(`/analytics/facilitator/${user.id}`);
                     if (res.data && res.data.students) {
-                        const mapped: Student[] = res.data.students.map((s: Record<string, any>) => ({
+                        interface BackendStudent {
+                            id: string;
+                            name: string;
+                            sectionName: string;
+                            sectionId?: string | null;
+                            avgWpm: number;
+                            avgAccuracy: number;
+                            testsTaken: number;
+                            lastActive?: string | null;
+                        }
+                        const mapped: Student[] = res.data.students.map((s: BackendStudent) => ({
                             id: s.id,
                             name: s.name,
                             avatarUrl: '',
@@ -110,38 +120,42 @@ export const FacilitatorProvider: React.FC<{ children: ReactNode }> = ({ childre
                 }
 
                   if (response && response.data) {
-                    interface DBResponse {
-                        id: string;
-                        title: string;
-                        dueDate: string;
-                        status: string;
-                        sectionId?: string | null;
-                        studentIds?: string[];
-                        maxAttempts?: number;
-                        testId?: string | null;
-                        test?: {
-                            id: string;
-                            duration: number;
-                            difficulty: string;
-                            content: string;
-                        };
-                    }
+                     interface DBResponse {
+                         id: string;
+                         title: string;
+                         dueDate: string;
+                         status: string;
+                         sectionId?: string | null;
+                         studentIds?: string[];
+                         maxAttempts?: number;
+                         testId?: string | null;
+                         wpmRequirement?: number | null;
+                         accuracyRequirement?: number | null;
+                         test?: {
+                             id: string;
+                             duration: number;
+                             difficulty: string;
+                             content: string;
+                         };
+                     }
 
-                    const mapped: Assignment[] = response.data.map((item: DBResponse) => ({
-                        id: item.id,
-                        title: item.title,
-                        dueDate: new Date(item.dueDate).toLocaleDateString(),
-                        dueDateISO: item.dueDate, // Keep ISO for countdown timers
-                        status: item.status === 'ACTIVE' ? 'Active' : 'Completed',
-                        completionRate: 0,
-                        sectionId: item.sectionId || undefined,
-                        studentIds: item.studentIds || [],
-                        duration: item.test?.duration,
-                        maxAttempts: item.maxAttempts || 1,
-                        testId: item.testId || item.test?.id || undefined,
-                        level: item.test?.difficulty === 'HARD' ? 2 : 1,
-                        text: item.test?.content
-                    }));
+                     const mapped: Assignment[] = response.data.map((item: DBResponse) => ({
+                         id: item.id,
+                         title: item.title,
+                         dueDate: new Date(item.dueDate).toLocaleDateString(),
+                         dueDateISO: item.dueDate, // Keep ISO for countdown timers
+                         status: item.status === 'ACTIVE' ? 'Active' : 'Completed',
+                         completionRate: 0,
+                         sectionId: item.sectionId || undefined,
+                         studentIds: item.studentIds || [],
+                         duration: item.test?.duration,
+                         maxAttempts: item.maxAttempts || 1,
+                         testId: item.testId || item.test?.id || undefined,
+                         level: item.test?.difficulty === 'HARD' ? 2 : 1,
+                         text: item.test?.content,
+                         wpmRequirement: item.wpmRequirement || undefined,
+                         accuracyRequirement: item.accuracyRequirement || undefined
+                     }));
                     setAssignments(mapped);
                 }
             } catch (error) {
@@ -251,6 +265,7 @@ export const FacilitatorProvider: React.FC<{ children: ReactNode }> = ({ childre
     );
 };
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const useFacilitator = () => {
     const context = useContext(FacilitatorContext);
     if (context === undefined) {

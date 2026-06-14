@@ -546,21 +546,30 @@ rawModules.forEach((mod, modIndex) => {
     
     if (isCapstone) {
         const capstoneId = `stage-capstone`;
+
+        // Curated capstone passages — each uses all 26 letters + space + punctuation
+        // Rotated randomly each attempt so students cannot memorise exact finger paths
+        const CAPSTONE_PASSAGES = [
+            "the quick brown fox jumps over the lazy dog. pack my box with five dozen liquor jugs. how vexingly quick daft zebras jump. the five boxing wizards jump quickly. sphinx of black quartz judge my vow.",
+            "amazingly few discotheques provide jukeboxes. sixty zippers were quickly picked from the woven jute bag. jackdaws love my big sphinx of quartz. fix problems with a very quick jump over the lazy dog.",
+            "just keep examining every low bid quoted for zinc etchings. my girl wove six dozen plaid jackets before she quit. back in my quaint garden jaunty zinnias vie with flaunting phlox. few quips galvanized the mock jury box."
+        ];
+
         const capstoneLevel: SubLevel = {
             id: capstoneId,
-            stageNumber: `5.1`,
-            title: `Ultimate Word Mastery`,
-            description: `Type real words utilizing every single key you've learned.`,
+            stageNumber: `9.1`,
+            title: `Course Capstone — Full Keyboard Challenge`,
+            description: `1-minute timed test covering every key you have mastered. Trust your muscle memory and stay smooth.`,
             keysTaught: currentAllowedKeys,
-            fingerHint: 'Stay relaxed and trust your muscle memory.',
+            fingerHint: 'Stay relaxed, maintain even rhythm, and trust your muscle memory. Accuracy first, speed follows.',
             defaultWpm: 35,
-            defaultAccuracy: 95,
-            generateText: () => generateCumulativeWords(currentAllowedKeys, 40),
-            duration: 90,
+            defaultAccuracy: 92,
+            generateText: () => CAPSTONE_PASSAGES[Math.floor(Math.random() * CAPSTONE_PASSAGES.length)],
+            duration: 60,
             unlockRequires: previousSubLevelId,
             isFunctionalKey: false,
             icon: 'emoji_events',
-            practiceType: 'words'
+            practiceType: 'timed_capstone'
         };
         subLevels.push(capstoneLevel);
         PRACTICE_STAGES.push(capstoneLevel);

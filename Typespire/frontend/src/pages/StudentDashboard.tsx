@@ -25,6 +25,26 @@ const StudentDashboard: React.FC = () => {
     const currentUserSectionId = user?.sectionId || '';
     const [now] = useState(() => Date.now());
 
+    const isCapstonePassed = isStagePassed('stage-capstone');
+
+    const hasPassedLevel1 = useMemo(() => {
+        return recentResults.some(r => {
+            if (r.testLevel !== 1) return false;
+            const targetWpm = r.wpmRequirement ?? 50;
+            const targetAcc = r.accuracyRequirement ?? 90;
+            return r.wpm >= targetWpm && r.accuracy >= targetAcc;
+        });
+    }, [recentResults]);
+
+    const hasPassedLevel2 = useMemo(() => {
+        return recentResults.some(r => {
+            if (r.testLevel !== 2) return false;
+            const targetWpm = r.wpmRequirement ?? 50;
+            const targetAcc = r.accuracyRequirement ?? 92;
+            return r.wpm >= targetWpm && r.accuracy >= targetAcc;
+        });
+    }, [recentResults]);
+
     const [sectionInfo, setSectionInfo] = useState<{ sectionName: string, intakeName: string } | null>(null);
     const [institutionName, setInstitutionName] = useState<string>('');
     const [isHeatmapOpen, setIsHeatmapOpen] = useState(false);
@@ -60,14 +80,17 @@ const StudentDashboard: React.FC = () => {
     }, [user?.institutionId]);
 
     // All active assignments for this student — memoised to avoid infinite re-render
-    const allStudentAssignments = useMemo(() => assignments.filter(a =>
-        a.status === 'Active' &&
-        (
-            (a.sectionId === currentUserSectionId) ||
-            (a.studentIds && a.studentIds.includes(currentUserId))
-        ) &&
-        a.level === (isStagePassed('stage-capstone') ? 2 : 1)
-    ), [assignments, currentUserSectionId, currentUserId, isStagePassed]);
+    const allStudentAssignments = useMemo(() => {
+        if (!isCapstonePassed) return [];
+        return assignments.filter(a =>
+            a.status === 'Active' &&
+            (
+                (a.sectionId === currentUserSectionId) ||
+                (a.studentIds && a.studentIds.includes(currentUserId))
+            ) &&
+            a.level === (hasPassedLevel1 ? 2 : 1)
+        );
+    }, [assignments, currentUserSectionId, currentUserId, isCapstonePassed, hasPassedLevel1]);
 
     const activePendingAssignments = useMemo(() => {
         return allStudentAssignments.filter(a => {
@@ -132,25 +155,22 @@ const StudentDashboard: React.FC = () => {
         return recentResults.slice(start, start + itemsPerPage);
     }, [recentResults, currentPage]);
 
-    const isCapstonePassed = isStagePassed('stage-capstone');
-    const hasPassedLevel2 = recentResults.some(r => 
-        r.testLevel === 2 && 
-        r.wpm >= 50 && 
-        r.accuracy >= 92
-    );
-
-    let standingLabel = 'Level 1';
-    let standingDescription = 'Practice Phase';
+    let standingLabel = 'Beginner';
+    let standingDescription = 'Practicing';
     let welcomeMsg = "Your finger coordination is peaking today. Let's beat your personal targets and master the upcoming practice stages!";
 
     if (hasPassedLevel2) {
         standingLabel = 'Passed';
         standingDescription = 'Course Certified';
         welcomeMsg = "Congratulations! You have successfully mastered the keyboard and passed all levels. Keep typing to maintain your high speed!";
-    } else if (isCapstonePassed) {
+    } else if (hasPassedLevel1) {
         standingLabel = 'Level 2';
-        standingDescription = 'Advanced Survival';
-        welcomeMsg = "You have completed the entire practice curriculum! Let's clear your assigned Level 2 and standard tests now!";
+        standingDescription = 'Level 1 Certified';
+        welcomeMsg = "Outstanding! You have passed the Level 1 Test and are now Level 2. Get ready for Level 2 assigned tests!";
+    } else if (isCapstonePassed) {
+        standingLabel = 'Level 1';
+        standingDescription = 'Finished Beginner';
+        welcomeMsg = "You have completed the entire practice curriculum! You are now eligible to take Level 1 assigned tests.";
     }
 
     // Get current practice stage number
@@ -215,7 +235,7 @@ const StudentDashboard: React.FC = () => {
                 </header>
 
                 {/* ── Assigned Tests Section ── */}
-                {isStagePassed('stage-capstone') && allStudentAssignments.length > 0 ? (
+                {isCapstonePassed && allStudentAssignments.length > 0 ? (
                     <section>
                         <div className="flex items-center justify-between mb-3">
                             <h2 className="text-base font-bold text-slate-700 dark:text-slate-300 flex items-center gap-2">
@@ -364,7 +384,7 @@ const StudentDashboard: React.FC = () => {
                         <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
                             <div className="flex flex-col gap-3">
                                 <div className="flex items-center gap-2.5">
-                                    {!isStagePassed('stage-capstone') ? (
+                                    {!isCapstonePassed ? (
                                         <span className="px-2.5 py-1 rounded-md text-xs font-bold uppercase tracking-wider bg-amber-100 dark:bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center gap-1">
                                             <span className="material-symbols-outlined text-[12px] font-black">lock</span>
                                             Classroom Tests Locked
@@ -384,14 +404,14 @@ const StudentDashboard: React.FC = () => {
                                     )}
                                 </div>
                                 <h2 className="text-2xl font-black tracking-tight text-slate-900 dark:text-white mt-1 font-heading">
-                                    {!isStagePassed('stage-capstone')
+                                    {!isCapstonePassed
                                         ? 'Master the Learning Path first!'
                                         : latestAssignment
                                         ? latestAssignment.title
                                         : 'Ready for practice!'}
                                 </h2>
                                 <p className="text-slate-500 dark:text-[#929bc9] text-sm md:text-base font-normal leading-relaxed max-w-xl">
-                                    {!isStagePassed('stage-capstone')
+                                    {!isCapstonePassed
                                         ? "Classroom tests are assigned by your facilitator. Complete all 12 stages of the Learning Path to unlock official evaluations."
                                         : latestAssignment
                                         ? "Complete this assigned test to maintain your class's typing standing and log your proficiency."
@@ -399,14 +419,14 @@ const StudentDashboard: React.FC = () => {
                                 </p>
                             </div>
                             <Link 
-                                to={isStagePassed('stage-capstone') && latestAssignment ? `/test?assignmentId=${latestAssignment.id}` : "/practice"} 
+                                to={isCapstonePassed && latestAssignment ? `/test?assignmentId=${latestAssignment.id}` : "/practice"} 
                                 className="w-full md:w-auto shrink-0 flex items-center justify-center gap-2 bg-primary hover:bg-emerald-600 text-white font-bold py-3.5 px-7 rounded-xl transition-all duration-200 shadow-lg shadow-primary/20 hover-scale active-scale font-heading"
                             >
                                 <span className="material-symbols-outlined text-[20px]">
-                                    {!isStagePassed('stage-capstone') ? 'school' : latestAssignment ? 'play_arrow' : 'keyboard'}
+                                    {!isCapstonePassed ? 'school' : latestAssignment ? 'play_arrow' : 'keyboard'}
                                 </span>
                                 <span>
-                                    {!isStagePassed('stage-capstone') ? 'Go to Practice Arena' : latestAssignment ? 'Start Test' : 'Go to Practice'}
+                                    {!isCapstonePassed ? 'Go to Practice Arena' : latestAssignment ? 'Start Test' : 'Go to Practice'}
                                 </span>
                             </Link>
                         </div>

@@ -26,6 +26,7 @@ export class TestResultController {
       strugglingKeys?: Record<string, number>;
       testId?: string;
       assignmentId?: string;
+      testTitle?: string;
     },
   ) {
     return this.testResultService.create({

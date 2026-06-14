@@ -241,6 +241,7 @@ export class InstitutionService {
         testResults: {
           include: {
             test: true,
+            assignment: true,
           },
         },
       },
@@ -260,25 +261,45 @@ export class InstitutionService {
 
       // Deduce milestone status based on the latest test scores
       let status = 'Practicing';
+
+      const hasPassedCapstone = student.testResults.some((r) => {
+        const title = (r.test?.title || '').toLowerCase();
+        return title.includes('capstone') && r.wpm >= 35 && r.accuracy >= 92;
+      });
+
       student.testResults.forEach((r) => {
         const title = (r.test?.title || '').toLowerCase();
-        const passed = r.wpm >= 20 && r.accuracy >= 70;
         const isPractice =
-          title.includes('practice') || title.includes('drill');
+          (title.includes('practice') || title.includes('drill')) &&
+          !title.includes('capstone');
 
         if (!isPractice) {
-          if (title.includes('level 2') && passed) {
+          const isL2 =
+            title.includes('level 2') || r.test?.difficulty === 'HARD';
+          const isL1 = !isL2;
+
+          const passWpm = r.assignment?.wpmRequirement ?? 50;
+          const passAccuracy =
+            r.assignment?.accuracyRequirement ?? (isL2 ? 92 : 90);
+          const passed = r.wpm >= passWpm && r.accuracy >= passAccuracy;
+
+          if (isL2 && passed) {
             status = 'Passed';
-          } else if (
-            (title.includes('level 1') && passed) ||
-            title.includes('level 2')
-          ) {
-            status = 'Level 2';
-          } else {
-            status = 'Level 1';
+          } else if (isL1 && passed) {
+            if (status !== 'Passed') {
+              status = 'Level 2';
+            }
+          } else if (isL1 || isL2) {
+            if (status !== 'Passed' && status !== 'Level 2') {
+              status = 'Level 1';
+            }
           }
         }
       });
+
+      if (status === 'Practicing' && hasPassedCapstone) {
+        status = 'Level 1';
+      }
 
       return {
         studentId: student.id.substring(0, 8).toUpperCase(),

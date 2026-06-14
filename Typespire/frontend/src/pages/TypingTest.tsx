@@ -25,6 +25,8 @@ interface TestConfig {
     assignmentId?: string;
     testId?: string;
     practiceType?: string;
+    wpmRequirement?: number;
+    accuracyRequirement?: number;
 }
 
 interface PracticeStageType {
@@ -81,7 +83,10 @@ const TypingTest: React.FC = () => {
             } else {
                 generated = generate10FastFingersText(WORD_POOL, 150).toLowerCase();
             }
-            setRandomSprintText(generated);
+            const timer = setTimeout(() => {
+                setRandomSprintText(generated);
+            }, 0);
+            return () => clearTimeout(timer);
         }
     }, [mode, testLevel, randomSprintText]);
 
@@ -99,6 +104,8 @@ const TypingTest: React.FC = () => {
                     stageId: undefined,
                     assignmentId: assignment.id,
                     testId: assignment.testId || undefined,
+                    wpmRequirement: assignment.wpmRequirement,
+                    accuracyRequirement: assignment.accuracyRequirement,
                 };
             }
         }
@@ -144,19 +151,27 @@ const TypingTest: React.FC = () => {
     }, [stageId, assignmentId, testLevel, customText, assignments, mode, customTitle, stats?.level, randomSprintText]);
 
     const isLevel2 = testConfig.level === 2;
+    const isCapstoneStage = testConfig.practiceType === 'timed_capstone';
+
     // ── Format Text (Practice Only) ─────────────────────────
     const formattedTargetText = useMemo(() => {
         if (!isPractice) return testConfig.text;
+        // For timed capstone, preserve punctuation and sentence structure as-is
+        if (isCapstoneStage) return testConfig.text.trim();
         // The curriculum generator now handles formatting. We simply ensure it's clean and space-separated.
         const words = testConfig.text.split(/\s+/).filter((w: string) => w.length > 0);
         return words.join(' ');
-    }, [testConfig.text, isPractice]);
+    }, [testConfig.text, isPractice, isCapstoneStage]);
 
     // ── Benchmark for pass/fail feedback ──────────────────────────────────
     const benchmark = useMemo(() => {
         if (testConfig.stageId) return getBenchmark(testConfig.stageId);
-        if (isLevel2) return { wpm: 50, accuracy: 92 };
-        return { wpm: 50, accuracy: 90 };
+        const defaultWpm = 50;
+        const defaultAcc = isLevel2 ? 92 : 90;
+        return {
+            wpm: testConfig.wpmRequirement ?? defaultWpm,
+            accuracy: testConfig.accuracyRequirement ?? defaultAcc
+        };
     }, [testConfig, isLevel2, getBenchmark]);
 
     // ── Confetti & Celebration states ─────────────────────────────────────────
@@ -172,14 +187,17 @@ const TypingTest: React.FC = () => {
 
     useEffect(() => {
         if (showConfetti && confettiPieces.length === 0) {
-            setConfettiPieces(Array.from({ length: 50 }).map((_, i) => ({
-                id: i,
-                left: `${Math.random() * 100}%`,
-                top: `-${Math.random() * 20}%`,
-                backgroundColor: ['#33B974', '#094A71', '#F59E0B', '#EF4444'][Math.floor(Math.random() * 4)],
-                animationDelay: `${Math.random() * 2}s`,
-                animationDuration: `${2 + Math.random() * 3}s`
-            })));
+            const timer = setTimeout(() => {
+                setConfettiPieces(Array.from({ length: 50 }).map((_, i) => ({
+                    id: i,
+                    left: `${Math.random() * 100}%`,
+                    top: `-${Math.random() * 20}%`,
+                    backgroundColor: ['#33B974', '#094A71', '#F59E0B', '#EF4444'][Math.floor(Math.random() * 4)],
+                    animationDelay: `${Math.random() * 2}s`,
+                    animationDuration: `${2 + Math.random() * 3}s`
+                })));
+            }, 0);
+            return () => clearTimeout(timer);
         }
     }, [showConfetti, confettiPieces.length]);
 
@@ -190,7 +208,8 @@ const TypingTest: React.FC = () => {
     } = useTypingEngine({
         targetText: formattedTargetText,
         duration: testConfig.duration ?? 120,
-        untimed: isPractice || testConfig.duration === 0,
+        // Capstone is timed (1 min) even though it's a practice stage
+        untimed: (isPractice && !isCapstoneStage) || testConfig.duration === 0,
         strict: testConfig.practiceType === 'letters' || testConfig.practiceType === 'falling',
         onFinish: (results) => {
             // Build per-key stats for heatmap using finalUserInput ref (avoids stale closure)
@@ -218,6 +237,8 @@ const TypingTest: React.FC = () => {
                 testLevel: testConfig.level,
                 assignmentId: testConfig.assignmentId,
                 testId: testConfig.testId,
+                wpmRequirement: benchmark.wpm,
+                accuracyRequirement: benchmark.accuracy,
             });
 
             // Capture final results into state for display (avoids stale closure issue)
@@ -353,15 +374,21 @@ const TypingTest: React.FC = () => {
                         </div>
 
                         <div className={`inline-flex h-16 w-16 items-center justify-center rounded-full mb-4 ${
-                            isPractice ? 'bg-[#33B974]/10 text-[#33B974]'
+                            isCapstoneStage ? 'bg-amber-500/10 text-amber-500'
+                            : isPractice ? 'bg-[#33B974]/10 text-[#33B974]'
                             : 'bg-[#094A71]/10 text-[#094A71]'
                         }`}>
-                            <span className="material-symbols-outlined text-4xl">{isPractice ? 'keyboard_double_arrow_right' : 'schedule'}</span>
+                            <span className="material-symbols-outlined text-4xl">{isCapstoneStage ? 'emoji_events' : isPractice ? 'keyboard_double_arrow_right' : 'schedule'}</span>
                         </div>
                         <h2 className="text-2xl font-bold mb-2 text-[#061824] dark:text-white">{testConfig.title}</h2>
                         
                         <p className="text-gray-500 dark:text-gray-400 mb-5 text-sm">
-                            {isPractice ? (
+                            {isCapstoneStage ? (
+                                <span className="inline-flex items-center gap-1 text-amber-500 font-semibold text-xs uppercase tracking-wider">
+                                    <span className="material-symbols-outlined text-sm">timer</span>
+                                    1-Minute Final Challenge
+                                </span>
+                            ) : isPractice ? (
                                 <span className="inline-flex items-center gap-1 text-[#33B974] font-semibold text-xs uppercase tracking-wider">
                                     <span className="material-symbols-outlined text-sm">all_inclusive</span>
                                     Self-Paced Learning Path
@@ -406,27 +433,57 @@ const TypingTest: React.FC = () => {
                                         </div>
                                     </div>
                                 )}
-                                <div className="flex items-start gap-3">
-                                    <span className="material-symbols-outlined text-[#33B974] bg-[#33B974]/10 p-1 rounded-lg text-base">all_inclusive</span>
-                                    <div>
-                                        <h4 className="text-[11px] font-bold text-gray-700 dark:text-gray-200 uppercase tracking-wide">No Time Pressure</h4>
-                                        <p className="text-[10px] text-gray-400 mt-0.5">Focus on pure typing accuracy first; your speed will follow naturally.</p>
-                                    </div>
-                                </div>
-                                <div className="flex items-start gap-3">
-                                    <span className="material-symbols-outlined text-[#094A71] bg-[#094A71]/10 p-1 rounded-lg text-base">warning</span>
-                                    <div>
-                                        <h4 className="text-[11px] font-bold text-gray-700 dark:text-gray-200 uppercase tracking-wide">Tactile Error-Locking</h4>
-                                        <p className="text-[10px] text-gray-400 mt-0.5">Mismatched keys and wrong space entries highlight red and block cursor advance.</p>
-                                    </div>
-                                </div>
-                                <div className="flex items-start gap-3">
-                                    <span className="material-symbols-outlined text-amber-500 bg-amber-500/10 p-1 rounded-lg text-base">military_tech</span>
-                                    <div>
-                                        <h4 className="text-[11px] font-bold text-gray-700 dark:text-gray-200 uppercase tracking-wide">Target Accuracy</h4>
-                                        <p className="text-[10px] text-gray-400 mt-0.5">Maintain {benchmark.accuracy}% accuracy to clear this stage and progress.</p>
-                                    </div>
-                                </div>
+
+                                {/* Capstone timed info */}
+                                {isCapstoneStage ? (
+                                    <>
+                                        <div className="flex items-start gap-3">
+                                            <span className="material-symbols-outlined text-amber-500 bg-amber-500/10 p-1 rounded-lg text-base">timer</span>
+                                            <div>
+                                                <h4 className="text-[11px] font-bold text-gray-700 dark:text-gray-200 uppercase tracking-wide">60-Second Timed Challenge</h4>
+                                                <p className="text-[10px] text-gray-400 mt-0.5">The clock starts when you begin. Type as far as you can in 1 minute.</p>
+                                            </div>
+                                        </div>
+                                        <div className="flex items-start gap-3">
+                                            <span className="material-symbols-outlined text-[#33B974] bg-[#33B974]/10 p-1 rounded-lg text-base">psychology</span>
+                                            <div>
+                                                <h4 className="text-[11px] font-bold text-gray-700 dark:text-gray-200 uppercase tracking-wide">Full Keyboard Passage</h4>
+                                                <p className="text-[10px] text-gray-400 mt-0.5">The passage uses every letter you've learned — from A to Z. Stay calm and trust your fingers.</p>
+                                            </div>
+                                        </div>
+                                        <div className="flex items-start gap-3">
+                                            <span className="material-symbols-outlined text-amber-500 bg-amber-500/10 p-1 rounded-lg text-base">military_tech</span>
+                                            <div>
+                                                <h4 className="text-[11px] font-bold text-gray-700 dark:text-gray-200 uppercase tracking-wide">Passing Benchmark</h4>
+                                                <p className="text-[10px] text-gray-400 mt-0.5">Reach <strong>{benchmark.wpm} WPM</strong> with <strong>{benchmark.accuracy}%</strong> accuracy to unlock the student tests hub.</p>
+                                            </div>
+                                        </div>
+                                    </>
+                                ) : (
+                                    <>
+                                        <div className="flex items-start gap-3">
+                                            <span className="material-symbols-outlined text-[#33B974] bg-[#33B974]/10 p-1 rounded-lg text-base">all_inclusive</span>
+                                            <div>
+                                                <h4 className="text-[11px] font-bold text-gray-700 dark:text-gray-200 uppercase tracking-wide">No Time Pressure</h4>
+                                                <p className="text-[10px] text-gray-400 mt-0.5">Focus on pure typing accuracy first; your speed will follow naturally.</p>
+                                            </div>
+                                        </div>
+                                        <div className="flex items-start gap-3">
+                                            <span className="material-symbols-outlined text-[#094A71] bg-[#094A71]/10 p-1 rounded-lg text-base">warning</span>
+                                            <div>
+                                                <h4 className="text-[11px] font-bold text-gray-700 dark:text-gray-200 uppercase tracking-wide">Tactile Error-Locking</h4>
+                                                <p className="text-[10px] text-gray-400 mt-0.5">Mismatched keys and wrong space entries highlight red and block cursor advance.</p>
+                                            </div>
+                                        </div>
+                                        <div className="flex items-start gap-3">
+                                            <span className="material-symbols-outlined text-amber-500 bg-amber-500/10 p-1 rounded-lg text-base">military_tech</span>
+                                            <div>
+                                                <h4 className="text-[11px] font-bold text-gray-700 dark:text-gray-200 uppercase tracking-wide">Target Accuracy</h4>
+                                                <p className="text-[10px] text-gray-400 mt-0.5">Maintain {benchmark.accuracy}% accuracy to clear this stage and progress.</p>
+                                            </div>
+                                        </div>
+                                    </>
+                                )}
                             </div>
                         ) : (
                             <div className="bg-slate-50 dark:bg-[#06141f] border border-gray-100 dark:border-white/5 rounded-2xl p-5 mb-6 text-left space-y-3.5">
@@ -450,12 +507,14 @@ const TypingTest: React.FC = () => {
                         <button
                             onClick={handleStart}
                             className={`w-full font-bold py-3.5 rounded-xl text-md transition-all shadow-md mb-3 ${
-                                isPractice 
+                                isCapstoneStage
+                                ? 'bg-amber-500 hover:bg-amber-400 text-white shadow-amber-500/20'
+                                : isPractice 
                                 ? 'bg-[#33B974] hover:bg-[#33B974]/95 text-white shadow-[#33B974]/10' 
                                 : 'bg-[#094A71] hover:bg-[#094A71]/95 text-white shadow-[#094A71]/10'
                             }`}
                         >
-                            {isPractice ? 'Start Practice Arena' : 'Begin Evaluation Test'}
+                            {isCapstoneStage ? '🏆 Begin Capstone Challenge' : isPractice ? 'Start Practice Arena' : 'Begin Evaluation Test'}
                         </button>
                         <button onClick={() => window.history.back()} className="text-gray-400 hover:text-gray-600 text-xs font-semibold transition-colors mt-2">
                             ← Cancel and go back
@@ -477,10 +536,14 @@ const TypingTest: React.FC = () => {
                     stageName={testConfig.title}
                     wpm={displayWpm}
                     accuracy={displayAccuracy}
-                    nextStageId={nextStageId}
+                    nextStageId={isCapstoneStage ? null : nextStageId}
+                    isCapstone={isCapstoneStage}
                     onContinue={() => {
                         setShowStageCelebration(false);
-                        if (nextStageId) {
+                        if (isCapstoneStage) {
+                            // Capstone passed → take them to Tests Hub
+                            navigate('/tests');
+                        } else if (nextStageId) {
                             window.location.href = `/test?mode=practice&stageId=${nextStageId}`;
                         } else {
                             navigate('/practice');
@@ -545,6 +608,38 @@ const TypingTest: React.FC = () => {
                                     : `Goal was ${benchmark.wpm} WPM / ${benchmark.accuracy}% accuracy`)
                                 : "Great effort! Here is what you achieved."}
                         </p>
+
+                        {/* Level 1 passed → eligible for Level 2 banner */}
+                        {passed && !isLevel2 && !isPractice && assignmentId && (
+                            <div className="mb-5 rounded-2xl overflow-hidden border border-red-400/40 text-left">
+                                <div className="bg-gradient-to-r from-red-500 to-rose-600 px-4 py-2.5 flex items-center gap-2">
+                                    <span className="material-symbols-outlined text-white text-lg">workspace_premium</span>
+                                    <span className="text-white font-black text-xs uppercase tracking-widest">Level 1 Cleared!</span>
+                                </div>
+                                <div className="bg-red-50 dark:bg-red-900/20 px-4 py-3">
+                                    <p className="text-xs font-bold text-red-800 dark:text-red-300 mb-1">⚡ You are now eligible for Level 2 Survival Tests!</p>
+                                    <p className="text-[11px] text-red-700 dark:text-red-400 leading-relaxed">
+                                        Your facilitator can now assign you Level 2 sprint tests — a faster, harder challenge with no backspace. Get ready!
+                                    </p>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Level 2 passed → full mastery banner */}
+                        {passed && isLevel2 && (
+                            <div className="mb-5 rounded-2xl overflow-hidden border border-yellow-400/40 text-left">
+                                <div className="bg-gradient-to-r from-yellow-500 to-amber-500 px-4 py-2.5 flex items-center gap-2">
+                                    <span className="material-symbols-outlined text-white text-lg">emoji_events</span>
+                                    <span className="text-white font-black text-xs uppercase tracking-widest">Full Keyboard Mastery!</span>
+                                </div>
+                                <div className="bg-yellow-50 dark:bg-yellow-900/20 px-4 py-3">
+                                    <p className="text-xs font-bold text-yellow-800 dark:text-yellow-300 mb-1">🏆 You have achieved Level 2 Certification!</p>
+                                    <p className="text-[11px] text-yellow-700 dark:text-yellow-400 leading-relaxed">
+                                        Outstanding speed and accuracy — you have demonstrated professional-level typing skill. Keep pushing your limits!
+                                    </p>
+                                </div>
+                            </div>
+                        )}
 
                         <div className="grid grid-cols-2 gap-4 mb-6">
                             <div className="p-4 bg-gray-50 dark:bg-white/5 rounded-xl">
@@ -716,7 +811,7 @@ const TypingTest: React.FC = () => {
                     {/* Live stats hidden as per request. Only final results will be visible. */}
 
                     <div className="w-full mb-8">
-                        {isPractice && ((testConfig as any).practiceType === 'letters' || (testConfig as any).practiceType === 'falling') ? (
+                        {isPractice && (testConfig.practiceType === 'letters' || testConfig.practiceType === 'falling') ? (
                             <PracticeTypingArea
                                 targetText={formattedTargetText}
                                 userInput={userInput}
@@ -724,7 +819,7 @@ const TypingTest: React.FC = () => {
                                 isFinished={isFinished}
                                 onInputChange={handleInput}
                                 elapsedSeconds={timeLeft} // counts up in untimed mode
-                                mode={(testConfig as any).practiceType || 'words'}
+                                mode={testConfig.practiceType || 'words'}
                                 lastErrorIndex={lastErrorIndex}
                             />
                         ) : (

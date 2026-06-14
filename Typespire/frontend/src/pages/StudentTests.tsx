@@ -14,13 +14,23 @@ export const StudentTests: React.FC = () => {
     const currentUserId = user?.id || '';
     const currentUserSectionId = user?.sectionId || '';
 
-    const systemLevel = isStagePassed('stage-capstone') ? 2 : 1;
+    const hasPassedLevel1 = useMemo(() => {
+        return recentResults.some(r => {
+            if (r.testLevel !== 1) return false;
+            const targetWpm = r.wpmRequirement ?? 50;
+            const targetAcc = r.accuracyRequirement ?? 90;
+            return r.wpm >= targetWpm && r.accuracy >= targetAcc;
+        });
+    }, [recentResults]);
+
+    const systemLevel = hasPassedLevel1 ? 2 : 1;
 
     // 1. Assigned Tests
     const allAssignedTests = useMemo(() => assignments.filter(a =>
         a.status === 'Active' &&
-        ((a.sectionId === currentUserSectionId) || (a.studentIds && a.studentIds.includes(currentUserId)))
-    ), [assignments, currentUserSectionId, currentUserId]);
+        ((a.sectionId === currentUserSectionId) || (a.studentIds && a.studentIds.includes(currentUserId))) &&
+        a.level === systemLevel
+    ), [assignments, currentUserSectionId, currentUserId, systemLevel]);
 
 
 

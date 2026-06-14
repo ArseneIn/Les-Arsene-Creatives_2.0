@@ -9,7 +9,7 @@ type DisplayStatus = 'All' | 'Completed' | 'Missed';
 type DisplayResult = Omit<TestResult, 'status'> & { status: 'Completed' | 'Missed' };
 
 const StudentHistory: React.FC = () => {
-    const { recentResults, stats, isStagePassed } = useUserProgress();
+    const { recentResults, getBenchmark } = useUserProgress();
     const { user } = useAuth();
     const { assignments } = useFacilitator();
     const navigate = useNavigate();
@@ -40,7 +40,14 @@ const StudentHistory: React.FC = () => {
 
         highestResultsMap.forEach(r => finalResults.push(r));
 
-        const systemLevel = isStagePassed('stage-capstone') ? 2 : 1;
+        const hasPassedLevel1 = recentResults.some(r => {
+            if (r.testLevel !== 1) return false;
+            const targetWpm = r.wpmRequirement ?? 50;
+            const targetAcc = r.accuracyRequirement ?? 90;
+            return r.wpm >= targetWpm && r.accuracy >= targetAcc;
+        });
+
+        const systemLevel = hasPassedLevel1 ? 2 : 1;
 
         const allAssigned = assignments.filter(a =>
             a.status === 'Active' &&
@@ -68,7 +75,7 @@ const StudentHistory: React.FC = () => {
 
         // Sort by date descending
         return finalResults.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-    }, [recentResults, assignments, currentUserId, currentUserSectionId, now, isStagePassed]);
+    }, [recentResults, assignments, currentUserId, currentUserSectionId, now]);
 
     const filteredResults = useMemo(() => {
         return filter === 'All' ? allHistory : allHistory.filter(r => r.status === filter);
@@ -154,18 +161,26 @@ const StudentHistory: React.FC = () => {
                                             <td className="py-4.5 px-6 text-right">
                                                 {result.status === 'Completed' ? (
                                                     <button
-                                                        onClick={() => navigate('/results', {
-                                                            state: {
-                                                                wpm: result.wpm,
-                                                                accuracy: result.accuracy,
-                                                                passed: result.wpm >= 40 && result.accuracy >= 90,
-                                                                benchmark: { wpm: 40, accuracy: 90 },
-                                                                strugglingKeys: result.strugglingKeys || {},
-                                                                stageId: result.stageId,
-                                                                testTitle: result.testName,
-                                                                assignmentId: result.assignmentId,
-                                                            }
-                                                        })}
+                                                        onClick={() => {
+                                                            const isL2 = result.testLevel === 2;
+                                                            const bm = result.stageId 
+                                                                ? getBenchmark(result.stageId) 
+                                                                : { wpm: 50, accuracy: isL2 ? 92 : 90 };
+                                                            const isPassed = result.wpm >= bm.wpm && result.accuracy >= bm.accuracy;
+                                                            
+                                                            navigate('/results', {
+                                                                state: {
+                                                                    wpm: result.wpm,
+                                                                    accuracy: result.accuracy,
+                                                                    passed: isPassed,
+                                                                    benchmark: bm,
+                                                                    strugglingKeys: result.strugglingKeys || {},
+                                                                    stageId: result.stageId,
+                                                                    testTitle: result.testName,
+                                                                    assignmentId: result.assignmentId,
+                                                                }
+                                                            });
+                                                        }}
                                                         className="inline-flex items-center gap-1 text-xs font-bold text-primary hover:text-emerald-600 transition-colors"
                                                     >
                                                         <span className="material-symbols-outlined text-[16px]">visibility</span>

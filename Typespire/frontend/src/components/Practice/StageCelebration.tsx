@@ -5,6 +5,8 @@ interface StageCelebrationProps {
     wpm: number;
     accuracy: number;
     nextStageId: string | null;
+    isCapstone?: boolean;   // capstone pass → eligible for Level 1 Tests
+    isLevel1Pass?: boolean; // level 1 test pass → eligible for Level 2 Tests
     onContinue: () => void;
     onViewResults: () => void;
 }
@@ -35,7 +37,9 @@ const generatePieces = (count = 80): Piece[] =>
     }));
 
 const StageCelebration: React.FC<StageCelebrationProps> = ({
-    stageName, wpm, accuracy, nextStageId, onContinue, onViewResults,
+    stageName, wpm, accuracy, nextStageId,
+    isCapstone = false, isLevel1Pass = false,
+    onContinue, onViewResults,
 }) => {
     const [pieces] = useState<Piece[]>(generatePieces);
     const [visible, setVisible] = useState(false);
@@ -87,10 +91,56 @@ const StageCelebration: React.FC<StageCelebrationProps> = ({
                     </div>
                 </div>
 
+                {/* Milestone eligibility banner — Capstone */}
+                {isCapstone && (
+                    <div className="mb-5 rounded-2xl overflow-hidden border border-amber-400/40 shadow-lg shadow-amber-500/10">
+                        <div className="bg-gradient-to-r from-amber-500 to-orange-500 px-4 py-2.5 flex items-center gap-2">
+                            <span className="material-symbols-outlined text-white text-lg">rocket_launch</span>
+                            <span className="text-white font-black text-xs uppercase tracking-widest">Course Mastery Achieved!</span>
+                        </div>
+                        <div className="bg-amber-50 dark:bg-amber-900/20 px-5 py-4 text-left">
+                            <p className="text-sm font-bold text-amber-800 dark:text-amber-300 mb-1">🏅 You are now eligible for Level 1 Formal Tests!</p>
+                            <p className="text-xs text-amber-700 dark:text-amber-400 leading-relaxed">
+                                Head to the <strong>Tests Hub</strong> to take your first graded test assigned by your facilitator. Prove your typing skills under real evaluation conditions!
+                            </p>
+                            <div className="mt-3 flex items-center gap-1.5 text-[10px] font-black uppercase tracking-wider text-amber-600 dark:text-amber-400">
+                                <span className="material-symbols-outlined text-xs">arrow_right_alt</span>
+                                Go to Tests Hub after closing this screen
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {/* Milestone eligibility banner — Level 1 passed */}
+                {isLevel1Pass && (
+                    <div className="mb-5 rounded-2xl overflow-hidden border border-red-400/40 shadow-lg shadow-red-500/10">
+                        <div className="bg-gradient-to-r from-red-500 to-rose-600 px-4 py-2.5 flex items-center gap-2">
+                            <span className="material-symbols-outlined text-white text-lg">workspace_premium</span>
+                            <span className="text-white font-black text-xs uppercase tracking-widest">Level 1 Cleared!</span>
+                        </div>
+                        <div className="bg-red-50 dark:bg-red-900/20 px-5 py-4 text-left">
+                            <p className="text-sm font-bold text-red-800 dark:text-red-300 mb-1">⚡ You are now eligible for Level 2 Survival Tests!</p>
+                            <p className="text-xs text-red-700 dark:text-red-400 leading-relaxed">
+                                Level 2 is a faster, harder challenge with no backspace. Your facilitator can now assign you Level 2 sprint tests. Bring your best speed!
+                            </p>
+                            <div className="mt-3 flex items-center gap-1.5 text-[10px] font-black uppercase tracking-wider text-red-600 dark:text-red-400">
+                                <span className="material-symbols-outlined text-xs">arrow_right_alt</span>
+                                Check Tests Hub for new Level 2 assignments
+                            </div>
+                        </div>
+                    </div>
+                )}
+
                 {/* Badge */}
-                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 text-xs font-black uppercase tracking-wider mb-3">
-                    <span className="material-symbols-outlined text-sm">star</span>
-                    Stage Unlocked!
+                <div className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider mb-3 ${
+                    isCapstone
+                        ? 'bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400'
+                        : isLevel1Pass
+                        ? 'bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400'
+                        : 'bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400'
+                }`}>
+                    <span className="material-symbols-outlined text-sm">{isCapstone ? 'emoji_events' : isLevel1Pass ? 'workspace_premium' : 'star'}</span>
+                    {isCapstone ? 'Course Complete!' : isLevel1Pass ? 'Level 1 Cleared!' : 'Stage Unlocked!'}
                 </div>
 
                 <h2 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight mb-1">
@@ -117,7 +167,15 @@ const StageCelebration: React.FC<StageCelebrationProps> = ({
 
                 {/* CTAs */}
                 <div className="flex flex-col gap-3">
-                    {nextStageId ? (
+                    {isCapstone ? (
+                        <button
+                            onClick={onContinue}
+                            className="w-full bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-white font-bold py-3.5 rounded-xl transition-all shadow-lg shadow-amber-500/25 flex items-center justify-center gap-2 text-sm"
+                        >
+                            <span className="material-symbols-outlined text-base">quiz</span>
+                            Go to Tests Hub
+                        </button>
+                    ) : nextStageId ? (
                         <button
                             onClick={onContinue}
                             className="w-full bg-[#33B974] hover:bg-[#33B974]/90 text-white font-bold py-3.5 rounded-xl transition-all shadow-lg shadow-[#33B974]/25 flex items-center justify-center gap-2 text-sm"
