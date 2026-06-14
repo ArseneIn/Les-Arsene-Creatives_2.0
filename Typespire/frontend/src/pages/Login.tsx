@@ -4,7 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { UserRole } from '../types/auth';
 import { institutionService } from '../services/institution';
 import type { Institution } from '../types/institution';
-import { Keyboard, Star, School, User, Lock, Eye, ArrowRight, ChevronDown, GraduationCap, Presentation, Building2, ShieldCheck } from 'lucide-react';
+import { Keyboard, School, User, Lock, Eye, ArrowRight, ChevronDown, GraduationCap, Presentation, Building2, ShieldCheck } from 'lucide-react';
 
 const Login: React.FC = () => {
     const [email, setEmail] = useState('');
@@ -94,26 +94,6 @@ const Login: React.FC = () => {
                         <p className="text-slate-300 text-base leading-relaxed">
                             Join thousands of students and professionals enhancing their productivity through our advanced typing analytics and adaptive learning platform.
                         </p>
-                    </div>
-                </div>
-
-                <div className="relative z-10">
-                    <div className="bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl p-5 max-w-md">
-                        <div className="flex gap-1 text-yellow-400 mb-2">
-                            <Star className="w-4 h-4 fill-current" />
-                            <Star className="w-4 h-4 fill-current" />
-                            <Star className="w-4 h-4 fill-current" />
-                            <Star className="w-4 h-4 fill-current" />
-                            <Star className="w-4 h-4 fill-current" />
-                        </div>
-                        <p className="text-slate-200 italic text-sm mb-3">"Typespire has completely transformed how our institution approaches digital literacy. The analytics are unmatched."</p>
-                        <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 rounded-full bg-slate-200 flex items-center justify-center text-xs font-bold text-slate-600 border border-slate-300">SM</div>
-                            <div>
-                                <p className="font-bold text-sm">Dr. Sarah Mitchell</p>
-                                <p className="text-xs text-slate-400">Dean of Technology, Kepler College</p>
-                            </div>
-                        </div>
                     </div>
                 </div>
             </div>
