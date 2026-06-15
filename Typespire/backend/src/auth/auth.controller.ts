@@ -44,10 +44,8 @@ export class AuthController {
 
   @UseGuards(JwtAuthGuard)
   @Post('profile/progress')
-  async updateProgress(
-    @Request() req: any,
-    @Body() progress: any,
-  ) {
+  async updateProgress(@Request() req: any, @Body() progress: any) {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
     return this.authService.updatePracticeProgress(req.user.id, progress);
   }
 
@@ -59,7 +57,9 @@ export class AuthController {
   @Post('forgot-password')
   async forgotPassword(@Body() body: { email: string }) {
     await this.authService.generatePasswordResetToken(body.email);
-    return { message: 'If that email exists, a password reset link has been sent.' };
+    return {
+      message: 'If that email exists, a password reset link has been sent.',
+    };
   }
 
   @Post('reset-password')

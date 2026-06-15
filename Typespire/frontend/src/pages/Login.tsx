@@ -5,7 +5,7 @@ import { UserRole } from '../types/auth';
 import { institutionService } from '../services/institution';
 import type { Institution } from '../types/institution';
 import { isAxiosError } from 'axios';
-import { Keyboard, School, User, Lock, Eye, ArrowRight, ChevronDown } from 'lucide-react';
+import { Keyboard, School, User, Lock, Eye, EyeOff, ArrowRight, ChevronDown } from 'lucide-react';
 
 const Login: React.FC = () => {
     const [email, setEmail] = useState('');
@@ -21,6 +21,8 @@ const Login: React.FC = () => {
     const [forgotLoading, setForgotLoading] = useState(false);
     const [forgotMessage, setForgotMessage] = useState('');
     const [forgotError, setForgotError] = useState('');
+
+    const [showPassword, setShowPassword] = useState(false);
 
     const { login, sessionExpiredReason, clearSessionExpiredReason } = useAuth();
     const navigate = useNavigate();
@@ -221,8 +223,12 @@ const Login: React.FC = () => {
                                 <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">Password</label>
                                 <button 
                                     type="button" 
-                                    onClick={() => setShowForgotModal(true)} 
-                                    className="text-xs font-medium text-[#094A71] hover:text-[#094A71]/80 transition-colors"
+                                    onClick={(e) => {
+                                        e.preventDefault();
+                                        e.stopPropagation();
+                                        setShowForgotModal(true);
+                                    }} 
+                                    className="text-xs font-medium text-[#094A71] hover:text-[#094A71]/80 transition-colors z-10"
                                 >
                                     Forgot password?
                                 </button>
@@ -230,15 +236,23 @@ const Login: React.FC = () => {
                             <div className="relative">
                                 <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-[18px] h-[18px]" />
                                 <input
-                                    type="password"
+                                    type={showPassword ? "text" : "password"}
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
                                     placeholder="••••••••"
                                     className="w-full pl-9 pr-9 py-2.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-[#33B974]/50 focus:border-[#33B974] outline-none transition-all placeholder:text-slate-400 text-sm"
                                     required
                                 />
-                                <button type="button" className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors">
-                                    <Eye className="w-[18px] h-[18px]" />
+                                <button 
+                                    type="button" 
+                                    onClick={() => setShowPassword(!showPassword)}
+                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors z-10"
+                                >
+                                    {showPassword ? (
+                                        <EyeOff className="w-[18px] h-[18px]" />
+                                    ) : (
+                                        <Eye className="w-[18px] h-[18px]" />
+                                    )}
                                 </button>
                             </div>
                         </div>

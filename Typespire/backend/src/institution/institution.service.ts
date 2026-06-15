@@ -492,12 +492,24 @@ export class InstitutionService {
             const csvFirstName = firstName || 'Student';
             const csvLastName = lastName || '';
 
-            const isEmailMatch = !csvEmail || (user.email || '').toLowerCase() === csvEmail.toLowerCase();
-            const isUsernameMatch = !csvUsername || (user.username || '').toLowerCase() === csvUsername.toLowerCase();
-            const isFirstNameMatch = (user.firstName || '').toLowerCase() === csvFirstName.toLowerCase();
-            const isLastNameMatch = (user.lastName || '').toLowerCase() === csvLastName.toLowerCase();
+            const isEmailMatch =
+              !csvEmail ||
+              (user.email || '').toLowerCase() === csvEmail.toLowerCase();
+            const isUsernameMatch =
+              !csvUsername ||
+              (user.username || '').toLowerCase() === csvUsername.toLowerCase();
+            const isFirstNameMatch =
+              (user.firstName || '').toLowerCase() ===
+              csvFirstName.toLowerCase();
+            const isLastNameMatch =
+              (user.lastName || '').toLowerCase() === csvLastName.toLowerCase();
 
-            if (isEmailMatch && isUsernameMatch && isFirstNameMatch && isLastNameMatch) {
+            if (
+              isEmailMatch &&
+              isUsernameMatch &&
+              isFirstNameMatch &&
+              isLastNameMatch
+            ) {
               // Skip the duplicate student completely
               continue;
             }

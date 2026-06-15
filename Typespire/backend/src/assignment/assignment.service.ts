@@ -66,13 +66,11 @@ export class AssignmentService {
 
   async findForStudent(studentId: string, sectionId?: string) {
     await this.runExpiryCheck();
-    const orConditions: any[] = [
-      { studentIds: { has: studentId } }
-    ];
+    const orConditions: any[] = [{ studentIds: { has: studentId } }];
     if (sectionId) {
       orConditions.push({
         sectionId: sectionId,
-        studentIds: { equals: [] }
+        studentIds: { equals: [] },
       });
     }
 

@@ -18,7 +18,7 @@ import { MailerModule } from '../mailer/mailer.module';
     PassportModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],
-      useFactory: async (configService: ConfigService) => ({
+      useFactory: (configService: ConfigService) => ({
         secret: configService.get('JWT_SECRET') || 'secretKey',
         signOptions: { expiresIn: '60m' },
       }),

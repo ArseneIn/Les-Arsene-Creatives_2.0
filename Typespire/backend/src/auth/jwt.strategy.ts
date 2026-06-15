@@ -21,7 +21,12 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     });
   }
 
-  async validate(payload: { sub: string; email: string; role: string; sessionId?: string }) {
+  async validate(payload: {
+    sub: string;
+    email: string;
+    role: string;
+    sessionId?: string;
+  }) {
     const user = await this.prisma.user.findUnique({
       where: { id: payload.sub },
       include: { institution: true },
@@ -32,8 +37,13 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     }
 
     // Concurrent login check: limit only one active login session per user
-    if (user.currentSessionId && (!payload.sessionId || payload.sessionId !== user.currentSessionId)) {
-      throw new UnauthorizedException('Session expired. Logged in from another device.');
+    if (
+      user.currentSessionId &&
+      (!payload.sessionId || payload.sessionId !== user.currentSessionId)
+    ) {
+      throw new UnauthorizedException(
+        'Session expired. Logged in from another device.',
+      );
     }
 
     if (user.role !== 'PLATFORM_ADMIN' && user.institution) {

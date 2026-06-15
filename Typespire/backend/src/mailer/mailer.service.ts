@@ -7,12 +7,16 @@ export class MailerService {
   private readonly logger = new Logger(MailerService.name);
 
   constructor() {
-    this.initTransporter();
+    void this.initTransporter();
   }
 
   private async initTransporter() {
     // Check if we have real SMTP credentials in env
-    if (process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS) {
+    if (
+      process.env.SMTP_HOST &&
+      process.env.SMTP_USER &&
+      process.env.SMTP_PASS
+    ) {
       this.transporter = nodemailer.createTransport({
         host: process.env.SMTP_HOST,
         port: parseInt(process.env.SMTP_PORT || '587', 10),
@@ -36,7 +40,9 @@ export class MailerService {
             pass: testAccount.pass, // generated ethereal password
           },
         });
-        this.logger.log('Ethereal Mailer initialized for testing. Emails will not actually be sent.');
+        this.logger.log(
+          'Ethereal Mailer initialized for testing. Emails will not actually be sent.',
+        );
       } catch (err) {
         this.logger.error('Failed to create ethereal test account', err);
       }
@@ -54,6 +60,7 @@ export class MailerService {
     const resetLink = `${frontendUrl}/reset-password?token=${token}`;
 
     try {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       const info = await this.transporter.sendMail({
         from: '"Typespire Support" <support@typespire.edu>',
         to,
@@ -73,9 +80,13 @@ export class MailerService {
         `,
       });
 
-      this.logger.log(`Password reset email sent to ${to}. Message ID: ${info.messageId}`);
-      
+      this.logger.log(
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+        `Password reset email sent to ${to}. Message ID: ${info.messageId}`,
+      );
+
       // If we are using ethereal, log the preview URL
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
       const previewUrl = nodemailer.getTestMessageUrl(info);
       if (previewUrl) {
         this.logger.log(`Ethereal Preview URL: ${previewUrl}`);
