@@ -6,26 +6,37 @@ import React from 'react';
  * Detects if the user is on a touch/mobile device and renders a full-screen
  * overlay that prevents them from accessing the typing interface.
  *
- * Detection strategy (any one = mobile):
- *   1. Pointer device is "coarse"  (touchscreen, no fine pointer)
- *   2. navigator.maxTouchPoints > 1  (multi-touch hardware)
- *   3. viewport width ≤ 768 px
+ * Detection strategy — ALL three signals must be true to block:
+ *   1. Pointer device is "coarse"  (touchscreen hardware, true even in Chrome Desktop mode)
+ *   2. navigator.maxTouchPoints > 0  (multi-touch hardware present)
+ *   3. window.screen.width ≤ 900 px  (PHYSICAL screen — NOT innerWidth, which Chrome
+ *      "Request Desktop Site" inflates to ~1280px to fake a desktop viewport)
  *
- * Desktop users with a touchscreen (Surface, iPad in desktop mode) are
- * allowed through because they have a physical keyboard available.
+ * Why screen.width and not innerWidth:
+ *   - innerWidth = the CSS viewport width  → changes with "Request Desktop Site"
+ *   - screen.width = physical screen width → stays at the phone's real size (360-430px)
+ *     regardless of what Chrome reports as the viewport.
+ *
+ * Desktop users with a touchscreen (Surface, iPad with keyboard) are
+ * allowed through because screen.width is 1024+ on those devices.
  */
 
 function isMobileDevice(): boolean {
-    // Coarse pointer = no fine pointing device (mouse/stylus) is primary
+    // 1. Coarse pointer = primary input is a touchscreen (not a mouse/stylus)
+    //    Still true in Chrome "Request Desktop Site" — it reflects hardware, not UA.
     const coarsePointer = window.matchMedia('(pointer: coarse)').matches;
-    // Multi-touch hardware present
-    const hasTouch = navigator.maxTouchPoints > 1;
-    // Small viewport (phones)
-    const smallScreen = window.innerWidth <= 768;
 
-    // Only block if it looks like a dedicated touch-only device
-    return coarsePointer && hasTouch && smallScreen;
+    // 2. Touch hardware is physically present on this device
+    const hasTouch = navigator.maxTouchPoints > 0;
+
+    // 3. Physical screen width is phone/small-tablet sized.
+    //    screen.width is NOT affected by Chrome "Request Desktop Site" or zoom level.
+    //    Most phones: 360-430 px. Tablets: 600-800 px. Desktops/laptops: 1024+ px.
+    const smallPhysicalScreen = window.screen.width <= 900;
+
+    return coarsePointer && hasTouch && smallPhysicalScreen;
 }
+
 
 interface Props {
     /** Child nodes to render when NOT on a mobile device */

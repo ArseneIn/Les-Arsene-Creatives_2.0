@@ -15,7 +15,7 @@ const Login: React.FC = () => {
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
 
-    const { login } = useAuth();
+    const { login, sessionExpiredReason, clearSessionExpiredReason } = useAuth();
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -125,6 +125,24 @@ const Login: React.FC = () => {
                         <h2 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">Welcome back</h2>
                         <p className="text-slate-500 dark:text-slate-400 text-sm">Please enter your details to sign in.</p>
                     </div>
+
+                    {/* Session expired notice (shown when kicked out by another session) */}
+                    {sessionExpiredReason && (
+                        <div className="flex items-start gap-3 bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400 p-3.5 rounded-lg text-sm border border-amber-200 dark:border-amber-700/50">
+                            <span className="material-symbols-outlined text-lg flex-shrink-0 mt-0.5">devices</span>
+                            <div className="flex-1">
+                                <p className="font-semibold text-amber-800 dark:text-amber-300 mb-0.5">Signed in from another device</p>
+                                <p className="text-xs leading-relaxed opacity-90">{sessionExpiredReason}</p>
+                            </div>
+                            <button
+                                type="button"
+                                onClick={clearSessionExpiredReason}
+                                className="text-amber-500 hover:text-amber-700 dark:hover:text-amber-300 transition-colors flex-shrink-0"
+                            >
+                                <span className="material-symbols-outlined text-base">close</span>
+                            </button>
+                        </div>
+                    )}
 
                     {error && (
                         <div className="bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 p-3 rounded-lg text-sm border border-red-200 dark:border-red-800">

@@ -9,6 +9,8 @@ export interface AuthContextType {
     logout: () => void;
     isLoading: boolean;
     isAuthenticated: boolean;
+    sessionExpiredReason: string | null;
+    clearSessionExpiredReason: () => void;
 }
 
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);

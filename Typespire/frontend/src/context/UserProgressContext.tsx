@@ -212,24 +212,87 @@ export const UserProgressProvider: React.FC<{ children: ReactNode }> = ({ childr
         });
     }, []);
 
-    // Sync state when user changes (during render to avoid cascading updates)
-    const prevUserId = React.useRef(user?.id);
-    if (prevUserId.current !== user?.id) {
-        prevUserId.current = user?.id;
-        const newData = loadPersisted(user?.id);
-        const backendProgress = user?.practiceProgress;
+    // Hydrate progress whenever the authenticated user changes (including first mount).
+    // Priority: backend practiceProgress > local localStorage > defaults.
+    // Merge strategy: keep whichever source has MORE unlocked stages (most-progressed wins).
+    const prevUserId = React.useRef<string | undefined>(undefined);
+    useEffect(() => {
+        if (!user?.id) return;
+        if (prevUserId.current === user.id) return; // already hydrated for this user
+        prevUserId.current = user.id;
 
-        const statsToUse = backendProgress?.stats ?? newData?.stats ?? INITIAL_STATS;
-        const unlockedToUse = backendProgress?.unlockedStages ?? newData?.unlockedStages;
-        const stageResultsToUse = backendProgress?.stageResults ?? newData?.stageResults ?? {};
-        const keyStatsToUse = backendProgress?.keyStats ?? newData?.keyStats ?? {};
+        const localData = loadPersisted(user.id);
+        const backendProgress = user.practiceProgress as ({
+            stats?: UserStats;
+            unlockedStages?: string[];
+            stageResults?: Record<string, StageResult>;
+            keyStats?: Record<string, KeyStat>;
+        } | null | undefined);
 
-        setStats(statsToUse);
-        setRecentResults(newData?.recentResults ?? INITIAL_RESULTS);
-        setUnlockedStages(ensureStage1(unlockedToUse));
-        setStageResults(stageResultsToUse);
-        setKeyStats(keyStatsToUse);
-    }
+        // Merge unlocked stages: take the union of local + backend so we never lose progress
+        const localUnlocked: string[] = localData?.unlockedStages ?? [];
+        const backendUnlocked: string[] = backendProgress?.unlockedStages ?? [];
+        const mergedUnlocked = Array.from(new Set([...localUnlocked, ...backendUnlocked]));
+
+        // Merge stageResults: for each stage, keep the record with the best WPM
+        const localStageResults: Record<string, StageResult> = localData?.stageResults ?? {};
+        const backendStageResults: Record<string, StageResult> = backendProgress?.stageResults ?? {};
+        const allStageIds = new Set([...Object.keys(localStageResults), ...Object.keys(backendStageResults)]);
+        const mergedStageResults: Record<string, StageResult> = {};
+        allStageIds.forEach(id => {
+            const local = localStageResults[id];
+            const remote = backendStageResults[id];
+            if (!local) { mergedStageResults[id] = remote; return; }
+            if (!remote) { mergedStageResults[id] = local; return; }
+            // Keep most progressed: passed takes priority, then best WPM
+            mergedStageResults[id] = {
+                ...remote,
+                passed: local.passed || remote.passed,
+                bestWpm: Math.max(local.bestWpm, remote.bestWpm),
+                bestAccuracy: Math.max(local.bestAccuracy, remote.bestAccuracy),
+                attempts: Math.max(local.attempts, remote.attempts),
+                passedAt: local.passed ? local.passedAt : remote.passedAt,
+            };
+        });
+
+        // Merge keyStats: sum hits/misses/attempts from both sources
+        const localKeyStats: Record<string, KeyStat> = localData?.keyStats ?? {};
+        const backendKeyStats: Record<string, KeyStat> = backendProgress?.keyStats ?? {};
+        const allKeys = new Set([...Object.keys(localKeyStats), ...Object.keys(backendKeyStats)]);
+        const mergedKeyStats: Record<string, KeyStat> = {};
+        allKeys.forEach(k => {
+            const l = localKeyStats[k] ?? { attempts: 0, hits: 0, misses: 0 };
+            const r = backendKeyStats[k] ?? { attempts: 0, hits: 0, misses: 0 };
+            // If both have data, take the max (the backend is the canonical cross-device store)
+            mergedKeyStats[k] = {
+                attempts: Math.max(l.attempts, r.attempts),
+                hits: Math.max(l.hits, r.hits),
+                misses: Math.max(l.misses, r.misses),
+            };
+        });
+
+        // Stats: prefer backend if it has a higher WPM, otherwise use local
+        const localStats: UserStats = localData?.stats ?? INITIAL_STATS;
+        const backendStats: UserStats = backendProgress?.stats ?? INITIAL_STATS;
+        const mergedStats: UserStats = {
+            ...localStats,
+            currentWpm: Math.max(localStats.currentWpm, backendStats.currentWpm),
+            level: Math.max(localStats.level, backendStats.level),
+        };
+
+        setStats(mergedStats);
+        setUnlockedStages(ensureStage1(mergedUnlocked.length > 0 ? mergedUnlocked : undefined));
+        setStageResults(mergedStageResults);
+        setKeyStats(mergedKeyStats);
+        // recentResults come from the backend /test-result endpoint (fetched separately)
+        // Only fall back to local if no backend fetch has happened yet
+        if (!localData?.recentResults || localData.recentResults === INITIAL_RESULTS) {
+            setRecentResults(INITIAL_RESULTS);
+        } else {
+            setRecentResults(localData.recentResults);
+        }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [user?.id, user?.practiceProgress]);
     const [sectionRequirements, setSectionRequirements] = useState<Record<string, { wpm: number; accuracy: number }>>({});
     const [studentOverrides, setStudentOverrides] = useState<Record<string, { wpm: number; accuracy: number }>>({});
 

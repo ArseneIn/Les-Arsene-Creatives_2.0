@@ -25,8 +25,11 @@ api.interceptors.response.use(
     (response) => response,
     (error) => {
         if (error.response && (error.response.status === 401 || error.response.status === 403)) {
-            // Dispatch a custom event that AuthProvider will listen to
-            window.dispatchEvent(new CustomEvent('auth:unauthorized'));
+            // Extract message from backend (e.g. "Session expired. Logged in from another device.")
+            const reason: string =
+                error.response?.data?.message ||
+                (error.response.status === 401 ? 'Your session has expired. Please log in again.' : '');
+            window.dispatchEvent(new CustomEvent('auth:unauthorized', { detail: { reason } }));
         }
         return Promise.reject(error);
     }

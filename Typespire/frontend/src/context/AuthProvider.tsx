@@ -7,6 +7,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     const [user, setUser] = useState<User | null>(null);
     const [token, setToken] = useState<string | null>(localStorage.getItem('token'));
     const [isLoading, setIsLoading] = useState<boolean>(true);
+    const [sessionExpiredReason, setSessionExpiredReason] = useState<string | null>(null);
 
     const logout = () => {
         localStorage.removeItem('token');
@@ -19,7 +20,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             const storedToken = localStorage.getItem('token');
             if (storedToken) {
                 try {
-                    // Verify token and get user details
+                    // Verify token and get user details (includes practiceProgress)
                     const response = await api.get('/auth/profile');
                     setUser(response.data);
                     setToken(storedToken);
@@ -33,7 +34,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
         initAuth();
 
-        const handleUnauthorized = () => {
+        const handleUnauthorized = (e: Event) => {
+            const reason = (e as CustomEvent<{ reason?: string }>).detail?.reason ?? null;
+            if (reason) setSessionExpiredReason(reason);
             logout();
         };
         window.addEventListener('auth:unauthorized', handleUnauthorized);
@@ -41,6 +44,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         return () => {
             window.removeEventListener('auth:unauthorized', handleUnauthorized);
         };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     const login = async (email: string, password: string, institution?: string): Promise<User> => {
@@ -51,6 +55,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             localStorage.setItem('token', access_token);
             setToken(access_token);
             setUser(user);
+            setSessionExpiredReason(null); // clear any previous reason
             return user;
         } catch (error) {
             console.error('Login failed', error);
@@ -62,10 +67,17 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         localStorage.setItem('token', accessToken);
         setToken(accessToken);
         setUser(userData);
+        setSessionExpiredReason(null);
     };
 
+    const clearSessionExpiredReason = () => setSessionExpiredReason(null);
+
     return (
-        <AuthContext.Provider value={{ user, token, login, setSession, logout, isLoading, isAuthenticated: !!user }}>
+        <AuthContext.Provider value={{
+            user, token, login, setSession, logout,
+            isLoading, isAuthenticated: !!user,
+            sessionExpiredReason, clearSessionExpiredReason,
+        }}>
             {children}
         </AuthContext.Provider>
     );
