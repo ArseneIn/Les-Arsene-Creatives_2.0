@@ -9,6 +9,7 @@ interface UseTypingEngineProps {
 }
 
 export const useTypingEngine = ({ targetText, duration = 60, untimed = false, strict = false, onFinish }: UseTypingEngineProps) => {
+    const [isActive, setIsActive] = useState(false);
     const [started, setStarted] = useState(false);
     const [timeLeft, setTimeLeft] = useState(duration);
     const [userInput, setUserInput] = useState('');
@@ -33,6 +34,7 @@ export const useTypingEngine = ({ targetText, duration = 60, untimed = false, st
         if (intervalRef.current) clearInterval(intervalRef.current);
         setIsFinished(true);
         setStarted(false);
+        setIsActive(false);
     }, []);
 
     const calculateStats = useCallback(() => {
@@ -90,7 +92,8 @@ export const useTypingEngine = ({ targetText, duration = 60, untimed = false, st
 
     const startTest = useCallback(() => {
         hasFinishedRef.current = false;
-        setStarted(true);
+        setIsActive(true);
+        setStarted(false);
         setIsFinished(false);
         setTimeLeft(untimed ? 0 : duration);
         setUserInput('');
@@ -101,27 +104,10 @@ export const useTypingEngine = ({ targetText, duration = 60, untimed = false, st
         strictErrorCountRef.current = 0;
         strictKeyErrorsRef.current = {};
         setStrugglingKeys({});
-        startTimeRef.current = Date.now();
+        startTimeRef.current = null;
 
         if (intervalRef.current) clearInterval(intervalRef.current);
-
-        intervalRef.current = setInterval(() => {
-            if (untimed) {
-                // In untimed mode: count elapsed seconds upward (for live WPM), never auto-finish
-                setTimeLeft(prev => prev + 1);
-            } else {
-                setTimeLeft((prev) => {
-                    if (prev <= 1) {
-                        finishTest();
-                        return 0;
-                    }
-                    return prev - 1;
-                });
-            }
-            // Recalculate stats every second
-            calculateStatsRef.current();
-        }, 1000);
-    }, [duration, untimed, finishTest]);
+    }, [duration, untimed]);
 
 
 
@@ -139,9 +125,27 @@ export const useTypingEngine = ({ targetText, duration = 60, untimed = false, st
 
         // Start test on first input if not already started
         if (!started) {
-            // If not started, prevent input (or allow it but don't start timer? User requested explicit start)
-            // Given the new flow, we should probably block input until started.
-            return;
+            setStarted(true);
+            startTimeRef.current = Date.now();
+
+            if (intervalRef.current) clearInterval(intervalRef.current);
+
+            intervalRef.current = setInterval(() => {
+                if (untimed) {
+                    // In untimed mode: count elapsed seconds upward (for live WPM), never auto-finish
+                    setTimeLeft(prev => prev + 1);
+                } else {
+                    setTimeLeft((prev) => {
+                        if (prev <= 1) {
+                            finishTest();
+                            return 0;
+                        }
+                        return prev - 1;
+                    });
+                }
+                // Recalculate stats every second
+                calculateStatsRef.current();
+            }, 1000);
         }
 
         const value = e.target.value;
@@ -283,6 +287,7 @@ export const useTypingEngine = ({ targetText, duration = 60, untimed = false, st
     }, []);
 
     return {
+        isActive,
         started,
         timeLeft,
         userInput,

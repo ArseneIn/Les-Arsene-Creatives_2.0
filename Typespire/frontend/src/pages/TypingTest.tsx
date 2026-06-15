@@ -205,7 +205,7 @@ const TypingTest: React.FC = () => {
 
     // ── Typing engine ──────────────────────────────────────────────────────
     const {
-        started, timeLeft, userInput, finalUserInput, wpm, accuracy, isFinished,
+        isActive, started, timeLeft, userInput, finalUserInput, wpm, accuracy, isFinished,
         strugglingKeys, startTest, handleInputChange, lastErrorIndex
     } = useTypingEngine({
         targetText: formattedTargetText,
@@ -364,7 +364,7 @@ const TypingTest: React.FC = () => {
             )}
 
             {/* ── START OVERLAY ── */}
-            {!isAttemptsExhausted && !started && !isFinished && !isCountingDown && (
+            {!isAttemptsExhausted && !isActive && !isFinished && !isCountingDown && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#061824]/85 backdrop-blur-sm">
                     <div className="bg-white dark:bg-[#0b1e2d] p-8 rounded-3xl shadow-2xl max-w-md w-full text-center border border-white/5 relative overflow-hidden transition-all duration-300">
                         {/* Level badge */}
@@ -819,6 +819,7 @@ const TypingTest: React.FC = () => {
                                 targetText={formattedTargetText}
                                 userInput={userInput}
                                 started={started}
+                                isActive={isActive}
                                 isFinished={isFinished}
                                 onInputChange={handleInput}
                                 elapsedSeconds={timeLeft} // counts up in untimed mode
@@ -831,6 +832,7 @@ const TypingTest: React.FC = () => {
                                     targetText={formattedTargetText}
                                     userInput={userInput}
                                     started={started}
+                                    isActive={isActive}
                                     isFinished={isFinished}
                                     onInputChange={handleInput}
                                 />

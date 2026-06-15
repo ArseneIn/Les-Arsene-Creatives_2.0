@@ -4,6 +4,7 @@ interface TypingAreaProps {
     targetText: string;
     userInput: string;
     started: boolean;
+    isActive: boolean;
     isFinished: boolean;
     onInputChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
 }
@@ -12,6 +13,7 @@ export const TypingArea: React.FC<TypingAreaProps> = ({
     targetText,
     userInput,
     started,
+    isActive,
     isFinished,
     onInputChange
 }) => {
@@ -26,12 +28,29 @@ export const TypingArea: React.FC<TypingAreaProps> = ({
         }
     };
 
-    // Auto-focus input on mount and when not finished, and especially when started
+    // Auto-focus input on mount, when not finished, and when active
     useEffect(() => {
-        if (!isFinished && inputRef.current) {
+        if (!isFinished && isActive && inputRef.current) {
             inputRef.current.focus();
         }
-    }, [isFinished, started]);
+    }, [isFinished, isActive]);
+
+    // Redirect global keydown to input textarea to ensure user can just start typing
+    useEffect(() => {
+        if (isFinished || !isActive) return;
+
+        const handleGlobalKeyDown = (e: KeyboardEvent) => {
+            if (e.ctrlKey || e.altKey || e.metaKey) return;
+            if (e.key === 'Escape' || e.key === 'Tab') return;
+
+            if (document.activeElement !== inputRef.current && inputRef.current) {
+                inputRef.current.focus();
+            }
+        };
+
+        window.addEventListener('keydown', handleGlobalKeyDown);
+        return () => window.removeEventListener('keydown', handleGlobalKeyDown);
+    }, [isFinished, isActive]);
 
     // Keep focus unless finished
     useEffect(() => {
@@ -123,7 +142,7 @@ export const TypingArea: React.FC<TypingAreaProps> = ({
                 autoComplete="off"
                 autoCorrect="off"
                 autoCapitalize="off"
-                disabled={isFinished || !started}
+                disabled={isFinished || !isActive}
             />
 
             {/* Visual Placeholder to maintain height */}

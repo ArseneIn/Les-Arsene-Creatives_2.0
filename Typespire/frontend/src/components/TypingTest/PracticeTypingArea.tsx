@@ -4,6 +4,7 @@ interface PracticeTypingAreaProps {
     targetText: string;
     userInput: string;
     started: boolean;
+    isActive: boolean;
     isFinished: boolean;
     onInputChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
     elapsedSeconds: number; // counts up in untimed mode
@@ -39,6 +40,7 @@ export const PracticeTypingArea: React.FC<PracticeTypingAreaProps> = ({
     targetText,
     userInput,
     started,
+    isActive,
     isFinished,
     onInputChange,
     elapsedSeconds,
@@ -56,10 +58,27 @@ export const PracticeTypingArea: React.FC<PracticeTypingAreaProps> = ({
         }
     };
 
-    // Keep input focused
+    // Keep input focused when test is active and not finished
     useEffect(() => {
-        if (!isFinished && inputRef.current) inputRef.current.focus();
-    }, [isFinished, started]);
+        if (!isFinished && isActive && inputRef.current) inputRef.current.focus();
+    }, [isFinished, isActive]);
+
+    // Redirect global keydown to input textarea to ensure user can just start typing
+    useEffect(() => {
+        if (isFinished || !isActive) return;
+
+        const handleGlobalKeyDown = (e: KeyboardEvent) => {
+            if (e.ctrlKey || e.altKey || e.metaKey) return;
+            if (e.key === 'Escape' || e.key === 'Tab') return;
+
+            if (document.activeElement !== inputRef.current && inputRef.current) {
+                inputRef.current.focus();
+            }
+        };
+
+        window.addEventListener('keydown', handleGlobalKeyDown);
+        return () => window.removeEventListener('keydown', handleGlobalKeyDown);
+    }, [isFinished, isActive]);
 
     // Parse targetText into words
     const wordsRaw = useMemo(() => targetText.split(' '), [targetText]);
@@ -425,7 +444,7 @@ export const PracticeTypingArea: React.FC<PracticeTypingAreaProps> = ({
                     autoComplete="off"
                     autoCorrect="off"
                     autoCapitalize="off"
-                    disabled={isFinished || !started}
+                    disabled={isFinished || !isActive}
                 />
                 
                 {/* Helper hints */}
