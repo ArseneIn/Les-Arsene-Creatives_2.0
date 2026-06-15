@@ -5,18 +5,20 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   // Enable CORS
-  const allowedOrigins: (string | RegExp)[] = [
-    'http://localhost:5173',
-    'http://192.168.0.84:5173',
-  ];
-  if (process.env.FRONTEND_URL) {
-    allowedOrigins.push(process.env.FRONTEND_URL);
-  }
-  allowedOrigins.push(/https:\/\/.*\.vercel\.app$/);
-
-  // Enable CORS
   app.enableCors({
-    origin: allowedOrigins,
+    origin: (origin, callback) => {
+      if (
+        !origin ||
+        origin.startsWith('http://localhost') ||
+        origin.startsWith('http://127.0.0.1') ||
+        origin.endsWith('.vercel.app') ||
+        (process.env.FRONTEND_URL && origin === process.env.FRONTEND_URL)
+      ) {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
     credentials: true,
   });
 
