@@ -58,9 +58,13 @@ export const PracticeTypingArea: React.FC<PracticeTypingAreaProps> = ({
         }
     };
 
-    // Keep input focused when test is active and not finished
+    // Auto-focus input on mount, when not finished, and when active
     useEffect(() => {
-        if (!isFinished && isActive && inputRef.current) inputRef.current.focus();
+        if (!isFinished && isActive && inputRef.current) {
+            inputRef.current.focus();
+            // Force focus again slightly later in case page transitions steal it
+            setTimeout(() => inputRef.current?.focus(), 150);
+        }
     }, [isFinished, isActive]);
 
     // Redirect global keydown to input textarea to ensure user can just start typing
@@ -438,6 +442,7 @@ export const PracticeTypingArea: React.FC<PracticeTypingAreaProps> = ({
                     value={userInput}
                     onChange={onInputChange}
                     onKeyDown={handleKeyDown}
+                    onPaste={(e) => e.preventDefault()}
                     className="absolute inset-0 w-full h-full opacity-0 cursor-text z-20 resize-none"
                     autoFocus
                     spellCheck={false}

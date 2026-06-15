@@ -55,4 +55,16 @@ export class AuthController {
   async ssoLogin(@Query('token') token: string) {
     return this.authService.validateSsoToken(token);
   }
+
+  @Post('forgot-password')
+  async forgotPassword(@Body() body: { email: string }) {
+    await this.authService.generatePasswordResetToken(body.email);
+    return { message: 'If that email exists, a password reset link has been sent.' };
+  }
+
+  @Post('reset-password')
+  async resetPassword(@Body() body: { token: string; newPassword: string }) {
+    await this.authService.resetPassword(body.token, body.newPassword);
+    return { message: 'Password has been successfully reset.' };
+  }
 }

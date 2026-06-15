@@ -7,7 +7,9 @@ import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from '../prisma/prisma.service';
 import { LogsService } from '../logs/logs.service';
+import { MailerService } from '../mailer/mailer.service';
 import * as bcrypt from 'bcrypt';
+import * as crypto from 'crypto';
 import { UserRole, User, Institution } from '@prisma/client';
 
 export type UserWithInstitution = User & {
@@ -29,6 +31,7 @@ export class AuthService {
     private jwtService: JwtService,
     private configService: ConfigService,
     private logsService: LogsService,
+    private mailerService: MailerService,
   ) {}
 
   async validateUser(
@@ -264,6 +267,57 @@ export class AuthService {
       select: {
         id: true,
         practiceProgress: true,
+      },
+    });
+  }
+
+  async generatePasswordResetToken(email: string) {
+    const user = await this.prisma.user.findFirst({
+      where: { email: { equals: email, mode: 'insensitive' } },
+    });
+
+    if (!user || !user.email) {
+      // Silently return to prevent email enumeration
+      return;
+    }
+
+    const unhashedToken = crypto.randomBytes(32).toString('hex');
+    const hashedToken = crypto.createHash('sha256').update(unhashedToken).digest('hex');
+    const expires = new Date(Date.now() + 3600000); // 1 hour
+
+    await this.prisma.user.update({
+      where: { id: user.id },
+      data: {
+        resetPasswordToken: hashedToken,
+        resetPasswordExpires: expires,
+      },
+    });
+
+    await this.mailerService.sendPasswordResetEmail(user.email, unhashedToken);
+  }
+
+  async resetPassword(unhashedToken: string, newPassword: string) {
+    const hashedToken = crypto.createHash('sha256').update(unhashedToken).digest('hex');
+
+    const user = await this.prisma.user.findFirst({
+      where: {
+        resetPasswordToken: hashedToken,
+        resetPasswordExpires: { gt: new Date() },
+      },
+    });
+
+    if (!user) {
+      throw new ForbiddenException('Token is invalid or has expired');
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    await this.prisma.user.update({
+      where: { id: user.id },
+      data: {
+        password: hashedPassword,
+        resetPasswordToken: null,
+        resetPasswordExpires: null,
       },
     });
   }

@@ -320,6 +320,23 @@ const TypingTest: React.FC = () => {
     });
     const { mins, secs } = formatTime(timeLeft);
 
+    // ── ATTEMPT PROTECTION ──
+    const isFormalAssignment = !isPractice && assignmentId;
+    useEffect(() => {
+        const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+            if (started && !isFinished && isFormalAssignment) {
+                e.preventDefault();
+                e.returnValue = ''; // Required for Chrome to show native warning
+            }
+        };
+        window.addEventListener('beforeunload', handleBeforeUnload);
+        return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+    }, [started, isFinished, isFormalAssignment]);
+
+    const attemptsMade = useMemo(() => recentResults.filter(r => r.assignmentId === assignmentId).length, [recentResults, assignmentId]);
+    const maxAttempts = useMemo(() => assignments.find(a => a.id === assignmentId)?.maxAttempts || 1, [assignments, assignmentId]);
+    const attemptsRemaining = Math.max(0, maxAttempts - attemptsMade - 1); // -1 because current active run counts
+
     // Use finalResults for display (guaranteed correct); fall back to live state during test
     const displayWpm = finalResults?.wpm ?? wpm;
     const displayAccuracy = finalResults?.accuracy ?? accuracy;
@@ -832,6 +849,23 @@ const TypingTest: React.FC = () => {
                     </div>
 
                     {/* Live stats hidden as per request. Only final results will be visible. */}
+
+                    {/* Attempt Warning Banner */}
+                    {started && !isFinished && isFormalAssignment && (
+                        <div className="w-full mb-6 bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/30 rounded-xl px-5 py-3 flex items-center justify-between shadow-sm animate-in fade-in duration-300">
+                            <div className="flex items-center gap-3 text-amber-700 dark:text-amber-400">
+                                <span className="material-symbols-outlined text-xl animate-pulse">warning</span>
+                                <div>
+                                    <p className="font-bold text-sm">Do not refresh or leave this page!</p>
+                                    <p className="text-xs opacity-80 mt-0.5">If you abandon this test, your attempt will be permanently lost.</p>
+                                </div>
+                            </div>
+                            <div className="bg-amber-100 dark:bg-amber-500/20 px-3 py-1.5 rounded-lg border border-amber-200 dark:border-amber-500/30 text-center">
+                                <p className="text-[10px] font-bold uppercase tracking-wider text-amber-600 dark:text-amber-500 mb-0.5">Attempts Remaining</p>
+                                <p className="text-xl font-black font-mono text-amber-700 dark:text-amber-400 leading-none">{attemptsRemaining}</p>
+                            </div>
+                        </div>
+                    )}
 
                     <div className="w-full mb-8">
                         {isPractice && (testConfig.practiceType === 'letters' || testConfig.practiceType === 'falling') ? (

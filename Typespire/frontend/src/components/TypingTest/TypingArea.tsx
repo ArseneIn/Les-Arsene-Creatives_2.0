@@ -32,6 +32,8 @@ export const TypingArea: React.FC<TypingAreaProps> = ({
     useEffect(() => {
         if (!isFinished && isActive && inputRef.current) {
             inputRef.current.focus();
+            // Force focus again slightly later in case page transitions steal it
+            setTimeout(() => inputRef.current?.focus(), 150);
         }
     }, [isFinished, isActive]);
 
@@ -136,6 +138,7 @@ export const TypingArea: React.FC<TypingAreaProps> = ({
                 value={userInput}
                 onChange={onInputChange}
                 onKeyDown={handleKeyDown}
+                onPaste={(e) => e.preventDefault()}
                 className="w-full h-full absolute inset-0 opacity-0 cursor-text z-20 resize-none"
                 autoFocus
                 spellCheck="false"

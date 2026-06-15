@@ -23,6 +23,7 @@ import StudentPerformance from './pages/StudentPerformance';
 import InstitutionTests from './pages/InstitutionTests';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import ResetPassword from './pages/ResetPassword';
 import Unauthorized from './pages/Unauthorized';
 import RequireAuth from './components/RequireAuth';
 import { UserRole } from './types/auth';
@@ -64,6 +65,7 @@ function App() {
               <Routes>
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
+                <Route path="/reset-password" element={<ResetPassword />} />
                 <Route path="/unauthorized" element={<Unauthorized />} />
                 <Route path="/sso" element={<SSOCallback />} />
 

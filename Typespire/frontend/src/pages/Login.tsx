@@ -14,6 +14,13 @@ const Login: React.FC = () => {
     const [institutions, setInstitutions] = useState<Institution[]>([]);
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
+    
+    // Forgot Password State
+    const [showForgotModal, setShowForgotModal] = useState(false);
+    const [forgotEmail, setForgotEmail] = useState('');
+    const [forgotLoading, setForgotLoading] = useState(false);
+    const [forgotMessage, setForgotMessage] = useState('');
+    const [forgotError, setForgotError] = useState('');
 
     const { login, sessionExpiredReason, clearSessionExpiredReason } = useAuth();
     const navigate = useNavigate();
@@ -72,6 +79,25 @@ const Login: React.FC = () => {
             }
         } finally {
             setLoading(false);
+        }
+    };
+
+    const handleForgotPassword = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setForgotError('');
+        setForgotMessage('');
+        setForgotLoading(true);
+
+        try {
+            // Need to use raw api or axios here. We can import axios instance or do it directly
+            const api = (await import('../api/axios')).default;
+            const res = await api.post('/auth/forgot-password', { email: forgotEmail });
+            setForgotMessage(res.data.message || 'Check your email for the reset link.');
+        } catch (err) {
+            console.error(err);
+            setForgotError('Failed to send password reset request. Ensure the email is correct.');
+        } finally {
+            setForgotLoading(false);
         }
     };
 
@@ -193,7 +219,13 @@ const Login: React.FC = () => {
                         <div className="flex flex-col gap-1">
                             <div className="flex justify-between items-center">
                                 <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">Password</label>
-                                <a href="#" className="text-xs font-medium text-[#094A71] hover:text-[#094A71]/80 transition-colors">Forgot password?</a>
+                                <button 
+                                    type="button" 
+                                    onClick={() => setShowForgotModal(true)} 
+                                    className="text-xs font-medium text-[#094A71] hover:text-[#094A71]/80 transition-colors"
+                                >
+                                    Forgot password?
+                                </button>
                             </div>
                             <div className="relative">
                                 <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-[18px] h-[18px]" />
@@ -238,6 +270,61 @@ const Login: React.FC = () => {
                 </div>
 
             </div>
+
+            {/* Forgot Password Modal */}
+            {showForgotModal && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#061824]/60 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+                    <div className="bg-white dark:bg-[#061824] rounded-2xl p-6 md:p-8 w-full max-w-md shadow-2xl border border-slate-200 dark:border-white/10 relative transform animate-in zoom-in-95">
+                        <button 
+                            onClick={() => setShowForgotModal(false)}
+                            className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 dark:hover:text-white"
+                        >
+                            <span className="material-symbols-outlined">close</span>
+                        </button>
+                        
+                        <div className="w-12 h-12 bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 rounded-full flex items-center justify-center mb-4">
+                            <span className="material-symbols-outlined">lock_reset</span>
+                        </div>
+                        
+                        <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">Reset Password</h3>
+                        <p className="text-sm text-slate-500 dark:text-slate-400 mb-6">
+                            Enter the email address associated with your account, and we'll send you a secure link to reset your password.
+                        </p>
+
+                        {forgotMessage ? (
+                            <div className="bg-[#33B974]/10 border border-[#33B974]/30 text-[#33B974] p-4 rounded-xl text-sm font-medium mb-6">
+                                {forgotMessage}
+                            </div>
+                        ) : (
+                            <form onSubmit={handleForgotPassword} className="flex flex-col gap-4">
+                                {forgotError && (
+                                    <div className="bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/30 text-red-600 dark:text-red-400 p-3 rounded-xl text-sm font-medium">
+                                        {forgotError}
+                                    </div>
+                                )}
+                                <div className="flex flex-col gap-1.5">
+                                    <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">Email Address</label>
+                                    <input
+                                        type="email"
+                                        value={forgotEmail}
+                                        onChange={(e) => setForgotEmail(e.target.value)}
+                                        placeholder="Enter your email"
+                                        className="w-full px-4 py-2.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-[#094A71] outline-none text-sm"
+                                        required
+                                    />
+                                </div>
+                                <button
+                                    type="submit"
+                                    disabled={forgotLoading}
+                                    className="w-full mt-2 bg-[#094A71] hover:bg-[#094A71]/90 text-white font-bold py-3 rounded-lg transition-all text-sm disabled:opacity-70 disabled:cursor-not-allowed"
+                                >
+                                    {forgotLoading ? 'Sending...' : 'Send Reset Link'}
+                                </button>
+                            </form>
+                        )}
+                    </div>
+                </div>
+            )}
         </div>
 
     );
