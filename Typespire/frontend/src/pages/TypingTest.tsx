@@ -43,7 +43,7 @@ const TypingTest: React.FC = () => {
     const [searchParams] = useSearchParams();
     const { saveResult, isStagePassed, getBenchmark, updateKeyStats, stats, stageResults, recentResults } = useUserProgress();
     const { user } = useAuth();
-    const { submitTestResult, assignments } = useFacilitator();
+    const { submitTestResult, assignments, isAssignmentsLoaded } = useFacilitator();
     const navigate = useNavigate();
 
     const stageId     = searchParams.get('stageId');
@@ -69,10 +69,30 @@ const TypingTest: React.FC = () => {
 
     // ── Security check: Must pass Stage capstone for formal tests ────────────────
     useEffect(() => {
-        if (!isPractice && !isStagePassed('stage-capstone')) {
+        if (isPractice) return;
+
+        // If we have an assignmentId in the URL, wait until the assignments list is populated
+        // and check if it requires bypassLevel.
+        if (assignmentId) {
+            if (!isAssignmentsLoaded) {
+                return; // Wait for the assignments request to complete
+            }
+            const assignment = assignments.find(a => a.id === assignmentId);
+            if (!assignment) {
+                // If it's loaded and not found, redirect.
+                navigate('/practice', { replace: true });
+                return;
+            }
+            if (assignment.bypassLevel) {
+                return; // Bypassed assignment: do not redirect!
+            }
+        }
+
+        // If not practice, not bypassed, and capstone not passed, redirect.
+        if (!isStagePassed('stage-capstone')) {
             navigate('/practice', { replace: true });
         }
-    }, [isPractice, isStagePassed, navigate]);
+    }, [isPractice, assignmentId, assignments, isAssignmentsLoaded, isStagePassed, navigate]);
 
     const [randomSprintText, setRandomSprintText] = useState('');
 

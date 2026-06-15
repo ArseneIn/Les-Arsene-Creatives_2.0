@@ -9,7 +9,7 @@ type DisplayStatus = 'All' | 'Completed' | 'Missed';
 type DisplayResult = Omit<TestResult, 'status'> & { status: 'Completed' | 'Missed' };
 
 const StudentHistory: React.FC = () => {
-    const { recentResults, getBenchmark } = useUserProgress();
+    const { recentResults, getBenchmark, isStagePassed } = useUserProgress();
     const { user } = useAuth();
     const { assignments } = useFacilitator();
     const navigate = useNavigate();
@@ -43,17 +43,22 @@ const StudentHistory: React.FC = () => {
         const hasPassedLevel1 = recentResults.some(r => {
             if (!r.assignmentId) return false;
             if (r.testLevel !== 1) return false;
+            if (r.bypassLevel) return false;
             const targetWpm = r.wpmRequirement ?? 50;
             const targetAcc = r.accuracyRequirement ?? 90;
             return r.wpm >= targetWpm && r.accuracy >= targetAcc;
         });
 
         const systemLevel = hasPassedLevel1 ? 2 : 1;
+        const isCapstonePassed = isStagePassed('stage-capstone');
 
         const allAssigned = assignments.filter(a =>
             a.status === 'Active' &&
-            ((a.sectionId === currentUserSectionId) || (a.studentIds && a.studentIds.includes(currentUserId))) &&
-            a.level === systemLevel
+            (
+                (a.studentIds && a.studentIds.includes(currentUserId)) ||
+                (a.sectionId === currentUserSectionId && (!a.studentIds || a.studentIds.length === 0))
+            ) &&
+            (a.bypassLevel || (isCapstonePassed && a.level === systemLevel))
         );
 
         allAssigned.forEach(a => {

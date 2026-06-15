@@ -11,6 +11,7 @@ interface FacilitatorContextType {
     publishAssignment: (assignment: Omit<Assignment, 'id' | 'status' | 'completionRate'>) => Promise<void>;
     submitTestResult: (studentId: string, wpm: number, accuracy: number) => void;
     fetchAssignmentResults: (assignmentId: string) => Promise<AssignmentStudentResult[]>;
+    isAssignmentsLoaded: boolean;
 }
 
 const FacilitatorContext = createContext<FacilitatorContextType | undefined>(undefined);
@@ -21,6 +22,7 @@ export const FacilitatorProvider: React.FC<{ children: ReactNode }> = ({ childre
     
     // Manage published assignments dynamically from database
     const [assignments, setAssignments] = useState<Assignment[]>([]);
+    const [isAssignmentsLoaded, setIsAssignmentsLoaded] = useState(false);
     
     // Manage students reactive list
     const [studentsList, setStudentsList] = useState<Student[]>([]);
@@ -108,7 +110,11 @@ export const FacilitatorProvider: React.FC<{ children: ReactNode }> = ({ childre
     // Fetch persistent database assignments
     useEffect(() => {
         const fetchAssignments = async () => {
-            if (!user) return;
+            if (!user) {
+                setIsAssignmentsLoaded(true);
+                return;
+            }
+            setIsAssignmentsLoaded(false);
             try {
                 let response;
                 if (user.role === 'STUDENT') {
@@ -162,6 +168,8 @@ export const FacilitatorProvider: React.FC<{ children: ReactNode }> = ({ childre
                 }
             } catch (error) {
                 console.error('Failed to fetch assignments from database', error);
+            } finally {
+                setIsAssignmentsLoaded(true);
             }
         };
 
@@ -263,7 +271,8 @@ export const FacilitatorProvider: React.FC<{ children: ReactNode }> = ({ childre
             sections: facilitatedSections, 
             publishAssignment,
             submitTestResult,
-            fetchAssignmentResults
+            fetchAssignmentResults,
+            isAssignmentsLoaded
         }}>
             {children}
         </FacilitatorContext.Provider>

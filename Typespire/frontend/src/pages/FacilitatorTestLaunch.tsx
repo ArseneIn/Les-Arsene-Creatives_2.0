@@ -815,24 +815,6 @@ const FacilitatorTestLaunch: React.FC = () => {
                                             <span className="material-symbols-outlined">expand_more</span>
                                         </div>
                                     </div>
-
-                                    <div className="mt-2 flex items-start gap-2.5 bg-[#094A71]/5 dark:bg-[#094A71]/10 border border-[#094A71]/15 p-3 rounded-xl">
-                                        <input
-                                            id="bypass-criteria-toggle"
-                                            type="checkbox"
-                                            className="mt-0.5 rounded text-[#094A71] focus:ring-[#094A71]/30 bg-white dark:bg-card-dark border-slate-300 dark:border-slate-800 h-4 w-4 cursor-pointer"
-                                            checked={bypassCriteria}
-                                            onChange={(e) => setBypassCriteria(e.target.checked)}
-                                        />
-                                        <div className="flex flex-col gap-0.5 cursor-pointer select-none" onClick={() => setBypassCriteria(!bypassCriteria)}>
-                                            <label htmlFor="bypass-criteria-toggle" className="text-[10px] font-black text-[#094A71] dark:text-blue-400 uppercase tracking-widest cursor-pointer">
-                                                Bypass Criteria (Testing Mode)
-                                            </label>
-                                            <p className="text-[9px] text-slate-500 dark:text-[#929bc9] leading-relaxed font-semibold">
-                                                Instantly publishes to all students in the section even if they do not match the Level {testLevel} requirements.
-                                            </p>
-                                        </div>
-                                    </div>
                                 </div>
                             )}
 
@@ -868,6 +850,26 @@ const FacilitatorTestLaunch: React.FC = () => {
                                     <p className="text-[10px] text-slate-400 dark:text-[#929bc9] text-right font-black uppercase tracking-wider">{selectedStudentIds.length} students selected</p>
                                 </div>
                             )}
+
+                            {/* Bypass Level Toggle (Visible for both modes) */}
+                            <div className="mt-2 flex items-start gap-2.5 bg-[#094A71]/5 dark:bg-[#094A71]/10 border border-[#094A71]/15 p-3 rounded-xl">
+                                <input
+                                    id="bypass-criteria-toggle"
+                                    type="checkbox"
+                                    className="mt-0.5 rounded text-[#094A71] focus:ring-[#094A71]/30 bg-white dark:bg-card-dark border-slate-300 dark:border-slate-800 h-4 w-4 cursor-pointer"
+                                    checked={bypassCriteria}
+                                    onChange={(e) => setBypassCriteria(e.target.checked)}
+                                />
+                                <div className="flex flex-col gap-0.5 cursor-pointer select-none" onClick={() => setBypassCriteria(!bypassCriteria)}>
+                                    <label htmlFor="bypass-criteria-toggle" className="text-[10px] font-black text-[#094A71] dark:text-blue-400 uppercase tracking-widest cursor-pointer">
+                                        Bypass Criteria (Testing Mode)
+                                    </label>
+                                    <p className="text-[9px] text-slate-500 dark:text-[#929bc9] leading-relaxed font-semibold">
+                                        Instantly publishes to all targeted students even if they do not match the Level {testLevel} requirements.
+                                    </p>
+                                </div>
+                            </div>
+
 
                             {/* Time Limit */}
                             <div className="flex flex-col gap-2">

@@ -18,6 +18,7 @@ export const StudentTests: React.FC = () => {
         return recentResults.some(r => {
             if (!r.assignmentId) return false;
             if (r.testLevel !== 1) return false;
+            if (r.bypassLevel) return false;
             const targetWpm = r.wpmRequirement ?? 50;
             const targetAcc = r.accuracyRequirement ?? 90;
             return r.wpm >= targetWpm && r.accuracy >= targetAcc;
@@ -26,12 +27,17 @@ export const StudentTests: React.FC = () => {
 
     const systemLevel = hasPassedLevel1 ? 2 : 1;
 
+    const isCapstonePassed = useMemo(() => isStagePassed('stage-capstone'), [isStagePassed]);
+
     // 1. Assigned Tests
     const allAssignedTests = useMemo(() => assignments.filter(a =>
         a.status === 'Active' &&
-        ((a.sectionId === currentUserSectionId) || (a.studentIds && a.studentIds.includes(currentUserId))) &&
-        (a.bypassLevel || a.level === systemLevel)
-    ), [assignments, currentUserSectionId, currentUserId, systemLevel]);
+        (
+            (a.studentIds && a.studentIds.includes(currentUserId)) ||
+            (a.sectionId === currentUserSectionId && (!a.studentIds || a.studentIds.length === 0))
+        ) &&
+        (a.bypassLevel || (isCapstonePassed && a.level === systemLevel))
+    ), [assignments, currentUserSectionId, currentUserId, systemLevel, isCapstonePassed]);
 
 
 
@@ -74,7 +80,7 @@ export const StudentTests: React.FC = () => {
                     <p className="text-slate-500 dark:text-slate-400">Complete tests from your facilitator or take randomized 1-minute sprints to improve your metrics.</p>
                 </div>
 
-                {!isStagePassed('stage-capstone') ? (
+                {!isCapstonePassed && allAssignedTests.length === 0 ? (
                     <div className="bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 rounded-2xl p-8 flex flex-col items-center justify-center text-center">
                         <span className="material-symbols-outlined text-5xl text-red-500 mb-4">lock</span>
                         <h2 className="text-2xl font-bold text-red-600 dark:text-red-400 mb-2">Tests Hub Locked</h2>
@@ -251,35 +257,45 @@ export const StudentTests: React.FC = () => {
                         </span>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        {randomisedTests.map((test, idx) => (
-                            <div key={idx} className="relative rounded-xl border border-slate-200 dark:border-[#323b67] bg-white dark:bg-card-dark p-5 overflow-hidden flex flex-col gap-4 transition-all hover:shadow-lg hover:-translate-y-1">
-                                <div className="absolute top-0 right-0 w-24 h-24 rounded-full blur-2xl pointer-events-none opacity-20" style={{ background: '#33B974' }} />
-                                
-                                <div className="flex items-start justify-between relative z-10">
-                                    <div className="p-2.5 rounded-xl bg-[#33B974]/10 text-[#33B974]">
-                                        <span className="material-symbols-outlined text-xl">{test.icon}</span>
+                    {!isCapstonePassed ? (
+                        <div className="bg-slate-50 dark:bg-card-dark border border-dashed border-slate-200 dark:border-slate-800 rounded-xl p-8 text-center flex flex-col items-center justify-center">
+                            <span className="material-symbols-outlined text-3xl text-slate-400 dark:text-slate-600 mb-2">lock</span>
+                            <h3 className="text-sm font-bold text-slate-700 dark:text-slate-300 mb-1">1-Minute Sprints Locked</h3>
+                            <p className="text-slate-500 dark:text-slate-400 text-xs max-w-md">
+                                You must complete all 12 stages of the Learning Path in the Practice Arena to unlock 1-minute randomized sprints.
+                            </p>
+                        </div>
+                    ) : (
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            {randomisedTests.map((test, idx) => (
+                                <div key={idx} className="relative rounded-xl border border-slate-200 dark:border-[#323b67] bg-white dark:bg-card-dark p-5 overflow-hidden flex flex-col gap-4 transition-all hover:shadow-lg hover:-translate-y-1">
+                                    <div className="absolute top-0 right-0 w-24 h-24 rounded-full blur-2xl pointer-events-none opacity-20" style={{ background: '#33B974' }} />
+                                    
+                                    <div className="flex items-start justify-between relative z-10">
+                                        <div className="p-2.5 rounded-xl bg-[#33B974]/10 text-[#33B974]">
+                                            <span className="material-symbols-outlined text-xl">{test.icon}</span>
+                                        </div>
+                                        <span className="flex items-center gap-1 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                                            <span className="material-symbols-outlined text-[14px]">timer</span>
+                                            {test.duration}
+                                        </span>
                                     </div>
-                                    <span className="flex items-center gap-1 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-                                        <span className="material-symbols-outlined text-[14px]">timer</span>
-                                        {test.duration}
-                                    </span>
+                                    <div className="relative z-10">
+                                        <span className="text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full mb-2 inline-block bg-slate-100 dark:bg-[#323b67] text-slate-500 dark:text-slate-400">
+                                            {test.levelName}
+                                        </span>
+                                        <h3 className="font-bold text-base text-slate-900 dark:text-white mb-1 leading-tight">{test.title}</h3>
+                                    </div>
+                                    <button 
+                                        onClick={() => navigate(`/test?mode=random&level=${test.level}&title=${encodeURIComponent(test.title)}`)}
+                                        className="mt-auto w-full py-2.5 rounded-lg border-2 border-[#33B974] text-[#33B974] hover:bg-[#33B974] hover:text-white text-sm font-bold transition-colors relative z-10"
+                                    >
+                                        Start Sprint
+                                    </button>
                                 </div>
-                                <div className="relative z-10">
-                                    <span className="text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full mb-2 inline-block bg-slate-100 dark:bg-[#323b67] text-slate-500 dark:text-slate-400">
-                                        {test.levelName}
-                                    </span>
-                                    <h3 className="font-bold text-base text-slate-900 dark:text-white mb-1 leading-tight">{test.title}</h3>
-                                </div>
-                                <button 
-                                    onClick={() => navigate(`/test?mode=random&level=${test.level}&title=${encodeURIComponent(test.title)}`)}
-                                    className="mt-auto w-full py-2.5 rounded-lg border-2 border-[#33B974] text-[#33B974] hover:bg-[#33B974] hover:text-white text-sm font-bold transition-colors relative z-10"
-                                >
-                                    Start Sprint
-                                </button>
-                            </div>
-                        ))}
-                    </div>
+                            ))}
+                        </div>
+                    )}
                 </section>
                 </>
                 )}

@@ -17,6 +17,7 @@ export class AssignmentService {
     wpmRequirement?: number;
     accuracyRequirement?: number;
     bypassLevel?: boolean;
+    institutionId?: string;
   }) {
     // Create the associated Test
     const test = await this.prisma.test.create({
@@ -29,6 +30,7 @@ export class AssignmentService {
             : 'The quick brown fox jumps over the lazy dog. Programming is the art of telling another human what one wants the computer to do. Practice makes perfect when learning to type fast. Keep your fingers on the home row and do not look at the keys.'),
         duration: data.duration ?? 60,
         difficulty: data.level === 2 ? 'HARD' : 'MEDIUM',
+        institutionId: data.institutionId || null,
       },
     });
 
@@ -64,9 +66,14 @@ export class AssignmentService {
 
   async findForStudent(studentId: string, sectionId?: string) {
     await this.runExpiryCheck();
-    const orConditions: any[] = [{ studentIds: { has: studentId } }];
+    const orConditions: any[] = [
+      { studentIds: { has: studentId } }
+    ];
     if (sectionId) {
-      orConditions.push({ sectionId: sectionId });
+      orConditions.push({
+        sectionId: sectionId,
+        studentIds: { equals: [] }
+      });
     }
 
     return this.prisma.assignment.findMany({
@@ -131,11 +138,20 @@ export class AssignmentService {
     await this.runExpiryCheck();
     return this.prisma.assignment.findMany({
       where: {
-        section: {
-          intake: {
-            institutionId,
+        OR: [
+          {
+            section: {
+              intake: {
+                institutionId,
+              },
+            },
           },
-        },
+          {
+            test: {
+              institutionId,
+            },
+          },
+        ],
       },
       include: {
         test: true,

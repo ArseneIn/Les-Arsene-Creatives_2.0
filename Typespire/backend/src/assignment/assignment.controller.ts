@@ -39,7 +39,10 @@ export class AssignmentController {
     },
     @Request() req: any,
   ) {
-    const res = await this.assignmentService.create(body);
+    const res = await this.assignmentService.create({
+      ...body,
+      institutionId: req.user?.institutionId,
+    });
     const actor = req.user;
     void this.logsService.log({
       action: 'ASSIGNMENT_PUBLISHED',
@@ -58,6 +61,7 @@ export class AssignmentController {
   }
 
   @Get('student')
+  @UseGuards(JwtAuthGuard)
   async findForStudent(@Request() req: any) {
     const studentId = (req.query.studentId as string) || req.user?.id;
     const sectionId = req.query.sectionId as string;

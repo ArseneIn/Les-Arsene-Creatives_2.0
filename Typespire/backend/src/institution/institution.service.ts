@@ -273,7 +273,7 @@ export class InstitutionService {
           (title.includes('practice') || title.includes('drill')) &&
           !title.includes('capstone');
 
-        if (!isPractice && r.assignmentId) {
+        if (!isPractice && r.assignmentId && !r.bypassLevel) {
           const isL2 =
             title.includes('level 2') || r.test?.difficulty === 'HARD';
           const isL1 = !isL2;
