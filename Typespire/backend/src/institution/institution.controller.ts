@@ -171,7 +171,8 @@ export class InstitutionController {
   @UseGuards(JwtAuthGuard)
   async importMaster(
     @Param('id') id: string,
-    @Body() data: {
+    @Body()
+    data: {
       students: {
         studentId?: string;
         name: string;
@@ -182,7 +183,10 @@ export class InstitutionController {
     },
     @Request() req: any,
   ) {
-    const res = await this.institutionService.bulkImportMaster(id, data.students);
+    const res = await this.institutionService.bulkImportMaster(
+      id,
+      data.students,
+    );
     const actor = req.user;
     void this.logsService.log({
       action: 'STUDENTS_MASTER_IMPORTED',

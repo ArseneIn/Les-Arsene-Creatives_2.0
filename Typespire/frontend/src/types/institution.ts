@@ -50,3 +50,26 @@ export interface CreateInstitutionDto {
     adminFirstName?: string;
     adminLastName?: string;
 }
+
+export interface TestResult {
+    id: string;
+    wpm: number;
+    accuracy: number;
+    duration: number;
+    createdAt: string;
+    test: { title: string; difficulty: string } | null;
+    assignment: { title: string } | null;
+    user: {
+        id: string;
+        firstName: string;
+        lastName: string;
+        username: string;
+        section: {
+            name: string;
+            intake: {
+                name: string;
+            };
+        } | null;
+    };
+}
+

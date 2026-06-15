@@ -4,7 +4,7 @@ import { Plus, Calendar, ChevronDown, MoreHorizontal, Upload, X, CloudUpload, Fi
 import { useInstitution } from '../context/InstitutionContext';
 import { useAuth } from '../context/AuthContext';
 import api from '../api/axios';
-import type { Intake, Student } from '../types/institution';
+import type { Intake, Student, TestResult } from '../types/institution';
 
 const InstitutionIntakes: React.FC = () => {
     const { user } = useAuth();
@@ -17,7 +17,7 @@ const InstitutionIntakes: React.FC = () => {
     const [assignFacilitatorModal, setAssignFacilitatorModal] = useState<{ sectionId: string, currentFacilitatorId?: string } | null>(null);
     const [selectedFacilitatorId, setSelectedFacilitatorId] = useState('');
     const [showRosterModal, setShowRosterModal] = useState<{ sectionId: string, sectionName: string, students: Student[] } | null>(null);
-    const [results, setResults] = useState<any[]>([]);
+    const [results, setResults] = useState<TestResult[]>([]);
 
     useEffect(() => {
         const fetchResults = async () => {

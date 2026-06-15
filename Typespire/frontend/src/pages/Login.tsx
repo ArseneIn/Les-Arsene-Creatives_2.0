@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { UserRole } from '../types/auth';
 import { institutionService } from '../services/institution';
 import type { Institution } from '../types/institution';
+import { isAxiosError } from 'axios';
 import { Keyboard, School, User, Lock, Eye, ArrowRight, ChevronDown } from 'lucide-react';
 
 const Login: React.FC = () => {
@@ -54,9 +55,9 @@ const Login: React.FC = () => {
                 default:
                     navigate('/');
             }
-        } catch (err: any) {
+        } catch (err) {
             console.error(err);
-            if (err.response && err.response.data && err.response.data.message) {
+            if (isAxiosError(err) && err.response?.data?.message) {
                 // If it's an array of messages (like class-validator), just join them
                 const msg = err.response.data.message;
                 setError(Array.isArray(msg) ? msg.join(', ') : msg);

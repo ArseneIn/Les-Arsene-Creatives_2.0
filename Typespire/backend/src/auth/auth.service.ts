@@ -1,4 +1,8 @@
-import { Injectable, ConflictException, ForbiddenException } from '@nestjs/common';
+import {
+  Injectable,
+  ConflictException,
+  ForbiddenException,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from '../prisma/prisma.service';
@@ -74,13 +78,13 @@ export class AuthService {
 
         if (subscriptionStatus === 'SUSPENDED') {
           throw new ForbiddenException(
-            "Your institution's account has been suspended. Please contact support."
+            "Your institution's account has been suspended. Please contact support.",
           );
         }
 
         if (subscriptionStatus === 'EXPIRED') {
           throw new ForbiddenException(
-            "Your institution's subscription has expired and the grace period has ended. Please contact support."
+            "Your institution's subscription has expired and the grace period has ended. Please contact support.",
           );
         }
 
@@ -89,7 +93,7 @@ export class AuthService {
           const gracePeriodMs = 10 * 24 * 60 * 60 * 1000; // 10 days grace period
           if (Date.now() > endDateMs + gracePeriodMs) {
             throw new ForbiddenException(
-              "Your institution's subscription has expired and the grace period has ended. Please contact support."
+              "Your institution's subscription has expired and the grace period has ended. Please contact support.",
             );
           }
         }

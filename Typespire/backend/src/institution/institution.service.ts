@@ -383,7 +383,9 @@ export class InstitutionService {
         const studentName = student.name?.trim();
 
         if (!intakeName || !sectionName || !studentName) {
-          results.errors.push(`Skipped line for: ${studentName || 'Unknown Student'} - Missing name, intake, or section`);
+          results.errors.push(
+            `Skipped line for: ${studentName || 'Unknown Student'} - Missing name, intake, or section`,
+          );
           continue;
         }
 
@@ -500,8 +502,11 @@ export class InstitutionService {
           }
         }
       } catch (error) {
-        const message = error instanceof Error ? error.message : 'Unknown error';
-        results.errors.push(`Failed to add ${student.name || 'Unknown Student'}: ${message}`);
+        const message =
+          error instanceof Error ? error.message : 'Unknown error';
+        results.errors.push(
+          `Failed to add ${student.name || 'Unknown Student'}: ${message}`,
+        );
       }
     }
 

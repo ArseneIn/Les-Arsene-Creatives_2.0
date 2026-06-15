@@ -58,7 +58,7 @@ export class AssignmentController {
 
   @Get('student')
   async findForStudent(@Request() req: any) {
-    const studentId = req.query.studentId as string || req.user?.id;
+    const studentId = (req.query.studentId as string) || req.user?.id;
     const sectionId = req.query.sectionId as string;
     return this.assignmentService.findForStudent(studentId, sectionId);
   }

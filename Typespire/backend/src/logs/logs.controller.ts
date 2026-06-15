@@ -8,20 +8,20 @@ import { Roles } from '../auth/roles.decorator';
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Roles('PLATFORM_ADMIN')
 export class LogsController {
-    constructor(private readonly logsService: LogsService) {}
+  constructor(private readonly logsService: LogsService) {}
 
-    @Get()
-    async findAll(
-        @Query('category') category?: string,
-        @Query('severity') severity?: string,
-        @Query('limit') limit?: string,
-        @Query('offset') offset?: string,
-    ) {
-        return this.logsService.findAll({
-            category,
-            severity,
-            limit: limit ? parseInt(limit, 10) : 50,
-            offset: offset ? parseInt(offset, 10) : 0,
-        });
-    }
+  @Get()
+  async findAll(
+    @Query('category') category?: string,
+    @Query('severity') severity?: string,
+    @Query('limit') limit?: string,
+    @Query('offset') offset?: string,
+  ) {
+    return this.logsService.findAll({
+      category,
+      severity,
+      limit: limit ? parseInt(limit, 10) : 50,
+      offset: offset ? parseInt(offset, 10) : 0,
+    });
+  }
 }
