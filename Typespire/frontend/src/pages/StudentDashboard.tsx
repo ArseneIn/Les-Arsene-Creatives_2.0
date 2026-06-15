@@ -85,15 +85,26 @@ const StudentDashboard: React.FC = () => {
 
     // All active assignments for this student — memoised to avoid infinite re-render
     const allStudentAssignments = useMemo(() => {
-        const systemLevel = hasPassedLevel1 ? 2 : 1;
-        return assignments.filter(a =>
-            a.status === 'Active' &&
-            (
-                (a.studentIds && a.studentIds.includes(currentUserId)) ||
-                (a.sectionId === currentUserSectionId && (!a.studentIds || a.studentIds.length === 0))
-            ) &&
-            (a.bypassLevel || (isCapstonePassed && a.level === systemLevel))
-        );
+        return assignments.filter(a => {
+            if (a.status !== 'Active') return false;
+
+            // Individually-targeted assignment: facilitator selected this student directly.
+            // Always show these — no capstone or level gate needed (facilitator decides eligibility).
+            const isIndividualTarget = a.studentIds && a.studentIds.includes(currentUserId);
+            if (isIndividualTarget) return true;
+
+            // Section-wide assignment: only show if the student's section matches
+            // AND the student has reached the required level.
+            const isSectionMatch = a.sectionId === currentUserSectionId &&
+                (!a.studentIds || a.studentIds.length === 0);
+            if (!isSectionMatch) return false;
+
+            // bypassLevel = true means facilitator explicitly skipped level gating
+            if (a.bypassLevel) return true;
+
+            const systemLevel = hasPassedLevel1 ? 2 : 1;
+            return isCapstonePassed && a.level === systemLevel;
+        });
     }, [assignments, currentUserSectionId, currentUserId, isCapstonePassed, hasPassedLevel1]);
 
     const activePendingAssignments = useMemo(() => {
