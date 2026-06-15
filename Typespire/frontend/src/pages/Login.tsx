@@ -4,7 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { UserRole } from '../types/auth';
 import { institutionService } from '../services/institution';
 import type { Institution } from '../types/institution';
-import { Keyboard, School, User, Lock, Eye, ArrowRight, ChevronDown, GraduationCap, Presentation, Building2, ShieldCheck } from 'lucide-react';
+import { Keyboard, School, User, Lock, Eye, ArrowRight, ChevronDown } from 'lucide-react';
 
 const Login: React.FC = () => {
     const [email, setEmail] = useState('');
@@ -207,59 +207,6 @@ const Login: React.FC = () => {
                             )}
                         </button>
                     </form>
-
-                    {/* Demo Access Section */}
-                    <div className="mt-4 pt-4 border-t border-slate-100 dark:border-slate-800">
-                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider text-center mb-3">Quick Demo Access</p>
-                        <div className="grid grid-cols-4 gap-2">
-                            <button
-                                type="button"
-                                onClick={() => {
-                                    setEmail('student@example.com');
-                                    setPassword('password123');
-                                }}
-                                className="flex flex-col items-center justify-center gap-1 p-2 rounded-lg border border-slate-200 dark:border-slate-700 hover:border-[#33B974] hover:bg-[#33B974]/5 transition-all group"
-                            >
-                                <GraduationCap className="text-slate-400 group-hover:text-[#33B974] transition-colors w-5 h-5" />
-                                <span className="text-[10px] font-medium text-slate-600 dark:text-slate-300 group-hover:text-[#33B974]">Student</span>
-                            </button>
-                            <button
-                                type="button"
-                                onClick={() => {
-                                    setEmail('facilitator@example.com');
-                                    setPassword('password123');
-                                }}
-                                className="flex flex-col items-center justify-center gap-1 p-2 rounded-lg border border-slate-200 dark:border-slate-700 hover:border-[#33B974] hover:bg-[#33B974]/5 transition-all group"
-                            >
-                                <Presentation className="text-slate-400 group-hover:text-[#33B974] transition-colors w-5 h-5" />
-                                <span className="text-[10px] font-medium text-slate-600 dark:text-slate-300 group-hover:text-[#33B974]">Facilitator</span>
-                            </button>
-                            <button
-                                type="button"
-                                onClick={() => {
-                                    setEmail('admin@example.com');
-                                    setPassword('password123');
-                                }}
-                                className="flex flex-col items-center justify-center gap-1 p-2 rounded-lg border border-slate-200 dark:border-slate-700 hover:border-[#094A71] hover:bg-[#094A71]/5 transition-all group"
-                            >
-                                <Building2 className="text-slate-400 group-hover:text-[#094A71] transition-colors w-5 h-5" />
-                                <span className="text-[10px] font-medium text-slate-600 dark:text-slate-300 group-hover:text-[#094A71]">Inst.</span>
-                            </button>
-                            <button
-                                type="button"
-                                onClick={() => {
-                                    setEmail('admin@typespire.com');
-                                    setPassword('password123');
-                                    setInstitution(''); // Clear institution for Super Admin
-                                }}
-                                className="flex flex-col items-center justify-center gap-1 p-2 rounded-lg border border-slate-200 dark:border-slate-700 hover:border-[#094A71] hover:bg-[#094A71]/5 transition-all group"
-                            >
-                                <ShieldCheck className="text-slate-400 group-hover:text-[#094A71] transition-colors w-5 h-5" />
-                                <span className="text-[10px] font-medium text-slate-600 dark:text-slate-300 group-hover:text-[#094A71]">Admin</span>
-                            </button>
-                        </div>
-                    </div>
-
                     <p className="text-center text-xs text-slate-500 dark:text-slate-400">
                         Don't have an account? <Link to="/register" className="font-bold text-[#33B974] hover:underline">Create an account</Link>
                     </p>

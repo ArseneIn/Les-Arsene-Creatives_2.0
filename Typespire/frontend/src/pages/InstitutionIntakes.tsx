@@ -415,8 +415,18 @@ const InstitutionIntakes: React.FC = () => {
                                     const lines = text.split('\n');
                                     const students: { name: string; email?: string; username?: string; password?: string }[] = [];
 
-                                    // Skip header if present (simple check)
-                                    const startIndex = lines[0].toLowerCase().includes('email') || lines[0].toLowerCase().includes('username') ? 1 : 0;
+                                    // Check headers
+                                    const headers = lines[0].toLowerCase().split(',').map(h => h.trim());
+                                    const idIndex = headers.findIndex(h => h.includes('id') || h.includes('username') || h.includes('registration'));
+                                    const nameIndex = headers.findIndex(h => h.includes('name'));
+                                    const emailIndex = headers.findIndex(h => h.includes('email'));
+
+                                    // If no headers match, assume default order: Student ID, Name, Email
+                                    const hasHeaders = idIndex !== -1 || nameIndex !== -1 || emailIndex !== -1;
+                                    const startIndex = hasHeaders ? 1 : 0;
+                                    const finalIdIdx = idIndex !== -1 ? idIndex : 0;
+                                    const finalNameIdx = nameIndex !== -1 ? nameIndex : 1;
+                                    const finalEmailIdx = emailIndex !== -1 ? emailIndex : 2;
 
                                     for (let i = startIndex; i < lines.length; i++) {
                                         const line = lines[i].trim();
@@ -424,25 +434,16 @@ const InstitutionIntakes: React.FC = () => {
 
                                         const parts = line.split(',');
                                         if (parts.length >= 1) {
-                                            const name = parts[0].trim();
-                                            let email: string | undefined = undefined;
-                                            let username: string | undefined = undefined;
-                                            let password: string | undefined = undefined;
-
-                                            if (parts.length >= 2) {
-                                                const credential = parts[1].trim();
-                                                if (credential.includes('@')) {
-                                                    email = credential;
-                                                } else {
-                                                    username = credential;
-                                                }
-                                            }
-                                            if (parts.length >= 3) {
-                                                password = parts[2].trim();
-                                            }
+                                            const username = parts[finalIdIdx]?.trim();
+                                            const name = parts[finalNameIdx]?.trim();
+                                            const email = parts[finalEmailIdx]?.trim();
 
                                             if (name) {
-                                                students.push({ name, email, username, password });
+                                                students.push({
+                                                    name,
+                                                    email: email || undefined,
+                                                    username: username || undefined
+                                                });
                                             }
                                         }
                                     }
@@ -453,7 +454,7 @@ const InstitutionIntakes: React.FC = () => {
                                             alert(`Successfully processed ${students.length} students.`);
                                             setShowBulkUploadModal(null);
                                             // Refresh data
-                                            window.location.reload(); // Or use context refresh
+                                            window.location.reload();
                                         } catch (error) {
                                             console.error('Bulk upload failed', error);
                                             alert('Failed to upload students. Please check the file format.');
@@ -477,12 +478,12 @@ const InstitutionIntakes: React.FC = () => {
                                     <FileText className="text-green-600 w-6 h-6" />
                                     <div>
                                         <p className="text-sm font-bold text-gray-700">student_import_template.csv</p>
-                                        <p className="text-xs text-gray-400">Name, Email</p>
+                                        <p className="text-xs text-gray-400">Student ID, Name, Email</p>
                                     </div>
                                 </div>
                                 <button
                                     onClick={() => {
-                                        const csvContent = "data:text/csv;charset=utf-8,Name,Email\nJohn Doe,john@example.com";
+                                        const csvContent = "data:text/csv;charset=utf-8,Student ID,Name,Email\nSTU001,John Doe,john@example.com";
                                         const encodedUri = encodeURI(csvContent);
                                         const link = document.createElement("a");
                                         link.setAttribute("href", encodedUri);
@@ -528,7 +529,7 @@ const InstitutionIntakes: React.FC = () => {
                                         <tr className="border-b border-gray-100 text-gray-400 text-xs font-bold uppercase tracking-wider">
                                             <th className="pb-3 w-1/6">Student ID</th>
                                             <th className="pb-3 w-1/4">Name</th>
-                                            <th className="pb-3 w-1/4">Username / Email</th>
+                                            <th className="pb-3 w-1/4">Email</th>
                                             <th className="pb-3 w-1/6 text-center">Milestone Status</th>
                                             <th className="pb-3 text-right">Actions</th>
                                         </tr>
@@ -538,12 +539,12 @@ const InstitutionIntakes: React.FC = () => {
                                             const status = getStudentStatus(student.id);
                                             return (
                                                 <tr key={student.id} className="hover:bg-gray-50/50 transition-colors">
-                                                    <td className="py-3.5 font-mono text-xs text-gray-400 font-bold">
-                                                        {student.id.substring(0, 8).toUpperCase()}
+                                                    <td className="py-3.5 font-mono text-xs text-gray-600 font-bold">
+                                                        {student.username || student.id.substring(0, 8).toUpperCase()}
                                                     </td>
                                                     <td className="py-3.5 font-bold text-[#0d1b17]">{student.name}</td>
                                                     <td className="py-3.5 text-gray-600 font-medium">
-                                                        {student.email || student.username || <span className="text-red-400 italic">No credentials</span>}
+                                                        {student.email || <span className="text-gray-400 italic">No email</span>}
                                                     </td>
                                                     <td className="py-3.5 text-center">
                                                         <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold border ${getStatusBadgeClass(status)}`}>
