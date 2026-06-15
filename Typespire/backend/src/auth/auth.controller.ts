@@ -7,7 +7,7 @@ import {
   Get,
   Query,
 } from '@nestjs/common';
-import { AuthService } from './auth.service';
+import { AuthService, UserWithInstitution } from './auth.service';
 import { LocalAuthGuard } from './local-auth.guard';
 import { JwtAuthGuard } from './jwt-auth.guard';
 import { User } from '@prisma/client';
@@ -19,7 +19,7 @@ export class AuthController {
   @UseGuards(LocalAuthGuard)
   @Post('login')
   login(@Request() req: any) {
-    return this.authService.login(req.user as User);
+    return this.authService.login(req.user as UserWithInstitution);
   }
 
   @Post('register')

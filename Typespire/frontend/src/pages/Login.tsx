@@ -36,6 +36,12 @@ const Login: React.FC = () => {
         setError('');
         setLoading(true);
 
+        if (!email.includes('@') && !institution) {
+            setError('Please select your institution to log in with a Student ID.');
+            setLoading(false);
+            return;
+        }
+
         try {
             const user = await login(email, password, institution);
 

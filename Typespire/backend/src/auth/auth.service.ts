@@ -8,7 +8,11 @@ import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from '../prisma/prisma.service';
 import { LogsService } from '../logs/logs.service';
 import * as bcrypt from 'bcrypt';
-import { UserRole, User } from '@prisma/client';
+import { UserRole, User, Institution } from '@prisma/client';
+
+export type UserWithInstitution = User & {
+  institution?: Institution | null;
+};
 
 interface SsoPayload {
   email: string;
@@ -32,11 +36,16 @@ export class AuthService {
     pass: string,
     institutionSlug?: string,
   ): Promise<Omit<User, 'password'> | null> {
-    let user: any = null;
+    let user: UserWithInstitution | null = null;
 
     if (emailOrUsername.includes('@')) {
-      user = await this.prisma.user.findUnique({
-        where: { email: emailOrUsername },
+      user = await this.prisma.user.findFirst({
+        where: {
+          email: {
+            equals: emailOrUsername,
+            mode: 'insensitive',
+          },
+        },
         include: { institution: true },
       });
     } else {
@@ -51,7 +60,10 @@ export class AuthService {
       }
       user = await this.prisma.user.findFirst({
         where: {
-          username: emailOrUsername,
+          username: {
+            equals: emailOrUsername,
+            mode: 'insensitive',
+          },
           institutionId: institution.id,
         },
         include: { institution: true },
@@ -106,7 +118,7 @@ export class AuthService {
     return null;
   }
 
-  login(user: any) {
+  login(user: UserWithInstitution) {
     const payload = { email: user.email, sub: user.id, role: user.role };
     // Fire-and-forget: log the login event
     this.logsService
