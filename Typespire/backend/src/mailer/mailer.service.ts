@@ -62,7 +62,7 @@ export class MailerService {
     try {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       const info = await this.transporter.sendMail({
-        from: '"Typespire Support" <support@typespire.edu>',
+        from: '"Typespire Support" <support@typespire.com>',
         to,
         subject: 'Password Reset Request',
         text: `You requested a password reset. Click the link to reset your password: ${resetLink} \n\nIf you did not request this, please ignore this email.`,
