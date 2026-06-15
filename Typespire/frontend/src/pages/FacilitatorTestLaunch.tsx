@@ -6,6 +6,19 @@ import api from '../api/axios';
 import { ADVANCED_WORD_POOL, generate10FastFingersText } from '../data/advancedWordPool';
 
 
+interface LibraryText {
+    id: string;
+    title: string;
+    source: string;
+    level: number;
+    complexity: string;
+    wordCount: number;
+    estimatedTimeMin: number;
+    coverImg: string;
+    excerpt: string;
+    content: string;
+}
+
 interface LiveStudent {
     userId: string;
     name: string;
@@ -365,7 +378,7 @@ const FacilitatorTestLaunch: React.FC = () => {
     const [allowedTrials, setAllowedTrials] = useState('');
     const [accessWindow, setAccessWindow] = useState('1440'); // default: 1 day in minutes
     const [bypassCriteria, setBypassCriteria] = useState(false);
-    const [previewingText, setPreviewingText] = useState<any | null>(null);
+    const [previewingText, setPreviewingText] = useState<LibraryText | null>(null);
     
     const [successPopup, setSuccessPopup] = useState<{show: boolean, count: number}>({show: false, count: 0});
     const [monitorAssignmentId, setMonitorAssignmentId] = useState<string | null>(null);
@@ -498,7 +511,7 @@ const FacilitatorTestLaunch: React.FC = () => {
             duration: timeLimit === '0' ? 0 : parseInt(timeLimit) * 60,
             maxAttempts: allowedTrials ? parseInt(allowedTrials) : undefined,
             wpmRequirement: testLevel === 1 ? settings?.level1Wpm : settings?.level2Wpm,
-            accuracyRequirement: testLevel === 1 ? settings?.level1Accuracy : settings?.level2Accuracy
+            accuracyRequirement: settings?.requiredAccuracy
         });
 
         setSuccessPopup({ show: true, count: finalStudentIds.length });
