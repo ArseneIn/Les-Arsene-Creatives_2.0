@@ -19,10 +19,6 @@ const STEP_LABELS: Record<TutorialStep, string> = {
     done: 'Ready',
 };
 
-// Which keyboard key is being highlighted for each stage
-const STAGE_KEY_HIGHLIGHTS: Record<string, string[]> = {
-    'stage-3-shift': ['Shift', 'RShift'],
-};
 
 // Finger diagrams as emoji + text descriptions
 const FINGER_DIAGRAMS: Record<string, { hand: string; finger: string; detail: string }> = {
@@ -78,7 +74,7 @@ export const FunctionalKeyTutorial: React.FC<FunctionalKeyTutorialProps> = ({ st
 
     const tryItPrompt = TRY_IT_PROMPTS[stage.id] ?? {
         instruction: `Type the exact keys shown below to practice ${highlightedKeys.join(' and ')}.`,
-        targetWord: (stage.practiceText || highlightedKeys.filter(k => k !== ' ').join('')).substring(0, 5).trim(),
+        targetWord: highlightedKeys.filter(k => k !== ' ').join('').substring(0, 5).trim(),
         hint: 'Use the highlighted fingers from the previous step.'
     };
 
