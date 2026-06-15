@@ -29,6 +29,7 @@ const StudentDashboard: React.FC = () => {
 
     const hasPassedLevel1 = useMemo(() => {
         return recentResults.some(r => {
+            if (!r.assignmentId) return false;
             if (r.testLevel !== 1) return false;
             const targetWpm = r.wpmRequirement ?? 50;
             const targetAcc = r.accuracyRequirement ?? 90;
@@ -38,6 +39,7 @@ const StudentDashboard: React.FC = () => {
 
     const hasPassedLevel2 = useMemo(() => {
         return recentResults.some(r => {
+            if (!r.assignmentId) return false;
             if (r.testLevel !== 2) return false;
             const targetWpm = r.wpmRequirement ?? 50;
             const targetAcc = r.accuracyRequirement ?? 92;

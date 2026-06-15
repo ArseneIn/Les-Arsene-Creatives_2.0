@@ -353,6 +353,7 @@ export const UserProgressProvider: React.FC<{ children: ReactNode }> = ({ childr
     // ── Auto-update student rank based on milestones ──
     useEffect(() => {
         const hasPassedLevel2 = recentResults.some(r => {
+            if (!r.assignmentId) return false;
             if (r.testLevel !== 2) return false;
             if (r.bypassLevel) return false; // Ignore bypass testing results
             const targetWpm = r.wpmRequirement ?? 50;
@@ -360,6 +361,7 @@ export const UserProgressProvider: React.FC<{ children: ReactNode }> = ({ childr
             return r.wpm >= targetWpm && r.accuracy >= targetAcc;
         });
         const hasPassedLevel1 = recentResults.some(r => {
+            if (!r.assignmentId) return false;
             if (r.testLevel !== 1) return false;
             if (r.bypassLevel) return false; // Ignore bypass testing results
             const targetWpm = r.wpmRequirement ?? 50;

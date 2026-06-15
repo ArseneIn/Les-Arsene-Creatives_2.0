@@ -78,7 +78,7 @@ export const FunctionalKeyTutorial: React.FC<FunctionalKeyTutorialProps> = ({ st
 
     const tryItPrompt = TRY_IT_PROMPTS[stage.id] ?? {
         instruction: `Type the exact keys shown below to practice ${highlightedKeys.join(' and ')}.`,
-        targetWord: (stage.practiceText || highlightedKeys.join(' ')).substring(0, 5).trim(),
+        targetWord: (stage.practiceText || highlightedKeys.filter(k => k !== ' ').join('')).substring(0, 5).trim(),
         hint: 'Use the highlighted fingers from the previous step.'
     };
 
@@ -248,7 +248,7 @@ export const FunctionalKeyTutorial: React.FC<FunctionalKeyTutorialProps> = ({ st
                                                 : 'text-red-500';
                                         return (
                                             <span key={i} className={`transition-colors duration-150 ${color} ${i === tryItInput.length ? 'border-b-2 border-[#33B974] animate-pulse' : ''}`}>
-                                                {char}
+                                                {char === ' ' ? '␣' : char}
                                             </span>
                                         );
                                     })}
