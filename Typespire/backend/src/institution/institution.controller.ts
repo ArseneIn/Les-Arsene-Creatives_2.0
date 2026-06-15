@@ -166,4 +166,38 @@ export class InstitutionController {
   async getFacilitatorActivityReport(@Param('id') id: string) {
     return this.institutionService.getFacilitatorActivityReport(id);
   }
+
+  @Post(':id/students/import-master')
+  @UseGuards(JwtAuthGuard)
+  async importMaster(
+    @Param('id') id: string,
+    @Body() data: {
+      students: {
+        studentId?: string;
+        name: string;
+        email?: string;
+        intakeName: string;
+        sectionName: string;
+      }[];
+    },
+    @Request() req: any,
+  ) {
+    const res = await this.institutionService.bulkImportMaster(id, data.students);
+    const actor = req.user;
+    void this.logsService.log({
+      action: 'STUDENTS_MASTER_IMPORTED',
+      category: 'INSTITUTION',
+      actorId: actor?.id,
+      actorName: actor
+        ? `${actor.firstName || ''} ${actor.lastName || ''}`.trim() ||
+          actor.email ||
+          'System'
+        : 'System',
+      targetId: id,
+      targetName: 'Master Roster Import',
+      severity: 'INFO',
+      metadata: { addedCount: res.added, errorCount: res.errors.length },
+    });
+    return res;
+  }
 }

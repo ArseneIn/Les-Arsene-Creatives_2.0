@@ -11,6 +11,7 @@ const InstitutionIntakes: React.FC = () => {
     const { intakes, addIntake, addSection, facilitators, assignFacilitatorToSection } = useInstitution();
     const [expandedIntake, setExpandedIntake] = useState<string | null>('1');
     const [showNewIntakeModal, setShowNewIntakeModal] = useState(false);
+    const [showMasterUploadModal, setShowMasterUploadModal] = useState(false);
     const [showBulkUploadModal, setShowBulkUploadModal] = useState<{ sectionId: string, intakeName: string, sectionName: string } | null>(null);
     const [assignFacilitatorModal, setAssignFacilitatorModal] = useState<{ sectionId: string, currentFacilitatorId?: string } | null>(null);
     const [selectedFacilitatorId, setSelectedFacilitatorId] = useState('');
@@ -119,13 +120,22 @@ const InstitutionIntakes: React.FC = () => {
                     <h2 className="text-[#0d1b17] text-3xl font-bold leading-tight">Intake Management</h2>
                     <p className="text-gray-500 text-sm mt-1">Create intakes, organize sections, and assign students.</p>
                 </div>
-                <button
-                    onClick={() => setShowNewIntakeModal(true)}
-                    className="flex items-center gap-2 px-4 py-2 bg-[#0d1b17] text-white rounded-lg text-sm font-bold hover:bg-[#1a2e28] transition-colors shadow-lg shadow-gray-200"
-                >
-                    <Plus className="w-5 h-5" />
-                    New Intake
-                </button>
+                <div className="flex items-center gap-3">
+                    <button
+                        onClick={() => setShowMasterUploadModal(true)}
+                        className="flex items-center gap-2 px-4 py-2 bg-white text-[#0d1b17] border border-gray-200 rounded-lg text-sm font-bold hover:bg-gray-50 transition-colors shadow-sm"
+                    >
+                        <Upload className="w-4 h-4 text-gray-500" />
+                        Import Master Roster
+                    </button>
+                    <button
+                        onClick={() => setShowNewIntakeModal(true)}
+                        className="flex items-center gap-2 px-4 py-2 bg-[#0d1b17] text-white rounded-lg text-sm font-bold hover:bg-[#1a2e28] transition-colors shadow-lg shadow-gray-200"
+                    >
+                        <Plus className="w-5 h-5" />
+                        New Intake
+                    </button>
+                </div>
             </header>
 
             {/* Intakes List */}
@@ -596,6 +606,153 @@ const InstitutionIntakes: React.FC = () => {
                                 className="px-4 py-2 text-gray-600 font-bold hover:bg-gray-100 rounded-lg"
                             >
                                 Close
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Master Roster Import Modal */}
+            {showMasterUploadModal && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+                    <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+                        <div className="p-6 border-b border-gray-100 flex justify-between items-center">
+                            <div>
+                                <h3 className="text-xl font-bold text-[#0d1b17]">Import Master Roster</h3>
+                                <p className="text-xs text-gray-500 mt-1">Upload a master CSV sheet of students across multiple cohorts and sections.</p>
+                            </div>
+                            <button onClick={() => setShowMasterUploadModal(false)} className="text-gray-400 hover:text-gray-600">
+                                <X className="w-6 h-6" />
+                            </button>
+                        </div>
+                        <div className="p-6 bg-amber-50 border-b border-amber-100/55 flex gap-3 text-amber-800 text-xs">
+                            <span className="font-bold text-sm">⚠️</span>
+                            <div>
+                                <span className="font-bold">Cohort Creation Reminder</span>: If a cohort (intake) specified in the sheet does not exist in the database, the system will automatically create it as <span className="font-bold">ACTIVE</span> with no end date. Remember to configure their start/end dates under Intake Management later.
+                            </div>
+                        </div>
+                        <div className="p-8 flex flex-col items-center justify-center gap-4 border-b border-gray-100 bg-gray-50/50">
+                            <div className="w-16 h-16 bg-[#0d1b17]/5 text-[#0d1b17] rounded-full flex items-center justify-center mb-2">
+                                <CloudUpload className="w-8 h-8" />
+                            </div>
+                            <div className="text-center">
+                                <p className="font-bold text-gray-700">Click to upload or drag and drop</p>
+                                <p className="text-xs text-gray-400 mt-1">CSV (max 5MB)</p>
+                            </div>
+                            <input
+                                type="file"
+                                accept=".csv"
+                                className="hidden"
+                                id="master-upload-input"
+                                onChange={async (e) => {
+                                    const file = e.target.files?.[0];
+                                    if (!file) return;
+
+                                    try {
+                                        const text = await file.text();
+                                        const lines = text.split('\n');
+                                        const students: { studentId?: string; name: string; email?: string; intakeName: string; sectionName: string }[] = [];
+
+                                        if (lines.length < 2) {
+                                            alert('The file is empty.');
+                                            return;
+                                        }
+
+                                        // Parse headers
+                                        const headers = lines[0].toLowerCase().split(',').map(h => h.trim());
+                                        const idIndex = headers.findIndex(h => h.includes('id') || h.includes('username') || h.includes('registration'));
+                                        const nameIndex = headers.findIndex(h => h.includes('name') || h.includes('student name'));
+                                        const emailIndex = headers.findIndex(h => h.includes('email') || h.includes('student email'));
+                                        const intakeIndex = headers.findIndex(h => h.includes('intake') || h.includes('cohort'));
+                                        const sectionIndex = headers.findIndex(h => h.includes('section'));
+
+                                        // Fallback if index not found
+                                        const finalIdIdx = idIndex !== -1 ? idIndex : 0;
+                                        const finalNameIdx = nameIndex !== -1 ? nameIndex : 1;
+                                        const finalEmailIdx = emailIndex !== -1 ? emailIndex : 2;
+                                        const finalIntakeIdx = intakeIndex !== -1 ? intakeIndex : 3;
+                                        const finalSectionIdx = sectionIndex !== -1 ? sectionIndex : 4;
+
+                                        for (let i = 1; i < lines.length; i++) {
+                                            const line = lines[i].trim();
+                                            if (!line) continue;
+
+                                            const parts = line.split(',');
+                                            const studentId = parts[finalIdIdx]?.trim();
+                                            const name = parts[finalNameIdx]?.trim();
+                                            const email = parts[finalEmailIdx]?.trim();
+                                            const intakeName = parts[finalIntakeIdx]?.trim();
+                                            const sectionName = parts[finalSectionIdx]?.trim();
+
+                                            if (name && intakeName && sectionName) {
+                                                students.push({
+                                                    studentId: studentId || undefined,
+                                                    name,
+                                                    email: email || undefined,
+                                                    intakeName,
+                                                    sectionName
+                                                });
+                                            }
+                                        }
+
+                                        if (students.length > 0) {
+                                            if (user?.institutionId) {
+                                                await api.post(`/institution/${user.institutionId}/students/import-master`, { students });
+                                                alert(`Successfully imported ${students.length} students across cohorts and sections.`);
+                                                setShowMasterUploadModal(false);
+                                                window.location.reload();
+                                            } else {
+                                                alert('Error: No active institution scope found.');
+                                            }
+                                        } else {
+                                            alert('No valid rows found in the CSV. Make sure headers for "Name", "Intake", and "Section" exist.');
+                                        }
+                                    } catch (error) {
+                                        console.error('Master import failed', error);
+                                        alert('Failed to import master roster. Check console for details.');
+                                    }
+                                }}
+                            />
+                            <label
+                                htmlFor="master-upload-input"
+                                className="px-4 py-2 border border-gray-300 bg-white rounded-lg text-sm font-bold text-gray-600 hover:bg-gray-50 cursor-pointer"
+                            >
+                                Select File
+                            </label>
+                        </div>
+                        <div className="p-6 bg-white">
+                            <h4 className="text-sm font-bold text-gray-700 mb-2">Template</h4>
+                            <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-200">
+                                <div className="flex items-center gap-3">
+                                    <FileText className="text-green-600 w-6 h-6" />
+                                    <div>
+                                        <p className="text-sm font-bold text-gray-700">master_roster_template.csv</p>
+                                        <p className="text-xs text-gray-400">Student ID, Student Name, Student Email, Intake, Section</p>
+                                    </div>
+                                </div>
+                                <button
+                                    onClick={() => {
+                                        const csvContent = "data:text/csv;charset=utf-8,Student ID,Student Name,Student Email,Intake,Section\nSTU001,John Doe,john@example.com,Cohort Jan 2026,Section A\nSTU002,Jane Smith,jane@example.com,Cohort Jan 2026,Section B";
+                                        const encodedUri = encodeURI(csvContent);
+                                        const link = document.createElement("a");
+                                        link.setAttribute("href", encodedUri);
+                                        link.setAttribute("download", "master_roster_template.csv");
+                                        document.body.appendChild(link);
+                                        link.click();
+                                        document.body.removeChild(link);
+                                    }}
+                                    className="text-blue-600 hover:underline text-xs font-bold"
+                                >
+                                    Download
+                                </button>
+                            </div>
+                        </div>
+                        <div className="p-6 border-t border-gray-100 flex justify-end gap-3 bg-gray-50">
+                            <button
+                                onClick={() => setShowMasterUploadModal(false)}
+                                className="px-4 py-2 text-gray-600 font-bold hover:bg-gray-100 rounded-lg"
+                            >
+                                Cancel
                             </button>
                         </div>
                     </div>

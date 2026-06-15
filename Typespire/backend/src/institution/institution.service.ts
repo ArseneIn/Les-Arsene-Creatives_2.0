@@ -356,4 +356,155 @@ export class InstitutionService {
       };
     });
   }
+
+  async bulkImportMaster(
+    institutionId: string,
+    students: {
+      studentId?: string;
+      name: string;
+      email?: string;
+      intakeName: string;
+      sectionName: string;
+    }[],
+  ) {
+    const results = {
+      added: 0,
+      errors: [] as string[],
+    };
+
+    // Cache of created intakes and sections to avoid constant DB queries
+    const intakeCache = new Map<string, string>(); // intakeName -> intakeId
+    const sectionCache = new Map<string, string>(); // `${intakeId}:${sectionName}` -> sectionId
+
+    for (const student of students) {
+      try {
+        const intakeName = student.intakeName?.trim();
+        const sectionName = student.sectionName?.trim();
+        const studentName = student.name?.trim();
+
+        if (!intakeName || !sectionName || !studentName) {
+          results.errors.push(`Skipped line for: ${studentName || 'Unknown Student'} - Missing name, intake, or section`);
+          continue;
+        }
+
+        // 1. Get or create Intake
+        let intakeId = intakeCache.get(intakeName);
+        if (!intakeId) {
+          let intake = await this.prisma.intake.findFirst({
+            where: { name: intakeName, institutionId },
+          });
+          if (!intake) {
+            intake = await this.prisma.intake.create({
+              data: {
+                name: intakeName,
+                institutionId,
+                startDate: new Date(),
+                status: 'ACTIVE',
+              },
+            });
+          }
+          intakeId = intake.id;
+          intakeCache.set(intakeName, intakeId);
+        }
+
+        // 2. Get or create Section
+        const sectionCacheKey = `${intakeId}:${sectionName}`;
+        let sectionId = sectionCache.get(sectionCacheKey);
+        if (!sectionId) {
+          let section = await this.prisma.section.findFirst({
+            where: { name: sectionName, intakeId },
+          });
+          if (!section) {
+            section = await this.prisma.section.create({
+              data: {
+                name: sectionName,
+                intakeId,
+              },
+            });
+          }
+          sectionId = section.id;
+          sectionCache.set(sectionCacheKey, sectionId);
+        }
+
+        // 3. Find if student already exists by email, or username/studentId
+        let user: any = null;
+        if (student.email?.trim()) {
+          user = await this.prisma.user.findUnique({
+            where: { email: student.email.trim() },
+          });
+        }
+        if (!user && student.studentId?.trim()) {
+          user = await this.prisma.user.findFirst({
+            where: {
+              username: student.studentId.trim(),
+              institutionId,
+            },
+          });
+        }
+
+        const rawPassword = '1234';
+        const hashedPassword = await bcrypt.hash(rawPassword, 10);
+        const [firstName, ...lastNameParts] = studentName.split(' ');
+        const lastName = lastNameParts.join(' ');
+
+        if (!user) {
+          // Create new student
+          let username = student.studentId?.trim();
+          if (!username) {
+            const base = studentName
+              .toLowerCase()
+              .replace(/[^a-z0-9]/g, '.')
+              .replace(/\.+/g, '.');
+            username = base;
+            let count = 1;
+            while (true) {
+              const existing = await this.prisma.user.findFirst({
+                where: { username, institutionId },
+              });
+              if (!existing) {
+                break;
+              }
+              username = `${base}${count}`;
+              count++;
+            }
+          }
+
+          await this.prisma.user.create({
+            data: {
+              email: student.email?.trim() || null,
+              username,
+              password: hashedPassword,
+              firstName: firstName || 'Student',
+              lastName: lastName || '',
+              role: 'STUDENT',
+              institutionId,
+              sectionId,
+            },
+          });
+          results.added++;
+        } else {
+          // Update existing student
+          if (user.role === 'STUDENT') {
+            await this.prisma.user.update({
+              where: { id: user.id },
+              data: {
+                sectionId,
+                institutionId,
+              },
+            });
+            results.added++;
+          } else {
+            results.errors.push(
+              `User ${student.email || student.studentId || 'unknown'} exists but is not a student`,
+            );
+          }
+        }
+      } catch (error) {
+        const message = error instanceof Error ? error.message : 'Unknown error';
+        results.errors.push(`Failed to add ${student.name || 'Unknown Student'}: ${message}`);
+      }
+    }
+
+    return results;
+  }
 }
