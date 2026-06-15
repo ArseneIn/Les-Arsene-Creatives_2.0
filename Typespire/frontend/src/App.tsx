@@ -43,6 +43,7 @@ import FacilitatorAnalytics from './pages/FacilitatorAnalytics';
 import SSOCallback from './pages/SSOCallback';
 
 import TypingLoader from './components/common/TypingLoader';
+import MobileTypingBlocker from './components/common/MobileTypingBlocker';
 import { useAuth } from './context/AuthContext';
 
 const AuthLoader: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -69,7 +70,7 @@ function App() {
                 {/* Public or Protected Test Route? Assuming Protected for now or Public? */}
                 {/* TypingTest might be accessible to anyone or just students? Let's assume students for now. */}
                 <Route element={<RequireAuth allowedRoles={[UserRole.STUDENT, UserRole.FACILITATOR, UserRole.INSTITUTION_ADMIN, UserRole.PLATFORM_ADMIN]} />}>
-                  <Route path="/test" element={<TypingTest />} />
+                  <Route path="/test" element={<MobileTypingBlocker><TypingTest /></MobileTypingBlocker>} />
                 </Route>
 
                 <Route element={<RequireAuth allowedRoles={[UserRole.STUDENT]} />}>
