@@ -18,6 +18,7 @@ export interface User {
     institutionId?: string;
     sectionId?: string;
     institution?: Institution;
+    practiceProgress?: any;
 }
 
 export interface AuthResponse {

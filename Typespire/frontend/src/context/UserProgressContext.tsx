@@ -217,11 +217,18 @@ export const UserProgressProvider: React.FC<{ children: ReactNode }> = ({ childr
     if (prevUserId.current !== user?.id) {
         prevUserId.current = user?.id;
         const newData = loadPersisted(user?.id);
-        setStats(newData?.stats ?? INITIAL_STATS);
+        const backendProgress = user?.practiceProgress;
+
+        const statsToUse = backendProgress?.stats ?? newData?.stats ?? INITIAL_STATS;
+        const unlockedToUse = backendProgress?.unlockedStages ?? newData?.unlockedStages;
+        const stageResultsToUse = backendProgress?.stageResults ?? newData?.stageResults ?? {};
+        const keyStatsToUse = backendProgress?.keyStats ?? newData?.keyStats ?? {};
+
+        setStats(statsToUse);
         setRecentResults(newData?.recentResults ?? INITIAL_RESULTS);
-        setUnlockedStages(ensureStage1(newData?.unlockedStages));
-        setStageResults(newData?.stageResults ?? {});
-        setKeyStats(newData?.keyStats ?? {});
+        setUnlockedStages(ensureStage1(unlockedToUse));
+        setStageResults(stageResultsToUse);
+        setKeyStats(keyStatsToUse);
     }
     const [sectionRequirements, setSectionRequirements] = useState<Record<string, { wpm: number; accuracy: number }>>({});
     const [studentOverrides, setStudentOverrides] = useState<Record<string, { wpm: number; accuracy: number }>>({});
@@ -387,13 +394,27 @@ export const UserProgressProvider: React.FC<{ children: ReactNode }> = ({ childr
         });
     }, [recentResults, stageResults]);
 
-    // ── Persist to localStorage on every change ──
+    // ── Persist to localStorage and sync to database on every change ──
     useEffect(() => {
+        if (!user?.id) return;
+
+        const progressData = {
+            stats,
+            unlockedStages,
+            stageResults,
+            keyStats
+        };
+
         try {
-            localStorage.setItem(getLocalKey(user?.id), JSON.stringify({
-                stats, recentResults, unlockedStages, stageResults, keyStats
+            localStorage.setItem(getLocalKey(user.id), JSON.stringify({
+                ...progressData,
+                recentResults
             }));
         } catch { /* ignore quota errors */ }
+
+        // Sync to NestJS backend database
+        api.post('/auth/profile/progress', progressData)
+            .catch(err => console.error("Failed to sync practice progress:", err));
     }, [stats, recentResults, unlockedStages, stageResults, keyStats, user?.id]);
 
     // ── Benchmark resolution ──

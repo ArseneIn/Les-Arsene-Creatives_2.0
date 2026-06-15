@@ -42,6 +42,15 @@ export class AuthController {
     return req.user as User;
   }
 
+  @UseGuards(JwtAuthGuard)
+  @Post('profile/progress')
+  async updateProgress(
+    @Request() req: any,
+    @Body() progress: any,
+  ) {
+    return this.authService.updatePracticeProgress(req.user.id, progress);
+  }
+
   @Get('sso')
   async ssoLogin(@Query('token') token: string) {
     return this.authService.validateSsoToken(token);

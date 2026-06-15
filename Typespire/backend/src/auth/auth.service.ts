@@ -118,8 +118,16 @@ export class AuthService {
     return null;
   }
 
-  login(user: UserWithInstitution) {
-    const payload = { email: user.email, sub: user.id, role: user.role };
+  async login(user: UserWithInstitution) {
+    const sessionId = Math.random().toString(36).substring(2, 15) + Date.now().toString(36);
+
+    // Save new sessionId to database
+    await this.prisma.user.update({
+      where: { id: user.id },
+      data: { currentSessionId: sessionId },
+    });
+
+    const payload = { email: user.email, sub: user.id, role: user.role, sessionId };
     // Fire-and-forget: log the login event
     this.logsService
       .log({
@@ -131,7 +139,7 @@ export class AuthService {
           user.email ||
           'User',
         severity: 'INFO',
-        metadata: { role: user.role },
+        metadata: { role: user.role, sessionId },
       })
       .catch(() => {});
 
@@ -146,6 +154,7 @@ export class AuthService {
         institutionId: user.institutionId,
         sectionId: user.sectionId,
         institution: user.institution,
+        practiceProgress: user.practiceProgress,
       },
     };
   }
@@ -244,5 +253,18 @@ export class AuthService {
         error instanceof Error ? error.message : 'Unknown error';
       throw new ConflictException('Invalid SSO Token: ' + errorMessage);
     }
+  }
+
+  async updatePracticeProgress(userId: string, progress: any) {
+    return this.prisma.user.update({
+      where: { id: userId },
+      data: {
+        practiceProgress: progress,
+      },
+      select: {
+        id: true,
+        practiceProgress: true,
+      },
+    });
   }
 }
