@@ -16,13 +16,20 @@ export class TestResultService {
     testTitle?: string;
   }) {
     let resolvedTestId = data.testId;
-    if (!resolvedTestId && data.assignmentId) {
+    let bypassLevel = false;
+
+    if (data.assignmentId) {
       const assignment = await this.prisma.assignment.findUnique({
         where: { id: data.assignmentId },
-        select: { testId: true },
+        select: { testId: true, bypassLevel: true },
       });
-      if (assignment?.testId) {
-        resolvedTestId = assignment.testId;
+      if (assignment) {
+        if (assignment.testId) {
+          resolvedTestId = assignment.testId;
+        }
+        if (assignment.bypassLevel) {
+          bypassLevel = true;
+        }
       }
     }
 
@@ -60,6 +67,7 @@ export class TestResultService {
         userId: data.userId,
         testId: resolvedTestId,
         assignmentId: data.assignmentId,
+        bypassLevel,
       },
     });
   }

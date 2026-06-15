@@ -27,6 +27,7 @@ interface TestConfig {
     practiceType?: string;
     wpmRequirement?: number;
     accuracyRequirement?: number;
+    bypassLevel?: boolean;
 }
 
 interface PracticeStageType {
@@ -106,6 +107,7 @@ const TypingTest: React.FC = () => {
                     testId: assignment.testId || undefined,
                     wpmRequirement: assignment.wpmRequirement,
                     accuracyRequirement: assignment.accuracyRequirement,
+                    bypassLevel: assignment.bypassLevel
                 };
             }
         }
@@ -239,6 +241,7 @@ const TypingTest: React.FC = () => {
                 testId: testConfig.testId,
                 wpmRequirement: benchmark.wpm,
                 accuracyRequirement: benchmark.accuracy,
+                bypassLevel: testConfig.bypassLevel,
             });
 
             // Capture final results into state for display (avoids stale closure issue)

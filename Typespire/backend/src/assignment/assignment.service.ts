@@ -16,6 +16,7 @@ export class AssignmentService {
     maxAttempts?: number;
     wpmRequirement?: number;
     accuracyRequirement?: number;
+    bypassLevel?: boolean;
   }) {
     // Create the associated Test
     const test = await this.prisma.test.create({
@@ -41,6 +42,7 @@ export class AssignmentService {
         maxAttempts: data.maxAttempts || 1,
         wpmRequirement: data.wpmRequirement,
         accuracyRequirement: data.accuracyRequirement,
+        bypassLevel: data.bypassLevel ?? false,
       },
     });
   }

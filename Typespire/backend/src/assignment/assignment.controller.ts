@@ -35,6 +35,7 @@ export class AssignmentController {
       maxAttempts?: number;
       wpmRequirement?: number;
       accuracyRequirement?: number;
+      bypassLevel?: boolean;
     },
     @Request() req: any,
   ) {

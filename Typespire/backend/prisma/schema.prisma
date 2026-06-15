@@ -145,6 +145,7 @@ model TestResult {
   
   assignmentId   String?
   assignment     Assignment? @relation(fields: [assignmentId], references: [id])
+  bypassLevel    Boolean     @default(false)
 }
 
 model SystemSettings {
@@ -180,6 +181,7 @@ model Assignment {
   test           Test?       @relation(fields: [testId], references: [id])
   
   studentIds     String[]    // List of targeted student IDs (optional)
+  bypassLevel    Boolean     @default(false)
   
   testResults    TestResult[]
 

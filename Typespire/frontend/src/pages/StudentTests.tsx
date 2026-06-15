@@ -29,7 +29,7 @@ export const StudentTests: React.FC = () => {
     const allAssignedTests = useMemo(() => assignments.filter(a =>
         a.status === 'Active' &&
         ((a.sectionId === currentUserSectionId) || (a.studentIds && a.studentIds.includes(currentUserId))) &&
-        a.level === systemLevel
+        (a.bypassLevel || a.level === systemLevel)
     ), [assignments, currentUserSectionId, currentUserId, systemLevel]);
 
 

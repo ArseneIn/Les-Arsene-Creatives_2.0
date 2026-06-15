@@ -28,6 +28,7 @@ export interface Assignment {
     wpmRequirement?: number; // Pass WPM
     accuracyRequirement?: number; // Pass Accuracy
     facilitatorName?: string; // Display name of assigning facilitator
+    bypassLevel?: boolean; // Bypass level check (testing mode)
 }
 
 export interface Section {

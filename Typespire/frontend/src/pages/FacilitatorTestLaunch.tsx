@@ -511,7 +511,8 @@ const FacilitatorTestLaunch: React.FC = () => {
             duration: timeLimit === '0' ? 0 : parseInt(timeLimit) * 60,
             maxAttempts: allowedTrials ? parseInt(allowedTrials) : undefined,
             wpmRequirement: testLevel === 1 ? settings?.level1Wpm : settings?.level2Wpm,
-            accuracyRequirement: settings?.requiredAccuracy
+            accuracyRequirement: settings?.requiredAccuracy,
+            bypassLevel: bypassCriteria
         });
 
         setSuccessPopup({ show: true, count: finalStudentIds.length });

@@ -22,6 +22,7 @@ export interface TestResult {
     testId?: string;
     wpmRequirement?: number;
     accuracyRequirement?: number;
+    bypassLevel?: boolean;
 }
 
 export interface StageResult {
@@ -239,6 +240,7 @@ export const UserProgressProvider: React.FC<{ children: ReactNode }> = ({ childr
                             duration: number;
                             assignmentId?: string;
                             testId?: string;
+                            bypassLevel?: boolean;
                             assignment?: { 
                                 title: string; 
                                 level: number; 
@@ -260,6 +262,7 @@ export const UserProgressProvider: React.FC<{ children: ReactNode }> = ({ childr
                             testLevel: (r.assignment?.level === 2 || r.test?.title?.toLowerCase().includes('level 2') || r.test?.difficulty === 'HARD' ? 2 : 1) as 1 | 2,
                             wpmRequirement: r.assignment?.wpmRequirement || undefined,
                             accuracyRequirement: r.assignment?.accuracyRequirement || undefined,
+                            bypassLevel: r.bypassLevel,
                         }));
                         
                         // We replace the recentResults completely if the user is authenticated 
@@ -351,12 +354,14 @@ export const UserProgressProvider: React.FC<{ children: ReactNode }> = ({ childr
     useEffect(() => {
         const hasPassedLevel2 = recentResults.some(r => {
             if (r.testLevel !== 2) return false;
+            if (r.bypassLevel) return false; // Ignore bypass testing results
             const targetWpm = r.wpmRequirement ?? 50;
             const targetAcc = r.accuracyRequirement ?? 92;
             return r.wpm >= targetWpm && r.accuracy >= targetAcc;
         });
         const hasPassedLevel1 = recentResults.some(r => {
             if (r.testLevel !== 1) return false;
+            if (r.bypassLevel) return false; // Ignore bypass testing results
             const targetWpm = r.wpmRequirement ?? 50;
             const targetAcc = r.accuracyRequirement ?? 90;
             return r.wpm >= targetWpm && r.accuracy >= targetAcc;

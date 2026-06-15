@@ -131,6 +131,7 @@ export const FacilitatorProvider: React.FC<{ children: ReactNode }> = ({ childre
                          testId?: string | null;
                          wpmRequirement?: number | null;
                          accuracyRequirement?: number | null;
+                         bypassLevel?: boolean;
                          test?: {
                              id: string;
                              duration: number;
@@ -154,7 +155,8 @@ export const FacilitatorProvider: React.FC<{ children: ReactNode }> = ({ childre
                          level: item.test?.difficulty === 'HARD' ? 2 : 1,
                          text: item.test?.content,
                          wpmRequirement: item.wpmRequirement || undefined,
-                         accuracyRequirement: item.accuracyRequirement || undefined
+                         accuracyRequirement: item.accuracyRequirement || undefined,
+                         bypassLevel: item.bypassLevel
                      }));
                     setAssignments(mapped);
                 }
@@ -183,7 +185,8 @@ export const FacilitatorProvider: React.FC<{ children: ReactNode }> = ({ childre
                 maxAttempts: newAssignment.maxAttempts || 1,
                 wpmRequirement: newAssignment.wpmRequirement,
                 accuracyRequirement: newAssignment.accuracyRequirement,
-                content: newAssignment.text
+                content: newAssignment.text,
+                bypassLevel: newAssignment.bypassLevel
             });
 
             interface DBResponse {
@@ -195,6 +198,7 @@ export const FacilitatorProvider: React.FC<{ children: ReactNode }> = ({ childre
                 studentIds?: string[];
                 maxAttempts?: number;
                 testId?: string | null;
+                bypassLevel?: boolean;
                 test?: {
                     id: string;
                     duration: number;
@@ -216,7 +220,8 @@ export const FacilitatorProvider: React.FC<{ children: ReactNode }> = ({ childre
                 maxAttempts: created.maxAttempts || 1,
                 testId: created.testId || created.test?.id || undefined,
                 level: created.test?.difficulty === 'HARD' ? 2 : 1,
-                text: created.test?.content
+                text: created.test?.content,
+                bypassLevel: created.bypassLevel
             };
 
             setAssignments(prev => [mapped, ...prev]);
