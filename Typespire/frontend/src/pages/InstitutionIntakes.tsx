@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Plus, Calendar, ChevronDown, MoreHorizontal, Upload, X, CloudUpload, FileText, PlusCircle, Activity } from 'lucide-react';
+import { Plus, Calendar, ChevronDown, MoreHorizontal, Upload, X, CloudUpload, FileText, PlusCircle, Activity, Edit } from 'lucide-react';
 import { useInstitution } from '../context/InstitutionContext';
 import { useAuth } from '../context/AuthContext';
 import api from '../api/axios';
@@ -12,6 +12,7 @@ const InstitutionIntakes: React.FC = () => {
     const [expandedIntake, setExpandedIntake] = useState<string | null>('1');
     const [showNewIntakeModal, setShowNewIntakeModal] = useState(false);
     const [showMasterUploadModal, setShowMasterUploadModal] = useState(false);
+    const [editIntakeModal, setEditIntakeModal] = useState<{ id: string; name: string; startDate: string; endDate: string } | null>(null);
     const [showBulkUploadModal, setShowBulkUploadModal] = useState<{ sectionId: string, intakeName: string, sectionName: string } | null>(null);
     const [assignFacilitatorModal, setAssignFacilitatorModal] = useState<{ sectionId: string, currentFacilitatorId?: string } | null>(null);
     const [selectedFacilitatorId, setSelectedFacilitatorId] = useState('');
@@ -155,8 +156,13 @@ const InstitutionIntakes: React.FC = () => {
                                 </div>
                                 <div>
                                     <h3 className="text-[#0d1b17] text-lg font-bold">{intake.name}</h3>
-                                    <div className="flex items-center gap-3 text-xs text-gray-500 font-medium">
-                                        <span>{intake.startDate} — {intake.endDate}</span>
+                                    <div className="flex items-center gap-3 text-xs text-gray-500 font-medium flex-wrap">
+                                        <span>{intake.startDate} — {intake.endDate || 'Ongoing'}</span>
+                                        {!intake.endDate && (
+                                            <span className="inline-flex items-center gap-1 text-amber-600 bg-amber-50 px-1.5 py-0.5 rounded font-bold text-[10px] border border-amber-200 animate-pulse">
+                                                ⚠️ Missing End Date
+                                            </span>
+                                        )}
                                         <span className="w-1 h-1 rounded-full bg-gray-300"></span>
                                         <span className={`${intake.status === 'Active' ? 'text-green-600' :
                                             intake.status === 'Upcoming' ? 'text-yellow-600' : 'text-gray-500'
@@ -164,8 +170,18 @@ const InstitutionIntakes: React.FC = () => {
                                     </div>
                                 </div>
                             </div>
-                            <div className="flex items-center gap-4">
-                                <ChevronDown className={`text-gray-400 transition-transform duration-200 ${expandedIntake === intake.id ? 'rotate-180' : ''}`} />
+                            <div className="flex items-center gap-4" onClick={(e) => e.stopPropagation()}>
+                                <button
+                                    onClick={() => setEditIntakeModal({ id: intake.id, name: intake.name, startDate: intake.startDate, endDate: intake.endDate || '' })}
+                                    className="p-1.5 text-gray-400 hover:text-[#0d1b17] rounded-lg hover:bg-gray-100 transition-colors flex items-center justify-center"
+                                    title="Edit Intake Dates"
+                                >
+                                    <Edit className="w-4 h-4" />
+                                </button>
+                                <ChevronDown 
+                                    className={`text-gray-400 transition-transform duration-200 cursor-pointer ${expandedIntake === intake.id ? 'rotate-180' : ''}`} 
+                                    onClick={() => toggleIntake(intake.id)}
+                                />
                             </div>
                         </div>
 
@@ -755,6 +771,80 @@ const InstitutionIntakes: React.FC = () => {
                                 Cancel
                             </button>
                         </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Edit Intake Dates Modal */}
+            {editIntakeModal && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+                    <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+                        <div className="p-6 border-b border-gray-100 flex justify-between items-center">
+                            <div>
+                                <h3 className="text-xl font-bold text-[#0d1b17]">Edit Cohort Dates</h3>
+                                <p className="text-xs text-gray-500 mt-1">Update the start and end dates for cohort <span className="font-bold text-[#0d1b17]">{editIntakeModal.name}</span>.</p>
+                            </div>
+                            <button onClick={() => setEditIntakeModal(null)} className="text-gray-400 hover:text-gray-600">
+                                <X className="w-6 h-6" />
+                            </button>
+                        </div>
+                        <form
+                            onSubmit={async (e) => {
+                                e.preventDefault();
+                                try {
+                                    await api.patch(`/intake/${editIntakeModal.id}`, {
+                                        startDate: new Date(editIntakeModal.startDate).toISOString(),
+                                        endDate: editIntakeModal.endDate ? new Date(editIntakeModal.endDate).toISOString() : null,
+                                    });
+                                    alert('Cohort dates updated successfully.');
+                                    setEditIntakeModal(null);
+                                    window.location.reload();
+                                } catch (err) {
+                                    console.error('Failed to update cohort dates', err);
+                                    alert('Failed to update cohort dates.');
+                                }
+                            }}
+                            className="p-6 flex flex-col gap-4"
+                        >
+                            <div>
+                                <label className="block text-sm font-bold text-gray-700 mb-1">Start Date</label>
+                                <input
+                                    type="date"
+                                    className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#0d1b17]/20 outline-none text-gray-600"
+                                    value={editIntakeModal.startDate}
+                                    onChange={(e) => setEditIntakeModal({ ...editIntakeModal, startDate: e.target.value })}
+                                    required
+                                />
+                            </div>
+                            <div>
+                                <div className="flex justify-between items-center mb-1">
+                                    <label className="block text-sm font-bold text-gray-700">End Date</label>
+                                    <span className="text-[10px] text-amber-600 font-bold bg-amber-50 px-1 py-0.5 rounded border border-amber-100 animate-pulse">Required for accurate tracking</span>
+                                </div>
+                                <input
+                                    type="date"
+                                    className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#0d1b17]/20 outline-none text-gray-600"
+                                    value={editIntakeModal.endDate}
+                                    onChange={(e) => setEditIntakeModal({ ...editIntakeModal, endDate: e.target.value })}
+                                    required
+                                />
+                            </div>
+                            <div className="mt-4 flex justify-end gap-3">
+                                <button
+                                    type="button"
+                                    onClick={() => setEditIntakeModal(null)}
+                                    className="px-4 py-2 text-gray-600 font-bold hover:bg-gray-50 rounded-lg"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    type="submit"
+                                    className="px-6 py-2 bg-[#0d1b17] text-white font-bold rounded-lg hover:bg-[#1a2e28] shadow-lg shadow-[#0d1b17]/20"
+                                >
+                                    Save Changes
+                                </button>
+                            </div>
+                        </form>
                     </div>
                 </div>
             )}
