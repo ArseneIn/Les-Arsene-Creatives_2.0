@@ -11,6 +11,8 @@ import { MailerService } from '../mailer/mailer.service';
 import * as bcrypt from 'bcrypt';
 import * as crypto from 'crypto';
 import { UserRole, User, Institution } from '@prisma/client';
+import { Subject, Observable } from 'rxjs';
+import { finalize } from 'rxjs/operators';
 
 export type UserWithInstitution = User & {
   institution?: Institution | null;
@@ -26,6 +28,11 @@ interface SsoPayload {
 
 @Injectable()
 export class AuthService {
+  private sseConnections = new Map<
+    string,
+    Array<{ sessionId: string; subject: Subject<any> }>
+  >();
+
   constructor(
     private prisma: PrismaService,
     private jwtService: JwtService,
@@ -33,6 +40,38 @@ export class AuthService {
     private logsService: LogsService,
     private mailerService: MailerService,
   ) {}
+
+  registerSse(userId: string, sessionId: string): Observable<any> {
+    const subject = new Subject<any>();
+    const userConnections = this.sseConnections.get(userId) || [];
+    userConnections.push({ sessionId, subject });
+    this.sseConnections.set(userId, userConnections);
+
+    return subject.asObservable().pipe(
+      finalize(() => {
+        const current = this.sseConnections.get(userId);
+        if (current) {
+          const filtered = current.filter((c) => c.subject !== subject);
+          if (filtered.length === 0) {
+            this.sseConnections.delete(userId);
+          } else {
+            this.sseConnections.set(userId, filtered);
+          }
+        }
+      }),
+    );
+  }
+
+  registerSseToken(token: string): Observable<any> {
+    try {
+      const payload = this.jwtService.verify(token, {
+        secret: this.configService.get('JWT_SECRET') || 'secretKey',
+      });
+      return this.registerSse(payload.sub, payload.sessionId);
+    } catch (error) {
+      throw new ForbiddenException('Invalid token');
+    }
+  }
 
   async validateUser(
     emailOrUsername: string,
@@ -124,6 +163,21 @@ export class AuthService {
   async login(user: UserWithInstitution) {
     const sessionId =
       Math.random().toString(36).substring(2, 15) + Date.now().toString(36);
+
+    // Alert any existing active sessions that a new login occurred
+    const connections = this.sseConnections.get(user.id);
+    if (connections) {
+      for (const conn of connections) {
+        if (conn.sessionId !== sessionId) {
+          conn.subject.next({
+            data: {
+              type: 'session_invalidated',
+              message: 'Session expired. Logged in from another device.',
+            },
+          });
+        }
+      }
+    }
 
     // Save new sessionId to database
     await this.prisma.user.update({
@@ -334,5 +388,67 @@ export class AuthService {
         resetPasswordExpires: null,
       },
     });
+  }
+
+  async reportCompromise(token: string) {
+    let payload: any;
+    try {
+      payload = this.jwtService.verify(token, {
+        secret: this.configService.get('JWT_SECRET') || 'secretKey',
+        ignoreExpiration: true,
+      });
+    } catch (error) {
+      throw new ForbiddenException('Invalid token');
+    }
+
+    const userId = payload.sub;
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+    });
+
+    if (!user) {
+      throw new ForbiddenException('User not found');
+    }
+
+    const compromisedSessionId = 'COMPROMISED_' + crypto.randomUUID();
+
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: { currentSessionId: compromisedSessionId },
+    });
+
+    const connections = this.sseConnections.get(userId);
+    if (connections) {
+      for (const conn of connections) {
+        conn.subject.next({
+          data: {
+            type: 'session_compromised',
+            message: 'Account secured. All sessions have been logged out.',
+          },
+        });
+      }
+    }
+
+    await this.logsService
+      .log({
+        action: 'USER_ACCOUNT_COMPROMISED',
+        category: 'AUTH',
+        actorId: userId,
+        actorName:
+          `${user.firstName || ''} ${user.lastName || ''}`.trim() ||
+          user.email ||
+          'User',
+        severity: 'WARNING',
+        metadata: { reportedSessionId: payload.sessionId, compromisedSessionId },
+      })
+      .catch(() => {});
+
+    if (user.email) {
+      await this.generatePasswordResetToken(user.email);
+    }
+
+    return {
+      message: 'Account has been secured. All sessions have been terminated. A password reset email has been sent.',
+    };
   }
 }

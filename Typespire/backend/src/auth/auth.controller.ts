@@ -6,11 +6,15 @@ import {
   Request,
   Get,
   Query,
+  Sse,
+  MessageEvent,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { AuthService, UserWithInstitution } from './auth.service';
 import { LocalAuthGuard } from './local-auth.guard';
 import { JwtAuthGuard } from './jwt-auth.guard';
 import { User } from '@prisma/client';
+import { Observable } from 'rxjs';
 
 @Controller('auth')
 export class AuthController {
@@ -66,5 +70,21 @@ export class AuthController {
   async resetPassword(@Body() body: { token: string; newPassword: string }) {
     await this.authService.resetPassword(body.token, body.newPassword);
     return { message: 'Password has been successfully reset.' };
+  }
+
+  @Sse('sse')
+  sse(@Query('token') token: string): Observable<MessageEvent> {
+    if (!token) {
+      throw new UnauthorizedException('Token required');
+    }
+    return this.authService.registerSseToken(token);
+  }
+
+  @Post('report-compromise')
+  async reportCompromise(@Body() body: { token: string }) {
+    if (!body.token) {
+      throw new UnauthorizedException('Token required');
+    }
+    return this.authService.reportCompromise(body.token);
   }
 }
