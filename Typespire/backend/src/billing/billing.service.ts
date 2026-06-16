@@ -10,11 +10,83 @@ export class UpdateBillingDto {
   maxStudents?: number;
 }
 
+export class UpdatePlanConfigDto {
+  price?: number;
+  maxStudents?: number;
+  features?: string[];
+}
+
 @Injectable()
 export class BillingService {
   constructor(private prisma: PrismaService) {}
 
+  async ensurePlansSeeded() {
+    const count = await this.prisma.planConfiguration.count();
+    if (count === 0) {
+      const defaults = [
+        {
+          plan: SubscriptionPlan.FREE,
+          name: 'Free',
+          price: 0,
+          maxStudents: 50,
+          features: [
+            'Real-time WPM Tracker',
+            'Basic Analytics',
+            '1 Facilitator',
+            'Up to 50 Students',
+          ],
+        },
+        {
+          plan: SubscriptionPlan.STARTER,
+          name: 'Starter',
+          price: 49,
+          maxStudents: 100,
+          features: [
+            'Real-time WPM Tracker',
+            'Detailed Student Analytics',
+            'Up to 2 Facilitators',
+            'Up to 100 Students',
+            'Email Support',
+          ],
+        },
+        {
+          plan: SubscriptionPlan.PROFESSIONAL,
+          name: 'Professional',
+          price: 149,
+          maxStudents: 500,
+          features: [
+            'Everything in Starter',
+            'Up to 10 Facilitators',
+            'Up to 500 Students',
+            'CSV Bulk Student Import',
+            'Custom Typing Tests',
+            'Priority Support',
+          ],
+        },
+        {
+          plan: SubscriptionPlan.ENTERPRISE,
+          name: 'Enterprise',
+          price: 499,
+          maxStudents: 5000,
+          features: [
+            'Everything in Professional',
+            'Custom Student Seat Limits',
+            'Unlimited Facilitators',
+            'Advanced Platform Settings',
+            'Dedicated Database Option',
+            'SLA & 24/7 Support',
+          ],
+        },
+      ];
+
+      for (const d of defaults) {
+        await this.prisma.planConfiguration.create({ data: d });
+      }
+    }
+  }
+
   async getAllBilling() {
+    await this.ensurePlansSeeded();
     const institutions = await this.prisma.institution.findMany({
       select: {
         id: true,
@@ -72,26 +144,47 @@ export class BillingService {
     });
   }
 
-  async getBillingStats() {
-    const institutions = await this.prisma.institution.findMany({
-      select: {
-        plan: true,
-        subscriptionStatus: true,
-        maxStudents: true,
-        _count: { select: { users: true } },
+  async getPlanConfigurations() {
+    await this.ensurePlansSeeded();
+    return this.prisma.planConfiguration.findMany({
+      orderBy: { price: 'asc' },
+    });
+  }
+
+  async updatePlanConfiguration(plan: SubscriptionPlan, dto: UpdatePlanConfigDto) {
+    await this.ensurePlansSeeded();
+    return this.prisma.planConfiguration.update({
+      where: { plan },
+      data: {
+        ...(dto.price !== undefined && { price: dto.price }),
+        ...(dto.maxStudents !== undefined && { maxStudents: dto.maxStudents }),
+        ...(dto.features !== undefined && { features: dto.features }),
       },
     });
+  }
 
-    const planPrices: Record<string, number> = {
-      FREE: 0,
-      STARTER: 49,
-      PROFESSIONAL: 149,
-      ENTERPRISE: 499,
-    };
+  async getBillingStats() {
+    await this.ensurePlansSeeded();
+    const [institutions, planConfigs] = await Promise.all([
+      this.prisma.institution.findMany({
+        select: {
+          plan: true,
+          subscriptionStatus: true,
+          maxStudents: true,
+          _count: { select: { users: true } },
+        },
+      }),
+      this.prisma.planConfiguration.findMany(),
+    ]);
+
+    const planPrices: Record<string, number> = {};
+    planConfigs.forEach((pc) => {
+      planPrices[pc.plan] = pc.price;
+    });
 
     const totalMRR = institutions.reduce((sum, inst) => {
       if (inst.subscriptionStatus === 'ACTIVE') {
-        return sum + (planPrices[inst.plan] || 0);
+        return sum + (planPrices[inst.plan] ?? 0);
       }
       return sum;
     }, 0);
