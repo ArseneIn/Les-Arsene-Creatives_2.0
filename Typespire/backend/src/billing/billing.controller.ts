@@ -8,12 +8,25 @@ import {
   UseGuards,
   Request,
 } from '@nestjs/common';
-import { BillingService, UpdateBillingDto, UpdatePlanConfigDto } from './billing.service';
+import {
+  BillingService,
+  UpdateBillingDto,
+  UpdatePlanConfigDto,
+} from './billing.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { RolesGuard } from '../auth/roles.guard';
 import { Roles } from '../auth/roles.decorator';
 import { UserRole, SubscriptionPlan } from '@prisma/client';
 import { LogsService } from '../logs/logs.service';
+
+export interface RequestWithUser {
+  user?: {
+    id: string;
+    firstName?: string;
+    lastName?: string;
+    email: string;
+  };
+}
 
 @Controller('billing')
 @UseGuards(JwtAuthGuard, RolesGuard)
@@ -43,7 +56,7 @@ export class BillingController {
   async updatePlanConfiguration(
     @Param('plan') plan: SubscriptionPlan,
     @Body() dto: UpdatePlanConfigDto,
-    @Request() req: any,
+    @Request() req: RequestWithUser,
   ) {
     const res = await this.billingService.updatePlanConfiguration(plan, dto);
     const actor = req.user;
@@ -72,7 +85,7 @@ export class BillingController {
   async updateBilling(
     @Param('id') id: string,
     @Body() dto: UpdateBillingDto,
-    @Request() req: any,
+    @Request() req: RequestWithUser,
   ) {
     const res = await this.billingService.updateBilling(id, dto);
     const actor = req.user;

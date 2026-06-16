@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import api from '../api/axios';
 import {
     Receipt, TrendingUp, Users, CreditCard, Star, Zap, Building2,
-    X, CheckCircle, AlertCircle, Clock, Ban, ChevronDown, Save, Plus, Trash2, Edit3
+    X, CheckCircle, AlertCircle, Clock, Ban, ChevronDown, Save, Plus, Edit3
 } from 'lucide-react';
 
 type Plan = 'FREE' | 'STARTER' | 'PROFESSIONAL' | 'ENTERPRISE';

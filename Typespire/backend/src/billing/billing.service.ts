@@ -151,7 +151,10 @@ export class BillingService {
     });
   }
 
-  async updatePlanConfiguration(plan: SubscriptionPlan, dto: UpdatePlanConfigDto) {
+  async updatePlanConfiguration(
+    plan: SubscriptionPlan,
+    dto: UpdatePlanConfigDto,
+  ) {
     await this.ensurePlansSeeded();
     return this.prisma.planConfiguration.update({
       where: { plan },
