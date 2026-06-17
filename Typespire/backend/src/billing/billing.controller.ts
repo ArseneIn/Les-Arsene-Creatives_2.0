@@ -16,7 +16,7 @@ import {
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { RolesGuard } from '../auth/roles.guard';
 import { Roles } from '../auth/roles.decorator';
-import { UserRole, SubscriptionPlan } from '@prisma/client';
+import { UserRole, SubscriptionPlan, PlanConfiguration } from '@prisma/client';
 import { LogsService } from '../logs/logs.service';
 
 export interface RequestWithUser {
@@ -57,7 +57,7 @@ export class BillingController {
     @Param('plan') plan: SubscriptionPlan,
     @Body() dto: UpdatePlanConfigDto,
     @Request() req: RequestWithUser,
-  ) {
+  ): Promise<PlanConfiguration> {
     const res = await this.billingService.updatePlanConfiguration(plan, dto);
     const actor = req.user;
     void this.logsService.log({
