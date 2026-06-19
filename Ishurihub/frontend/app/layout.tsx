@@ -1,19 +1,18 @@
 import type { Metadata } from "next";
-import { Poppins, Outfit } from "next/font/google";
+import { Plus_Jakarta_Sans, Inter } from "next/font/google";
 import 'material-symbols/outlined.css';
 import "./globals.css";
 import { AuthProvider } from "@/context/AuthContext";
 import { MaintenanceProvider } from "@/components/system/MaintenanceProvider";
 
-const poppins = Poppins({
-  variable: "--font-poppins",
+const inter = Inter({
+  variable: "--font-inter",
   subsets: ["latin"],
-  weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
   display: "swap",
 });
 
-const outfit = Outfit({
-  variable: "--font-outfit",
+const plusJakartaSans = Plus_Jakarta_Sans({
+  variable: "--font-plus-jakarta-sans",
   subsets: ["latin"],
   display: "swap",
 });
@@ -32,7 +31,7 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <head>
       </head>
-      <body className={`${poppins.variable} ${outfit.variable} antialiased font-sans bg-slate-50 dark:bg-[#0f172a]`}>
+      <body className={`${inter.variable} ${plusJakartaSans.variable} antialiased font-sans bg-slate-50 dark:bg-[#0f172a]`}>
         <AuthProvider>
           <MaintenanceProvider>
             {children}

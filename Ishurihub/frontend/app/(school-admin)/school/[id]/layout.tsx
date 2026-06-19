@@ -3,6 +3,7 @@ import Sidebar from "@/components/Sidebar";
 import { useAuthContext } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 import React, { useEffect } from "react";
+import api from "@/lib/api";
 
 export default function DashboardLayout({
     children,
@@ -22,19 +23,8 @@ export default function DashboardLayout({
             // Avoid fetching if system (super admin view)
             if (id === 'system') return;
             try {
-                // We need a simple fetch here. 
-                // Assuming 'api' is available or we use fetch. 
-                // Let's import 'api' from lib/api
-                const token = localStorage.getItem('ishurihub_token');
-                if (token) {
-                    const res = await fetch(`http://localhost:4000/schools/${id}`, {
-                        headers: { Authorization: `Bearer ${token}` }
-                    });
-                    if (res.ok) {
-                        const data = await res.json();
-                        setLogoUrl(data.logoUrl);
-                    }
-                }
+                const res = await api.get(`/schools/${id}`);
+                setLogoUrl(res.data.logoUrl);
             } catch (err) {
                 console.error("Failed to fetch school logo", err);
             }

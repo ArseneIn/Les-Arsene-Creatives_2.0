@@ -51,7 +51,7 @@ export default function Sidebar({ schoolId, logoUrl }: SidebarProps) {
                 <div className="flex items-center justify-center bg-primary rounded-xl size-10 shadow-lg shadow-primary/20 overflow-hidden">
                     {logoUrl ? (
                         <Image
-                            src={`http://localhost:4000${logoUrl}`}
+                            src={logoUrl.startsWith('http') ? logoUrl : `${process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:4000'}${logoUrl}`}
                             alt="School Logo"
                             width={40}
                             height={40}
@@ -134,7 +134,13 @@ export default function Sidebar({ schoolId, logoUrl }: SidebarProps) {
                         <div className="relative">
                             <div
                                 className="bg-center bg-no-repeat bg-cover rounded-full size-10 ring-2 ring-gray-700 group-hover/profile:ring-gray-600"
-                                style={{ backgroundImage: `url('${user.avatarUrl}')` }}
+                                style={{
+                                    backgroundImage: `url('${
+                                        user.avatarUrl && user.avatarUrl !== 'null' && user.avatarUrl !== 'undefined'
+                                            ? (user.avatarUrl.startsWith('http') ? user.avatarUrl : `http://localhost:4000${user.avatarUrl}`)
+                                            : `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name || 'User')}&background=random`
+                                    }')`
+                                }}
                             >
                             </div>
                             <div className="absolute bottom-0 right-0 size-3 bg-green-500 rounded-full border-2 border-[#151e2d]"></div>

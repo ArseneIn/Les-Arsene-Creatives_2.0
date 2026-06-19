@@ -9,6 +9,7 @@ import ParentDashboard from "./ParentDashboard";
 
 import SchoolAdminDashboard from "./SchoolAdminDashboard";
 import StudentDashboard from "./StudentDashboard";
+import TeacherDashboard from "./TeacherDashboard";
 
 import LoadingScreen from "../system/LoadingScreen";
 
@@ -40,6 +41,9 @@ export default function DashboardResolver() {
             return <ParentDashboard />;
         case 'student':
             return <StudentDashboard />;
+        case 'teacher':
+        case 'Teacher':
+            return <TeacherDashboard />;
         default:
             // Fallback for unknown roles or custom roles (for now)
             return (

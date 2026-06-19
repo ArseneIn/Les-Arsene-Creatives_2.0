@@ -195,7 +195,13 @@ export default function StudentsPage() {
                                             <div className="flex items-center gap-3">
                                                 <div
                                                     className="size-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold overflow-hidden border border-primary/20 bg-cover bg-center"
-                                                    style={{ backgroundImage: `url('${student.avatarUrl}')` }}
+                                                    style={{
+                                                        backgroundImage: `url('${
+                                                            student.avatarUrl && student.avatarUrl !== 'null' && student.avatarUrl !== 'undefined'
+                                                                ? (student.avatarUrl.startsWith('http') ? student.avatarUrl : `http://localhost:4000${student.avatarUrl}`)
+                                                                : `https://ui-avatars.com/api/?name=${encodeURIComponent(student.name || 'Student')}&background=random`
+                                                        }')`
+                                                    }}
                                                 >
                                                 </div>
                                                 <div>

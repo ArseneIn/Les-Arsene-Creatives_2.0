@@ -92,12 +92,12 @@ const TEACHER_SIDEBAR: SidebarItem[] = [
     {
         label: 'Dashboard',
         icon: 'dashboard',
-        href: '/teacher/dashboard'
+        href: '/dashboard'
     },
     {
         label: 'My Classes',
         icon: 'class',
-        href: '/teacher/dashboard', // Or specific classes route if needed
+        href: '/teacher/dashboard'
     },
     {
         label: 'Events',

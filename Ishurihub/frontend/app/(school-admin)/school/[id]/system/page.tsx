@@ -808,7 +808,16 @@ export default function SystemPage() {
                                             <tr key={user.id} className="hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
                                                 <td className="px-6 py-4">
                                                     <div className="flex items-center gap-3">
-                                                        <div className="size-10 rounded-full bg-gray-200 dark:bg-gray-700 bg-cover bg-center" style={{ backgroundImage: `url('${user.avatarUrl}')` }}></div>
+                                                        <div
+                                                            className="size-10 rounded-full bg-gray-200 dark:bg-gray-700 bg-cover bg-center"
+                                                            style={{
+                                                                backgroundImage: `url('${
+                                                                    user.avatarUrl && user.avatarUrl !== 'null' && user.avatarUrl !== 'undefined'
+                                                                        ? (user.avatarUrl.startsWith('http') ? user.avatarUrl : `http://localhost:4000${user.avatarUrl}`)
+                                                                        : `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name || 'User')}&background=random`
+                                                                }')`
+                                                            }}
+                                                        ></div>
                                                         <div>
                                                             <p className="font-bold text-gray-900 dark:text-white">{user.name}</p>
                                                             <p className="text-xs text-gray-500">{user.email}</p>

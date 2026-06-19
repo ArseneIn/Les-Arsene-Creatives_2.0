@@ -182,7 +182,13 @@ export default function TeachersPage() {
                                             <div className="flex items-center gap-3">
                                                 <div
                                                     className="size-10 rounded-full bg-gray-200 dark:bg-gray-700 bg-cover bg-center border border-gray-300 dark:border-gray-600"
-                                                    style={{ backgroundImage: `url('${teacher.avatarUrl}')` }}
+                                                    style={{
+                                                        backgroundImage: `url('${
+                                                            teacher.avatarUrl && teacher.avatarUrl !== 'null' && teacher.avatarUrl !== 'undefined'
+                                                                ? (teacher.avatarUrl.startsWith('http') ? teacher.avatarUrl : `http://localhost:4000${teacher.avatarUrl}`)
+                                                                : `https://ui-avatars.com/api/?name=${encodeURIComponent(teacher.name || 'Teacher')}&background=random`
+                                                        }')`
+                                                    }}
                                                 ></div>
                                                 <div>
                                                     <p className="text-black dark:text-white text-sm font-bold">{teacher.name}</p>

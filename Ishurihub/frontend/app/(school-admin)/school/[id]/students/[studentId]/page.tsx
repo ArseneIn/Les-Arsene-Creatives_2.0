@@ -476,7 +476,11 @@ export default function StudentDetailsPage() {
                                     emergencyPhone: data.guardians[0]?.phone
                                 };
                                 await api.patch(`/students/${studentId}`, payload);
-                                setStudent(prev => prev ? { ...prev, ...payload } : null);
+                                setStudent(prev => prev ? { 
+                                    ...prev, 
+                                    ...payload, 
+                                    studentId: payload.studentId || prev.studentId 
+                                } : null);
                                 setIsEditModalOpen(false);
                             } catch (err) {
                                 console.error(err);
