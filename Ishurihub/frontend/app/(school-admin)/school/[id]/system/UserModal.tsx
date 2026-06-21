@@ -3,17 +3,41 @@ import { useEffect, useState } from 'react';
 import api from '@/lib/api';
 import Modal from '@/components/Modal';
 
+interface Role {
+    id: string;
+    name: string;
+    permissions: string[];
+    schoolId: string;
+}
+
+interface User {
+    id: string;
+    name: string;
+    email: string;
+    roleId: string;
+    customRoleId?: string | null;
+    schoolId: string;
+}
+
+interface UserFormData {
+    name: string;
+    email: string;
+    password?: string;
+    roleId: string;
+    customRoleId?: string | null;
+}
+
 interface UserModalProps {
     isOpen: boolean;
     onClose: () => void;
     schoolId: string;
-    user?: any; // If editing
-    roles: any[]; // Available custom roles
+    user?: User; // If editing
+    roles: Role[]; // Available custom roles
     onSuccess: () => void;
 }
 
 export default function UserModal({ isOpen, onClose, schoolId, user, roles, onSuccess }: UserModalProps) {
-    const { register, handleSubmit, reset, setValue, watch } = useForm({
+    const { register, handleSubmit, reset, setValue, watch } = useForm<UserFormData>({
         defaultValues: {
             name: '',
             email: '',
@@ -42,10 +66,17 @@ export default function UserModal({ isOpen, onClose, schoolId, user, roles, onSu
         }
     }, [user, setValue, reset, isOpen]);
 
-    const onSubmit = async (data: any) => {
+    const onSubmit = async (data: UserFormData) => {
         setIsLoading(true);
         try {
-            const payload: any = {
+            const payload: {
+                name: string;
+                email: string;
+                schoolId: string;
+                password?: string;
+                roleId?: string;
+                customRoleId?: string | null;
+            } = {
                 name: data.name,
                 email: data.email,
                 schoolId

@@ -3,11 +3,23 @@ import { useEffect } from 'react';
 import api from '@/lib/api';
 import Modal from '@/components/Modal';
 
+interface Role {
+    id: string;
+    name: string;
+    permissions: string[];
+    schoolId: string;
+}
+
+interface RoleFormData {
+    name: string;
+    permissions: string[];
+}
+
 interface RoleModalProps {
     isOpen: boolean;
     onClose: () => void;
     schoolId: string;
-    role?: any; // If editing
+    role?: Role; // If editing
     onSuccess: () => void;
 }
 
@@ -24,7 +36,7 @@ const AVAILABLE_PERMISSIONS = [
 ];
 
 export default function RoleModal({ isOpen, onClose, schoolId, role, onSuccess }: RoleModalProps) {
-    const { register, handleSubmit, reset, setValue, watch } = useForm({
+    const { register, handleSubmit, reset, setValue } = useForm<RoleFormData>({
         defaultValues: {
             name: '',
             permissions: [] as string[]
@@ -40,7 +52,7 @@ export default function RoleModal({ isOpen, onClose, schoolId, role, onSuccess }
         }
     }, [role, setValue, reset, isOpen]);
 
-    const onSubmit = async (data: any) => {
+    const onSubmit = async (data: RoleFormData) => {
         try {
             if (role) {
                 await api.patch(`/roles/${role.id}`, data);

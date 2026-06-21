@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { useParams } from 'next/navigation';
 import api from '@/lib/api';
 import { useAuthContext } from '@/context/AuthContext';
 
@@ -32,8 +31,6 @@ const typeConfig = {
 };
 
 export default function StudentPocketMoneyPage() {
-    const params = useParams();
-    const schoolId = params.id as string;
     const { user } = useAuthContext();
 
     const [account, setAccount] = useState<WalletAccount | null>(null);

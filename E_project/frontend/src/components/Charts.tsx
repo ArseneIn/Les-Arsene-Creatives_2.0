@@ -118,7 +118,6 @@ interface DonutChartProps {
 
 export function DonutChart({ data, size = 180 }: DonutChartProps) {
   const total = data.reduce((acc, current) => acc + current.value, 0);
-  let currentAngle = -90;
   const radius = size / 2 - 20;
   const center = size / 2;
   const strokeWidth = 24;
@@ -130,8 +129,8 @@ export function DonutChart({ data, size = 180 }: DonutChartProps) {
         {data.map((item, i) => {
           const percentage = (item.value / total) * 100;
           const strokeDasharray = `${(percentage * circumference) / 100} ${circumference}`;
-          const rotation = currentAngle;
-          currentAngle += (percentage / 100) * 360;
+          const previousValuesSum = data.slice(0, i).reduce((sum, d) => sum + d.value, 0);
+          const rotation = -90 + (previousValuesSum / total) * 360;
 
           return (
             <circle

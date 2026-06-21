@@ -5,6 +5,22 @@ import Papa from 'papaparse';
 import api from '@/lib/api';
 import Modal from '@/components/Modal';
 
+interface StudentCSVRow {
+    fullName: string;
+    studentId: string;
+    level?: string;
+    grade?: string;
+    combination?: string;
+    dob?: string;
+    gender?: string;
+    fatherName?: string;
+    motherName?: string;
+    primaryPhone?: string;
+    emergencyPhone?: string;
+    email?: string;
+    cardUid?: string;
+}
+
 interface BulkImportModalProps {
     isOpen: boolean;
     onClose: () => void;
@@ -83,7 +99,7 @@ export default function BulkImportModal({ isOpen, onClose, onSuccess, schoolId }
             header: true,
             skipEmptyLines: true,
             complete: async (results) => {
-                const students = (results.data as any[]).map((row: any) => {
+                const students = (results.data as StudentCSVRow[]).map((row: StudentCSVRow) => {
                     // Merge global selection with CSV data
                     const level = selectedLevel || row.level;
                     const grade = selectedGrade || row.grade;
@@ -279,8 +295,8 @@ export default function BulkImportModal({ isOpen, onClose, onSuccess, schoolId }
                                         <tbody>
                                             {previewData.map((row, i) => (
                                                 <tr key={i} className="border-b border-gray-100 dark:border-white/5 last:border-0 hover:bg-gray-50 dark:hover:bg-white/5">
-                                                    {Object.values(row as object).slice(0, 5).map((val: any, j) => (
-                                                        <td key={j} className="px-3 py-2 text-gray-700 dark:text-gray-400 whitespace-nowrap">{val}</td>
+                                                    {Object.values(row as Record<string, unknown>).slice(0, 5).map((val, j) => (
+                                                        <td key={j} className="px-3 py-2 text-gray-700 dark:text-gray-400 whitespace-nowrap">{String(val ?? '')}</td>
                                                     ))}
                                                 </tr>
                                             ))}

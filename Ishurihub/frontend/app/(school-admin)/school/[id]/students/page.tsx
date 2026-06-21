@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Student } from "@/data/students";
 import api from "@/lib/api";
 import Link from "next/link";
@@ -12,7 +12,6 @@ import BulkImportModal from "@/components/students/BulkImportModal";
 
 export default function StudentsPage() {
     const [students, setStudents] = useState<Student[]>([]);
-    const [filteredStudents, setFilteredStudents] = useState<Student[]>([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isImportModalOpen, setIsImportModalOpen] = useState(false);
 
@@ -31,7 +30,6 @@ export default function StudentsPage() {
                     params: { schoolId }
                 });
                 setStudents(response.data);
-                setFilteredStudents(response.data);
             } catch (error) {
                 console.error("Failed to fetch students:", error);
             }
@@ -43,7 +41,7 @@ export default function StudentsPage() {
     }, [schoolId]);
 
     // Apply Filters
-    useEffect(() => {
+    const filteredStudents = useMemo(() => {
         let result = students;
 
         if (gradeFilter !== "All") {
@@ -59,7 +57,7 @@ export default function StudentsPage() {
             }
         }
 
-        setFilteredStudents(result);
+        return result;
     }, [students, gradeFilter, statusFilter]);
 
 

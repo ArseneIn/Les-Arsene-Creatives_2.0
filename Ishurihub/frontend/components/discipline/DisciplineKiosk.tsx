@@ -45,7 +45,7 @@ export default function DisciplineKiosk({ onClose, onSuccess }: DisciplineKioskP
             setStudent(res.data);
             setStatus('success');
             setMessage("Student Verified");
-        } catch (_error) {
+        } catch {
             setStudent(null);
             setStatus('error');
             setMessage("Card not recognized or student not found.");
@@ -75,10 +75,10 @@ export default function DisciplineKiosk({ onClose, onSuccess }: DisciplineKioskP
             }
         };
 
-        window.addEventListener("keypress", handleKeyDown as any);
+        window.addEventListener("keypress", handleKeyDown as EventListener);
         inputRef.current?.focus();
 
-        return () => window.removeEventListener("keypress", handleKeyDown as any);
+        return () => window.removeEventListener("keypress", handleKeyDown as EventListener);
     }, [scannedUid, lastKeystroke]);
 
     const handleScanInput = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -116,7 +116,7 @@ export default function DisciplineKiosk({ onClose, onSuccess }: DisciplineKioskP
                 setMessage("");
                 inputRef.current?.focus();
             }, 2500);
-        } catch (_error) {
+        } catch {
             setStatus('error');
             setMessage("Failed to save record.");
         }

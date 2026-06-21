@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import api from "@/lib/api";
@@ -75,7 +75,6 @@ interface DisciplineData {
 
 export default function StudentDetailsPage() {
     const params = useParams();
-    const router = useRouter();
     const schoolId = params.id as string;
     const studentId = params.studentId as string;
 

@@ -45,7 +45,7 @@ export default function TeacherSchedule() {
     return (
         <div className="bg-white dark:bg-[#1e293b] p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-white/5">
             <div className="flex items-center justify-between mb-6">
-                <h3 className="text-lg font-bold text-gray-900 dark:text-white">Today's Schedule</h3>
+                <h3 className="text-lg font-bold text-gray-900 dark:text-white">Today&apos;s Schedule</h3>
                 <button className="text-primary text-xs font-bold hover:underline">View Full</button>
             </div>
 

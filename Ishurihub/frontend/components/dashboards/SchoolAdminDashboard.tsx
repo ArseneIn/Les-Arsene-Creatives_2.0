@@ -6,7 +6,7 @@ import api from "@/lib/api";
 import Link from "next/link";
 import {
     PieChart, Pie, Cell, ResponsiveContainer,
-    AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, BarChart, Bar
+    AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip
 } from 'recharts';
 
 interface Student {
@@ -26,6 +26,19 @@ interface Teacher {
     name: string;
 }
 
+interface AttendanceStats {
+    attendanceRate?: number;
+}
+
+interface FinanceStats {
+    revenue?: number;
+}
+
+interface WeeklyAttendance {
+    date: string;
+    students: number;
+}
+
 import LoadingScreen from "../system/LoadingScreen";
 
 export default function SchoolAdminDashboard() {
@@ -34,9 +47,9 @@ export default function SchoolAdminDashboard() {
 
     const [students, setStudents] = useState<Student[]>([]);
     const [teachers, setTeachers] = useState<Teacher[]>([]);
-    const [attendanceStats, setAttendanceStats] = useState<any>(null);
-    const [financeStats, setFinanceStats] = useState<any>(null);
-    const [weeklyAttendance, setWeeklyAttendance] = useState<any[]>([]);
+    const [attendanceStats, setAttendanceStats] = useState<AttendanceStats | null>(null);
+    const [financeStats, setFinanceStats] = useState<FinanceStats | null>(null);
+    const [weeklyAttendance, setWeeklyAttendance] = useState<WeeklyAttendance[]>([]);
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
@@ -98,7 +111,7 @@ export default function SchoolAdminDashboard() {
     ].map(d => ({ ...d, date: typeof d.date === 'string' && d.date.includes('-') ? new Date(d.date).toLocaleDateString('en-US', { weekday: 'short' }) : d.date }));
 
     // Format chart data dates if they are ISO strings
-    const formattedChartData = chartData.map((d: any) => ({
+    const formattedChartData = chartData.map((d: WeeklyAttendance) => ({
         ...d,
         name: d.date.includes('-') ? new Date(d.date).toLocaleDateString('en-US', { weekday: 'short' }) : d.date
     }));
@@ -114,7 +127,7 @@ export default function SchoolAdminDashboard() {
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
                     <h1 className="text-2xl font-black text-gray-900 dark:text-white tracking-tight">Dashboard Overview</h1>
-                    <p className="text-gray-500 dark:text-gray-400 text-sm">Welcome back, Admin. Here's what's happening today.</p>
+                    <p className="text-gray-500 dark:text-gray-400 text-sm">Welcome back, Admin. Here&apos;s what&apos;s happening today.</p>
                 </div>
                 <div className="flex gap-3">
                     <div className="relative hidden md:block">

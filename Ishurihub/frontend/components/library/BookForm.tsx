@@ -21,7 +21,7 @@ type BookFormProps = {
 
 export default function BookForm({ initialData, onClose, onSuccess, schoolId }: BookFormProps) {
     const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<BookFormData>({
-        defaultValues: (initialData as any) || {
+        defaultValues: (initialData as BookFormData) || {
             quantity: 1,
         }
     });

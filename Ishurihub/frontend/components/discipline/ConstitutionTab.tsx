@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import api from "@/lib/api";
 
 export interface DisciplinePolicy {
@@ -25,7 +25,7 @@ export default function ConstitutionTab({ schoolId }: { schoolId: string }) {
         description: ''
     });
 
-    const fetchPolicies = async () => {
+    const fetchPolicies = useCallback(async () => {
         try {
             const res = await api.get('/discipline/policies', { params: { schoolId } });
             setPolicies(res.data);
@@ -34,11 +34,11 @@ export default function ConstitutionTab({ schoolId }: { schoolId: string }) {
         } finally {
             setIsLoading(false);
         }
-    };
+    }, [schoolId]);
 
     useEffect(() => {
         fetchPolicies();
-    }, [schoolId]);
+    }, [fetchPolicies]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -94,7 +94,7 @@ export default function ConstitutionTab({ schoolId }: { schoolId: string }) {
                         </div>
                         <div>
                             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Type</label>
-                            <select value={formData.type} onChange={e => setFormData({...formData, type: e.target.value as any})} className="w-full p-2.5 rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white">
+                            <select value={formData.type} onChange={e => setFormData({...formData, type: e.target.value as 'Merit' | 'Sanction'})} className="w-full p-2.5 rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white">
                                 <option value="Sanction">Sanction (Penalty)</option>
                                 <option value="Merit">Merit (Award)</option>
                             </select>
@@ -106,7 +106,7 @@ export default function ConstitutionTab({ schoolId }: { schoolId: string }) {
                         {formData.type === 'Sanction' && (
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Severity Level</label>
-                                <select value={formData.severity} onChange={e => setFormData({...formData, severity: e.target.value as any})} className="w-full p-2.5 rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white">
+                                <select value={formData.severity} onChange={e => setFormData({...formData, severity: e.target.value as 'Low' | 'Medium' | 'High' | 'Critical'})} className="w-full p-2.5 rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white">
                                     <option value="Low">Low</option>
                                     <option value="Medium">Medium</option>
                                     <option value="High">High</option>

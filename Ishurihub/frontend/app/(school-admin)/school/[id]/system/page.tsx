@@ -2,10 +2,48 @@
 
 import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useParams } from "next/navigation";
 import api from '@/lib/api';
 import RoleModal from "./RoleModal";
 import UserModal from "./UserModal";
+
+interface Role {
+    id: string;
+    name: string;
+    permissions: string[];
+    schoolId: string;
+}
+
+interface User {
+    id: string;
+    name: string;
+    email: string;
+    roleId: string;
+    customRoleId?: string | null;
+    schoolId: string;
+    avatarUrl?: string | null;
+    customRole?: { id: string; name: string } | null;
+}
+
+interface Term {
+    id: string;
+    name: string;
+    startDate: string;
+    endDate: string;
+    isActive: boolean;
+    academicYearId: string;
+}
+
+interface AcademicYear {
+    id: string;
+    name: string;
+    startDate: string;
+    endDate: string;
+    isActive: boolean;
+    schoolId: string;
+    terms?: Term[];
+}
 
 // Mock Data
 const auditLogs = [
@@ -88,7 +126,7 @@ export default function SystemPage() {
     };
 
     // Academic Years Logic
-    const [years, setYears] = useState<any[]>([]);
+    const [years, setYears] = useState<AcademicYear[]>([]);
     const [newYear, setNewYear] = useState({ name: '', startDate: '', endDate: '' });
     const [isYearLoading, setIsYearLoading] = useState(false);
 
@@ -128,14 +166,13 @@ export default function SystemPage() {
         try {
             await api.patch(`/academic-years/${id}/activate`, { schoolId });
             await fetchYears();
-        } catch (err) {
+        } catch {
             alert('Failed to activate year');
         }
     };
 
     // Terms Logic
     const [expandedYearId, setExpandedYearId] = useState<string | null>(null);
-    const [terms, setTerms] = useState<any[]>([]);
     const [newTerm, setNewTerm] = useState({ name: '', startDate: '', endDate: '' });
     const [isTermLoading, setIsTermLoading] = useState(false);
 
@@ -171,7 +208,7 @@ export default function SystemPage() {
         try {
             await api.patch(`/academic-years/terms/${termId}/activate`, { schoolId });
             await fetchYears();
-        } catch (err) {
+        } catch {
             alert('Failed to activate term');
         }
     };
@@ -180,9 +217,9 @@ export default function SystemPage() {
 
 
     // Roles Logic
-    const [roles, setRoles] = useState<any[]>([]);
+    const [roles, setRoles] = useState<Role[]>([]);
     const [isRoleModalOpen, setIsRoleModalOpen] = useState(false);
-    const [selectedRole, setSelectedRole] = useState<any>(null);
+    const [selectedRole, setSelectedRole] = useState<Role | null>(null);
 
     const fetchRoles = useCallback(async () => {
         if (!schoolId) return;
@@ -200,7 +237,7 @@ export default function SystemPage() {
         }
     }, [activeTab, fetchRoles]);
 
-    const handleEditRole = (role: any) => {
+    const handleEditRole = (role: Role) => {
         setSelectedRole(role);
         setIsRoleModalOpen(true);
     };
@@ -210,15 +247,15 @@ export default function SystemPage() {
         try {
             await api.delete(`/roles/${roleId}`);
             await fetchRoles();
-        } catch (err) {
+        } catch {
             alert("Failed to delete role");
         }
     };
 
     // Users Logic
-    const [users, setUsers] = useState<any[]>([]);
+    const [users, setUsers] = useState<User[]>([]);
     const [isUserModalOpen, setIsUserModalOpen] = useState(false);
-    const [selectedUser, setSelectedUser] = useState<any>(null);
+    const [selectedUser, setSelectedUser] = useState<User | null>(null);
 
     const fetchUsers = useCallback(async () => {
         if (!schoolId) return;
@@ -237,7 +274,7 @@ export default function SystemPage() {
         }
     }, [activeTab, fetchUsers, fetchRoles, roles.length]);
 
-    const handleEditUser = (user: any) => {
+    const handleEditUser = (user: User) => {
         setSelectedUser(user);
         setIsUserModalOpen(true);
     };
@@ -247,7 +284,7 @@ export default function SystemPage() {
         try {
             await api.delete(`/users/${userId}`);
             await fetchUsers();
-        } catch (err) {
+        } catch {
             alert("Failed to delete user");
         }
     };
@@ -258,14 +295,14 @@ export default function SystemPage() {
                 isOpen={isRoleModalOpen}
                 onClose={() => { setIsRoleModalOpen(false); setSelectedRole(null); }}
                 schoolId={schoolId}
-                role={selectedRole}
+                role={selectedRole || undefined}
                 onSuccess={fetchRoles}
             />
             <UserModal
                 isOpen={isUserModalOpen}
                 onClose={() => { setIsUserModalOpen(false); setSelectedUser(null); }}
                 schoolId={schoolId}
-                user={selectedUser}
+                user={selectedUser || undefined}
                 roles={roles}
                 onSuccess={fetchUsers}
             />
@@ -354,10 +391,13 @@ export default function SystemPage() {
                                                 <div className="shrink-0 relative group">
                                                     <div className="size-24 rounded-xl bg-white dark:bg-black/20 border-2 border-dashed border-gray-300 dark:border-gray-600 flex items-center justify-center overflow-hidden">
                                                         {profile.logoUrl ? (
-                                                            <img
+                                                            <Image
                                                                 src={`${api.defaults.baseURL}${profile.logoUrl}`}
                                                                 alt="School Logo"
+                                                                width={96}
+                                                                height={96}
                                                                 className="w-full h-full object-contain"
+                                                                unoptimized
                                                             />
                                                         ) : (
                                                             <span className="material-symbols-outlined text-gray-400 text-4xl">add_photo_alternate</span>
@@ -643,7 +683,7 @@ export default function SystemPage() {
                                                         {/* List Terms */}
                                                         <div className="space-y-2 mb-3">
                                                             {year.terms && year.terms.length > 0 ? (
-                                                                year.terms.sort((a: any, b: any) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime()).map((term: any) => (
+                                                                year.terms.slice().sort((a: Term, b: Term) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime()).map((term: Term) => (
                                                                     <div key={term.id} className="flex justify-between items-center p-2 bg-white dark:bg-white/5 rounded border border-gray-100 dark:border-gray-800">
                                                                         <div>
                                                                             <div className="flex items-center gap-2">

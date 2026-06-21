@@ -16,7 +16,7 @@ export default function TeacherDashboard() {
                 <div>
                     <h1 className="text-2xl font-black text-gray-900 dark:text-white tracking-tight">Dashboard Overview</h1>
                     <p className="text-gray-500 dark:text-gray-400 text-sm">
-                        Welcome back, {user?.name || 'Teacher'}. Here's what's happening today.
+                        Welcome back, {user?.name || 'Teacher'}. Here&apos;s what&apos;s happening today.
                     </p>
                 </div>
                 <div className="flex gap-3">

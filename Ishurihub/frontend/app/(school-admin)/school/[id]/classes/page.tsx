@@ -230,7 +230,8 @@ export default function ClassesPage() {
             setEditingClass(null);
         } catch (error) {
             console.error("Failed to save class:", error);
-            alert((error as any)?.response?.data?.message || "Failed to save class");
+            const errMsg = (error as { response?: { data?: { message?: string } } })?.response?.data?.message;
+            alert(errMsg || "Failed to save class");
         }
     };
 

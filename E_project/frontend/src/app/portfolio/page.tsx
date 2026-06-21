@@ -3,7 +3,7 @@
 
 import React, { useState, useMemo } from 'react';
 import Link from 'next/link';
-import { MOCK_PORTFOLIO, ProjectSummary } from '@/data/portfolio';
+import { MOCK_PORTFOLIO } from '@/data/portfolio';
 import './portfolio.css';
 import { Pie, Bar } from 'react-chartjs-2';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement } from 'chart.js';

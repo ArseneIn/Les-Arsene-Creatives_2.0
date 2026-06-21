@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useRef } from 'react';
+import React, { useState } from 'react';
 import { MOCK_PORTFOLIO } from '@/data/portfolio';
 import {
   Chart as ChartJS,
@@ -17,6 +17,7 @@ import { Doughnut, Bar } from 'react-chartjs-2';
 ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement, Title);
 
 export default function PortfolioView() {
+  const [now] = useState(() => Date.now());
   const totalBudget   = MOCK_PORTFOLIO.reduce((s, p) => s + p.budget, 0);
   const totalActual   = MOCK_PORTFOLIO.reduce((s, p) => s + p.actual, 0);
   const burnPct       = totalBudget ? Math.round((totalActual / totalBudget) * 100) : 0;
@@ -37,7 +38,7 @@ export default function PortfolioView() {
     ph === 'Execution' ? '#018bf1' : ph === 'Planning' ? '#AF52DE' : ph === 'Initiation' ? '#FF9500' : ph === 'Monitoring' ? '#34C759' : '#64748B';
   const mc = (s: string) =>
     s === 'On Track' ? '#34C759' : s === 'At Risk' ? '#FF9500' : s === 'Delayed' ? '#FF3B30' : '#018bf1';
-  const daysUntil  = (d: string) => Math.ceil((new Date(d).getTime() - Date.now()) / 86400000);
+  const daysUntil  = (d: string) => Math.ceil((new Date(d).getTime() - now) / 86400000);
   const trendIcon  = (t: string) => t === 'up' ? '↑' : t === 'down' ? '↓' : '→';
   const trendColor = (t: string) => t === 'up' ? '#34C759' : t === 'down' ? '#FF3B30' : '#94A3B8';
 
@@ -84,7 +85,7 @@ export default function PortfolioView() {
       },
       tooltip: {
         callbacks: {
-          label: (ctx: any) => ` $${(ctx.raw as number / 1000).toFixed(0)}K budget`,
+          label: (ctx: { raw: unknown }) => ` $${((ctx.raw as number) / 1000).toFixed(0)}K budget`,
         },
       },
     },
@@ -133,7 +134,7 @@ export default function PortfolioView() {
         min: 0,
         max: 100,
         ticks: {
-          callback: (v: any) => `${v}%`,
+          callback: (v: string | number) => `${v}%`,
           font: { size: 11 },
           color: '#94A3B8',
         },
@@ -234,7 +235,7 @@ export default function PortfolioView() {
       </div>
 
       {/* ── MAIN GRID ────────────────────────────────────────────────── */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 300px', gap: '0', padding: '16px 20px 24px', gap: '16px' } as React.CSSProperties}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 300px', padding: '16px 20px 24px', gap: '16px' } as React.CSSProperties}>
 
         {/* ── PROJECT LEDGER ──────────────────────────────────────────── */}
         <div style={{ background: 'white', borderRadius: '16px', border: '1px solid #E2E8F0', padding: '20px', boxShadow: '0 2px 8px rgba(0,0,0,0.03)', overflow: 'hidden' }}>

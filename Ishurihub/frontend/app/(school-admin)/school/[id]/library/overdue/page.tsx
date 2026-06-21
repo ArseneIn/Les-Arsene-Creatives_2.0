@@ -25,7 +25,7 @@ export default function OverdueRecordsPage() {
         try {
             const res = await api.get(`/library/issued?schoolId=${schoolId}`);
             // Filter strictly for overdue
-            const overdue = res.data.filter((r: any) => new Date(r.dueDate) < new Date() && r.status === 'Issued');
+            const overdue = res.data.filter((r: IssueRecord) => new Date(r.dueDate) < new Date() && r.status === 'Issued');
             setOverdueBooks(overdue);
         } catch (error) {
             console.error("Failed to fetch overdue books:", error);
@@ -40,6 +40,7 @@ export default function OverdueRecordsPage() {
 
     const handleSendReminder = async (recordId: string) => {
         // In a real app, this would hit an endpoint to send an SMS/Email
+        console.log("Sending reminder for record:", recordId);
         alert("Reminder sent to borrower!");
     };
 

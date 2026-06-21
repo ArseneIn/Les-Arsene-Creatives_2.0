@@ -40,7 +40,7 @@ export default function ManageBooksPage() {
     }, [fetchBooks]);
 
     const handleEditBook = (book: Book) => {
-        setSelectedBook(book as any); // Cast to any to satisfy Partial<BookFormData> requirement in BookForm
+        setSelectedBook(book);
         setShowBookModal(true);
     };
 

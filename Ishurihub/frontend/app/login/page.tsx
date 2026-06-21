@@ -83,7 +83,13 @@ export default function PortalSelectionPage() {
     const [isMounted, setIsMounted] = useState(false);
 
     useEffect(() => {
-        setIsMounted(true);
+        let active = true;
+        setTimeout(() => {
+            if (active) setIsMounted(true);
+        }, 0);
+        return () => {
+            active = false;
+        };
     }, []);
 
     const handleRoleSelect = (role: RoleConfig) => {
