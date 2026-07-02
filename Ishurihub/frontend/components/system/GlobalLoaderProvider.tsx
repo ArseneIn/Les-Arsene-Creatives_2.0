@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useEffect, useState, ReactNode, Suspense } from "react";
+import React, { createContext, useContext, useEffect, useState, useRef, ReactNode, Suspense } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
 import { useAuthContext } from "@/context/AuthContext";
 import LoadingScreen from "./LoadingScreen";
@@ -28,6 +28,10 @@ function GlobalLoaderInner({ children }: { children: ReactNode }) {
 
     const [isInitialLoading, setIsInitialLoading] = useState(true);
     const [isNavigating, setIsNavigating] = useState(false);
+
+    // Track current path and search params to detect when navigation has resolved
+    const lastPathname = useRef(pathname);
+    const lastSearchParams = useRef(searchParams ? searchParams.toString() : "");
 
     // Identify if the current route/user is a student
     const isStudent = user?.roleId === "student" || pathname.startsWith("/portal/student");
@@ -93,43 +97,127 @@ function GlobalLoaderInner({ children }: { children: ReactNode }) {
         });
     }, [isStudent]);
 
-    // 2. Intercept navigation by patching window.history.pushState
+    // 2. Intercept clicks on links to show loading screen immediately
+    useEffect(() => {
+        if (isStudent) return;
+
+        const handleGlobalClick = (e: MouseEvent) => {
+            const target = e.target as HTMLElement;
+            const anchor = target.closest("a");
+            if (!anchor) return;
+
+            const href = anchor.getAttribute("href");
+            if (!href) return;
+
+            if (
+                e.defaultPrevented ||
+                e.button !== 0 ||
+                anchor.target === "_blank" ||
+                e.metaKey ||
+                e.ctrlKey ||
+                e.shiftKey ||
+                e.altKey
+            ) {
+                return;
+            }
+
+            try {
+                const url = new URL(href, window.location.origin);
+                const currentUrl = new URL(window.location.href);
+
+                if (url.origin !== currentUrl.origin) return;
+
+                if (
+                    url.pathname === currentUrl.pathname &&
+                    url.search === currentUrl.search &&
+                    url.hash !== currentUrl.hash
+                ) {
+                    return;
+                }
+
+                if (url.pathname.startsWith("/portal/student")) return;
+
+                if (url.pathname === currentUrl.pathname && url.search === currentUrl.search) {
+                    return;
+                }
+
+                setIsNavigating(true);
+            } catch (err) {
+                // Ignore invalid URLs
+            }
+        };
+
+        document.addEventListener("click", handleGlobalClick, { capture: true });
+        return () => {
+            document.removeEventListener("click", handleGlobalClick, { capture: true });
+        };
+    }, [isStudent]);
+
+    // 3. Intercept programmatic navigation by patching window.history.pushState and replaceState
     useEffect(() => {
         if (isStudent) return;
 
         const originalPushState = window.history.pushState;
+        const originalReplaceState = window.history.replaceState;
 
-        window.history.pushState = function (...args) {
-            const urlStr = args[2];
+        const handleNavigationIntercept = (urlStr: string | URL | null | undefined) => {
             if (urlStr && typeof urlStr === "string") {
                 const targetUrl = new URL(urlStr, window.location.origin);
                 const currentUrl = new URL(window.location.href);
 
-                // Only trigger if path is different (actual navigation) and not student portal
                 if (
-                    targetUrl.pathname !== currentUrl.pathname &&
+                    (targetUrl.pathname !== currentUrl.pathname || targetUrl.search !== currentUrl.search) &&
                     targetUrl.pathname.startsWith("/") &&
                     !targetUrl.pathname.startsWith("/portal/student")
                 ) {
                     setIsNavigating(true);
                 }
             }
+        };
+
+        window.history.pushState = function (...args) {
+            handleNavigationIntercept(args[2]);
             return originalPushState.apply(this, args);
+        };
+
+        window.history.replaceState = function (...args) {
+            handleNavigationIntercept(args[2]);
+            return originalReplaceState.apply(this, args);
         };
 
         return () => {
             window.history.pushState = originalPushState;
+            window.history.replaceState = originalReplaceState;
         };
     }, [isStudent]);
 
-    // 3. Clear navigating state when route actually changes and resources load
+    // 4. Clear navigating state when route actually changes and resources load
     useEffect(() => {
-        if (isNavigating) {
-            waitForResources().then(() => {
-                setIsNavigating(false);
-            });
+        const currentPath = pathname;
+        const currentSearch = searchParams ? searchParams.toString() : "";
+        const pathChanged = currentPath !== lastPathname.current || currentSearch !== lastSearchParams.current;
+
+        if (pathChanged) {
+            lastPathname.current = currentPath;
+            lastSearchParams.current = currentSearch;
+
+            if (isNavigating) {
+                waitForResources().then(() => {
+                    setIsNavigating(false);
+                });
+            }
         }
     }, [pathname, searchParams, isNavigating]);
+
+    // 5. Safety timeout to prevent getting stuck if navigation is cancelled
+    useEffect(() => {
+        if (isNavigating) {
+            const timeoutId = setTimeout(() => {
+                setIsNavigating(false);
+            }, 6000);
+            return () => clearTimeout(timeoutId);
+        }
+    }, [isNavigating]);
 
     const startLoading = () => {
         if (!isStudent) {
@@ -152,11 +240,11 @@ function GlobalLoaderInner({ children }: { children: ReactNode }) {
                 )}
             </AnimatePresence>
 
-            {/* Hide content on initial mount load to prevent flash of unstyled icons */}
+            {/* Hide content during initial load or navigation to prevent flash of unstyled content/icons */}
             <div
                 className="w-full h-full"
                 style={{
-                    visibility: (isInitialLoading && !isStudent) ? "hidden" : "visible",
+                    visibility: ((isInitialLoading || isNavigating) && !isStudent) ? "hidden" : "visible",
                 }}
             >
                 {children}
