@@ -16,9 +16,10 @@ const LOADING_MESSAGES = [
 interface LoadingScreenProps {
     message?: string;
     fullScreen?: boolean;
+    opaque?: boolean;
 }
 
-export default function LoadingScreen({ message: initialMessage, fullScreen = true }: LoadingScreenProps) {
+export default function LoadingScreen({ message: initialMessage, fullScreen = true, opaque = false }: LoadingScreenProps) {
     const [message, setMessage] = useState(initialMessage || LOADING_MESSAGES[0]);
     const [progress, setProgress] = useState(0);
 
@@ -42,7 +43,11 @@ export default function LoadingScreen({ message: initialMessage, fullScreen = tr
     }, []);
 
     const containerClasses = fullScreen 
-        ? "fixed inset-0 z-[10000] flex flex-col items-center justify-center bg-slate-50/80 dark:bg-slate-900/80 backdrop-blur-xl"
+        ? `fixed inset-0 z-[10000] flex flex-col items-center justify-center ${
+            opaque 
+                ? "bg-slate-50 dark:bg-[#0f172a]" 
+                : "bg-slate-50/80 dark:bg-slate-900/80 backdrop-blur-xl"
+          }`
         : "flex flex-col items-center justify-center p-12 w-full min-h-[300px]";
 
     return (

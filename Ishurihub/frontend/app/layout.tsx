@@ -4,6 +4,7 @@ import 'material-symbols/outlined.css';
 import "./globals.css";
 import { AuthProvider } from "@/context/AuthContext";
 import { MaintenanceProvider } from "@/components/system/MaintenanceProvider";
+import { GlobalLoaderProvider } from "@/components/system/GlobalLoaderProvider";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -33,9 +34,11 @@ export default function RootLayout({
       </head>
       <body className={`${inter.variable} ${plusJakartaSans.variable} antialiased font-sans bg-slate-50 dark:bg-[#0f172a]`}>
         <AuthProvider>
-          <MaintenanceProvider>
-            {children}
-          </MaintenanceProvider>
+          <GlobalLoaderProvider>
+            <MaintenanceProvider>
+              {children}
+            </MaintenanceProvider>
+          </GlobalLoaderProvider>
         </AuthProvider>
       </body>
     </html>
