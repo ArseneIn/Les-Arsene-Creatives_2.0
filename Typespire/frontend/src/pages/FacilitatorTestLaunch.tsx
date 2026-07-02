@@ -382,6 +382,7 @@ const FacilitatorTestLaunch: React.FC = () => {
     const [selectedAttendanceDate, setSelectedAttendanceDate] = useState(new Date().toISOString().split('T')[0]);
     const [previewingText, setPreviewingText] = useState<LibraryText | null>(null);
     const [currentStep, setCurrentStep] = useState(1);
+    const [isWizardOpen, setIsWizardOpen] = useState(true);
     
     const [successPopup, setSuccessPopup] = useState<{show: boolean, count: number}>({show: false, count: 0});
     const [monitorAssignmentId, setMonitorAssignmentId] = useState<string | null>(null);
@@ -552,670 +553,514 @@ const FacilitatorTestLaunch: React.FC = () => {
             </div>
 
             {/* Page Heading */}
-            <div className="flex flex-wrap justify-between gap-3 border-b border-slate-200 dark:border-slate-800 pb-4">
+            <div className="flex flex-wrap justify-between gap-3 border-b border-slate-200 dark:border-slate-800 pb-4 mb-6">
                 <div className="flex min-w-72 flex-col gap-1.5">
-                    <h1 className="text-slate-900 dark:text-white text-3xl md:text-4xl font-black leading-tight tracking-tight font-heading">Create Test Session</h1>
-                    <p className="text-slate-500 dark:text-[#929bc9] text-sm md:text-base font-normal">Build and launch a new typing assessment in three simple steps.</p>
+                    <h1 className="text-slate-900 dark:text-white text-3xl md:text-4xl font-black leading-tight tracking-tight font-heading flex items-center gap-3">
+                        Test Sessions
+                        {!isWizardOpen && (
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    setCurrentStep(1);
+                                    setIsWizardOpen(true);
+                                }}
+                                className="inline-flex items-center gap-2 px-4 py-2 text-xs font-bold bg-primary text-white rounded-xl shadow-md hover:bg-emerald-600 transition-all hover-scale active-scale font-heading cursor-pointer"
+                            >
+                                <span className="material-symbols-outlined text-[16px] font-black">add_circle</span>
+                                Launch New Test
+                            </button>
+                        )}
+                    </h1>
+                    <p className="text-slate-500 dark:text-[#929bc9] text-sm md:text-base font-normal">Monitor current typing test submissions or launch a new test session.</p>
                 </div>
             </div>
 
-            {/* ── Step Indicator ── */}
-            <div className="flex items-center gap-0 mt-2 mb-2">
-                {[
-                    { num: 1, label: 'Choose Content' },
-                    { num: 2, label: 'Select Audience' },
-                    { num: 3, label: 'Rules & Launch' },
-                ].map((step, idx) => (
-                    <React.Fragment key={step.num}>
-                        <button
-                            type="button"
-                            onClick={() => {
-                                // Only allow going back to already-visited steps
-                                if (step.num < currentStep) setCurrentStep(step.num);
-                            }}
-                            className={`flex items-center gap-2.5 group transition-all ${step.num < currentStep ? 'cursor-pointer' : 'cursor-default'}`}
-                        >
-                            <div className={`relative flex items-center justify-center w-9 h-9 rounded-full font-black text-sm border-2 transition-all duration-300 ${
-                                currentStep === step.num
-                                    ? 'border-primary bg-primary text-[#111422] shadow-lg shadow-primary/30 scale-110'
-                                    : currentStep > step.num
-                                        ? 'border-primary bg-primary/10 text-primary'
-                                        : 'border-slate-200 dark:border-[#323b67] bg-white dark:bg-card-dark text-slate-400 dark:text-[#929bc9]'
-                            }`}>
-                                {currentStep > step.num
-                                    ? <span className="material-symbols-outlined text-[16px] font-black">check</span>
-                                    : step.num
-                                }
-                                {currentStep === step.num && (
-                                    <span className="absolute inset-0 rounded-full border-2 border-primary animate-ping opacity-30" />
-                                )}
+            {/* Stepper Wizard Modal */}
+            {isWizardOpen && (
+                <div className="fixed inset-0 z-40 flex items-center justify-center bg-[#061824]/85 backdrop-blur-sm animate-in fade-in duration-200 p-4">
+                    <div className="bg-white dark:bg-card-dark rounded-3xl border border-slate-250 dark:border-[#323b67] shadow-2xl w-full max-w-xl flex flex-col max-h-[85vh] animate-in zoom-in-95 duration-200 overflow-hidden relative">
+                        {/* Header */}
+                        <div className="flex items-center justify-between p-5 border-b border-slate-100 dark:border-[#323b67] bg-slate-50 dark:bg-[#1a1f37]/50">
+                            <div>
+                                <span className="text-[10px] font-black text-slate-400 dark:text-[#929bc9] uppercase tracking-widest">
+                                    Step {currentStep} of 5
+                                </span>
+                                <h3 className="text-base font-bold text-slate-900 dark:text-white font-heading mt-0.5">
+                                    {currentStep === 1 && "1. Target Audience"}
+                                    {currentStep === 2 && "2. Select Level"}
+                                    {currentStep === 3 && "3. Choose Passage"}
+                                    {currentStep === 4 && "4. Configure Settings"}
+                                    {currentStep === 5 && "5. Review & Launch"}
+                                </h3>
                             </div>
-                            <span className={`text-xs font-bold hidden sm:block transition-colors ${
-                                currentStep === step.num
-                                    ? 'text-slate-900 dark:text-white'
-                                    : currentStep > step.num
-                                        ? 'text-primary'
-                                        : 'text-slate-400 dark:text-[#929bc9]'
-                            }`}>
-                                {step.label}
-                            </span>
-                        </button>
-                        {idx < 2 && (
-                            <div className={`flex-1 mx-3 h-0.5 rounded-full transition-all duration-500 max-w-[80px] ${
-                                currentStep > step.num ? 'bg-primary' : 'bg-slate-200 dark:bg-[#323b67]'
-                            }`} />
-                        )}
-                    </React.Fragment>
-                ))}
-            </div>
-
-            {/* ── Live Summary Bar ── */}
-            <div className="flex flex-wrap items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-50 dark:bg-[#232948] border border-slate-200 dark:border-[#323b67] text-xs font-bold text-slate-500 dark:text-[#929bc9] overflow-hidden">
-                <span className="material-symbols-outlined text-[16px] text-primary">summarize</span>
-                <span className="font-black text-primary uppercase tracking-wider text-[9px]">Mission Brief</span>
-                <span className="mx-1 text-slate-200 dark:text-[#323b67]">|</span>
-                <span className={`px-2 py-0.5 rounded-full text-[10px] font-black ${testLevel === 2 ? 'bg-red-100 dark:bg-red-500/15 text-red-600 dark:text-red-400' : 'bg-[#094A71]/10 text-[#094A71]'}`}>
-                    Level {testLevel} — {testLevel === 2 ? 'Survival' : 'Standard'}
-                </span>
-                <span className="text-slate-300 dark:text-[#323b67]">·</span>
-                <span className="truncate max-w-[200px]">
-                    {sourceMode === 'library'
-                        ? (activeLibraryText?.title || '—')
-                        : (customTitle || 'Custom Text')}
-                </span>
-                <span className="text-slate-300 dark:text-[#323b67]">·</span>
-                <span>
-                    {assignmentMode === 'section'
-                        ? (sections.find(s => s.id === targetSection)
-                            ? `${sections.find(s => s.id === targetSection)?.name}`
-                            : 'No section')
-                        : `${selectedStudentIds.length} students`}
-                </span>
-                <span className="text-slate-300 dark:text-[#323b67]">·</span>
-                <span>{timeLimit === '0' ? 'Unlimited' : `${timeLimit} min`}</span>
-            </div>
-
-            {/* ── STEP CONTENT ── */}
-            <div className="relative overflow-hidden min-h-[420px]">
-
-                {/* ────────── STEP 1: CONTENT ────────── */}
-                <div className={`transition-all duration-400 ${currentStep === 1 ? 'opacity-100 translate-x-0' : currentStep > 1 ? 'opacity-0 -translate-x-8 absolute inset-0 pointer-events-none' : 'opacity-0 translate-x-8 absolute inset-0 pointer-events-none'}`}>
-                    {/* Level Selector */}
-                    <div className="mb-6">
-                        <p className="text-xs font-black text-slate-400 dark:text-[#929bc9] uppercase tracking-widest mb-3">Test Difficulty Level</p>
-                        <div className="grid grid-cols-2 gap-3 max-w-sm">
                             <button
                                 type="button"
-                                onClick={() => setTestLevel(1)}
-                                className={`flex items-center gap-3 p-4 rounded-2xl border-2 transition-all ${
-                                    testLevel === 1
-                                        ? 'border-[#094A71] bg-[#094A71]/5 dark:bg-[#094A71]/10 shadow-md'
-                                        : 'border-slate-200 dark:border-[#323b67] hover:border-[#094A71]/30 bg-white dark:bg-card-dark'
-                                }`}
+                                onClick={() => setIsWizardOpen(false)}
+                                className="w-8 h-8 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-[#232948] dark:hover:bg-[#323b67] flex items-center justify-center text-slate-500 dark:text-[#929bc9] hover:text-slate-800 dark:hover:text-white transition-all hover-scale active-scale"
                             >
-                                <span className={`material-symbols-outlined text-2xl ${testLevel === 1 ? 'text-[#094A71]' : 'text-slate-400'}`}>school</span>
-                                <div className="text-left">
-                                    <p className={`text-sm font-black ${testLevel === 1 ? 'text-[#094A71]' : 'text-slate-600 dark:text-slate-300'}`}>Level 1</p>
-                                    <p className="text-[10px] text-slate-400 font-medium">Standard</p>
-                                </div>
-                            </button>
-                            <button
-                                type="button"
-                                onClick={() => setTestLevel(2)}
-                                className={`flex items-center gap-3 p-4 rounded-2xl border-2 transition-all ${
-                                    testLevel === 2
-                                        ? 'border-red-500 bg-red-500/5 dark:bg-red-500/10 shadow-md'
-                                        : 'border-slate-200 dark:border-[#323b67] hover:border-red-300 bg-white dark:bg-card-dark'
-                                }`}
-                            >
-                                <span className={`material-symbols-outlined text-2xl ${testLevel === 2 ? 'text-red-500' : 'text-slate-400'}`}>flash_on</span>
-                                <div className="text-left">
-                                    <p className={`text-sm font-black ${testLevel === 2 ? 'text-red-500' : 'text-slate-600 dark:text-slate-300'}`}>Level 2</p>
-                                    <p className="text-[10px] text-slate-400 font-medium">Survival</p>
-                                </div>
+                                <span className="material-symbols-outlined text-lg font-black">close</span>
                             </button>
                         </div>
-                        {testLevel === 2 && (
-                            <p className="mt-2 text-[10px] text-red-500 bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 rounded-lg px-3 py-2 max-w-sm">
-                                ⚡ Students get 60s, no backspace, and only 3 errors allowed.
-                            </p>
-                        )}
-                    </div>
 
-                    {/* Source Tabs */}
-                    <div className="border-b border-slate-200 dark:border-[#323b67] mb-6">
-                        <div className="flex gap-6">
-                            <button
-                                onClick={() => setSourceMode('library')}
-                                className={`flex items-center gap-2 border-b-2 pb-3 px-1 font-bold text-sm transition-all ${sourceMode === 'library' ? 'border-primary text-slate-900 dark:text-white' : 'border-transparent text-slate-400 dark:text-[#929bc9] hover:text-slate-900 dark:hover:text-white'}`}
-                            >
-                                <span className="material-symbols-outlined text-lg">library_books</span>
-                                Text Library
-                            </button>
-                            <button
-                                onClick={() => setSourceMode('custom')}
-                                className={`flex items-center gap-2 border-b-2 pb-3 px-1 font-bold text-sm transition-all ${sourceMode === 'custom' ? 'border-primary text-slate-900 dark:text-white' : 'border-transparent text-slate-400 dark:text-[#929bc9] hover:text-slate-900 dark:hover:text-white'}`}
-                            >
-                                <span className="material-symbols-outlined text-lg">edit_note</span>
-                                Custom Text
-                            </button>
-                        </div>
-                    </div>
-
-                    {sourceMode === 'library' ? (
-                        <div className="flex flex-col gap-4">
-                            {/* Search Bar */}
-                            <div className="relative flex w-full items-stretch rounded-xl border border-slate-200 dark:border-[#323b67] bg-white dark:bg-card-dark focus-within:border-primary/60 transition-all p-1 shadow-sm">
-                                <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 dark:text-[#929bc9] text-[20px]">search</span>
-                                <input
-                                    value={searchQuery}
-                                    onChange={e => setSearchQuery(e.target.value)}
-                                    className="w-full pl-11 pr-4 py-2.5 bg-transparent text-slate-900 dark:text-white focus:outline-0 placeholder:text-slate-400 dark:placeholder:text-[#929bc9] text-sm font-normal"
-                                    placeholder={`Search Level ${testLevel} library texts by title...`}
+                        {/* Step Indicators (small dots) */}
+                        <div className="flex justify-center gap-1.5 py-3 border-b border-slate-100 dark:border-[#323b67] bg-slate-50/40 dark:bg-black/10">
+                            {[1, 2, 3, 4, 5].map((num) => (
+                                <div
+                                    key={num}
+                                    className={`h-1.5 rounded-full transition-all duration-300 ${
+                                        currentStep === num
+                                            ? 'w-6 bg-primary'
+                                            : currentStep > num
+                                                ? 'w-2 bg-primary/40'
+                                                : 'w-2 bg-slate-200 dark:bg-slate-700'
+                                    }`}
                                 />
-                            </div>
+                            ))}
+                        </div>
 
-                            <div className="flex justify-between items-center">
-                                <p className="text-xs font-black text-slate-400 dark:text-[#929bc9] uppercase tracking-widest">Level {testLevel} Recommended Texts</p>
-                                <span className="text-[10px] font-bold bg-slate-100 dark:bg-[#323b67] text-slate-500 dark:text-[#929bc9] px-2 py-0.5 rounded-full">{filteredLibrary.length} available</span>
-                            </div>
+                        {/* Body - Scrollable content area */}
+                        <div className="flex-1 p-5 overflow-y-auto custom-scrollbar flex flex-col gap-4">
+                            {/* Content based on step */}
+                            {currentStep === 1 && (
+                                <div className="flex flex-col gap-4 animate-in fade-in duration-200">
+                                    <div>
+                                        <p className="text-xs text-slate-500 dark:text-[#929bc9]">Select who will receive this test: an entire section or individual students.</p>
+                                    </div>
+                                    <div className="flex bg-slate-100 dark:bg-[#232948] p-1 rounded-xl border border-slate-200/50 dark:border-slate-800 shadow-inner w-fit self-center">
+                                        <button
+                                            type="button"
+                                            onClick={() => setAssignmentMode('section')}
+                                            className={`flex items-center gap-1.5 px-4 py-2 text-xs font-bold rounded-lg transition-all duration-150 ${
+                                                assignmentMode === 'section'
+                                                    ? 'bg-white dark:bg-card-dark text-primary shadow-sm'
+                                                    : 'text-slate-500 dark:text-[#929bc9]'
+                                            }`}
+                                        >
+                                            <span className="material-symbols-outlined text-[16px]">groups</span>
+                                            Entire Section
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={() => setAssignmentMode('students')}
+                                            className={`flex items-center gap-1.5 px-4 py-2 text-xs font-bold rounded-lg transition-all duration-150 ${
+                                                assignmentMode === 'students'
+                                                    ? 'bg-white dark:bg-card-dark text-primary shadow-sm'
+                                                    : 'text-slate-500 dark:text-[#929bc9]'
+                                            }`}
+                                        >
+                                            <span className="material-symbols-outlined text-[16px]">person</span>
+                                            Pick Students
+                                        </button>
+                                    </div>
 
-                            <div className="flex flex-col gap-3 max-h-[520px] overflow-y-auto custom-scrollbar pr-1">
-                                {filteredLibrary.map(test => (
-                                    <div
-                                        key={test.id}
-                                        onClick={() => setSelectedLibraryId(test.id)}
-                                        className={`relative group flex flex-col sm:flex-row gap-5 p-5 rounded-2xl border transition-all duration-300 cursor-pointer hover-scale active-scale shadow-sm hover:shadow-md ${
-                                            selectedLibraryId === test.id
-                                                ? 'border-primary bg-primary/5 dark:bg-primary/5'
-                                                : 'border-slate-200 dark:border-[#323b67] bg-white dark:bg-card-dark'
-                                        }`}
-                                    >
-                                        {selectedLibraryId === test.id && (
-                                            <div className="absolute top-4 right-4">
-                                                <div className="w-6 h-6 rounded-full bg-primary flex items-center justify-center text-[#111422] shadow-sm">
-                                                    <span className="material-symbols-outlined text-sm font-black">check</span>
+                                    {assignmentMode === 'section' ? (
+                                        <div className="flex flex-col gap-3">
+                                            <label className="text-xs font-bold text-slate-400 dark:text-[#929bc9] uppercase tracking-wider">Class Section</label>
+                                            <div className="relative">
+                                                <select
+                                                    className="w-full appearance-none rounded-xl bg-slate-50 dark:bg-[#232948] border border-slate-200 dark:border-[#323b67] text-slate-900 dark:text-white py-3 px-4 pr-10 text-sm font-semibold outline-none"
+                                                    value={targetSection}
+                                                    onChange={(e) => setTargetSection(e.target.value)}
+                                                >
+                                                    <option value="" disabled>Choose a section...</option>
+                                                    {sections?.map(sec => (
+                                                        <option key={sec.id} value={sec.id}>
+                                                            {sec.intakeName ? `${sec.intakeName} - ` : ''}{sec.name}
+                                                        </option>
+                                                    ))}
+                                                </select>
+                                                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-slate-400">
+                                                    <span className="material-symbols-outlined">expand_more</span>
                                                 </div>
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        <div className="flex flex-col gap-2">
+                                            <label className="text-xs font-bold text-slate-400 dark:text-[#929bc9] uppercase tracking-wider">Select Students ({selectedStudentIds.length} chosen)</label>
+                                            <div className="max-h-[220px] overflow-y-auto bg-slate-50 dark:bg-[#232948] rounded-xl border border-slate-200 dark:border-[#323b67] p-2 flex flex-col gap-1 custom-scrollbar">
+                                                {students.map(std => (
+                                                    <label key={std.id} className="flex items-center gap-3 p-2.5 hover:bg-white dark:hover:bg-card-dark rounded-lg cursor-pointer transition-colors border border-transparent hover:border-slate-100 dark:hover:border-slate-800">
+                                                        <input
+                                                            type="checkbox"
+                                                            className="rounded text-primary focus:ring-primary h-4 w-4"
+                                                            checked={selectedStudentIds.includes(std.id)}
+                                                            onChange={(e) => {
+                                                                if (e.target.checked) setSelectedStudentIds(p => [...p, std.id]);
+                                                                else setSelectedStudentIds(p => p.filter(id => id !== std.id));
+                                                            }}
+                                                        />
+                                                        <div className="flex flex-col">
+                                                            <span className="text-sm font-bold text-slate-900 dark:text-white">{std.name}</span>
+                                                            <span className="text-[10px] text-slate-400 dark:text-[#929bc9] uppercase font-bold">{std.major}</span>
+                                                        </div>
+                                                    </label>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+
+                            {currentStep === 2 && (
+                                <div className="flex flex-col gap-4 animate-in fade-in duration-200">
+                                    <div>
+                                        <p className="text-xs text-slate-500 dark:text-[#929bc9]">Select the difficulty tier for this typing assessment.</p>
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-3 mt-1">
+                                        <button
+                                            type="button"
+                                            onClick={() => setTestLevel(1)}
+                                            className={`flex flex-col items-center gap-2 p-5 rounded-2xl border-2 transition-all text-left ${
+                                                testLevel === 1
+                                                    ? 'border-[#094A71] bg-[#094A71]/5 dark:bg-[#094A71]/10 shadow-md scale-[1.02]'
+                                                    : 'border-slate-200 dark:border-[#323b67] hover:border-[#094A71]/30 bg-white dark:bg-card-dark'
+                                            }`}
+                                        >
+                                            <span className={`material-symbols-outlined text-3xl ${testLevel === 1 ? 'text-[#094A71]' : 'text-slate-400'}`}>school</span>
+                                            <div className="text-center">
+                                                <p className={`text-base font-black ${testLevel === 1 ? 'text-[#094A71]' : 'text-slate-600 dark:text-slate-300'}`}>Level 1</p>
+                                                <p className="text-[10px] text-slate-400 font-medium mt-0.5">Standard Test</p>
+                                            </div>
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={() => setTestLevel(2)}
+                                            className={`flex flex-col items-center gap-2 p-5 rounded-2xl border-2 transition-all text-left ${
+                                                testLevel === 2
+                                                    ? 'border-red-500 bg-red-500/5 dark:bg-red-500/10 shadow-md scale-[1.02]'
+                                                    : 'border-slate-200 dark:border-[#323b67] hover:border-red-300 bg-white dark:bg-card-dark'
+                                            }`}
+                                        >
+                                            <span className={`material-symbols-outlined text-3xl ${testLevel === 2 ? 'text-red-500' : 'text-slate-400'}`}>flash_on</span>
+                                            <div className="text-center">
+                                                <p className={`text-base font-black ${testLevel === 2 ? 'text-red-500' : 'text-slate-600 dark:text-slate-300'}`}>Level 2</p>
+                                                <p className="text-[10px] text-slate-400 font-medium mt-0.5">Survival Mode</p>
+                                            </div>
+                                        </button>
+                                    </div>
+                                    {testLevel === 2 && (
+                                        <p className="text-[10px] text-red-500 bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 rounded-xl px-3 py-2 leading-relaxed">
+                                            ⚡ **Level 2 Rules:** 60 seconds time limit, backspace is disabled, and only 3 typing errors are allowed before failing.
+                                        </p>
+                                    )}
+                                </div>
+                            )}
+
+                            {currentStep === 3 && (
+                                <div className="flex flex-col gap-4 animate-in fade-in duration-200">
+                                    <div className="flex bg-slate-100 dark:bg-[#232948] p-1 rounded-xl border border-slate-200/50 dark:border-slate-800 shadow-inner w-fit self-center">
+                                        <button
+                                            type="button"
+                                            onClick={() => setSourceMode('library')}
+                                            className={`flex items-center gap-1.5 px-4 py-2 text-xs font-bold rounded-lg transition-all duration-150 ${
+                                                sourceMode === 'library'
+                                                    ? 'bg-white dark:bg-card-dark text-primary shadow-sm'
+                                                    : 'text-slate-500 dark:text-[#929bc9]'
+                                            }`}
+                                        >
+                                            <span className="material-symbols-outlined text-[16px]">library_books</span>
+                                            Text Library
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={() => setSourceMode('custom')}
+                                            className={`flex items-center gap-1.5 px-4 py-2 text-xs font-bold rounded-lg transition-all duration-150 ${
+                                                sourceMode === 'custom'
+                                                    ? 'bg-white dark:bg-card-dark text-primary shadow-sm'
+                                                    : 'text-slate-500 dark:text-[#929bc9]'
+                                            }`}
+                                        >
+                                            <span className="material-symbols-outlined text-[16px]">edit_note</span>
+                                            Custom Text
+                                        </button>
+                                    </div>
+
+                                    {sourceMode === 'library' ? (
+                                        <div className="flex flex-col gap-3">
+                                            <div className="relative">
+                                                <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-[18px]">search</span>
+                                                <input
+                                                    value={searchQuery}
+                                                    onChange={e => setSearchQuery(e.target.value)}
+                                                    className="w-full pl-9 pr-3 py-2 bg-slate-50 dark:bg-[#232948] border border-slate-200 dark:border-[#323b67] text-slate-900 dark:text-white rounded-xl text-xs font-normal focus:outline-none"
+                                                    placeholder="Search library texts by title..."
+                                                />
+                                            </div>
+                                            <div className="max-h-[220px] overflow-y-auto custom-scrollbar flex flex-col gap-2 pr-1">
+                                                {filteredLibrary.map(test => (
+                                                    <div
+                                                        key={test.id}
+                                                        onClick={() => setSelectedLibraryId(test.id)}
+                                                        className={`flex items-center gap-3 p-3 rounded-xl border transition-all cursor-pointer ${
+                                                            selectedLibraryId === test.id
+                                                                ? 'border-primary bg-primary/5 dark:bg-primary/5'
+                                                                : 'border-slate-200 dark:border-[#323b67] bg-white dark:bg-card-dark hover:border-slate-300'
+                                                        }`}
+                                                    >
+                                                        <div className="w-10 h-10 rounded-lg bg-cover bg-center shrink-0 border border-slate-100" style={{ backgroundImage: `url('${test.coverImg}')` }} />
+                                                        <div className="flex-1 min-w-0">
+                                                            <h4 className="text-xs font-bold text-slate-900 dark:text-white truncate">{test.title}</h4>
+                                                            <p className="text-[10px] text-slate-400 dark:text-[#929bc9] truncate">by {test.source} · {test.wordCount} words</p>
+                                                        </div>
+                                                        <button
+                                                            type="button"
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                if (test.id === 'lib_tm_10fastfingers' && !generatedDynamicText) {
+                                                                    setGeneratedDynamicText(generate10FastFingersText(ADVANCED_WORD_POOL, 150));
+                                                                }
+                                                                setPreviewingText(test);
+                                                            }}
+                                                            className="p-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-[#232948] dark:hover:bg-[#323b67] text-slate-500"
+                                                        >
+                                                            <span className="material-symbols-outlined text-[16px] font-black">visibility</span>
+                                                        </button>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        <div className="flex flex-col gap-3">
+                                            <input
+                                                type="text"
+                                                required
+                                                value={customTitle}
+                                                onChange={(e) => setCustomTitle(e.target.value)}
+                                                placeholder="Custom Test Title"
+                                                className="w-full rounded-xl bg-slate-50 dark:bg-[#232948] border border-slate-200 dark:border-[#323b67] text-slate-900 dark:text-white py-2 px-3 text-xs font-semibold outline-none"
+                                            />
+                                            <textarea
+                                                required
+                                                value={customContent}
+                                                onChange={(e) => setCustomContent(e.target.value)}
+                                                placeholder="Type or paste custom test content..."
+                                                rows={5}
+                                                className="w-full rounded-xl bg-slate-50 dark:bg-[#232948] border border-slate-200 dark:border-[#323b67] text-slate-900 dark:text-white py-2 px-3 text-xs font-mono outline-none custom-scrollbar"
+                                            />
+                                            <div className="flex justify-between items-center text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">
+                                                <span>Words: {customWordCount}</span>
+                                                <span>Estimated time: {customEstimatedTime} min</span>
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+
+                            {currentStep === 4 && (
+                                <div className="flex flex-col gap-4 animate-in fade-in duration-200">
+                                    {/* Row 1: Time limit and Attempts */}
+                                    <div className="grid grid-cols-2 gap-3">
+                                        <div className="flex flex-col gap-1.5">
+                                            <label className="text-[10px] font-bold text-slate-400 dark:text-[#929bc9] uppercase tracking-wider">Time Limit</label>
+                                            <div className="relative">
+                                                <select
+                                                    value={timeLimit}
+                                                    onChange={e => setTimeLimit(e.target.value)}
+                                                    className="w-full appearance-none rounded-xl bg-slate-50 dark:bg-[#232948] border border-slate-200 dark:border-[#323b67] py-2.5 px-3 text-xs font-bold outline-none text-slate-900 dark:text-white"
+                                                >
+                                                    <option value="1">1 Minute</option>
+                                                    <option value="2">2 Minutes</option>
+                                                    <option value="3">3 Minutes</option>
+                                                    <option value="5">5 Minutes</option>
+                                                    <option value="0">Unlimited</option>
+                                                </select>
+                                                <span className="material-symbols-outlined text-[16px] text-slate-400 absolute right-3 top-1/2 -translate-y-1/2">timer</span>
+                                            </div>
+                                        </div>
+                                        <div className="flex flex-col gap-1.5">
+                                            <label className="text-[10px] font-bold text-slate-400 dark:text-[#929bc9] uppercase tracking-wider">Allowed Attempts</label>
+                                            <input
+                                                type="number"
+                                                min="1"
+                                                placeholder="Unlimited"
+                                                value={allowedTrials}
+                                                onChange={e => setAllowedTrials(e.target.value)}
+                                                className="w-full rounded-xl bg-slate-50 dark:bg-[#232948] border border-slate-200 dark:border-[#323b67] py-2 px-3 text-xs font-bold outline-none text-slate-900 dark:text-white"
+                                            />
+                                        </div>
+                                    </div>
+
+                                    {/* Access Window */}
+                                    <div className="flex flex-col gap-1.5">
+                                        <label className="text-[10px] font-bold text-slate-400 dark:text-[#929bc9] uppercase tracking-wider">Access Window</label>
+                                        <select
+                                            value={accessWindow}
+                                            onChange={e => setAccessWindow(e.target.value)}
+                                            className="w-full appearance-none rounded-xl bg-slate-50 dark:bg-[#232948] border border-slate-200 dark:border-[#323b67] py-2.5 px-3 text-xs font-bold outline-none text-slate-900 dark:text-white"
+                                        >
+                                            <option value="10">10 Minutes</option>
+                                            <option value="30">30 Minutes</option>
+                                            <option value="60">1 Hour</option>
+                                            <option value="180">3 Hours</option>
+                                            <option value="1440">1 Day</option>
+                                            <option value="4320">3 Days</option>
+                                            <option value="10080">1 Week</option>
+                                        </select>
+                                    </div>
+
+                                    {/* Attendance filter & Bypass switches */}
+                                    <div className="flex flex-col gap-3 border-t border-slate-100 dark:border-[#323b67] pt-4 mt-1">
+                                        {assignmentMode === 'section' && (
+                                            <div className="flex flex-col gap-2 bg-slate-50/50 dark:bg-[#323b67]/10 p-3 rounded-xl border border-slate-200/50 dark:border-[#323b67]">
+                                                <label className="flex items-center gap-3 cursor-pointer select-none">
+                                                    <div
+                                                        onClick={() => setRestrictToAttended(!restrictToAttended)}
+                                                        className={`relative w-8 h-4.5 rounded-full transition-all duration-150 cursor-pointer shrink-0 ${restrictToAttended ? 'bg-primary' : 'bg-slate-350 dark:bg-slate-600'}`}
+                                                    >
+                                                        <div className={`absolute top-0.5 left-0.5 w-3.5 h-3.5 rounded-full bg-white shadow transition-all duration-150 ${restrictToAttended ? 'translate-x-3.5' : 'translate-x-0'}`} />
+                                                    </div>
+                                                    <span className="text-xs font-bold text-slate-800 dark:text-white">Restrict to Attended Students</span>
+                                                </label>
+                                                {restrictToAttended && (
+                                                    <div className="flex flex-col gap-1 mt-1 animate-in slide-in-from-top-1 duration-150">
+                                                        <span className="text-[9px] font-black text-slate-400 dark:text-[#929bc9] uppercase tracking-wider">Attendance Date</span>
+                                                        <input
+                                                            type="date"
+                                                            value={selectedAttendanceDate}
+                                                            onChange={(e) => setSelectedAttendanceDate(e.target.value)}
+                                                            className="w-full bg-white dark:bg-[#232948] border border-slate-200 dark:border-[#323b67] text-slate-750 dark:text-white rounded-lg px-3 py-1.5 text-xs font-semibold outline-none focus:border-primary/60"
+                                                        />
+                                                    </div>
+                                                )}
                                             </div>
                                         )}
-                                        <div
-                                            className="w-16 h-16 sm:w-20 sm:h-20 shrink-0 rounded-xl bg-slate-100 dark:bg-[#323b67] bg-cover bg-center border border-slate-200/50 dark:border-[#323b67]/50 shadow-sm"
-                                            style={{ backgroundImage: `url('${test.coverImg}')` }}
-                                        />
-                                        <div className="flex flex-col gap-1.5 flex-1 pr-8">
-                                            <h3 className="text-slate-900 dark:text-white font-bold text-lg group-hover:text-primary transition-colors duration-200 tracking-tight font-heading">{test.title}</h3>
-                                            <p className="text-slate-400 dark:text-[#929bc9] text-xs font-semibold">by {test.source}</p>
-                                            <div className="flex flex-wrap items-center justify-between gap-3.5 mt-2">
-                                                <div className="flex flex-wrap items-center gap-3.5">
-                                                    <span className={`text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full shadow-sm ${
-                                                        test.complexity === 'Easy' ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-500/10 dark:text-emerald-400' :
-                                                        test.complexity === 'Medium' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-500/10 dark:text-yellow-400' :
-                                                        'bg-red-100 text-red-800 dark:bg-red-500/10 dark:text-red-400'
-                                                    }`}>
-                                                        {test.complexity}
-                                                    </span>
-                                                    <span className="text-xs text-slate-400 dark:text-[#929bc9] flex items-center gap-1 font-bold">
-                                                        <span className="material-symbols-outlined text-[14px]">schedule</span> {test.estimatedTimeMin} min
-                                                    </span>
-                                                    <span className="text-xs text-slate-400 dark:text-[#929bc9] font-bold">{test.wordCount} words</span>
-                                                </div>
-                                                <button
-                                                    type="button"
-                                                    onClick={(e) => {
-                                                        e.stopPropagation();
-                                                        if (test.id === 'lib_tm_10fastfingers' && !generatedDynamicText) {
-                                                            setGeneratedDynamicText(generate10FastFingersText(ADVANCED_WORD_POOL, 150));
-                                                        }
-                                                        setPreviewingText(test);
-                                                    }}
-                                                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-[#323b67]/80 hover:border-[#094A71]/50 text-slate-500 dark:text-[#929bc9] hover:text-[#094A71] bg-slate-50 dark:bg-[#232948] transition-all text-xs font-bold font-heading hover-scale active-scale shadow-sm shrink-0"
-                                                >
-                                                    <span className="material-symbols-outlined text-sm font-black">visibility</span>
-                                                    Quick Preview
-                                                </button>
-                                            </div>
-                                            <p className={`text-slate-500 dark:text-[#929bc9]/80 text-sm mt-3 line-clamp-2 leading-relaxed ${test.level === 2 ? 'font-mono text-[13px] bg-slate-50 dark:bg-black/20 p-2.5 rounded-lg border border-slate-100 dark:border-slate-800' : ''}`}>
-                                                {test.excerpt}
-                                            </p>
-                                        </div>
-                                    </div>
-                                ))}
-                                {filteredLibrary.length === 0 && (
-                                    <div className="p-8 text-center text-slate-400 dark:text-[#929bc9] border border-dashed border-slate-200 dark:border-[#323b67] rounded-xl bg-slate-50/50 dark:bg-[#232948]/50">
-                                        No texts found for Level {testLevel} matching your search.
-                                    </div>
-                                )}
-                            </div>
-                        </div>
-                    ) : (
-                        <div className="flex flex-col gap-6 bg-white dark:bg-card-dark border border-slate-200 dark:border-[#323b67] p-6 rounded-2xl shadow-sm">
-                            <div>
-                                <h3 className="text-lg font-black text-slate-900 dark:text-white font-heading">Custom Text Editor</h3>
-                                <p className="text-sm text-slate-500 dark:text-[#929bc9]">Provide your own content for the typing test. The system will automatically calculate the metrics.</p>
-                            </div>
-                            <div className="flex flex-col gap-2">
-                                <label className="text-xs font-bold text-slate-400 dark:text-[#929bc9] uppercase tracking-wider">Test Title</label>
-                                <input
-                                    type="text"
-                                    required
-                                    value={customTitle}
-                                    onChange={(e) => setCustomTitle(e.target.value)}
-                                    placeholder="e.g., Weekly Custom Assessment"
-                                    className="w-full rounded-xl bg-slate-50 dark:bg-[#232948] border border-slate-200 dark:border-[#323b67] text-slate-900 dark:text-white py-3 px-4 text-sm font-semibold outline-none focus:border-primary/60 transition-colors"
-                                />
-                            </div>
-                            <div className="flex flex-col gap-2">
-                                <label className="text-xs font-bold text-slate-400 dark:text-[#929bc9] uppercase tracking-wider">Text Content</label>
-                                <textarea
-                                    required
-                                    value={customContent}
-                                    onChange={(e) => setCustomContent(e.target.value)}
-                                    placeholder="Paste or type the text you want students to type here..."
-                                    rows={8}
-                                    className="w-full rounded-xl bg-slate-50 dark:bg-[#232948] border border-slate-200 dark:border-[#323b67] text-slate-900 dark:text-white py-3 px-4 text-sm font-mono outline-none focus:border-primary/60 transition-colors custom-scrollbar"
-                                />
-                            </div>
-                            <div className="flex justify-between items-center p-4 bg-slate-50 dark:bg-[#232948] rounded-xl border border-slate-100 dark:border-[#323b67]">
-                                <div className="flex flex-col gap-1">
-                                    <span className="text-[10px] font-black text-slate-400 dark:text-[#929bc9] uppercase tracking-widest">Word Count</span>
-                                    <span className="text-xl font-black text-slate-900 dark:text-white font-mono">{customWordCount}</span>
-                                </div>
-                                <div className="flex flex-col gap-1 text-right">
-                                    <span className="text-[10px] font-black text-slate-400 dark:text-[#929bc9] uppercase tracking-widest">Estimated Time</span>
-                                    <span className="text-xl font-black text-slate-900 dark:text-white font-mono">{customEstimatedTime} min</span>
-                                </div>
-                            </div>
-                        </div>
-                    )}
-                </div>
 
-                {/* ────────── STEP 2: AUDIENCE ────────── */}
-                <div className={`transition-all duration-400 ${currentStep === 2 ? 'opacity-100 translate-x-0' : currentStep > 2 ? 'opacity-0 -translate-x-8 absolute inset-0 pointer-events-none' : 'opacity-0 translate-x-8 absolute inset-0 pointer-events-none'}`}>
-                    <div className="flex flex-col gap-6 max-w-2xl">
-                        <div>
-                            <h2 className="text-xl font-black text-slate-900 dark:text-white font-heading mb-1">Who receives this test?</h2>
-                            <p className="text-sm text-slate-500 dark:text-[#929bc9]">Choose to assign to an entire class section or hand-pick specific students.</p>
-                        </div>
-
-                        {/* Mode Toggle */}
-                        <div className="flex bg-slate-100 dark:bg-[#232948] p-1.5 rounded-2xl border border-slate-200/50 dark:border-slate-800/80 shadow-inner w-fit">
-                            <button
-                                type="button"
-                                onClick={() => setAssignmentMode('section')}
-                                className={`flex items-center gap-2 px-5 py-2.5 text-sm font-bold rounded-xl transition-all duration-200 hover-scale active-scale ${
-                                    assignmentMode === 'section'
-                                        ? 'bg-white dark:bg-card-dark text-primary shadow-md'
-                                        : 'text-slate-500 dark:text-[#929bc9] hover:text-slate-950 dark:hover:text-white'
-                                }`}
-                            >
-                                <span className="material-symbols-outlined text-[18px]">groups</span>
-                                Entire Section
-                            </button>
-                            <button
-                                type="button"
-                                onClick={() => setAssignmentMode('students')}
-                                className={`flex items-center gap-2 px-5 py-2.5 text-sm font-bold rounded-xl transition-all duration-200 hover-scale active-scale ${
-                                    assignmentMode === 'students'
-                                        ? 'bg-white dark:bg-card-dark text-primary shadow-md'
-                                        : 'text-slate-500 dark:text-[#929bc9] hover:text-slate-950 dark:hover:text-white'
-                                }`}
-                            >
-                                <span className="material-symbols-outlined text-[18px]">person_check</span>
-                                Pick Students
-                            </button>
-                        </div>
-
-                        {/* Section Picker */}
-                        {assignmentMode === 'section' && (
-                            <div className="flex flex-col gap-4">
-                                <div className="flex flex-col gap-2">
-                                    <label className="text-xs font-bold text-slate-400 dark:text-[#929bc9] uppercase tracking-wider">Target Class Section</label>
-                                    <div className="relative">
-                                        <select
-                                            className="w-full appearance-none rounded-xl bg-slate-50 dark:bg-[#232948] border border-slate-200 dark:border-[#323b67] focus:border-primary/60 text-slate-900 dark:text-white py-3.5 px-4 pr-10 text-sm font-semibold outline-none"
-                                            value={targetSection}
-                                            onChange={(e) => setTargetSection(e.target.value)}
-                                        >
-                                            <option disabled value="">Select a class section...</option>
-                                            {sections?.map(section => (
-                                                <option key={section.id} value={section.id}>
-                                                    {section.intakeName ? `${section.intakeName} — ` : ''}{section.name}
-                                                </option>
-                                            ))}
-                                        </select>
-                                        <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-slate-400 dark:text-[#929bc9]">
-                                            <span className="material-symbols-outlined">expand_more</span>
-                                        </div>
-                                    </div>
-                                    {targetSection && (
-                                        <p className="text-[10px] text-primary font-bold flex items-center gap-1 mt-0.5">
-                                            <span className="material-symbols-outlined text-[12px]">info</span>
-                                            Only students matching Level {testLevel} criteria will receive the test.
-                                        </p>
-                                    )}
-                                </div>
-
-                                {/* Attendance Toggle */}
-                                <div className="flex flex-col gap-3 p-4 rounded-2xl border border-slate-200 dark:border-[#323b67] bg-slate-50/50 dark:bg-[#323b67]/10">
-                                    <label className="flex items-center gap-3 cursor-pointer select-none">
-                                        <div
-                                            onClick={() => setRestrictToAttended(!restrictToAttended)}
-                                            className={`relative w-10 h-5 rounded-full transition-all duration-200 cursor-pointer ${restrictToAttended ? 'bg-primary' : 'bg-slate-300 dark:bg-slate-600'}`}
-                                        >
-                                            <div className={`absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white shadow transition-all duration-200 ${restrictToAttended ? 'translate-x-5' : 'translate-x-0'}`} />
-                                        </div>
-                                        <div>
-                                            <p className="text-sm font-bold text-slate-800 dark:text-white">Restrict to Attended Students</p>
-                                            <p className="text-[10px] text-slate-500 dark:text-[#929bc9] font-medium mt-0.5">
-                                                Only publish to students marked present on the selected class date.
-                                            </p>
-                                        </div>
-                                    </label>
-
-                                    {restrictToAttended && (
-                                        <div className="flex flex-col gap-1.5 mt-1 animate-in slide-in-from-top-1 duration-200 border-t border-slate-200 dark:border-[#323b67] pt-3">
-                                            <label className="text-[9px] font-black text-slate-400 dark:text-[#929bc9] uppercase tracking-wider">Attendance Date</label>
+                                        <div className="flex items-start gap-3 bg-[#094A71]/5 dark:bg-[#094A71]/10 border border-[#094A71]/15 p-3 rounded-xl">
                                             <input
-                                                type="date"
-                                                value={selectedAttendanceDate}
-                                                onChange={(e) => setSelectedAttendanceDate(e.target.value)}
-                                                className="w-full max-w-xs bg-white dark:bg-[#232948] border border-slate-200 dark:border-[#323b67] text-slate-750 dark:text-white rounded-xl px-4 py-2.5 text-sm font-semibold outline-none focus:border-primary/60"
-                                            />
-                                        </div>
-                                    )}
-                                </div>
-
-                                {/* Bypass Toggle */}
-                                <div className="flex items-start gap-3 bg-[#094A71]/5 dark:bg-[#094A71]/10 border border-[#094A71]/15 p-4 rounded-2xl">
-                                    <input
-                                        id="bypass-criteria-toggle"
-                                        type="checkbox"
-                                        className="mt-0.5 rounded text-[#094A71] focus:ring-[#094A71]/30 bg-white dark:bg-card-dark border-slate-300 dark:border-slate-800 h-4 w-4 cursor-pointer"
-                                        checked={bypassCriteria}
-                                        onChange={(e) => setBypassCriteria(e.target.checked)}
-                                    />
-                                    <div className="flex flex-col gap-0.5 cursor-pointer select-none" onClick={() => setBypassCriteria(!bypassCriteria)}>
-                                        <label htmlFor="bypass-criteria-toggle" className="text-[10px] font-black text-[#094A71] dark:text-blue-400 uppercase tracking-widest cursor-pointer">
-                                            Bypass Criteria (Testing Mode)
-                                        </label>
-                                        <p className="text-[9px] text-slate-500 dark:text-[#929bc9] leading-relaxed font-semibold">
-                                            Instantly publishes to all targeted students even if they do not match the Level {testLevel} requirements.
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-                        )}
-
-                        {/* Student Picker */}
-                        {assignmentMode === 'students' && (
-                            <div className="flex flex-col gap-3">
-                                <div className="flex items-center justify-between">
-                                    <label className="text-xs font-bold text-slate-400 dark:text-[#929bc9] uppercase tracking-wider">Select Students</label>
-                                    <span className="text-[10px] font-black text-primary uppercase tracking-wider">{selectedStudentIds.length} selected</span>
-                                </div>
-                                <div className="overflow-y-auto bg-slate-50 dark:bg-[#232948] rounded-2xl border border-slate-200 dark:border-[#323b67] p-2 flex flex-col gap-1 max-h-80 custom-scrollbar">
-                                    {students.map(student => (
-                                        <label key={student.id} className="flex items-center gap-3 p-3 hover:bg-white dark:hover:bg-card-dark rounded-xl cursor-pointer transition-colors border border-transparent hover:border-slate-100 dark:hover:border-slate-800">
-                                            <input
+                                                id="bypass-toggle-wizard"
                                                 type="checkbox"
-                                                className="rounded text-primary focus:ring-primary bg-white dark:bg-card-dark border-slate-300 dark:border-slate-800 h-4 w-4"
-                                                checked={selectedStudentIds.includes(student.id)}
-                                                onChange={(e) => {
-                                                    if (e.target.checked) {
-                                                        setSelectedStudentIds(prev => [...prev, student.id]);
-                                                    } else {
-                                                        setSelectedStudentIds(prev => prev.filter(id => id !== student.id));
-                                                    }
-                                                }}
+                                                className="mt-0.5 rounded text-[#094A71] h-4 w-4 cursor-pointer"
+                                                checked={bypassCriteria}
+                                                onChange={e => setBypassCriteria(e.target.checked)}
                                             />
-                                            <div className="w-8 h-8 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center text-primary font-black text-xs uppercase shrink-0">
-                                                {student.name?.[0] || 'S'}
+                                            <div className="flex flex-col cursor-pointer select-none" onClick={() => setBypassCriteria(!bypassCriteria)}>
+                                                <label htmlFor="bypass-toggle-wizard" className="text-[10px] font-black text-[#094A71] dark:text-blue-400 uppercase tracking-widest cursor-pointer">
+                                                    Bypass Level Criteria
+                                                </label>
+                                                <p className="text-[9px] text-slate-500 dark:text-[#929bc9] font-medium leading-normal mt-0.5">
+                                                    Ignore progress level requirements to publish to everyone in target.
+                                                </p>
                                             </div>
-                                            <div className="flex flex-col">
-                                                <span className="text-sm font-bold text-slate-900 dark:text-white">{student.name}</span>
-                                                <span className="text-[10px] text-slate-400 dark:text-[#929bc9] uppercase font-bold">{student.major}</span>
-                                            </div>
-                                        </label>
-                                    ))}
-                                    {students.length === 0 && (
-                                        <p className="text-xs text-slate-400 dark:text-[#929bc9] p-4 text-center">No active student records.</p>
-                                    )}
-                                </div>
-                            </div>
-                        )}
-                    </div>
-                </div>
-
-                {/* ────────── STEP 3: RULES & LAUNCH ────────── */}
-                <div className={`transition-all duration-400 ${currentStep === 3 ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-8 absolute inset-0 pointer-events-none'}`}>
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                        {/* Left: Controls */}
-                        <div className="flex flex-col gap-6">
-                            <div>
-                                <h2 className="text-xl font-black text-slate-900 dark:text-white font-heading mb-1">Set the rules</h2>
-                                <p className="text-sm text-slate-500 dark:text-[#929bc9]">Configure time limits, attempts, and access window before launching.</p>
-                            </div>
-
-                            {/* Time Limit */}
-                            <div className="flex flex-col gap-2">
-                                <label className="text-xs font-bold text-slate-400 dark:text-[#929bc9] uppercase tracking-wider flex justify-between">
-                                    <span>Time Limit</span>
-                                    <span className="text-[10px] font-black text-slate-400/80">Default: 1 min</span>
-                                </label>
-                                <div className="relative">
-                                    <select
-                                        className="w-full appearance-none rounded-xl bg-slate-50 dark:bg-[#232948] border border-slate-200 dark:border-[#323b67] focus:border-primary/60 text-slate-900 dark:text-white py-3 px-4 pr-10 text-sm font-semibold outline-none"
-                                        value={timeLimit}
-                                        onChange={(e) => setTimeLimit(e.target.value)}
-                                    >
-                                        <option value="1">1 Minute</option>
-                                        <option value="2">2 Minutes</option>
-                                        <option value="3">3 Minutes</option>
-                                        <option value="5">5 Minutes</option>
-                                        <option value="0">Unlimited</option>
-                                    </select>
-                                    <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-slate-400 dark:text-[#929bc9]">
-                                        <span className="material-symbols-outlined text-sm">timer</span>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
+                            )}
 
-                            {/* Allowed Attempts */}
-                            <div className="flex flex-col gap-2">
-                                <label className="text-xs font-bold text-slate-400 dark:text-[#929bc9] uppercase tracking-wider flex items-center gap-1">
-                                    <span>Allowed Attempts</span>
-                                    <span className="material-symbols-outlined text-sm text-slate-400 cursor-help" title="Number of attempts allowed for this test session">info</span>
-                                </label>
-                                <div className="flex items-center bg-slate-50 dark:bg-[#232948] rounded-xl px-4 py-1.5 border border-slate-200 dark:border-[#323b67] focus-within:border-primary/60">
-                                    <input
-                                        className="w-full bg-transparent border-none focus:ring-0 text-slate-900 dark:text-white font-bold text-sm py-2 focus:outline-none"
-                                        min="1"
-                                        placeholder="Unlimited Attempts"
-                                        type="number"
-                                        value={allowedTrials}
-                                        onChange={(e) => setAllowedTrials(e.target.value)}
-                                    />
-                                    <span className="text-[10px] text-slate-400 uppercase tracking-widest font-black shrink-0 ml-2">Attempts</span>
-                                </div>
-                            </div>
+                            {currentStep === 5 && (
+                                <div className="flex flex-col gap-4 animate-in fade-in duration-200">
+                                    <div className="bg-slate-50 dark:bg-black/20 rounded-2xl border border-slate-200 dark:border-[#323b67] overflow-hidden">
+                                        <div className={`h-1.5 w-full ${testLevel === 2 ? 'bg-gradient-to-r from-red-500 to-orange-400' : 'bg-gradient-to-r from-primary to-emerald-400'}`} />
+                                        <div className="p-4 flex flex-col gap-3">
+                                            {/* Passage info */}
+                                            <div className="flex items-start gap-3">
+                                                <span className="material-symbols-outlined text-primary text-xl mt-0.5">description</span>
+                                                <div className="min-w-0 flex-1">
+                                                    <p className="text-[9px] font-black text-slate-400 dark:text-[#929bc9] uppercase tracking-widest mb-0.5">Passage</p>
+                                                    <p className="text-xs font-bold text-slate-900 dark:text-white truncate">
+                                                        {sourceMode === 'library' ? (activeLibraryText?.title || '—') : (customTitle || 'Custom Text')}
+                                                    </p>
+                                                    <span className={`inline-block text-[9px] font-black px-2 py-0.5 rounded-full mt-1.5 ${testLevel === 2 ? 'bg-red-100 dark:bg-red-500/15 text-red-600 dark:text-red-400' : 'bg-[#094A71]/10 text-[#094A71]'}`}>
+                                                        Level {testLevel} — {testLevel === 2 ? 'Survival' : 'Standard'}
+                                                    </span>
+                                                </div>
+                                            </div>
 
-                            {/* Access Window */}
-                            <div className="flex flex-col gap-2">
-                                <label className="text-xs font-bold text-slate-400 dark:text-[#929bc9] uppercase tracking-wider flex items-center gap-1">
-                                    <span>Access Window</span>
-                                    <span className="material-symbols-outlined text-sm text-slate-400 cursor-help" title="How long students have to access and complete this test from now">info</span>
-                                </label>
-                                <div className="relative">
-                                    <select
-                                        className="w-full appearance-none rounded-xl bg-slate-50 dark:bg-[#232948] border border-slate-200 dark:border-[#323b67] focus:border-primary/60 text-slate-900 dark:text-white py-3 px-4 pr-10 text-sm font-semibold outline-none"
-                                        value={accessWindow}
-                                        onChange={(e) => setAccessWindow(e.target.value)}
-                                    >
-                                        <option value="10">10 Minutes</option>
-                                        <option value="30">30 Minutes</option>
-                                        <option value="60">1 Hour</option>
-                                        <option value="180">3 Hours</option>
-                                        <option value="1440">1 Day</option>
-                                        <option value="4320">3 Days</option>
-                                        <option value="10080">1 Week</option>
-                                    </select>
-                                    <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-slate-400 dark:text-[#929bc9]">
-                                        <span className="material-symbols-outlined text-sm">event_available</span>
+                                            <hr className="border-slate-200/50 dark:border-[#323b67]/45" />
+
+                                            {/* Audience info */}
+                                            <div className="flex items-start gap-3">
+                                                <span className="material-symbols-outlined text-primary text-xl mt-0.5">groups</span>
+                                                <div>
+                                                    <p className="text-[9px] font-black text-slate-400 dark:text-[#929bc9] uppercase tracking-widest mb-0.5">Target Audience</p>
+                                                    <p className="text-xs font-bold text-slate-900 dark:text-white">
+                                                        {assignmentMode === 'section'
+                                                            ? (sections.find(s => s.id === targetSection)?.name || 'No section')
+                                                            : `${selectedStudentIds.length} student(s)`}
+                                                    </p>
+                                                </div>
+                                            </div>
+
+                                            <hr className="border-slate-200/50 dark:border-[#323b67]/45" />
+
+                                            {/* Rules info */}
+                                            <div className="grid grid-cols-3 gap-2 text-center bg-white dark:bg-card-dark p-2 rounded-xl border border-slate-100 dark:border-slate-800">
+                                                <div>
+                                                    <p className="text-[9px] font-black text-slate-400 dark:text-[#929bc9] uppercase tracking-widest mb-0.5">Time</p>
+                                                    <p className="text-xs font-black text-slate-900 dark:text-white">{timeLimit === '0' ? '∞' : `${timeLimit}m`}</p>
+                                                </div>
+                                                <div>
+                                                    <p className="text-[9px] font-black text-slate-400 dark:text-[#929bc9] uppercase tracking-widest mb-0.5">Attempts</p>
+                                                    <p className="text-xs font-black text-slate-900 dark:text-white">{allowedTrials || '∞'}</p>
+                                                </div>
+                                                <div>
+                                                    <p className="text-[9px] font-black text-slate-400 dark:text-[#929bc9] uppercase tracking-widest mb-0.5">Window</p>
+                                                    <p className="text-xs font-black text-slate-900 dark:text-white">
+                                                        {accessWindow === '60' ? '1h' : accessWindow === '1440' ? '1d' : accessWindow === '10080' ? '1w' : `${accessWindow}m`}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
-                                <p className="text-[10px] text-slate-400 dark:text-[#929bc9] font-semibold">After this period, the test locks and marks absent students as <span className="text-rose-500 font-black">Missing</span>.</p>
-                            </div>
+                            )}
                         </div>
 
-                        {/* Right: Mission Brief */}
-                        <div className="flex flex-col gap-4">
-                            <div>
-                                <h2 className="text-xl font-black text-slate-900 dark:text-white font-heading mb-1">Mission Brief</h2>
-                                <p className="text-sm text-slate-500 dark:text-[#929bc9]">Review before you deploy.</p>
-                            </div>
+                        {/* Footer */}
+                        <div className="p-4 border-t border-slate-100 dark:border-[#323b67] bg-slate-50 dark:bg-[#1a1f37]/50 flex items-center justify-between">
+                            <button
+                                type="button"
+                                onClick={() => setCurrentStep(s => Math.max(1, s - 1))}
+                                disabled={currentStep === 1}
+                                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl border border-slate-200 dark:border-[#323b67] text-slate-750 dark:text-slate-300 font-bold text-xs hover:bg-slate-100 dark:hover:bg-[#232948] transition-all disabled:opacity-30 disabled:pointer-events-none"
+                            >
+                                <span className="material-symbols-outlined text-[16px]">arrow_back</span>
+                                Back
+                            </button>
 
-                            <div className="bg-white dark:bg-card-dark border border-slate-200 dark:border-[#323b67] rounded-2xl overflow-hidden shadow-sm">
-                                {/* Header accent */}
-                                <div className={`h-1.5 w-full ${testLevel === 2 ? 'bg-gradient-to-r from-red-500 to-orange-400' : 'bg-gradient-to-r from-primary to-emerald-400'}`} />
-
-                                <div className="p-5 flex flex-col gap-4">
-                                    {/* Text */}
-                                    <div className="flex items-start gap-3">
-                                        <div className="w-9 h-9 rounded-xl bg-slate-100 dark:bg-[#323b67] bg-cover bg-center shrink-0 mt-0.5" style={{ backgroundImage: `url('${activeLibraryText?.coverImg || ''}')` }} />
-                                        <div>
-                                            <p className="text-[9px] font-black text-slate-400 dark:text-[#929bc9] uppercase tracking-widest mb-0.5">Test Content</p>
-                                            <p className="text-sm font-bold text-slate-900 dark:text-white leading-tight">
-                                                {sourceMode === 'library' ? (activeLibraryText?.title || '—') : (customTitle || 'Custom Text')}
-                                            </p>
-                                            <div className="flex items-center gap-2 mt-1.5 flex-wrap">
-                                                <span className={`text-[10px] font-black px-2 py-0.5 rounded-full ${testLevel === 2 ? 'bg-red-100 dark:bg-red-500/15 text-red-600 dark:text-red-400' : 'bg-[#094A71]/10 text-[#094A71]'}`}>
-                                                    Level {testLevel} — {testLevel === 2 ? 'Survival' : 'Standard'}
-                                                </span>
-                                                <span className="text-[10px] font-bold text-slate-400">
-                                                    {sourceMode === 'library' ? `${activeLibraryText?.wordCount || 0} words` : `${customWordCount} words`}
-                                                </span>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <hr className="border-slate-100 dark:border-[#323b67]/45" />
-
-                                    {/* Audience */}
-                                    <div className="flex items-start gap-3">
-                                        <span className="material-symbols-outlined text-primary text-xl mt-0.5">groups</span>
-                                        <div>
-                                            <p className="text-[9px] font-black text-slate-400 dark:text-[#929bc9] uppercase tracking-widest mb-0.5">Audience</p>
-                                            <p className="text-sm font-bold text-slate-900 dark:text-white">
-                                                {assignmentMode === 'section'
-                                                    ? (sections.find(s => s.id === targetSection)?.name || 'No section selected')
-                                                    : `${selectedStudentIds.length} student${selectedStudentIds.length !== 1 ? 's' : ''} selected`}
-                                            </p>
-                                            {assignmentMode === 'section' && restrictToAttended && (
-                                                <p className="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold mt-0.5 flex items-center gap-1">
-                                                    <span className="material-symbols-outlined text-[12px]">event_available</span>
-                                                    Attendance filter: {selectedAttendanceDate}
-                                                </p>
-                                            )}
-                                        </div>
-                                    </div>
-
-                                    <hr className="border-slate-100 dark:border-[#323b67]/45" />
-
-                                    {/* Rules */}
-                                    <div className="grid grid-cols-3 gap-3 text-center">
-                                        <div>
-                                            <p className="text-[9px] font-black text-slate-400 dark:text-[#929bc9] uppercase tracking-widest mb-1">Time Limit</p>
-                                            <p className="text-base font-black text-slate-900 dark:text-white">{timeLimit === '0' ? '∞' : `${timeLimit}m`}</p>
-                                        </div>
-                                        <div>
-                                            <p className="text-[9px] font-black text-slate-400 dark:text-[#929bc9] uppercase tracking-widest mb-1">Attempts</p>
-                                            <p className="text-base font-black text-slate-900 dark:text-white">{allowedTrials || '∞'}</p>
-                                        </div>
-                                        <div>
-                                            <p className="text-[9px] font-black text-slate-400 dark:text-[#929bc9] uppercase tracking-widest mb-1">Window</p>
-                                            <p className="text-base font-black text-slate-900 dark:text-white">
-                                                {accessWindow === '60' ? '1h' : accessWindow === '1440' ? '1d' : accessWindow === '10080' ? '1w' : `${accessWindow}m`}
-                                            </p>
-                                        </div>
-                                    </div>
-
-                                    {bypassCriteria && (
-                                        <div className="flex items-center gap-2 text-[10px] font-bold text-[#094A71] dark:text-blue-400 bg-[#094A71]/5 dark:bg-[#094A71]/10 border border-[#094A71]/15 px-3 py-2 rounded-xl">
-                                            <span className="material-symbols-outlined text-[14px]">construction</span>
-                                            Bypass criteria enabled
-                                        </div>
-                                    )}
-                                </div>
-                            </div>
-
-                            {/* Publish Button */}
-                            <form onSubmit={handlePublish}>
+                            {currentStep < 5 ? (
                                 <button
-                                    type="submit"
-                                    className="flex w-full items-center justify-center gap-2 rounded-2xl bg-primary py-4 px-4 text-base font-black text-white shadow-lg shadow-primary/25 hover:bg-emerald-600 transition-all hover-scale active-scale glow-primary font-heading"
+                                    type="button"
+                                    onClick={() => {
+                                        if (currentStep === 1) {
+                                            if (assignmentMode === 'section' && !targetSection) {
+                                                alert('Please select a target section.'); return;
+                                            }
+                                            if (assignmentMode === 'students' && selectedStudentIds.length === 0) {
+                                                alert('Please select at least one student.'); return;
+                                            }
+                                        }
+                                        if (currentStep === 3) {
+                                            if (sourceMode === 'library' && !selectedLibraryId) {
+                                                alert('Please select a text from the library.'); return;
+                                            }
+                                            if (sourceMode === 'custom' && (!customTitle.trim() || !customContent.trim())) {
+                                                alert('Please provide a title and text content.'); return;
+                                            }
+                                        }
+                                        setCurrentStep(s => Math.min(5, s + 1));
+                                    }}
+                                    className="inline-flex items-center gap-1.5 px-5 py-2 rounded-xl bg-primary text-white font-black text-xs shadow-md shadow-primary/20 hover:bg-emerald-600 transition-all hover-scale active-scale"
                                 >
-                                    <span className="material-symbols-outlined text-xl">rocket_launch</span>
+                                    Continue
+                                    <span className="material-symbols-outlined text-[16px]">arrow_forward</span>
+                                </button>
+                            ) : (
+                                <button
+                                    type="button"
+                                    onClick={(e) => {
+                                        handlePublish(e);
+                                        setIsWizardOpen(false);
+                                    }}
+                                    className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-xl bg-primary text-white font-black text-xs shadow-md shadow-primary/20 hover:bg-emerald-600 transition-all hover-scale active-scale"
+                                >
+                                    <span className="material-symbols-outlined text-[16px]">rocket_launch</span>
                                     Publish Test
                                 </button>
-                                <Link
-                                    to="/facilitator"
-                                    className="flex w-full items-center justify-center rounded-2xl bg-transparent border border-slate-300 dark:border-[#323b67] py-3.5 px-4 text-sm font-bold text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all hover-scale active-scale font-heading mt-3"
-                                >
-                                    Cancel
-                                </Link>
-                            </form>
+                            )}
                         </div>
                     </div>
                 </div>
-            </div>
-
-            {/* ── Step Navigation ── */}
-            <div className="flex items-center justify-between pt-4 border-t border-slate-100 dark:border-[#323b67]/45 mt-2">
-                <button
-                    type="button"
-                    onClick={() => setCurrentStep(s => Math.max(1, s - 1))}
-                    disabled={currentStep === 1}
-                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl border border-slate-200 dark:border-[#323b67] text-slate-700 dark:text-slate-300 font-bold text-sm hover:bg-slate-50 dark:hover:bg-[#232948] transition-all hover-scale active-scale disabled:opacity-30 disabled:pointer-events-none"
-                >
-                    <span className="material-symbols-outlined text-[18px]">arrow_back</span>
-                    Back
-                </button>
-
-                <span className="text-xs text-slate-400 dark:text-[#929bc9] font-bold hidden sm:block">
-                    Step {currentStep} of 3
-                </span>
-
-                {currentStep < 3 ? (
-                    <button
-                        type="button"
-                        onClick={() => {
-                            if (currentStep === 1) {
-                                if (sourceMode === 'library' && !activeLibraryText) {
-                                    alert('Please select a text from the library.'); return;
-                                }
-                                if (sourceMode === 'custom' && (!customTitle.trim() || !customContent.trim())) {
-                                    alert('Please provide a title and text content.'); return;
-                                }
-                            }
-                            if (currentStep === 2) {
-                                if (assignmentMode === 'section' && !targetSection) {
-                                    alert('Please select a target section.'); return;
-                                }
-                                if (assignmentMode === 'students' && selectedStudentIds.length === 0) {
-                                    alert('Please select at least one student.'); return;
-                                }
-                            }
-                            setCurrentStep(s => Math.min(3, s + 1));
-                        }}
-                        className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-primary text-white font-black text-sm shadow-md shadow-primary/20 hover:bg-emerald-600 transition-all hover-scale active-scale"
-                    >
-                        Next
-                        <span className="material-symbols-outlined text-[18px]">arrow_forward</span>
-                    </button>
-                ) : (
-                    <div className="w-24" /> // spacer when on step 3 (publish button is in the content)
-                )}
-            </div>
+            )}
 
             <div className="h-6" />
 
