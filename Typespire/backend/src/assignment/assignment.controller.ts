@@ -13,6 +13,20 @@ import { AssignmentService } from './assignment.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { LogsService } from '../logs/logs.service';
 
+interface RequestWithUserAndQuery {
+  user?: {
+    id: string;
+    firstName?: string;
+    lastName?: string;
+    email?: string;
+    institutionId?: string;
+  };
+  query?: {
+    studentId?: string;
+    sectionId?: string;
+  };
+}
+
 @Controller('assignment')
 export class AssignmentController {
   constructor(
@@ -36,8 +50,9 @@ export class AssignmentController {
       wpmRequirement?: number;
       accuracyRequirement?: number;
       bypassLevel?: boolean;
+      attendanceDate?: string;
     },
-    @Request() req: any,
+    @Request() req: RequestWithUserAndQuery,
   ) {
     const res = await this.assignmentService.create({
       ...body,
@@ -62,9 +77,9 @@ export class AssignmentController {
 
   @Get('student')
   @UseGuards(JwtAuthGuard)
-  async findForStudent(@Request() req: any) {
-    const studentId = (req.query.studentId as string) || req.user?.id;
-    const sectionId = req.query.sectionId as string;
+  async findForStudent(@Request() req: RequestWithUserAndQuery) {
+    const studentId = req.query?.studentId || req.user?.id || '';
+    const sectionId = req.query?.sectionId;
     return this.assignmentService.findForStudent(studentId, sectionId);
   }
 
@@ -95,7 +110,7 @@ export class AssignmentController {
 
   @Delete(':id')
   @UseGuards(JwtAuthGuard)
-  async delete(@Param('id') id: string, @Request() req: any) {
+  async delete(@Param('id') id: string, @Request() req: RequestWithUserAndQuery) {
     const res = await this.assignmentService.delete(id);
     const actor = req.user;
     void this.logsService.log({

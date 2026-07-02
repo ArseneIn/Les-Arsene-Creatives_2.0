@@ -8,7 +8,7 @@ interface FacilitatorContextType {
     students: Student[];
     assignments: Assignment[];
     sections: Section[];
-    publishAssignment: (assignment: Omit<Assignment, 'id' | 'status' | 'completionRate'>) => Promise<void>;
+    publishAssignment: (assignment: Omit<Assignment, 'id' | 'status' | 'completionRate'> & { attendanceDate?: string }) => Promise<void>;
     submitTestResult: (studentId: string, wpm: number, accuracy: number) => void;
     fetchAssignmentResults: (assignmentId: string) => Promise<AssignmentStudentResult[]>;
     isAssignmentsLoaded: boolean;
@@ -63,6 +63,8 @@ export const FacilitatorProvider: React.FC<{ children: ReactNode }> = ({ childre
                             avgAccuracy: number;
                             testsTaken: number;
                             lastActive?: string | null;
+                            email?: string;
+                            username?: string;
                         }
                         const mapped: Student[] = res.data.students.map((s: BackendStudent) => ({
                             id: s.id,
@@ -74,7 +76,9 @@ export const FacilitatorProvider: React.FC<{ children: ReactNode }> = ({ childre
                             accuracy: s.avgAccuracy,
                             levelProgress: s.testsTaken > 0 ? 50 : 0, // Mock progress
                             status: s.avgWpm >= 30 ? 'On Track' : 'Needs Support',
-                            lastActive: s.lastActive ? new Date(s.lastActive).toLocaleDateString() : 'Inactive'
+                            lastActive: s.lastActive ? new Date(s.lastActive).toLocaleDateString() : 'Inactive',
+                            email: s.email,
+                            username: s.username
                         }));
                         setStudentsList(mapped);
                     }
@@ -97,7 +101,9 @@ export const FacilitatorProvider: React.FC<{ children: ReactNode }> = ({ childre
                                 accuracy: 0,
                                 levelProgress: 0,
                                 status: 'On Track' as const,
-                                lastActive: 'Active'
+                                lastActive: 'Active',
+                                email: student.email,
+                                username: student.username
                             }))
                         )
                 );
@@ -177,7 +183,7 @@ export const FacilitatorProvider: React.FC<{ children: ReactNode }> = ({ childre
         fetchAssignments();
     }, [user]);
 
-    const publishAssignment = async (newAssignment: Omit<Assignment, 'id' | 'status' | 'completionRate'>) => {
+    const publishAssignment = async (newAssignment: Omit<Assignment, 'id' | 'status' | 'completionRate'> & { attendanceDate?: string }) => {
         try {
             const formattedDate = newAssignment.dueDate.includes('/')
                 ? new Date(newAssignment.dueDate.split('/').reverse().join('-')).toISOString()
@@ -194,7 +200,8 @@ export const FacilitatorProvider: React.FC<{ children: ReactNode }> = ({ childre
                 wpmRequirement: newAssignment.wpmRequirement,
                 accuracyRequirement: newAssignment.accuracyRequirement,
                 content: newAssignment.text,
-                bypassLevel: newAssignment.bypassLevel
+                bypassLevel: newAssignment.bypassLevel,
+                attendanceDate: newAssignment.attendanceDate || null
             });
 
             interface DBResponse {

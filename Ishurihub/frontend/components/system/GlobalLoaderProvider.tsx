@@ -142,7 +142,7 @@ function GlobalLoaderInner({ children }: { children: ReactNode }) {
                 }
 
                 setIsNavigating(true);
-            } catch (err) {
+            } catch {
                 // Ignore invalid URLs
             }
         };

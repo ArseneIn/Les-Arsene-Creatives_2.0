@@ -9,6 +9,8 @@ export interface Student {
     levelProgress: number; // 0-100
     status: 'On Track' | 'Near Threshold' | 'At Risk';
     lastActive: string;
+    email?: string;
+    username?: string;
 }
 
 export interface Assignment {
@@ -29,6 +31,7 @@ export interface Assignment {
     accuracyRequirement?: number; // Pass Accuracy
     facilitatorName?: string; // Display name of assigning facilitator
     bypassLevel?: boolean; // Bypass level check (testing mode)
+    attendanceDate?: string; // Target specific attendance date (optional)
 }
 
 export interface Section {

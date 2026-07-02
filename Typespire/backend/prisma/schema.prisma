@@ -60,6 +60,8 @@ model User {
   
   testResults   TestResult[]
   stageOverrides StudentStageRequirementOverride[]
+  attendanceRecords AttendanceRecord[] @relation("StudentAttendance")
+  recordedAttendances AttendanceRecord[] @relation("RecordedAttendance")
 
   @@unique([username, institutionId])
 }
@@ -114,6 +116,7 @@ model Section {
 
   assignments   Assignment[]
   stageRequirements StageRequirement[]
+  attendanceRecords AttendanceRecord[] @relation("SectionAttendance")
 
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
@@ -245,4 +248,20 @@ model PlanConfiguration {
   features    String[]
   createdAt   DateTime         @default(now())
   updatedAt   DateTime         @updatedAt
+}
+
+model AttendanceRecord {
+  id        String   @id @default(uuid())
+  date      DateTime @db.Date
+  status    String   // "PRESENT" | "ABSENT"
+  studentId String
+  student   User     @relation("StudentAttendance", fields: [studentId], references: [id], onDelete: Cascade)
+  sectionId String
+  section   Section  @relation("SectionAttendance", fields: [sectionId], references: [id], onDelete: Cascade)
+  recordedById String?
+  recordedBy   User?    @relation("RecordedAttendance", fields: [recordedById], references: [id], onDelete: SetNull)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([date, studentId, sectionId])
 }

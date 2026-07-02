@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
@@ -18,7 +18,32 @@ export class AssignmentService {
     accuracyRequirement?: number;
     bypassLevel?: boolean;
     institutionId?: string;
+    attendanceDate?: string;
   }) {
+    let finalStudentIds = data.studentIds || [];
+
+    if (data.attendanceDate && data.sectionId) {
+      const attendanceDateObj = new Date(data.attendanceDate + 'T00:00:00.000Z');
+      const presentRecords = await this.prisma.attendanceRecord.findMany({
+        where: {
+          sectionId: data.sectionId,
+          date: attendanceDateObj,
+          status: 'PRESENT',
+        },
+        select: {
+          studentId: true,
+        },
+      });
+
+      if (presentRecords.length === 0) {
+        throw new BadRequestException(
+          'Cannot publish assignment: No students were marked PRESENT on the selected attendance date.',
+        );
+      }
+
+      finalStudentIds = presentRecords.map((r) => r.studentId);
+    }
+
     // Create the associated Test
     const test = await this.prisma.test.create({
       data: {
@@ -39,7 +64,7 @@ export class AssignmentService {
         title: data.title,
         dueDate: new Date(data.dueDate),
         sectionId: data.sectionId || null,
-        studentIds: data.studentIds || [],
+        studentIds: finalStudentIds,
         testId: test.id,
         maxAttempts: data.maxAttempts || 1,
         wpmRequirement: data.wpmRequirement,

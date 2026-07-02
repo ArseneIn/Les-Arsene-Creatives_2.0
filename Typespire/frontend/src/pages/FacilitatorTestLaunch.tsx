@@ -378,6 +378,8 @@ const FacilitatorTestLaunch: React.FC = () => {
     const [allowedTrials, setAllowedTrials] = useState('');
     const [accessWindow, setAccessWindow] = useState('1440'); // default: 1 day in minutes
     const [bypassCriteria, setBypassCriteria] = useState(false);
+    const [restrictToAttended, setRestrictToAttended] = useState(false);
+    const [selectedAttendanceDate, setSelectedAttendanceDate] = useState(new Date().toISOString().split('T')[0]);
     const [previewingText, setPreviewingText] = useState<LibraryText | null>(null);
     
     const [successPopup, setSuccessPopup] = useState<{show: boolean, count: number}>({show: false, count: 0});
@@ -512,7 +514,8 @@ const FacilitatorTestLaunch: React.FC = () => {
             maxAttempts: allowedTrials ? parseInt(allowedTrials) : undefined,
             wpmRequirement: testLevel === 1 ? settings?.level1Wpm : settings?.level2Wpm,
             accuracyRequirement: settings?.requiredAccuracy,
-            bypassLevel: bypassCriteria
+            bypassLevel: bypassCriteria,
+            attendanceDate: (assignmentMode === 'section' && restrictToAttended) ? selectedAttendanceDate : undefined
         });
 
         setSuccessPopup({ show: true, count: finalStudentIds.length });
@@ -795,25 +798,57 @@ const FacilitatorTestLaunch: React.FC = () => {
 
                             {/* Target Section (Conditional) */}
                             {assignmentMode === 'section' && (
-                                <div className="flex flex-col gap-2">
-                                    <label className="text-xs font-bold text-slate-400 dark:text-[#929bc9] uppercase tracking-wider">Target Section</label>
-                                    <div className="relative">
-                                        <select
-                                            className="w-full appearance-none rounded-xl bg-slate-50 dark:bg-[#232948] border border-slate-200 dark:border-[#323b67] focus:border-primary/60 text-slate-900 dark:text-white py-3 px-4 pr-10 text-sm font-semibold outline-none"
-                                            value={targetSection}
-                                            onChange={(e) => setTargetSection(e.target.value)}
-                                            required={assignmentMode === 'section'}
-                                        >
-                                            <option disabled value="">Select a class section...</option>
-                                            {sections?.map(section => (
-                                                <option key={section.id} value={section.id}>
-                                                    {section.intakeName ? `${section.intakeName} - ` : ''}{section.name}
-                                                </option>
-                                            ))}
-                                        </select>
-                                        <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-slate-400 dark:text-[#929bc9]">
-                                            <span className="material-symbols-outlined">expand_more</span>
+                                <div className="flex flex-col gap-3">
+                                    <div className="flex flex-col gap-2">
+                                        <label className="text-xs font-bold text-slate-400 dark:text-[#929bc9] uppercase tracking-wider">Target Section</label>
+                                        <div className="relative">
+                                            <select
+                                                className="w-full appearance-none rounded-xl bg-slate-50 dark:bg-[#232948] border border-slate-200 dark:border-[#323b67] focus:border-primary/60 text-slate-900 dark:text-white py-3 px-4 pr-10 text-sm font-semibold outline-none"
+                                                value={targetSection}
+                                                onChange={(e) => setTargetSection(e.target.value)}
+                                                required={assignmentMode === 'section'}
+                                            >
+                                                <option disabled value="">Select a class section...</option>
+                                                {sections?.map(section => (
+                                                    <option key={section.id} value={section.id}>
+                                                        {section.intakeName ? `${section.intakeName} - ` : ''}{section.name}
+                                                    </option>
+                                                ))}
+                                            </select>
+                                            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-slate-400 dark:text-[#929bc9]">
+                                                <span className="material-symbols-outlined">expand_more</span>
+                                            </div>
                                         </div>
+                                    </div>
+
+                                    {/* Attendance Targeting Toggle */}
+                                    <div className="flex flex-col gap-2.5 p-3 rounded-xl border border-slate-200 dark:border-[#323b67] bg-slate-50/50 dark:bg-[#323b67]/10">
+                                        <label className="flex items-center gap-2 cursor-pointer select-none">
+                                            <input
+                                                type="checkbox"
+                                                className="rounded text-primary focus:ring-primary bg-white dark:bg-card-dark border-slate-300 dark:border-slate-850"
+                                                checked={restrictToAttended}
+                                                onChange={(e) => setRestrictToAttended(e.target.checked)}
+                                            />
+                                            <span className="text-xs font-bold text-slate-800 dark:text-white uppercase tracking-wider">
+                                                Restrict to Attended Students
+                                            </span>
+                                        </label>
+                                        <p className="text-[10px] text-slate-500 dark:text-[#929bc9] font-medium leading-relaxed">
+                                            Only publish this test to students marked present on the selected class date.
+                                        </p>
+                                        
+                                        {restrictToAttended && (
+                                            <div className="flex flex-col gap-1.5 mt-1.5 animate-in slide-in-from-top-1 duration-200">
+                                                <span className="text-[9px] font-black text-slate-400 dark:text-[#929bc9] uppercase tracking-wider">Attendance Date</span>
+                                                <input
+                                                    type="date"
+                                                    value={selectedAttendanceDate}
+                                                    onChange={(e) => setSelectedAttendanceDate(e.target.value)}
+                                                    className="w-full bg-white dark:bg-[#232948] border border-slate-200 dark:border-[#323b67] text-slate-750 dark:text-white rounded-xl px-3 py-2 text-xs font-semibold outline-none focus:border-primary/60"
+                                                />
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
                             )}

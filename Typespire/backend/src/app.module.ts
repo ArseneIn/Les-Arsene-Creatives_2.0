@@ -15,6 +15,7 @@ import { TestResultModule } from './test-result/test-result.module';
 import { BillingModule } from './billing/billing.module';
 import { LogsModule } from './logs/logs.module';
 import { MailerModule } from './mailer/mailer.module';
+import { AttendanceModule } from './attendance/attendance.module';
 
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import { MailerModule } from './mailer/mailer.module';
     BillingModule,
     LogsModule,
     MailerModule,
+    AttendanceModule,
   ],
   controllers: [AppController],
   providers: [AppService],

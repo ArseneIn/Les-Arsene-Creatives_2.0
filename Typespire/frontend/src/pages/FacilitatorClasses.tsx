@@ -1,21 +1,17 @@
 import React, { useState, useCallback } from 'react';
 import { useFacilitator } from '../context/FacilitatorContext';
-import { useInstitution } from '../context/InstitutionContext';
 import type { AssignmentStudentResult } from '../types/facilitator';
 import api from '../api/axios';
 import { StageRequirementsModal } from '../components/Facilitator/StageRequirementsModal';
 
 const FacilitatorClasses: React.FC = () => {
     const { sections, students, assignments, fetchAssignmentResults } = useFacilitator();
-    const { intakes } = useInstitution();
 
     const [selectedSectionId, setSelectedSectionId] = useState<string>(sections[0]?.id || '');
     const [selectedIntake, setSelectedIntake] = useState<string>('All');
     const [resettingPasswordUserId, setResettingPasswordUserId] = useState<string | null>(null);
-    const [isSaving, setIsSaving] = useState<boolean>(false);
 
     // Curriculum Modals
-    const [showSectionCurriculum, setShowSectionCurriculum] = useState(false);
     const [editingStudentId, setEditingStudentId] = useState<string | null>(null);
 
     // Reports state
@@ -23,12 +19,70 @@ const FacilitatorClasses: React.FC = () => {
     const [reportResults, setReportResults] = useState<Record<string, AssignmentStudentResult[]>>({});
     const [loadingReportId, setLoadingReportId] = useState<string | null>(null);
 
+    // Attendance States
+    const [activeTab, setActiveTab] = useState<'roster' | 'attendance'>('roster');
+    const [attendanceDate, setAttendanceDate] = useState<string>(new Date().toISOString().split('T')[0]);
+    const [attendanceRecords, setAttendanceRecords] = useState<Record<string, 'PRESENT' | 'ABSENT'>>({});
+    const [isSavingAttendance, setIsSavingAttendance] = useState<boolean>(false);
+
     // Active Section Details
     const filteredSections = sections.filter(s => selectedIntake === 'All' || s.intakeName === selectedIntake);
     
     // Ensure selected section is valid within current filter, else pick first
     const activeSection = filteredSections.find(s => s.id === selectedSectionId) || filteredSections[0] || sections[0];
-    const sectionStudents = students.filter(student => student.sectionId === (activeSection?.id || ''));
+    const sectionStudents = React.useMemo(() => {
+        return students.filter(student => student.sectionId === (activeSection?.id || ''));
+    }, [students, activeSection]);
+
+    // Load attendance records when section or date changes
+    React.useEffect(() => {
+        if (!activeSection || activeTab !== 'attendance' || !attendanceDate) return;
+
+        const fetchAttendance = async () => {
+            try {
+                const res = await api.get(`/attendance/section/${activeSection.id}/date/${attendanceDate}`);
+                const mappedRecords: Record<string, 'PRESENT' | 'ABSENT'> = {};
+                res.data.forEach((r: { studentId: string; status: 'PRESENT' | 'ABSENT' }) => {
+                    mappedRecords[r.studentId] = r.status;
+                });
+
+                // Default any students without records to PRESENT
+                const updatedRecords = { ...mappedRecords };
+                sectionStudents.forEach(student => {
+                    if (!updatedRecords[student.id]) {
+                        updatedRecords[student.id] = 'PRESENT';
+                    }
+                });
+                setAttendanceRecords(updatedRecords);
+            } catch (err) {
+                console.error('Failed to fetch attendance', err);
+            }
+        };
+
+        fetchAttendance();
+    }, [activeSection, attendanceDate, activeTab, sectionStudents]);
+
+    const handleSaveAttendance = async () => {
+        if (!activeSection || !attendanceDate) return;
+        setIsSavingAttendance(true);
+        try {
+            const payload = {
+                sectionId: activeSection.id,
+                date: attendanceDate,
+                records: Object.entries(attendanceRecords).map(([studentId, status]) => ({
+                    studentId,
+                    status
+                }))
+            };
+            await api.post('/attendance', payload);
+            alert('Attendance records saved successfully!');
+        } catch (err) {
+            console.error('Failed to save attendance', err);
+            alert('Failed to save attendance records. Please try again.');
+        } finally {
+            setIsSavingAttendance(false);
+        }
+    };
 
     // Unique intakes for filter
     const uniqueIntakes = Array.from(new Set(sections.map(s => s.intakeName).filter(Boolean))) as string[];
@@ -156,75 +210,186 @@ const FacilitatorClasses: React.FC = () => {
                             </div>
                             <p className="text-slate-500 dark:text-[#929bc9] text-xs font-normal">Active enrollment list and metrics coordinates.</p>
                         </div>
-                        <div className="flex gap-2">
-                            <span className="inline-flex px-3 py-1 rounded-full bg-slate-100 dark:bg-[#323b67] text-slate-600 dark:text-[#929bc9] text-xs font-bold border border-slate-200/50 dark:border-[#323b67]/50 uppercase">
-                                {sectionStudents.length} Students Enrolled
+                        <div className="flex flex-wrap gap-2 items-center">
+                            <button
+                                onClick={() => setActiveTab('roster')}
+                                className={`px-4 py-2 rounded-xl text-xs font-bold transition-all border ${
+                                    activeTab === 'roster'
+                                        ? 'bg-slate-900 dark:bg-primary border-transparent text-white dark:text-[#111422] shadow-md'
+                                        : 'border-slate-200 dark:border-[#323b67] bg-white dark:bg-card-dark text-slate-600 dark:text-[#929bc9]'
+                                }`}
+                            >
+                                Roster List
+                            </button>
+                            <button
+                                onClick={() => setActiveTab('attendance')}
+                                className={`px-4 py-2 rounded-xl text-xs font-bold transition-all border ${
+                                    activeTab === 'attendance'
+                                        ? 'bg-slate-900 dark:bg-primary border-transparent text-white dark:text-[#111422] shadow-md'
+                                        : 'border-slate-200 dark:border-[#323b67] bg-white dark:bg-card-dark text-slate-600 dark:text-[#929bc9]'
+                                }`}
+                            >
+                                Class Attendance
+                            </button>
+                            <span className="inline-flex px-3 py-1.5 rounded-full bg-slate-100 dark:bg-[#323b67] text-slate-600 dark:text-[#929bc9] text-xs font-bold border border-slate-200/50 dark:border-[#323b67]/50 uppercase">
+                                {sectionStudents.length} Students
                             </span>
                         </div>
                     </div>
 
-                    <div className="overflow-x-auto w-full">
-                        <table className="w-full text-left border-collapse min-w-[800px]">
-                            <thead>
-                                <tr className="border-b border-slate-100 dark:border-[#323b67] bg-slate-50/70 dark:bg-[#323b67]/25 pb-3">
-                                    <th className="py-4 px-6 text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-[#929bc9] w-1/3">Student Details</th>
-                                    <th className="py-4 px-6 text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-[#929bc9] text-center">Assigned Cohort</th>
-                                    <th className="py-4 px-6 text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-[#929bc9] text-center">Current Speed</th>
-                                    <th className="py-4 px-6 text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-[#929bc9] text-center">Typing Accuracy</th>
-                                    <th className="py-4 px-6 text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-[#929bc9] text-right">Roster Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-slate-100 dark:divide-[#323b67]/45 text-sm">
-                                {sectionStudents.map((student) => (
-                                    <tr key={student.id} className="hover:bg-slate-50/30 dark:hover:bg-[#232948]/20 transition-colors">
-                                        <td className="px-6 py-4 flex items-center gap-3">
-                                            <div className="size-9 rounded-full bg-primary/20 border border-[#323b67] flex items-center justify-center text-primary font-bold text-xs uppercase shadow-sm">
-                                                {student.name?.[0] || 'S'}
-                                            </div>
-                                            <div className="flex flex-col">
-                                                <span className="text-sm font-bold text-slate-900 dark:text-white">{student.name}</span>
-                                                <span className="text-[10px] text-slate-400 dark:text-[#929bc9] font-medium lowercase">{student.email || student.username}</span>
-                                            </div>
-                                        </td>
-                                        <td className="px-6 py-4 text-center text-slate-500 dark:text-[#929bc9] font-bold text-xs uppercase">
-                                            {student.major}
-                                        </td>
-                                        <td className="px-6 py-4 text-center font-bold text-slate-700 dark:text-slate-300 font-mono">
-                                            {student.currentWpm > 0 ? `${student.currentWpm} WPM` : '--'}
-                                        </td>
-                                        <td className="px-6 py-4 text-center font-bold text-slate-700 dark:text-slate-300 font-mono">
-                                            {student.accuracy > 0 ? `${student.accuracy}%` : '--'}
-                                        </td>
-                                        <td className="px-6 py-4 text-right flex justify-end gap-2">
-                                            <button
-                                                onClick={() => setEditingStudentId(student.id)}
-                                                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-bold rounded-lg border border-slate-200 dark:border-[#323b67] text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-all hover-scale active-scale"
-                                            >
-                                                <span className="material-symbols-outlined text-[15px]">settings_accessibility</span>
-                                                Overrides
-                                            </button>
-                                            <button
-                                                disabled={resettingPasswordUserId === student.id}
-                                                onClick={() => handleResetPassword(student.id, student.name)}
-                                                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-bold rounded-lg border border-slate-200 dark:border-[#323b67] text-slate-600 dark:text-[#929bc9] hover:bg-slate-55 dark:hover:bg-slate-800 transition-all hover-scale active-scale"
-                                            >
-                                                <span className="material-symbols-outlined text-[15px]">key</span>
-                                                {resettingPasswordUserId === student.id ? 'Resetting...' : 'Reset Credentials'}
-                                            </button>
-                                        </td>
+                    {activeTab === 'roster' ? (
+                        <div className="overflow-x-auto w-full">
+                            <table className="w-full text-left border-collapse min-w-[800px]">
+                                <thead>
+                                    <tr className="border-b border-slate-100 dark:border-[#323b67] bg-slate-50/70 dark:bg-[#323b67]/25 pb-3">
+                                        <th className="py-4 px-6 text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-[#929bc9] w-1/3">Student Details</th>
+                                        <th className="py-4 px-6 text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-[#929bc9] text-center">Assigned Cohort</th>
+                                        <th className="py-4 px-6 text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-[#929bc9] text-center">Current Speed</th>
+                                        <th className="py-4 px-6 text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-[#929bc9] text-center">Typing Accuracy</th>
+                                        <th className="py-4 px-6 text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-[#929bc9] text-right">Roster Actions</th>
                                     </tr>
-                                ))}
+                                </thead>
+                                <tbody className="divide-y divide-slate-100 dark:divide-[#323b67]/45 text-sm">
+                                    {sectionStudents.map((student) => (
+                                        <tr key={student.id} className="hover:bg-slate-50/30 dark:hover:bg-[#232948]/20 transition-colors">
+                                            <td className="px-6 py-4 flex items-center gap-3">
+                                                <div className="size-9 rounded-full bg-primary/20 border border-[#323b67] flex items-center justify-center text-primary font-bold text-xs uppercase shadow-sm">
+                                                    {student.name?.[0] || 'S'}
+                                                </div>
+                                                <div className="flex flex-col">
+                                                    <span className="text-sm font-bold text-slate-900 dark:text-white">{student.name}</span>
+                                                    <span className="text-[10px] text-slate-400 dark:text-[#929bc9] font-medium lowercase">{student.email || student.username}</span>
+                                                </div>
+                                            </td>
+                                            <td className="px-6 py-4 text-center text-slate-500 dark:text-[#929bc9] font-bold text-xs uppercase">
+                                                {student.major}
+                                            </td>
+                                            <td className="px-6 py-4 text-center font-bold text-slate-700 dark:text-slate-300 font-mono">
+                                                {student.currentWpm > 0 ? `${student.currentWpm} WPM` : '--'}
+                                            </td>
+                                            <td className="px-6 py-4 text-center font-bold text-slate-700 dark:text-slate-300 font-mono">
+                                                {student.accuracy > 0 ? `${student.accuracy}%` : '--'}
+                                            </td>
+                                            <td className="px-6 py-4 text-right flex justify-end gap-2">
+                                                <button
+                                                    onClick={() => setEditingStudentId(student.id)}
+                                                    className="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-bold rounded-lg border border-slate-200 dark:border-[#323b67] text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-all hover-scale active-scale"
+                                                >
+                                                    <span className="material-symbols-outlined text-[15px]">settings_accessibility</span>
+                                                    Overrides
+                                                </button>
+                                                <button
+                                                    disabled={resettingPasswordUserId === student.id}
+                                                    onClick={() => handleResetPassword(student.id, student.name)}
+                                                    className="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-bold rounded-lg border border-slate-200 dark:border-[#323b67] text-slate-600 dark:text-[#929bc9] hover:bg-slate-55 dark:hover:bg-slate-800 transition-all hover-scale active-scale"
+                                                >
+                                                    <span className="material-symbols-outlined text-[15px]">key</span>
+                                                    {resettingPasswordUserId === student.id ? 'Resetting...' : 'Reset Credentials'}
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    ))}
 
-                                {sectionStudents.length === 0 && (
-                                    <tr>
-                                        <td colSpan={5} className="px-6 py-12 text-center text-slate-400 dark:text-slate-500 font-medium">
-                                            No student records are currently enrolled in this section. Enrollments are managed by administrators.
-                                        </td>
-                                    </tr>
-                                )}
-                            </tbody>
-                        </table>
-                    </div>
+                                    {sectionStudents.length === 0 && (
+                                        <tr>
+                                            <td colSpan={5} className="px-6 py-12 text-center text-slate-400 dark:text-slate-500 font-medium">
+                                                No student records are currently enrolled in this section. Enrollments are managed by administrators.
+                                            </td>
+                                        </tr>
+                                    )}
+                                </tbody>
+                            </table>
+                        </div>
+                    ) : (
+                        <div className="flex flex-col">
+                            {/* Date Picker Bar */}
+                            <div className="p-6 border-b border-slate-100 dark:border-[#323b67]/45 flex items-center gap-4 bg-slate-50/20 dark:bg-[#323b67]/5">
+                                <label className="text-xs font-bold text-slate-400 dark:text-[#929bc9] uppercase tracking-wider">Select Date:</label>
+                                <input
+                                    type="date"
+                                    value={attendanceDate}
+                                    onChange={(e) => setAttendanceDate(e.target.value)}
+                                    className="bg-white dark:bg-[#232948] border border-slate-200 dark:border-[#323b67] text-slate-700 dark:text-white rounded-xl px-4 py-2 text-sm font-semibold outline-none focus:border-primary/60"
+                                />
+                            </div>
+
+                            <div className="overflow-x-auto w-full">
+                                <table className="w-full text-left border-collapse min-w-[800px]">
+                                    <thead>
+                                        <tr className="border-b border-slate-100 dark:border-[#323b67] bg-slate-50/70 dark:bg-[#323b67]/25 pb-3">
+                                            <th className="py-4 px-6 text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-[#929bc9] w-1/2">Student Details</th>
+                                            <th className="py-4 px-6 text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-[#929bc9] text-center">Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="divide-y divide-slate-100 dark:divide-[#323b67]/45 text-sm">
+                                        {sectionStudents.map((student) => {
+                                            const status = attendanceRecords[student.id] || 'PRESENT';
+                                            return (
+                                                <tr key={student.id} className="hover:bg-slate-50/30 dark:hover:bg-[#232948]/20 transition-colors">
+                                                    <td className="px-6 py-4 flex items-center gap-3">
+                                                        <div className="size-9 rounded-full bg-primary/20 border border-[#323b67] flex items-center justify-center text-primary font-bold text-xs uppercase shadow-sm">
+                                                            {student.name?.[0] || 'S'}
+                                                        </div>
+                                                        <div className="flex flex-col">
+                                                            <span className="text-sm font-bold text-slate-900 dark:text-white">{student.name}</span>
+                                                            <span className="text-[10px] text-slate-400 dark:text-[#929bc9] font-medium lowercase">{student.email || student.username}</span>
+                                                        </div>
+                                                    </td>
+                                                    <td className="px-6 py-4 text-center">
+                                                        <div className="inline-flex bg-slate-100 dark:bg-[#232948] p-1 rounded-xl border border-slate-200/50 dark:border-slate-800/80 shadow-inner">
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => setAttendanceRecords(prev => ({ ...prev, [student.id]: 'PRESENT' }))}
+                                                                className={`px-4 py-1.5 text-xs font-bold rounded-lg transition-all duration-200 ${
+                                                                    status === 'PRESENT'
+                                                                        ? 'bg-emerald-500 text-white shadow-md'
+                                                                        : 'text-slate-500 dark:text-[#929bc9] hover:text-slate-950 dark:hover:text-white'
+                                                                }`}
+                                                            >
+                                                                Present
+                                                            </button>
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => setAttendanceRecords(prev => ({ ...prev, [student.id]: 'ABSENT' }))}
+                                                                className={`px-4 py-1.5 text-xs font-bold rounded-lg transition-all duration-200 ${
+                                                                    status === 'ABSENT'
+                                                                        ? 'bg-red-500 text-white shadow-md'
+                                                                        : 'text-slate-500 dark:text-[#929bc9] hover:text-slate-950 dark:hover:text-white'
+                                                                }`}
+                                                            >
+                                                                Absent
+                                                            </button>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            );
+                                        })}
+
+                                        {sectionStudents.length === 0 && (
+                                            <tr>
+                                                <td colSpan={2} className="px-6 py-12 text-center text-slate-400 dark:text-slate-500 font-medium">
+                                                    No student records are enrolled in this section.
+                                                </td>
+                                            </tr>
+                                        )}
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            {sectionStudents.length > 0 && (
+                                <div className="p-6 border-t border-slate-100 dark:border-[#323b67]/45 flex justify-end">
+                                    <button
+                                        onClick={handleSaveAttendance}
+                                        disabled={isSavingAttendance}
+                                        className="inline-flex items-center gap-1.5 px-6 py-2.5 text-sm font-bold text-white bg-primary rounded-xl hover:bg-emerald-600 hover-scale active-scale transition-all disabled:opacity-50 disabled:pointer-events-none shadow-md shadow-primary/10"
+                                    >
+                                        <span className="material-symbols-outlined text-lg">save</span>
+                                        {isSavingAttendance ? 'Saving...' : 'Save Attendance'}
+                                    </button>
+                                </div>
+                            )}
+                        </div>
+                    )}
                 </div>
             )}
 
