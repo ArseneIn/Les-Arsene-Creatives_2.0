@@ -110,7 +110,10 @@ export class AssignmentController {
 
   @Delete(':id')
   @UseGuards(JwtAuthGuard)
-  async delete(@Param('id') id: string, @Request() req: RequestWithUserAndQuery) {
+  async delete(
+    @Param('id') id: string,
+    @Request() req: RequestWithUserAndQuery,
+  ) {
     const res = await this.assignmentService.delete(id);
     const actor = req.user;
     void this.logsService.log({
