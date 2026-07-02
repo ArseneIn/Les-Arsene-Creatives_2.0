@@ -381,6 +381,7 @@ const FacilitatorTestLaunch: React.FC = () => {
     const [restrictToAttended, setRestrictToAttended] = useState(false);
     const [selectedAttendanceDate, setSelectedAttendanceDate] = useState(new Date().toISOString().split('T')[0]);
     const [previewingText, setPreviewingText] = useState<LibraryText | null>(null);
+    const [currentStep, setCurrentStep] = useState(1);
     
     const [successPopup, setSuccessPopup] = useState<{show: boolean, count: number}>({show: false, count: 0});
     const [monitorAssignmentId, setMonitorAssignmentId] = useState<string | null>(null);
