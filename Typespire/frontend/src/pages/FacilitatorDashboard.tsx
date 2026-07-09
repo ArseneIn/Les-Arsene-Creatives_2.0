@@ -206,7 +206,7 @@ const FacilitatorDashboard: React.FC = () => {
                     <div className="flex justify-between items-start z-10">
                         <div>
                             <p className="text-slate-400 dark:text-[#929bc9] text-xs font-bold uppercase tracking-wider mb-1">Total Students</p>
-                            <h3 className="text-slate-900 dark:text-white text-4.5xl font-black tracking-tight font-heading">{totalStudentsCount}</h3>
+                            <h3 className="text-slate-900 dark:text-white text-4xl lg:text-5xl font-black tracking-tight font-heading">{totalStudentsCount}</h3>
                         </div>
                         <div className="p-3 bg-slate-100 dark:bg-[#323b67] rounded-xl text-slate-600 dark:text-slate-300 group-hover:bg-primary group-hover:text-white transition-all duration-300 shadow-sm">
                             <span className="material-symbols-outlined text-xl flex items-center justify-center">group</span>
@@ -220,7 +220,7 @@ const FacilitatorDashboard: React.FC = () => {
                     <div className="flex justify-between items-start">
                         <div>
                             <p className="text-slate-400 dark:text-[#929bc9] text-xs font-bold uppercase tracking-wider mb-1">Level 1 Active</p>
-                            <h3 className="text-slate-900 dark:text-white text-4.5xl font-black tracking-tight font-heading">{level1Count}</h3>
+                            <h3 className="text-slate-900 dark:text-white text-4xl lg:text-5xl font-black tracking-tight font-heading">{level1Count}</h3>
                         </div>
                         <div className="p-3 bg-yellow-100/30 dark:bg-yellow-500/10 rounded-xl text-yellow-600 dark:text-yellow-400 shadow-sm">
                             <span className="material-symbols-outlined text-xl flex items-center justify-center">keyboard</span>
@@ -234,7 +234,7 @@ const FacilitatorDashboard: React.FC = () => {
                     <div className="flex justify-between items-start">
                         <div>
                             <p className="text-slate-400 dark:text-[#929bc9] text-xs font-bold uppercase tracking-wider mb-1">Level 2 Active</p>
-                            <h3 className="text-slate-900 dark:text-white text-4.5xl font-black tracking-tight font-heading">{level2Count}</h3>
+                            <h3 className="text-slate-900 dark:text-white text-4xl lg:text-5xl font-black tracking-tight font-heading">{level2Count}</h3>
                         </div>
                         <div className="p-3 bg-blue-100/30 dark:bg-blue-500/10 rounded-xl text-blue-600 dark:text-blue-400 shadow-sm">
                             <span className="material-symbols-outlined text-xl flex items-center justify-center">speed</span>
@@ -248,7 +248,7 @@ const FacilitatorDashboard: React.FC = () => {
                     <div className="flex justify-between items-start">
                         <div>
                             <p className="text-slate-400 dark:text-[#929bc9] text-xs font-bold uppercase tracking-wider mb-1">Passed Target</p>
-                            <h3 className="text-emerald-600 dark:text-emerald-400 text-4.5xl font-black tracking-tight font-heading">{passedCount}</h3>
+                            <h3 className="text-emerald-600 dark:text-emerald-400 text-4xl lg:text-5xl font-black tracking-tight font-heading">{passedCount}</h3>
                         </div>
                         <div className="p-3 bg-emerald-100/30 dark:bg-emerald-500/10 rounded-xl text-emerald-600 dark:text-emerald-400 shadow-sm">
                             <span className="material-symbols-outlined text-xl flex items-center justify-center">emoji_events</span>
@@ -341,7 +341,7 @@ const FacilitatorDashboard: React.FC = () => {
                         {/* Center Label Overlay */}
                         <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
                             <div className="text-center">
-                                <span className="block text-2.5xl font-black text-slate-900 dark:text-white tracking-tight font-heading">{totalStudentsCount}</span>
+                                <span className="block text-3xl font-black text-slate-900 dark:text-white tracking-tight font-heading">{totalStudentsCount}</span>
                                 <span className="text-[10px] text-slate-400 dark:text-[#929bc9] uppercase tracking-widest font-black mt-0.5">Students</span>
                             </div>
                         </div>
