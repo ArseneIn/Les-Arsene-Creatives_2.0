@@ -3,6 +3,7 @@ import * as RN from 'react-native';
 const { View, Text, StyleSheet, Modal, TouchableOpacity, ScrollView, ActivityIndicator, Alert } = RN;
 import { X, Calendar, User, CreditCard, Check, Clock, AlertTriangle, Printer, Trash2 } from 'lucide-react-native';
 import { ApiClient } from '../lib/api_client';
+import { useTheme } from '../lib/theme/ThemeContext';
 
 interface SaleItem {
     id: string;
@@ -34,6 +35,7 @@ interface SaleDetailsModalProps {
 }
 
 export default function SaleDetailsModal({ visible, sale, onClose, onRefundSuccess }: SaleDetailsModalProps) {
+    const { colors } = useTheme();
     const [processing, setProcessing] = useState(false);
 
     if (!sale) return null;
@@ -73,38 +75,38 @@ export default function SaleDetailsModal({ visible, sale, onClose, onRefundSucce
             onRequestClose={onClose}
         >
             <View style={styles.modalContainer}>
-                <View style={styles.modalContent}>
+                <View style={[styles.modalContent, { backgroundColor: colors.card }]}>
                     {/* Header */}
-                    <View style={styles.header}>
+                    <View style={[styles.header, { borderBottomColor: colors.border }]}>
                         <View>
-                            <Text style={styles.headerTitle}>Transaction Details</Text>
-                            <Text style={styles.headerSubtitle}>#{sale.id.substring(0, 8)}</Text>
+                            <Text style={[styles.headerTitle, { color: colors.textPrimary }]}>Transaction Details</Text>
+                            <Text style={[styles.headerSubtitle, { color: colors.textSecondary }]}>#{sale.id.substring(0, 8)}</Text>
                         </View>
-                        <TouchableOpacity onPress={onClose} style={styles.closeButton}>
-                            <X size={24} color="#6B7280" />
+                        <TouchableOpacity onPress={onClose} style={[styles.closeButton, { backgroundColor: colors.overlay }]}>
+                            <X size={24} color={colors.textSecondary} />
                         </TouchableOpacity>
                     </View>
 
                     <ScrollView style={styles.body} showsVerticalScrollIndicator={false}>
                         {/* Status Cards */}
                         <View style={styles.statusGrid}>
-                            <View style={styles.infoCard}>
+                            <View style={[styles.infoCard, { backgroundColor: colors.overlay }]}>
                                 <View style={styles.infoRow}>
-                                    <Calendar size={16} color="#6B7280" />
-                                    <Text style={styles.infoText}>{new Date(sale.created_at).toLocaleString()}</Text>
+                                    <Calendar size={16} color={colors.textSecondary} />
+                                    <Text style={[styles.infoText, { color: colors.textPrimary }]}>{new Date(sale.created_at).toLocaleString()}</Text>
                                 </View>
                                 <View style={styles.infoRow}>
-                                    <User size={16} color="#6B7280" />
-                                    <Text style={styles.infoText}>{sale.customer?.name || 'Walk-in Customer'}</Text>
+                                    <User size={16} color={colors.textSecondary} />
+                                    <Text style={[styles.infoText, { color: colors.textPrimary }]}>{sale.customer?.name || 'Walk-in Customer'}</Text>
                                 </View>
                                 <View style={styles.infoRow}>
-                                    <CreditCard size={16} color="#6B7280" />
-                                    <Text style={styles.infoText}>{sale.payment_method}</Text>
+                                    <CreditCard size={16} color={colors.textSecondary} />
+                                    <Text style={[styles.infoText, { color: colors.textPrimary }]}>{sale.payment_method}</Text>
                                 </View>
                             </View>
 
-                            <View style={styles.statusCard}>
-                                <Text style={styles.statusLabel}>Sync Status</Text>
+                            <View style={[styles.statusCard, { backgroundColor: colors.overlay }]}>
+                                <Text style={[styles.statusLabel, { color: colors.textSecondary }]}>Sync Status</Text>
                                 <View style={[
                                     styles.statusBadge,
                                     sale.sync_status === 'Completed' ? styles.bgGreen :
@@ -133,18 +135,18 @@ export default function SaleDetailsModal({ visible, sale, onClose, onRefundSucce
 
                         {/* Items List */}
                         <View style={styles.section}>
-                            <Text style={styles.sectionTitle}>Items Purchased</Text>
-                            <View style={styles.itemsTable}>
-                                <View style={styles.tableHeader}>
-                                    <Text style={[styles.tableHeaderText, { flex: 2 }]}>Product</Text>
-                                    <Text style={[styles.tableHeaderText, { flex: 1, textAlign: 'right' }]}>Qty</Text>
-                                    <Text style={[styles.tableHeaderText, { flex: 1, textAlign: 'right' }]}>Total</Text>
+                            <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>Items Purchased</Text>
+                            <View style={[styles.itemsTable, { borderColor: colors.border }]}>
+                                <View style={[styles.tableHeader, { backgroundColor: colors.overlay, borderBottomColor: colors.border }]}>
+                                    <Text style={[styles.tableHeaderText, { flex: 2, color: colors.textSecondary }]}>Product</Text>
+                                    <Text style={[styles.tableHeaderText, { flex: 1, textAlign: 'right', color: colors.textSecondary }]}>Qty</Text>
+                                    <Text style={[styles.tableHeaderText, { flex: 1, textAlign: 'right', color: colors.textSecondary }]}>Total</Text>
                                 </View>
                                 {sale.items.map((item, index) => (
-                                    <View key={index} style={styles.tableRow}>
-                                        <Text style={[styles.tableCell, { flex: 2 }]}>{item.name}</Text>
-                                        <Text style={[styles.tableCell, { flex: 1, textAlign: 'right' }]}>{item.quantity}</Text>
-                                        <Text style={[styles.tableCell, { flex: 1, textAlign: 'right', fontWeight: '600' }]}>
+                                    <View key={index} style={[styles.tableRow, { borderBottomColor: colors.border }]}>
+                                        <Text style={[styles.tableCell, { flex: 2, color: colors.textPrimary }]}>{item.name}</Text>
+                                        <Text style={[styles.tableCell, { flex: 1, textAlign: 'right', color: colors.textPrimary }]}>{item.quantity}</Text>
+                                        <Text style={[styles.tableCell, { flex: 1, textAlign: 'right', fontWeight: '600', color: colors.textPrimary }]}>
                                             {(Number(item.price) * Number(item.quantity)).toLocaleString()}
                                         </Text>
                                     </View>
@@ -153,21 +155,21 @@ export default function SaleDetailsModal({ visible, sale, onClose, onRefundSucce
                         </View>
 
                         {/* Financial Summary */}
-                        <View style={styles.summarySection}>
+                        <View style={[styles.summarySection, { backgroundColor: colors.overlay }]}>
                             <View style={styles.summaryRow}>
-                                <Text style={styles.summaryLabel}>Subtotal (Excl. VAT)</Text>
-                                <Text style={styles.summaryValue}>{sale.net_amount ? Number(sale.net_amount).toLocaleString() : '0'} RWF</Text>
+                                <Text style={[styles.summaryLabel, { color: colors.textSecondary }]}>Subtotal (Excl. VAT)</Text>
+                                <Text style={[styles.summaryValue, { color: colors.textPrimary }]}>{sale.net_amount ? Number(sale.net_amount).toLocaleString() : '0'} RWF</Text>
                             </View>
                             <View style={styles.summaryRow}>
-                                <Text style={styles.summaryLabel}>VAT (18%)</Text>
-                                <Text style={styles.summaryValue}>{sale.vat_amount ? Number(sale.vat_amount).toLocaleString() : '0'} RWF</Text>
+                                <Text style={[styles.summaryLabel, { color: colors.textSecondary }]}>VAT (18%)</Text>
+                                <Text style={[styles.summaryValue, { color: colors.textPrimary }]}>{sale.vat_amount ? Number(sale.vat_amount).toLocaleString() : '0'} RWF</Text>
                             </View>
-                            <View style={[styles.summaryRow, styles.totalRow]}>
-                                <Text style={styles.totalLabel}>Total</Text>
-                                <Text style={styles.totalValue}>{Number(sale.total).toLocaleString()} RWF</Text>
+                            <View style={[styles.summaryRow, styles.totalRow, { borderTopColor: colors.border }]}>
+                                <Text style={[styles.totalLabel, { color: colors.textPrimary }]}>Total</Text>
+                                <Text style={[styles.totalValue, { color: colors.brandGold }]}>{Number(sale.total).toLocaleString()} RWF</Text>
                             </View>
                             {sale.profit !== undefined && (
-                                <View style={[styles.summaryRow, styles.profitRow]}>
+                                <View style={[styles.summaryRow, styles.profitRow, { borderTopColor: colors.border }]}>
                                     <Text style={[styles.profitLabel, sale.profit < 0 ? styles.textRed : styles.textGreen]}>
                                         {sale.profit < 0 ? 'Loss' : 'Profit'}
                                     </Text>
@@ -180,7 +182,7 @@ export default function SaleDetailsModal({ visible, sale, onClose, onRefundSucce
                     </ScrollView>
 
                     {/* Footer Actions */}
-                    <View style={styles.footer}>
+                    <View style={[styles.footer, { borderTopColor: colors.border }]}>
                         {sale.status !== 'REFUNDED' && (
                             <TouchableOpacity
                                 style={styles.refundButton}
@@ -198,9 +200,9 @@ export default function SaleDetailsModal({ visible, sale, onClose, onRefundSucce
                             </TouchableOpacity>
                         )}
 
-                        <TouchableOpacity style={styles.printButton}>
-                            <Printer size={20} color="#FFFFFF" />
-                            <Text style={styles.printText}>Print Receipt</Text>
+                        <TouchableOpacity style={[styles.printButton, { backgroundColor: colors.textPrimary }]}>
+                            <Printer size={20} color={colors.card} />
+                            <Text style={[styles.printText, { color: colors.card }]}>Print Receipt</Text>
                         </TouchableOpacity>
                     </View>
                 </View>
