@@ -6,6 +6,7 @@ import { ApiClient } from '../lib/api_client';
 import SkeletonLoader from './SkeletonLoader';
 import { useTheme } from '../lib/theme/ThemeContext';
 import { useAuth } from '../lib/auth/AuthContext';
+import { useLanguage } from '../lib/language/LanguageContext';
 
 const { width } = Dimensions.get('window');
 
@@ -98,6 +99,7 @@ const DashboardSkeleton = () => {
 
 export default function DashboardStats({ period, setPeriod, data, loading }: DashboardStatsProps) {
     const { colors, isDarkMode } = useTheme();
+    const { t } = useLanguage();
     const { user } = useAuth();
     const isCashier = user?.role === 'CASHIER';
 
@@ -211,14 +213,14 @@ export default function DashboardStats({ period, setPeriod, data, loading }: Das
                             <Text style={[styles.marginValue, { color: colors.textPrimary, textShadowColor: colors.overlay }]}>
                                 {(data.yieldRate || 0).toFixed(1)}%
                             </Text>
-                            <Text style={styles.netProfitLabel}>PROFIT MARGIN</Text>
+                            <Text style={styles.netProfitLabel}>{t('profitMargin')}</Text>
                         </View>
                     </View>
 
                     {/* KPI Sub-row directly below graph */}
                     <View style={styles.kpiRow}>
                         <View style={styles.kpiItem}>
-                            <Text style={styles.metricLabel}>NET PROFIT</Text>
+                            <Text style={styles.metricLabel}>{t('netProfit')}</Text>
                             <Text style={[styles.metricValueGreen, { color: colors.brandGreen }]} numberOfLines={1}>
                                 {formatAmount(data.todayProfit)}
                             </Text>
@@ -226,11 +228,11 @@ export default function DashboardStats({ period, setPeriod, data, loading }: Das
                         
                         <View style={[styles.marginBadge, { backgroundColor: colors.brandGold, shadowColor: colors.brandGold }]}>
                             <TrendingUp size={12} color="#0b0c0c" style={{ marginRight: 4 }} />
-                            <Text style={[styles.marginBadgeText, { color: '#0b0c0c' }]}>HIGH YIELD</Text>
+                            <Text style={[styles.marginBadgeText, { color: '#0b0c0c' }]}>{t('highYield')}</Text>
                         </View>
                         
                         <View style={styles.kpiItem}>
-                            <Text style={styles.metricLabel}>GROSS REV</Text>
+                            <Text style={styles.metricLabel}>{t('grossProfit')}</Text>
                             <Text style={[styles.metricValueWhite, { color: colors.textPrimary }]} numberOfLines={1}>
                                 {formatAmount(data.grossProfit)}
                             </Text>
@@ -240,12 +242,12 @@ export default function DashboardStats({ period, setPeriod, data, loading }: Das
                     <View style={[styles.comparisonRow, { marginTop: 24, borderTopColor: colors.border }]}>
                         <View style={styles.comparisonItem}>
                             <Text style={[styles.comparisonAmount, { color: colors.danger }]}>{formatAmount(data.totalDebt)}</Text>
-                            <Text style={[styles.comparisonLabel, { color: colors.textSecondary }]}>Outstanding Debt</Text>
+                            <Text style={[styles.comparisonLabel, { color: colors.textSecondary }]}>{t('activeDebts')}</Text>
                         </View>
                         <View style={[styles.comparisonDivider, { backgroundColor: colors.border }]} />
                         <View style={styles.comparisonItem}>
                             <Text style={[styles.comparisonAmount, { color: colors.textPrimary }]}>{formatAmount(data.expenses)}</Text>
-                            <Text style={[styles.comparisonLabel, { color: colors.textSecondary }]}>Op. Expenses</Text>
+                            <Text style={[styles.comparisonLabel, { color: colors.textSecondary }]}>{t('todaysExpenses')}</Text>
                         </View>
                     </View>
                 </View>
@@ -262,7 +264,7 @@ export default function DashboardStats({ period, setPeriod, data, loading }: Das
                         <MiniSparkline data={[4, 6, 8, 5, 9, 12]} color="#fbe134" />
                     </View>
                     <Text style={[styles.kpiValue, { color: colors.textPrimary }]}>{formatAmount(data.todaySales)}</Text>
-                    <Text style={[styles.kpiLabel, { color: colors.textSecondary }]}>Sales Volume</Text>
+                    <Text style={[styles.kpiLabel, { color: colors.textSecondary }]}>{t('todaysSales')}</Text>
                 </View>
 
                 {/* Orders KPI */}
@@ -274,7 +276,7 @@ export default function DashboardStats({ period, setPeriod, data, loading }: Das
                         <MiniSparkline data={[6, 9, 7, 12, 10, 15]} color="#DB2777" />
                     </View>
                     <Text style={[styles.kpiValue, { color: colors.textPrimary }]}>{data.todayTransactionCount || 0}</Text>
-                    <Text style={[styles.kpiLabel, { color: colors.textSecondary }]}>Total Orders</Text>
+                    <Text style={[styles.kpiLabel, { color: colors.textSecondary }]}>{t('totalOrders')}</Text>
                 </View>
 
                 {/* Stock KPI */}
@@ -286,7 +288,7 @@ export default function DashboardStats({ period, setPeriod, data, loading }: Das
                         <MiniSparkline data={[5, 7, 6, 8, 5, 9]} color="#10B981" />
                     </View>
                     <Text style={[styles.kpiValue, { color: colors.textPrimary }]}>{data.lowStockCount || 0}</Text>
-                    <Text style={[styles.kpiLabel, { color: colors.textSecondary }]}>Low Stock</Text>
+                    <Text style={[styles.kpiLabel, { color: colors.textSecondary }]}>{t('lowStockAlert')}</Text>
                 </View>
 
                 {/* VAT KPI */}
@@ -299,7 +301,7 @@ export default function DashboardStats({ period, setPeriod, data, loading }: Das
                             <MiniSparkline data={[3, 5, 4, 6, 5, 7]} color="#3B82F6" />
                         </View>
                         <Text style={[styles.kpiValue, { color: colors.textPrimary }]}>{formatAmount(data.todayVat)}</Text>
-                        <Text style={[styles.kpiLabel, { color: colors.textSecondary }]}>Estimated VAT</Text>
+                        <Text style={[styles.kpiLabel, { color: colors.textSecondary }]}>{t('estimatedVat')}</Text>
                     </View>
                 )}
 

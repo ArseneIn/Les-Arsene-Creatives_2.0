@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity, StyleSheet, Modal, FlatList, ActivityIndi
 import { X, Calendar, ShoppingBag, ArrowRight } from 'lucide-react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ApiClient } from '../lib/api_client';
+import { useTheme } from '../lib/theme/ThemeContext';
 
 interface ClientHistoryModalProps {
     visible: boolean;
@@ -11,6 +12,7 @@ interface ClientHistoryModalProps {
 }
 
 export default function ClientHistoryModal({ visible, onClose, client }: ClientHistoryModalProps) {
+    const { colors } = useTheme();
     const insets = useSafeAreaInsets();
     const [loading, setLoading] = useState(false);
     const [sales, setSales] = useState<any[]>([]);
@@ -35,24 +37,24 @@ export default function ClientHistoryModal({ visible, onClose, client }: ClientH
     };
 
     const renderSaleItem = ({ item }: { item: any }) => (
-        <View style={styles.saleCard}>
+        <View style={[styles.saleCard, { backgroundColor: colors.overlay, borderColor: colors.border }]}>
             <View style={styles.saleHeader}>
                 <View style={styles.dateBox}>
-                    <Calendar size={14} color="#9CA3AF" />
-                    <Text style={styles.dateText}>{new Date(item.created_at).toLocaleDateString()}</Text>
+                    <Calendar size={14} color={colors.textSecondary} />
+                    <Text style={[styles.dateText, { color: colors.textSecondary }]}>{new Date(item.created_at).toLocaleDateString()}</Text>
                 </View>
-                <Text style={styles.totalText}>{item.total.toLocaleString()} RWF</Text>
+                <Text style={[styles.totalText, { color: colors.textPrimary }]}>{item.total.toLocaleString()} RWF</Text>
             </View>
             
-            <View style={styles.itemPreview}>
-                <ShoppingBag size={14} color="#fbe134" />
-                <Text style={styles.itemsText} numberOfLines={1}>
+            <View style={[styles.itemPreview, { backgroundColor: colors.card }]}>
+                <ShoppingBag size={14} color={colors.brandGold} />
+                <Text style={[styles.itemsText, { color: colors.textPrimary }]} numberOfLines={1}>
                     {item.items?.map((i: any) => `${i.name} (x${i.quantity})`).join(', ') || 'No items'}
                 </Text>
             </View>
 
             <View style={styles.footer}>
-                <Text style={styles.methodText}>{item.payment_method}</Text>
+                <Text style={[styles.methodText, { color: colors.brandGold }]}>{item.payment_method}</Text>
                 <View style={[styles.statusBadge, item.status === 'REFUNDED' ? styles.refundedBadge : styles.completedBadge]}>
                     <Text style={styles.statusText}>{item.status || 'COMPLETED'}</Text>
                 </View>
@@ -63,26 +65,26 @@ export default function ClientHistoryModal({ visible, onClose, client }: ClientH
     return (
         <Modal visible={visible} animationType="slide" transparent>
             <View style={styles.overlay}>
-                <View style={[styles.content, { paddingBottom: insets.bottom + 20 }]}>
-                    <View style={styles.header}>
+                <View style={[styles.content, { backgroundColor: colors.card, paddingBottom: insets.bottom + 20 }]}>
+                    <View style={[styles.header, { borderBottomColor: colors.border }]}>
                         <View>
-                            <Text style={styles.title}>Transaction History</Text>
-                            <Text style={styles.subtitle}>{client?.name || 'Customer'}</Text>
+                            <Text style={[styles.title, { color: colors.textPrimary }]}>Transaction History</Text>
+                            <Text style={[styles.subtitle, { color: colors.brandGold }]}>{client?.name || 'Customer'}</Text>
                         </View>
-                        <TouchableOpacity onPress={onClose} style={styles.closeButton}>
-                            <X size={24} color="#FFFFFF" />
+                        <TouchableOpacity onPress={onClose} style={[styles.closeButton, { backgroundColor: colors.overlay }]}>
+                            <X size={24} color={colors.textSecondary} />
                         </TouchableOpacity>
                     </View>
 
                     {loading ? (
                         <View style={styles.loadingContainer}>
-                            <ActivityIndicator size="large" color="#fbe134" />
-                            <Text style={styles.loadingText}>Fetching Records...</Text>
+                            <ActivityIndicator size="large" color={colors.brandGold} />
+                            <Text style={[styles.loadingText, { color: colors.textSecondary }]}>Fetching Records...</Text>
                         </View>
                     ) : sales.length === 0 ? (
                         <View style={styles.emptyContainer}>
-                            <ShoppingBag size={48} color="#2a2e34" />
-                            <Text style={styles.emptyText}>No transactions found</Text>
+                            <ShoppingBag size={48} color={colors.textSecondary} />
+                            <Text style={[styles.emptyText, { color: colors.textSecondary }]}>No transactions found</Text>
                         </View>
                     ) : (
                         <FlatList
