@@ -7,6 +7,7 @@ import { ApiClient } from '../lib/api_client';
 import { useTheme } from '../lib/theme/ThemeContext';
 import { useAuth } from '../lib/auth/AuthContext';
 import { useSync } from '../lib/sync/SyncContext';
+import { useLanguage } from '../lib/language/LanguageContext';
 
 const NAV_ITEMS = [
     { id: 'overview', label: 'Overview' },
@@ -23,6 +24,7 @@ interface DashboardHeaderProps {
 export default function DashboardHeader({ activeTab, onTabChange }: DashboardHeaderProps) {
     const insets = useSafeAreaInsets();
     const { colors, isDarkMode } = useTheme();
+    const { t } = useLanguage();
     const { user } = useAuth();
     const { isOffline, isSyncing, queueLength } = useSync();
     const [shopInfo, setShopInfo] = useState({ name: '...', logo: null, initials: '..' });
@@ -216,7 +218,7 @@ export default function DashboardHeader({ activeTab, onTabChange }: DashboardHea
                                 { color: isDarkMode ? 'rgba(255, 255, 255, 0.4)' : 'rgba(0, 0, 0, 0.4)' },
                                 activeTab === item.id && [styles.navTextActive, { color: isDarkMode ? colors.brandGold : '#111827' }]
                             ]}>
-                                {item.label}
+                                {t(item.id)}
                             </Text>
                             {activeTab === item.id && <View style={[styles.activeIndicator, { backgroundColor: isDarkMode ? colors.brandGold : '#111827' }]} />}
                         </TouchableOpacity>
@@ -238,7 +240,7 @@ export default function DashboardHeader({ activeTab, onTabChange }: DashboardHea
                 >
                     <View style={[styles.dropdownContainer, { marginTop: insets.top + 70, backgroundColor: colors.card, borderColor: colors.border }]}>
                         <View style={[styles.dropdownHeader, { borderBottomColor: colors.border }]}>
-                            <Text style={[styles.dropdownTitle, { color: colors.textPrimary }]}>System Alerts</Text>
+                            <Text style={[styles.dropdownTitle, { color: colors.textPrimary }]}>{t('systemAlerts')}</Text>
                             <TouchableOpacity onPress={() => setIsDropdownVisible(false)}>
                                 <X size={20} color={colors.textSecondary} />
                             </TouchableOpacity>
@@ -260,7 +262,7 @@ export default function DashboardHeader({ activeTab, onTabChange }: DashboardHea
                             </ScrollView>
                         ) : (
                             <View style={styles.emptyState}>
-                                <Text style={[styles.emptyText, { color: colors.textSecondary }]}>All clear! No system warnings.</Text>
+                                <Text style={[styles.emptyText, { color: colors.textSecondary }]}>{t('allClear')}</Text>
                             </View>
                         )}
                     </View>

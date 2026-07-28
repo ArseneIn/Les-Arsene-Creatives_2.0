@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, TouchableOpacity, FlatList } from 'react-native
 import { History, Banknote, Smartphone, FileText } from 'lucide-react-native';
 import SkeletonLoader from './SkeletonLoader';
 import { useTheme } from '../lib/theme/ThemeContext';
+import { useLanguage } from '../lib/language/LanguageContext';
 
 export interface RecentSale {
     id: string;
@@ -32,27 +33,28 @@ function paymentIcon(method: string) {
 }
 
 /** Human-readable relative time (e.g. "5m ago") */
-function timeAgo(dateStr: string): string {
+function timeAgo(dateStr: string, t: (key: string, param?: string | number) => string): string {
     const diff = Math.max(0, Date.now() - new Date(dateStr).getTime());
     const mins = Math.floor(diff / 60_000);
-    if (mins < 1) return 'Just now';
-    if (mins < 60) return `${mins}m ago`;
+    if (mins < 1) return t('justNow');
+    if (mins < 60) return t('minsAgo', mins);
     const hours = Math.floor(mins / 60);
-    if (hours < 24) return `${hours}h ago`;
-    return `${Math.floor(hours / 24)}d ago`;
+    if (hours < 24) return t('hoursAgo', hours);
+    return t('daysAgo', Math.floor(hours / 24));
 }
 
 const SKELETON_COUNT = 3;
 
 export default function RecentActivity({ data, loading, onShowMore }: RecentActivityProps) {
     const { colors, isDarkMode } = useTheme();
+    const { t } = useLanguage();
 
     // ── Loading skeleton ────────────────────────────────────────────────────
     if (loading) {
         return (
             <View style={styles.container}>
                 <View style={styles.header}>
-                    <Text style={[styles.title, { color: colors.textSecondary }]}>Recent Activity</Text>
+                    <Text style={[styles.title, { color: colors.textSecondary }]}>{t('recentActivity')}</Text>
                 </View>
                 {Array.from({ length: SKELETON_COUNT }).map((_, i) => (
                     <View key={i} style={{ marginBottom: 12 }}>
@@ -68,11 +70,11 @@ export default function RecentActivity({ data, loading, onShowMore }: RecentActi
         return (
             <View style={styles.container}>
                 <View style={styles.header}>
-                    <Text style={[styles.title, { color: colors.textSecondary }]}>Recent Activity</Text>
+                    <Text style={[styles.title, { color: colors.textSecondary }]}>{t('recentActivity')}</Text>
                 </View>
                 <View style={[styles.emptyCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
                     <History size={28} color={colors.textSecondary} />
-                    <Text style={[styles.emptyText, { color: colors.textSecondary }]}>No transactions yet today</Text>
+                    <Text style={[styles.emptyText, { color: colors.textSecondary }]}>{t('noTransactions')}</Text>
                 </View>
             </View>
         );
@@ -82,10 +84,10 @@ export default function RecentActivity({ data, loading, onShowMore }: RecentActi
     return (
         <View style={styles.container}>
             <View style={styles.header}>
-                <Text style={[styles.title, { color: colors.textSecondary }]}>Recent Activity</Text>
+                <Text style={[styles.title, { color: colors.textSecondary }]}>{t('recentActivity')}</Text>
                 {onShowMore && (
                     <TouchableOpacity onPress={onShowMore} activeOpacity={0.7}>
-                        <Text style={[styles.showMore, { color: colors.brandGold }]}>Show More</Text>
+                        <Text style={[styles.showMore, { color: colors.brandGold }]}>{t('showMore')}</Text>
                     </TouchableOpacity>
                 )}
             </View>
@@ -95,18 +97,18 @@ export default function RecentActivity({ data, loading, onShowMore }: RecentActi
                 const label = sale.customer?.name
                     ? sale.customer.name
                     : sale.payment_method === 'CREDIT'
-                    ? 'Credit Sale'
-                    : 'Walk-in';
+                    ? t('debt')
+                    : t('walkInCustomer');
                 const itemsLabel =
                     sale.items_count != null
-                        ? `${sale.items_count} item${sale.items_count !== 1 ? 's' : ''}`
+                        ? t('itemsCount', sale.items_count)
                         : '';
                 const method =
                     sale.payment_method === 'MOBILE_MONEY'
-                        ? 'MoMo'
+                        ? t('momo')
                         : sale.payment_method === 'CREDIT'
-                        ? 'Debt'
-                        : 'Cash';
+                        ? t('debt')
+                        : t('cash');
 
                 return (
                     <View key={sale.id} style={[styles.activityCard, { backgroundColor: colors.card, borderColor: colors.border, shadowColor: isDarkMode ? '#000': '#E5E7EB' }]}>
@@ -117,7 +119,7 @@ export default function RecentActivity({ data, loading, onShowMore }: RecentActi
                             <View>
                                 <Text style={[styles.saleId, { color: colors.textPrimary }]} numberOfLines={1}>{label}</Text>
                                 <Text style={[styles.saleDetails, { color: colors.textSecondary }]}>
-                                    {timeAgo(sale.created_at)}
+                                    {timeAgo(sale.created_at, t)}
                                     {itemsLabel ? ` • ${itemsLabel}` : ''}
                                     {` • ${method}`}
                                 </Text>

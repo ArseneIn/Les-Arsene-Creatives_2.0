@@ -12,11 +12,13 @@ import ScreenWrapper from '../../components/ScreenWrapper';
 import { ApiClient } from '../../lib/api_client';
 
 import { useTheme } from '../../lib/theme/ThemeContext';
+import { useLanguage } from '../../lib/language/LanguageContext';
 
 export default function Profile() {
     const { logout, user } = useAuth();
     const router = useRouter();
     const { colors, isDarkMode, toggleDarkMode } = useTheme();
+    const { t, language, setLanguage } = useLanguage();
     const [notificationsEnabled, setNotificationsEnabled] = useState(true);
     const [showShopSettings, setShowShopSettings] = useState(false);
     const [showPersonalInfo, setShowPersonalInfo] = useState(false);
@@ -88,77 +90,92 @@ export default function Profile() {
                     <Text style={[styles.name, { color: colors.textPrimary }]}>{user?.name || 'User'}</Text>
                     <Text style={[styles.role, { color: colors.textSecondary }]}>{user?.role || 'Merchant'}</Text>
                     <TouchableOpacity style={[styles.editProfileButton, { backgroundColor: colors.overlay, borderColor: colors.border }]}>
-                        <Text style={[styles.editProfileText, { color: colors.textSecondary }]}>Edit Profile</Text>
+                        <Text style={[styles.editProfileText, { color: colors.textSecondary }]}>{t('editProfile')}</Text>
                     </TouchableOpacity>
                 </View>
-
+ 
                 <View style={styles.content}>
-                    <MenuSection title="Business">
+                    <MenuSection title={t('business')}>
                         <MenuItem
                             icon={Store}
-                            label="Shop Settings"
+                            label={t('shopSettings')}
                             onPress={() => setShowShopSettings(true)}
                         />
                         <MenuItem
                             icon={Users}
-                            label="Team Management"
+                            label={t('teamManagement')}
                             onPress={() => router.push('/team')}
                         />
                         <MenuItem
                             icon={FileText}
-                            label="EBM Configuration"
+                            label={t('ebmConfig')}
                             onPress={() => setShowEbmConfig(true)}
                         />
                     </MenuSection>
-
-                    <MenuSection title="Preferences">
+ 
+                    <MenuSection title={t('preferences')}>
                         <MenuItem
                             icon={Bell}
-                            label="Push Notifications"
+                            label={t('pushNotifications')}
                             isSwitch
                             switchValue={notificationsEnabled}
                             onSwitchChange={toggleNotifications}
                         />
                         <MenuItem
                             icon={Moon}
-                            label="Dark Mode"
+                            label={t('darkMode')}
                             isSwitch
                             switchValue={isDarkMode}
                             onSwitchChange={toggleDarkMode}
                         />
+                        <MenuItem
+                            icon={Settings}
+                            label={t('language')}
+                            value={language === 'rw' ? 'Kinyarwanda' : 'English'}
+                            onPress={() => {
+                                Alert.alert(
+                                    language === 'rw' ? 'Hitamo Ururimi' : 'Select Language',
+                                    '',
+                                    [
+                                        { text: 'Kinyarwanda', onPress: () => setLanguage('rw') },
+                                        { text: 'English', onPress: () => setLanguage('en') },
+                                    ]
+                                );
+                            }}
+                        />
                     </MenuSection>
-
-                    <MenuSection title="Account">
+ 
+                    <MenuSection title={t('account')}>
                         <MenuItem
                             icon={User}
-                            label="Personal Information"
+                            label={t('personalInfo')}
                             onPress={() => setShowPersonalInfo(true)}
                         />
                         <MenuItem
                             icon={Shield}
-                            label="Security"
+                            label={t('security')}
                             onPress={() => setShowSecurityModal(true)}
                         />
                         <MenuItem
                             icon={Settings}
-                            label="App Settings"
-                            onPress={() => Alert.alert('App Settings', 'General application settings will be available soon.')}
+                            label={t('appSettings')}
+                            onPress={() => Alert.alert(t('appSettings'), language === 'rw' ? 'Igenamiterere rusange ry\'Apus rizaboneka vuba.' : 'General application settings will be available soon.')}
                         />
                     </MenuSection>
-
-                    <MenuSection title="Support">
+ 
+                    <MenuSection title={t('supportSection')}>
                         <MenuItem
                             icon={CircleHelp}
-                            label="Help & Support"
-                            onPress={() => Alert.alert('Support', 'Please contact support@smartcuruza.com or call +250 788 123 456 for assistance.')}
+                            label={t('helpSupport')}
+                            onPress={() => Alert.alert(t('supportSection'), language === 'rw' ? 'Nyamuneka hamagara ubufasha kuri support@smartcuruza.com cyangwa uhamagare +250 788 123 456.' : 'Please contact support@smartcuruza.com or call +250 788 123 456 for assistance.')}
                         />
                     </MenuSection>
-
+ 
                     {isCashier && currentShiftId && (
-                        <MenuSection title="Shift Management">
+                        <MenuSection title={t('shiftManagement')}>
                             <MenuItem
                                 icon={LogOut}
-                                label="Close Current Shift"
+                                label={t('closeCurrentShift')}
                                 onPress={() => {
                                     setIsLogoutTriggered(false);
                                     setShowCloseShift(true);
@@ -166,7 +183,7 @@ export default function Profile() {
                             />
                         </MenuSection>
                     )}
-
+ 
                     <TouchableOpacity 
                         style={[styles.logoutButton, { backgroundColor: isDarkMode ? 'rgba(220,38,38,0.1)' : '#FEF2F2', borderColor: isDarkMode ? 'rgba(220,38,38,0.3)' : '#FECACA' }]} 
                         onPress={() => {
@@ -179,10 +196,10 @@ export default function Profile() {
                         }}
                     >
                         <LogOut size={20} color={colors.danger} />
-                        <Text style={[styles.logoutText, { color: colors.danger }]}>Sign Out</Text>
+                        <Text style={[styles.logoutText, { color: colors.danger }]}>{t('signOut')}</Text>
                     </TouchableOpacity>
-
-                    <Text style={[styles.versionText, { color: colors.textSecondary }]}>Version 1.0.0 (Build 100)</Text>
+ 
+                    <Text style={[styles.versionText, { color: colors.textSecondary }]}>{t('version')} 1.0.0 (Build 100)</Text>
                 </View>
             </ScrollView>
 
